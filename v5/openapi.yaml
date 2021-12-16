@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 5.0.1
+  version: 5.0.2
   title: Pinterest REST API (Beta)
   description: Pinterest's REST API
   contact:
@@ -125,7 +125,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountAnalyticsResponse'
+                $ref: '#/components/schemas/AnalyticsResponse'
           description: Success
         '403':
           description: Not authorized to access the user account analytics.
@@ -298,6 +298,63 @@ paths:
       responses:
         '204':
           description: Successfully deleted Pin
+        '403':
+          description: Not authorized to access board or Pin.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 403
+                message: Not authorized to access board or Pin.
+        '404':
+          description: Pin not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 404
+                message: Pin not found.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /pins/{pin_id}/analytics:
+    get:
+      summary: Get Pin analytics
+      description: |-
+        Get analytics for a Pin owned by the "operation user_account" - or on a group board that has been shared with this account.
+        - By default, the "operation user_account" is the token user_account.
+
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href="https://developers.pinterest.com/docs/api/v5/#operation/ad_accounts/list">List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account:
+
+        - For Pins on public or protected boards: Owner, Admin, Analyst, Campaign Manager.
+        - For Pins on secret boards: Owner, Admin.
+      tags:
+      - pins
+      operationId: pins/analytics
+      security:
+      - pinterest_oauth2:
+        - boards:read
+        - pins:read
+      parameters:
+      - $ref: '#/components/parameters/path_pin_id'
+      - $ref: '#/components/parameters/query_start_date'
+      - $ref: '#/components/parameters/query_end_date'
+      - $ref: '#/components/parameters/query_app_types'
+      - $ref: '#/components/parameters/query_pin_analytics_metric_types'
+      - $ref: '#/components/parameters/query_split_field'
+      - $ref: '#/components/parameters/query_ad_account_id'
+      responses:
+        '200':
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsResponse'
         '403':
           description: Not authorized to access board or Pin.
           content:
@@ -1252,6 +1309,51 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - ad_accounts
+  /ad_accounts/{ad_account_id}/product_groups/analytics:
+    get:
+      summary: Get product group analytics
+      description: |-
+        Get analytics for the specified product groups in the specified <code>ad_account_id</code>, filtered by the specified options.
+        - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
+      operationId: product_groups/analytics
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/query_start_date'
+      - $ref: '#/components/parameters/query_end_date'
+      - $ref: '#/components/parameters/query_product_group_ids_required'
+      - $ref: '#/components/parameters/query_columns'
+      - $ref: '#/components/parameters/query_granularity'
+      - $ref: '#/components/parameters/query_conversion_attribution_click_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_engagement_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_view_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_conversion_report_time'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductGroupAnalyticsResponse'
+          description: Success
+        '400':
+          description: Invalid ad account ads analytics parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid ad account ads analytics parameters.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_accounts
 components:
   securitySchemes:
     pinterest_oauth2:
@@ -1261,17 +1363,16 @@ components:
           authorizationUrl: https://www.pinterest.com/oauth/
           tokenUrl: https://api.pinterest.com/v5/oauth/token
           scopes:
-            ads:read: Read access to advertising data
-            boards:read: Read access to public boards
-            boards:read_secret: Read access to secret boards
-            boards:write: Write access to create, update, or delete boards
-            boards:write_secret: Write access to create, update, or delete secret
-              boards
-            pins:read: Read access to Pins
-            pins:read_secret: Read access to secret Pins
-            pins:write: Write access to create, update, or delete Pins
-            pins:write_secret: Write access to create, update, or delete secret Pins
-            user_accounts:read: Read access to user accounts
+            ads:read: See all of your advertising data
+            boards:read: See your public boards, including group boards you join
+            boards:read_secret: See your secret boards
+            boards:write: Create, update, or delete your public boards
+            boards:write_secret: Create, update, or delete your secret boards
+            pins:read: See your public Pins
+            pins:read_secret: See your secret Pins
+            pins:write: Create, update, or delete your public Pins
+            pins:write_secret: Create, update, or delete your secret Pins
+            user_accounts:read: See your user accounts
     basic:
       type: http
       scheme: basic
@@ -1315,7 +1416,7 @@ components:
           type: string
         username:
           type: string
-    AccountAnalyticsResponse:
+    AnalyticsResponse:
       type: object
       properties:
         all:
@@ -2468,7 +2569,6 @@ components:
           content_type:
             type: string
             enum:
-            - image/gif
             - image/jpeg
             - image/png
           data:
@@ -2499,6 +2599,28 @@ components:
       - REJECTED
       - ADVERTISER_DISABLED
       - ARCHIVED
+    ProductGroupAnalyticsResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          PRODUCT_GROUP_ID:
+            description: The ID of the product group that this metrics belongs to.
+            type: string
+            pattern: ^\d+$
+          DATE:
+            description: Current metrics date. Only returned when granularity is a
+              time-based value (`DAY`, `HOUR`, `WEEK`, `MONTH`)
+            type: string
+            format: date
+        required:
+        - PRODUCT_GROUP_ID
+        additionalProperties: true
+        example:
+          DATE: '2021-04-01'
+          PRODUCT_GROUP_ID: '74629351736530'
+          SPEND_IN_DOLLAR: 30
+          TOTAL_CLICKTHROUGH: 216
     CampaignCommon:
       required:
       - ad_account_id
@@ -2625,7 +2747,7 @@ components:
       required: true
       schema:
         type: string
-        pattern: \d+
+        pattern: ^\d+$
     path_board_id:
       name: board_id
       description: Unique identifier of a board.
@@ -2655,7 +2777,7 @@ components:
       in: query
       schema:
         type: string
-        pattern: \d+
+        pattern: ^\d+$
     query_ad_group_ids:
       description: List of Ad group Ids.
       in: query
@@ -3009,6 +3131,26 @@ components:
           type: string
         type: array
       style: form
+    query_pin_analytics_metric_types:
+      description: Pin metric types to get data for, default is all.
+      explode: false
+      in: query
+      name: metric_types
+      required: true
+      schema:
+        items:
+          enum:
+          - IMPRESSION
+          - SAVE
+          - PIN_CLICK
+          - OUTBOUND_CLICK
+          - VIDEO_MRC_VIEW
+          - VIDEO_AVG_WATCH_TIME
+          - VIDEO_V50_WATCH_TIME
+          - QUARTILE_95_PERCENT_VIEW
+          type: string
+        type: array
+      style: form
     query_owned_content_list:
       description: 'Get metrics for domains or owned accounts, default is all. '
       explode: false
@@ -3075,6 +3217,18 @@ components:
         - REGULAR
         - VIDEO
         type: string
+    query_product_group_ids_required:
+      description: List of Product group Ids.
+      in: query
+      name: product_group_ids
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: ^\d+$
+        minItems: 1
+        maxItems: 100
     query_start_date:
       description: 'Metric report start date (UTC). Format: YYYY-MM-DD'
       in: query
