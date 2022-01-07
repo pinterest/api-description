@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 5.0.2
+  version: 5.1.0
   title: Pinterest REST API (Beta)
   description: Pinterest's REST API
   contact:
@@ -21,6 +21,8 @@ tags:
   description: Interact with and view information about advertising.
 - name: boards
   description: Interact with and view information about boards.
+- name: media
+  description: Register and manage media uploads.
 - name: oauth
   description: Generating and refreshing OAuth access tokens
 - name: pins
@@ -944,6 +946,68 @@ paths:
               example:
                 code: 404
                 message: Board not found.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /media:
+    get:
+      summary: List media uploads
+      description: List media uploads filtered by given parameters.
+      tags:
+      - media
+      operationId: media/list
+      security:
+      - pinterest_oauth2:
+        - pins:read
+      parameters:
+      - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
+      responses:
+        '200':
+          description: response
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Paginated'
+                - properties:
+                    items:
+                      description: Media
+                      items:
+                        $ref: '#/components/schemas/MediaUploadDetails'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Register media upload
+      description: Register your intent to upload media (image, video, carousel, etc.)
+      tags:
+      - media
+      operationId: media/create
+      security:
+      - pinterest_oauth2:
+        - pins:read
+        - pins:write
+      requestBody:
+        description: Create a media upload request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaUploadRequest'
+      responses:
+        '201':
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaUpload'
         default:
           description: Unexpected error
           content:
@@ -2325,6 +2389,93 @@ components:
       - ACTIVE
       - PAUSED
       - ARCHIVED
+    MediaUpload:
+      title: Media upload
+      description: Media upload that has been registered but not uploaded/processed
+        yet.
+      allOf:
+      - type: object
+        readOnly: true
+        properties:
+          media_id:
+            type: string
+            description: Unique identifier for this media upload. Used to track status
+              and for attaching during Pin creation.
+          media_type:
+            allOf:
+            - $ref: '#/components/schemas/MediaUploadType'
+            type: string
+          upload_url:
+            type: string
+            description: The URL where you will POST your media file.
+          upload_parameters:
+            type: object
+            description: The list of parameter key/value pairs you will need to send
+              with your POST request to upload your media file.
+            properties:
+              x-amz-date:
+                type: string
+              x-amz-signature:
+                type: string
+              x-amz-security-token:
+                type: string
+              x-amz-algorithm:
+                type: string
+              key:
+                type: string
+              policy:
+                type: string
+              x-amz-credential:
+                type: string
+              Content-Type:
+                type: string
+    MediaUploadDetails:
+      title: Media upload details
+      description: Media upload details
+      type: object
+      properties:
+        media_id:
+          type: string
+          pattern: \d+
+          readOnly: true
+        media_type:
+          allOf:
+          - $ref: '#/components/schemas/MediaUploadType'
+          type: string
+          readOnly: true
+        signature:
+          type: string
+          nullable: true
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/MediaUploadStatus'
+          type: string
+          readOnly: true
+    MediaUploadRequest:
+      title: Media upload request
+      description: Media upload request
+      type: object
+      properties:
+        media_type:
+          allOf:
+          - $ref: '#/components/schemas/MediaUploadType'
+          type: string
+          writeOnly: true
+      required:
+      - media_type
+    MediaUploadStatus:
+      description: Media upload status
+      type: string
+      enum:
+      - registered
+      - processing
+      - succeeded
+      - failed
+    MediaUploadType:
+      type: string
+      enum:
+      - video
     OauthAccessTokenRequest:
       title: OAuth access token request
       description: Describes the valid schema for possible OAuth access token requests.
@@ -2588,6 +2739,21 @@ components:
             type: string
         required:
         - url
+    PinMediaSourceVideoID:
+      title: Video ID
+      description: Video ID-based media source
+      allOf:
+      - $ref: '#/components/schemas/PinMediaSource'
+      - type: object
+        properties:
+          cover_image_url:
+            type: string
+          media_id:
+            type: string
+            pattern: \d+
+        required:
+        - cover_image_url
+        - media_id
     PinPromotionSummaryStatus:
       type: string
       description: Summary status for pin promotions
