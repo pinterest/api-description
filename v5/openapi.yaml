@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 5.1.0
+  version: 5.1.1
   title: Pinterest REST API (Beta)
   description: Pinterest's REST API
   contact:
@@ -12,23 +12,31 @@ info:
     url: https://spdx.org/licenses/MIT
   termsOfService: https://developers.pinterest.com/terms/
 externalDocs:
-  description: Pinterest for Developers
+  description: Pinterest developer documentation main page
   url: https://developers.pinterest.com/
 servers:
 - url: https://api.pinterest.com/v5
 tags:
 - name: ad_accounts
-  description: Interact with and view information about advertising.
+  description: |-
+    View analytical information about advertising.
+
+    Note: If the current operation_user_account (defined by the access token)
+    has access to another user's Ad Accounts via
+    <a href='/docs/api/v5/#tag/Understanding-business-access'>Pinterest Business Access</a>,
+    you can modify your request to make use of the current operation_user_account's
+    permissions to those Ad Accounts by including the ad_account_id in the path
+    parameters for the request (e.g. .../?ad_account_id=12345&...).
 - name: boards
-  description: Interact with and view information about boards.
+  description: View, create, update, or delete information about boards.
 - name: media
   description: Register and manage media uploads.
 - name: oauth
   description: Generating and refreshing OAuth access tokens
 - name: pins
-  description: Interact with and view information about Pins.
+  description: View, create, update, or delete information about Pins.
 - name: user_account
-  description: Read only information about user accounts associated with a given access
+  description: Read-only information about user accounts associated with a given access
     token.
 paths:
   /oauth/token:
@@ -41,6 +49,7 @@ paths:
       operationId: oauth/token
       security:
       - {}
+      x-ratelimit-category: basic_org_read
       requestBody:
         description: Generate an OAuth access token.
         required: true
@@ -68,13 +77,14 @@ paths:
         Get account information for the "operation user_account"
         - By default, the "operation user_account" is the token user_account.
 
-        Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the "operation user_account".
+        If using Business Access: Specify an ad_account_id to use the owner of that ad_account as the "operation user_account". See <a href='/docs/api/v5/#tag/Understanding-business-access'>Understanding Business Access</a> for more information.
       tags:
       - user_account
       operationId: user_account/get
       security:
       - pinterest_oauth2:
         - user_accounts:read
+      x-ratelimit-category: basic_org_read
       parameters:
       - $ref: '#/components/parameters/query_ad_account_id'
       responses:
@@ -113,6 +123,7 @@ paths:
       security:
       - pinterest_oauth2:
         - user_accounts:read
+      x-ratelimit-category: org_analytics
       parameters:
       - $ref: '#/components/parameters/query_start_date'
       - $ref: '#/components/parameters/query_end_date'
@@ -147,17 +158,12 @@ paths:
   /pins:
     post:
       summary: Create Pin
-      description: "Create a Pin owned by the \"operation user_account\".\n- By default,\
-        \ the \"operation user_account\" is the token user_account.\n\nNotes on the\
-        \ `POST /pins` function:\n\n1. This function is designed to create static\
-        \ Pins only - it is not currently possible to use this endpoint to create\
-        \ video Pins or Idea Pins.\n2. This function is intended solely for publishing\
-        \ new static content created by the user. If you are interested in saving\
-        \ images created by others to your Pinterest boards, sometimes called \u2018\
-        curated content\u2019, please use our <a href=\"https://developers.pinterest.com/docs/add-ons/save-button\"\
-        >Save button</a> instead. For more tips on creating fresh content for Pinterest,\
-        \ review our <a href=\"https://developers.pinterest.com/docs/solutions/content-apps\"\
-        >Content App Solutions Guide</a>."
+      description: |-
+        Create a Pin on a board or board section owned by the "operation user_account".
+
+        Note: If the current "operation user_account" (defined by the access token) has access to another user's Ad Accounts via Pinterest Business Access, you can modify your request to make use of the current operation_user_account's permissions to those Ad Accounts by including the ad_account_id in the path parameters for the request (e.g. .../?ad_account_id=12345&...).
+
+        - This function is intended solely for publishing new content created by the user. If you are interested in saving content created by others to your Pinterest boards, sometimes called 'curated content', please use our <a href='/docs/add-ons/save-button'>Save button</a> instead. For more tips on creating fresh content for Pinterest, review our <a href='/docs/solutions/content-apps'>Content App Solutions Guide</a>.
       tags:
       - pins
       operationId: pins/create
@@ -167,6 +173,7 @@ paths:
         - boards:write
         - pins:read
         - pins:write
+      x-ratelimit-category: basic_write
       requestBody:
         description: Create a new Pin.
         required: true
@@ -236,7 +243,7 @@ paths:
         Get a Pin owned by the "operation user_account" - or on a group board that has been shared with this account.
         - By default, the "operation user_account" is the token user_account.
 
-        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href="https://developers.pinterest.com/docs/api/v5/#operation/ad_accounts/list">List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account:
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account:
 
         - For Pins on public or protected boards: Owner, Admin, Analyst, Campaign Manager.
         - For Pins on secret boards: Owner, Admin.
@@ -247,6 +254,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
         - pins:read
+      x-ratelimit-category: basic_org_read
       parameters:
       - $ref: '#/components/parameters/path_pin_id'
       - $ref: '#/components/parameters/query_ad_account_id'
@@ -295,6 +303,7 @@ paths:
         - boards:write
         - pins:read
         - pins:write
+      x-ratelimit-category: basic_write
       parameters:
       - $ref: '#/components/parameters/path_pin_id'
       responses:
@@ -342,6 +351,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
         - pins:read
+      x-ratelimit-category: org_analytics
       parameters:
       - $ref: '#/components/parameters/path_pin_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -386,9 +396,8 @@ paths:
       summary: List boards
       description: |-
         Get a list of the boards owned by the "operation user_account" + group boards where this account is a collaborator
-        - By default, the "operation user_account" is the token user_account.
 
-        Optional: Specify a privacy (from the types: public, protected, secret) to indicate which boards to return.
+        Optional: Specify a privacy type (public, protected, or secret) to indicate which boards to return.
         - If no privacy is specified, all boards that can be returned (based on the scopes of the token and ad_account role if applicable) will be returned.
       tags:
       - boards
@@ -396,6 +405,7 @@ paths:
       security:
       - pinterest_oauth2:
         - boards:read
+      x-ratelimit-category: basic_org_read
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -440,6 +450,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
         - boards:write
+      x-ratelimit-category: basic_write
       requestBody:
         description: Create a board using a single board json object.
         required: true
@@ -481,6 +492,7 @@ paths:
       security:
       - pinterest_oauth2:
         - boards:read
+      x-ratelimit-category: basic_org_read
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       responses:
@@ -507,9 +519,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     patch:
       summary: Update board
-      description: |-
-        Update a board owned by the "operating user_account".
-        - By default, the "operating user_account" is the token user_account.
+      description: Update a board owned by the "operating user_account".
       tags:
       - boards
       operationId: boards/update
@@ -517,6 +527,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
         - boards:write
+      x-ratelimit-category: basic_write
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       requestBody:
@@ -584,6 +595,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
         - boards:write
+      x-ratelimit-category: basic_write
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       responses:
@@ -634,6 +646,7 @@ paths:
       security:
       - pinterest_oauth2:
         - boards:read
+      x-ratelimit-category: basic_org_read
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/query_bookmark'
@@ -669,6 +682,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
         - boards:write
+      x-ratelimit-category: basic_write
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       requestBody:
@@ -742,6 +756,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
         - boards:write
+      x-ratelimit-category: basic_write
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/path_board_section_id'
@@ -804,6 +819,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
         - boards:write
+      x-ratelimit-category: basic_write
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/path_board_section_id'
@@ -856,6 +872,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
         - pins:read
+      x-ratelimit-category: basic_org_read
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/path_board_section_id'
@@ -920,6 +937,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
         - pins:read
+      x-ratelimit-category: basic_org_read
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/query_bookmark'
@@ -962,6 +980,7 @@ paths:
       security:
       - pinterest_oauth2:
         - pins:read
+      x-ratelimit-category: basic_org_read
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -986,7 +1005,7 @@ paths:
                 $ref: '#/components/schemas/Error'
     post:
       summary: Register media upload
-      description: Register your intent to upload media (image, video, carousel, etc.)
+      description: Register your intent to upload media
       tags:
       - media
       operationId: media/create
@@ -994,6 +1013,7 @@ paths:
       - pinterest_oauth2:
         - pins:read
         - pins:write
+      x-ratelimit-category: basic_write
       requestBody:
         description: Create a media upload request
         required: true
@@ -1026,6 +1046,7 @@ paths:
       security:
       - pinterest_oauth2:
         - ads:read
+      x-ratelimit-category: basic_ads_read
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -1059,6 +1080,7 @@ paths:
       security:
       - pinterest_oauth2:
         - ads:read
+      x-ratelimit-category: ads_analytics
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -1103,6 +1125,7 @@ paths:
       security:
       - pinterest_oauth2:
         - ads:read
+      x-ratelimit-category: basic_ads_read
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_campaign_ids'
@@ -1150,6 +1173,7 @@ paths:
       security:
       - pinterest_oauth2:
         - ads:read
+      x-ratelimit-category: ads_analytics
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -1195,6 +1219,7 @@ paths:
       security:
       - pinterest_oauth2:
         - ads:read
+      x-ratelimit-category: basic_ads_read
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_campaign_ids'
@@ -1244,6 +1269,7 @@ paths:
       security:
       - pinterest_oauth2:
         - ads:read
+      x-ratelimit-category: ads_analytics
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -1289,6 +1315,7 @@ paths:
       security:
       - pinterest_oauth2:
         - ads:read
+      x-ratelimit-category: basic_ads_read
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_campaign_ids'
@@ -1338,6 +1365,7 @@ paths:
       security:
       - pinterest_oauth2:
         - ads:read
+      x-ratelimit-category: ads_analytics
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -1383,6 +1411,7 @@ paths:
       security:
       - pinterest_oauth2:
         - ads:read
+      x-ratelimit-category: ads_analytics
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -2705,6 +2734,7 @@ components:
         mapping:
           image_base64: '#/components/schemas/PinMediaSourceImageBase64'
           image_url: '#/components/schemas/PinMediaSourceImageURL'
+          video_id: '#/components/schemas/PinMediaSourceVideoID'
       properties:
         source_type:
           type: string
@@ -3362,7 +3392,9 @@ components:
         - DESCENDING
     query_page_size:
       name: page_size
-      description: Maximum number of items to include in the response.
+      description: Maximum number of items to include in a single page of the response.
+        See documentation on <a href='/docs/api/v5/#tag/Pagination'>Pagination</a>
+        for more information.
       in: query
       required: false
       schema:
