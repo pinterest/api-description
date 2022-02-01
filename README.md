@@ -23,6 +23,10 @@ The OpenAPI document is distributed as a single **bundle** that uses OpenAPI
 components for reuse and portability using JSON Schema references (`$ref`).
 It is available in both JSON (`openapi.json`) and YAML (`openapi.yaml`).
 
+## Extensions
+
+Any [OpenAPI extensions](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.3.md#specification-extensions) used will be documented in [extensions](extensions.md).
+
 ## Contributing
 
 Because this schema is used internally by Pinterest's API infrastructure, we
