@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 5.1.1
+  version: 5.1.2
   title: Pinterest REST API (Beta)
   description: Pinterest's REST API
   contact:
@@ -164,6 +164,8 @@ paths:
         Note: If the current "operation user_account" (defined by the access token) has access to another user's Ad Accounts via Pinterest Business Access, you can modify your request to make use of the current operation_user_account's permissions to those Ad Accounts by including the ad_account_id in the path parameters for the request (e.g. .../?ad_account_id=12345&...).
 
         - This function is intended solely for publishing new content created by the user. If you are interested in saving content created by others to your Pinterest boards, sometimes called 'curated content', please use our <a href='/docs/add-ons/save-button'>Save button</a> instead. For more tips on creating fresh content for Pinterest, review our <a href='/docs/solutions/content-apps'>Content App Solutions Guide</a>.
+
+        <strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.
       tags:
       - pins
       operationId: pins/create
@@ -342,8 +344,8 @@ paths:
 
         Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href="https://developers.pinterest.com/docs/api/v5/#operation/ad_accounts/list">List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account:
 
-        - For Pins on public or protected boards: Owner, Admin, Analyst, Campaign Manager.
-        - For Pins on secret boards: Owner, Admin.
+        - For Pins on public or protected boards: Admin, Analyst.
+        - For Pins on secret boards: Admin.
       tags:
       - pins
       operationId: pins/analytics
@@ -973,7 +975,10 @@ paths:
   /media:
     get:
       summary: List media uploads
-      description: List media uploads filtered by given parameters.
+      description: |-
+        List media uploads filtered by given parameters.
+
+        <strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.
       tags:
       - media
       operationId: media/list
@@ -1005,7 +1010,19 @@ paths:
                 $ref: '#/components/schemas/Error'
     post:
       summary: Register media upload
-      description: Register your intent to upload media
+      description: |-
+        Register your intent to upload media
+
+        The response includes all of the information needed to upload the media
+        to Pinterest.
+
+        To upload the media, make an HTTP POST request (using <tt>curl</tt>, for
+        example) to <tt>upload_url</tt> using the <tt>Content-Type</tt> header
+        value. Send the media file's contents as the request's <tt>file</tt>
+        parameter and also include all of the parameters from
+        <tt>upload_parameters</tt>.
+
+        <strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.
       tags:
       - media
       operationId: media/create
@@ -1028,6 +1045,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MediaUpload'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /media/{media_id}:
+    get:
+      summary: Get media upload details
+      description: |-
+        Get details for a registered media upload, including its current status.
+
+        <strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.
+      tags:
+      - media
+      operationId: media/get
+      security:
+      - pinterest_oauth2:
+        - pins:read
+      x-ratelimit-category: basic_org_read
+      parameters:
+      - $ref: '#/components/parameters/path_media_id'
+      responses:
+        '200':
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaUploadDetails'
+        '404':
+          description: Media upload not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 404
+                message: Media upload not found
         default:
           description: Unexpected error
           content:
@@ -1516,7 +1571,7 @@ components:
           type: object
           properties:
             daily_metrics:
-              description: Daily metric array.
+              description: Array with the requested daily metric records
               items:
                 type: object
                 properties:
@@ -1529,7 +1584,8 @@ components:
                     example: '2019-12-01'
                     type: string
                   metrics:
-                    description: A dictionary of metrics and values.
+                    description: The metric name and daily value for each requested
+                      metric
                     type: object
                     additionalProperties:
                       type: number
@@ -1545,7 +1601,8 @@ components:
                       IMPRESSION: 240
               type: array
             summary_metrics:
-              description: A dictionary of metrics and values.
+              description: The metric name and value over the requested period for
+                each requested metric
               type: object
               additionalProperties:
                 type: number
@@ -2418,6 +2475,14 @@ components:
       - ACTIVE
       - PAUSED
       - ARCHIVED
+    Granularity:
+      type: string
+      enum:
+      - TOTAL
+      - DAY
+      - HOUR
+      - WEEK
+      - MONTH
     MediaUpload:
       title: Media upload
       description: Media upload that has been registered but not uploaded/processed
@@ -2434,9 +2499,11 @@ components:
             allOf:
             - $ref: '#/components/schemas/MediaUploadType'
             type: string
+            example: video
           upload_url:
             type: string
             description: The URL where you will POST your media file.
+            example: https://pinterest-media-upload.s3-accelerate.amazonaws.com/
           upload_parameters:
             type: object
             description: The list of parameter key/value pairs you will need to send
@@ -2458,6 +2525,20 @@ components:
                 type: string
               Content-Type:
                 type: string
+                example: multipart/form-data
+      example:
+        media_id: '12345'
+        media_type: video
+        upload_url: https://pinterest-media-upload.s3-accelerate.amazonaws.com/
+        upload_parameters:
+          x-amz-data: 20220127T185143Z
+          x-amz-signature: fcd6309a6aaee213348666a72abed8b44552a43acb6b340e8e1b288d21a5fe92
+          key: uploads/11/aa/22/3:video:203014033110991560:5212123920968240771
+          policy: eyJleHBpcmF0aW9uIjoiMj..==
+          x-amz-credential: ASIA6QZJ64OPIKV7FRVX/20220127/us-east-1/s3/aws4_request
+          x-amz-security-token: IQoJb3JpZ2luX2VjEJr...==
+          x-amz-algorithm: AWS4-HMAC-SHA256
+          Content-Type: multipart/form-data
     MediaUploadDetails:
       title: Media upload details
       description: Media upload details
@@ -2465,22 +2546,22 @@ components:
       properties:
         media_id:
           type: string
-          pattern: \d+
+          pattern: ^\d+$
           readOnly: true
         media_type:
           allOf:
           - $ref: '#/components/schemas/MediaUploadType'
           type: string
           readOnly: true
-        signature:
-          type: string
-          nullable: true
-          readOnly: true
         status:
           allOf:
           - $ref: '#/components/schemas/MediaUploadStatus'
           type: string
           readOnly: true
+      example:
+        media_id: '12345'
+        media_type: video
+        status: succeeded
     MediaUploadRequest:
       title: Media upload request
       description: Media upload request
@@ -2493,6 +2574,8 @@ components:
           writeOnly: true
       required:
       - media_type
+      example:
+        media_type: video
     MediaUploadStatus:
       description: Media upload status
       type: string
@@ -2650,11 +2733,11 @@ components:
         board_id:
           description: The board to which this Pin belongs.
           type: string
-          pattern: \d+
+          pattern: ^\d+$
         board_section_id:
           description: The board section to which this Pin belongs.
           type: string
-          pattern: \d+
+          pattern: ^\d+$
           nullable: true
         board_owner:
           allOf:
@@ -2780,7 +2863,7 @@ components:
             type: string
           media_id:
             type: string
-            pattern: \d+
+            pattern: ^\d+$
         required:
         - cover_image_url
         - media_id
@@ -2858,6 +2941,18 @@ components:
           nullable: true
           allOf:
           - $ref: '#/components/schemas/TrackingUrls'
+        start_time:
+          type: integer
+          description: Campaign start time. Unix timestamp in seconds. Only used for
+            Campaign Budget Optimization (CBO) campaigns.
+          example: 1580865126
+          nullable: true
+        end_time:
+          type: integer
+          description: Campaign end time. Unix timestamp in seconds. Only used for
+            Campaign Budget Optimization (CBO) campaigns.
+          example: 1644023526
+          nullable: true
     ObjectiveType:
       type: string
       description: Campaign objective type.
@@ -2960,6 +3055,14 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+    path_media_id:
+      name: media_id
+      description: Media identifier
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^\d+$
     path_pin_id:
       name: pin_id
       description: Unique identifier of a Pin.
@@ -2975,7 +3078,7 @@ components:
         type: string
         pattern: ^\d+$
     query_ad_group_ids:
-      description: List of Ad group Ids.
+      description: List of Ad group Ids to use to filter the results.
       in: query
       name: ad_group_ids
       required: false
@@ -2987,7 +3090,7 @@ components:
         minItems: 1
         maxItems: 100
     query_ad_group_ids_required:
-      description: List of Ad group Ids.
+      description: List of Ad group Ids to use to filter the results.
       in: query
       name: ad_group_ids
       required: true
@@ -2999,7 +3102,7 @@ components:
         minItems: 1
         maxItems: 100
     query_ad_ids:
-      description: List of Ad Ids.
+      description: List of Ad Ids to use to filter the results.
       in: query
       name: ad_ids
       required: false
@@ -3011,7 +3114,7 @@ components:
         minItems: 1
         maxItems: 100
     query_ad_ids_required:
-      description: List of Ad Ids.
+      description: List of Ad Ids to use to filter the results.
       in: query
       name: ad_ids
       required: true
@@ -3043,7 +3146,7 @@ components:
       schema:
         type: string
     query_campaign_ids:
-      description: List of Campaign Ids.
+      description: List of Campaign Ids to use to filter the results.
       in: query
       name: campaign_ids
       required: false
@@ -3055,7 +3158,7 @@ components:
         minItems: 1
         maxItems: 100
     query_campaign_ids_required:
-      description: List of Campaign Ids.
+      description: List of Campaign Ids to use to filter the results.
       in: query
       name: campaign_ids
       required: true
@@ -3068,11 +3171,12 @@ components:
         maxItems: 100
     query_columns:
       description: 'Columns to retrieve. **NOTE**: Any metrics defined as MICRO_DOLLARS
-        returns a value based on the advertiser profile''s currency field.  For USD,
-        it''s microdollars. Otherwise, it''s in microunits of the advertiser''s currency.
-        <br> For example, if the advertiser''s currency is GBP (British pound sterling),
-        all MICRO_DOLLARS fields will be in GBP microunits. <br> If a column has no
-        value, it may not be returned'
+        returns a value based on the advertiser profile''s currency field. For USD,($1/1,000,000,
+        or $0.000001 - one one-ten-thousandth of a cent). it''s microdollars. Otherwise,
+        it''s in microunits of the advertiser''s currency.<br/>For example, if the
+        advertiser''s currency is GBP (British pound sterling), all MICRO_DOLLARS
+        fields will be in GBP microunits (1/1,000,000 British pound).<br/>If a column
+        has no value, it may not be returned'
       explode: false
       in: query
       name: columns
@@ -3299,13 +3403,7 @@ components:
       name: granularity
       required: true
       schema:
-        type: string
-        enum:
-        - TOTAL
-        - DAY
-        - HOUR
-        - WEEK
-        - MONTH
+        $ref: '#/components/schemas/Granularity'
     query_metric_types:
       description: 'Metric types to get data for, default is all. '
       explode: false
@@ -3416,7 +3514,7 @@ components:
         - VIDEO
         type: string
     query_product_group_ids_required:
-      description: List of Product group Ids.
+      description: List of Product group Ids to use to filter the results.
       in: query
       name: product_group_ids
       required: true
@@ -3444,7 +3542,8 @@ components:
         type: boolean
         default: true
     query_translate_interests_to_names:
-      description: Return interests as text names and not topic IDs?
+      description: Return interests as text names (if value is true) rather than topic
+        IDs.
       in: query
       name: translate_interests_to_names
       required: false
