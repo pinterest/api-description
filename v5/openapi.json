@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "5.1.2",
-    "title": "Pinterest REST API (Beta)",
+    "version": "5.3.0",
+    "title": "Pinterest REST API",
     "description": "Pinterest's REST API",
     "contact": {
       "name": "Pinterest, Inc.",
@@ -27,11 +27,15 @@
   "tags": [
     {
       "name": "ad_accounts",
-      "description": "View analytical information about advertising.\n\nNote: If the current operation_user_account (defined by the access token)\nhas access to another user's Ad Accounts via\n<a href='/docs/api/v5/#tag/Understanding-business-access'>Pinterest Business Access</a>,\nyou can modify your request to make use of the current operation_user_account's\npermissions to those Ad Accounts by including the ad_account_id in the path\nparameters for the request (e.g. .../?ad_account_id=12345&...)."
+      "description": "View analytical information about advertising.\n\nNote: If the current operation_user_account (defined by the access token)\nhas access to another user's Ad Accounts via\n<a href='/docs/api/v5/#tag/Understanding-business-access'>Pinterest Business Access</a>,\nyou can modify your request to use the current operation_user_account's\npermissions to those Ad Accounts by including the ad_account_id in the path\nparameters for the request (e.g. .../?ad_account_id=12345&...)."
     },
     {
       "name": "boards",
       "description": "View, create, update, or delete information about boards."
+    },
+    {
+      "name": "catalogs",
+      "description": "Manage information about shopping product catalogs and items."
     },
     {
       "name": "media",
@@ -39,7 +43,7 @@
     },
     {
       "name": "oauth",
-      "description": "Generating and refreshing OAuth access tokens"
+      "description": "Generating and refreshing OAuth access tokens."
     },
     {
       "name": "pins",
@@ -54,7 +58,7 @@
     "/oauth/token": {
       "post": {
         "summary": "Generate OAuth access token",
-        "description": "Generate an OAuth access token by using an authorization code or a refresh token.",
+        "description": "Generate an OAuth access token by using an authorization code or a refresh token.\n\nSee <a href='/docs/api/v5/#tag/Authentication'>Authentication</a> for more.",
         "tags": [
           "oauth"
         ],
@@ -62,7 +66,7 @@
         "security": [
           {}
         ],
-        "x-ratelimit-category": "basic_org_read",
+        "x-ratelimit-category": "org_read",
         "requestBody": {
           "description": "Generate an OAuth access token.",
           "required": true,
@@ -113,7 +117,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_org_read",
+        "x-ratelimit-category": "org_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/query_ad_account_id"
@@ -193,7 +197,7 @@
             "$ref": "#/components/parameters/query_metric_types"
           },
           {
-            "$ref": "#/components/parameters/query_split_field"
+            "$ref": "#/components/parameters/query_split_field_user_account"
           },
           {
             "$ref": "#/components/parameters/query_ad_account_id"
@@ -255,7 +259,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_write",
+        "x-ratelimit-category": "org_write",
         "requestBody": {
           "description": "Create a new Pin.",
           "required": true,
@@ -269,7 +273,7 @@
         },
         "responses": {
           "201": {
-            "description": "response",
+            "description": "Successful pin creation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -279,15 +283,19 @@
             }
           },
           "400": {
-            "description": "Pin is not a call-to-create response",
+            "description": "Invalid Pin parameters response",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
-                "example": {
-                  "code": 400,
-                  "message": "Pin is not a call-to-create response"
+                "examples": {
+                  "InvalidPinUrl": {
+                    "value": {
+                      "code": 1,
+                      "message": "Whoops! It looks like you entered an invalid URL. Try creating a Pin again with a valid URL."
+                    }
+                  }
                 }
               }
             }
@@ -299,23 +307,43 @@
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
-                "example": {
-                  "code": 403,
-                  "message": "The Pin's image is too small, too large or is broken"
+                "examples": {
+                  "PinImageTooSmall": {
+                    "value": {
+                      "code": 233,
+                      "message": "Your image is too small. Please choose a larger image and try again."
+                    }
+                  },
+                  "PinImageBroken": {
+                    "value": {
+                      "code": 235,
+                      "message": "Sorry, this image is broken. Please pick a different image."
+                    }
+                  }
                 }
               }
             }
           },
           "404": {
-            "description": "Board, section or Pin not found",
+            "description": "Board or section not found",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 },
-                "example": {
-                  "code": 404,
-                  "message": "Board, section or Pin not found"
+                "examples": {
+                  "BoardNotFound": {
+                    "value": {
+                      "code": 40,
+                      "message": "Board not found."
+                    }
+                  },
+                  "BoardSectionNotFound": {
+                    "value": {
+                      "code": 2031,
+                      "message": "Sorry! We couldn't find this board section."
+                    }
+                  }
                 }
               }
             }
@@ -328,7 +356,7 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "code": 429,
+                  "code": 8,
                   "message": "This request exceeded a rate limit. This can happen if the client exceeds one\nof the published rate limits or if multiple write operations are applied to\nan object within a short time window."
                 }
               }
@@ -363,7 +391,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_org_read",
+        "x-ratelimit-category": "org_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_pin_id"
@@ -391,8 +419,8 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "code": 403,
-                  "message": "Not authorized to access board or Pin."
+                  "code": 29,
+                  "message": "You are not permitted to access that resource."
                 }
               }
             }
@@ -405,7 +433,7 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "code": 404,
+                  "code": 50,
                   "message": "Pin not found."
                 }
               }
@@ -440,7 +468,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_write",
+        "x-ratelimit-category": "org_write",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_pin_id"
@@ -525,7 +553,7 @@
             "$ref": "#/components/parameters/query_pin_analytics_metric_types"
           },
           {
-            "$ref": "#/components/parameters/query_split_field"
+            "$ref": "#/components/parameters/query_split_field_pins"
           },
           {
             "$ref": "#/components/parameters/query_ad_account_id"
@@ -598,7 +626,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_org_read",
+        "x-ratelimit-category": "org_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -673,7 +701,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_write",
+        "x-ratelimit-category": "org_write",
         "requestBody": {
           "description": "Create a board using a single board json object.",
           "required": true,
@@ -738,7 +766,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_org_read",
+        "x-ratelimit-category": "org_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -796,7 +824,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_write",
+        "x-ratelimit-category": "org_write",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -860,7 +888,7 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "code": 429,
+                  "code": 8,
                   "message": "This request exceeded a rate limit. This can happen if the client exceeds one\nof the published rate limits or if multiple write operations are applied to\nan object within a short time window."
                 }
               }
@@ -893,7 +921,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_write",
+        "x-ratelimit-category": "org_write",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -931,7 +959,7 @@
               }
             }
           },
-          "429": {
+          "409": {
             "description": "Could not get exclusive access to delete the board.",
             "content": {
               "application/json": {
@@ -939,8 +967,22 @@
                   "$ref": "#/components/schemas/Error"
                 },
                 "example": {
-                  "code": 429,
+                  "code": 409,
                   "message": "Could not get exclusive access to delete the board."
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "This request exceeded a rate limit. This can happen if the client exceeds one\nof the published rate limits or if multiple write operations are applied to\nan object within a short time window.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 8,
+                  "message": "This request exceeded a rate limit. This can happen if the client exceeds one\nof the published rate limits or if multiple write operations are applied to\nan object within a short time window."
                 }
               }
             }
@@ -973,7 +1015,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_org_read",
+        "x-ratelimit-category": "org_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1037,7 +1079,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_write",
+        "x-ratelimit-category": "org_write",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1150,7 +1192,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_write",
+        "x-ratelimit-category": "org_write",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1250,7 +1292,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_write",
+        "x-ratelimit-category": "org_write",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1334,7 +1376,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_org_read",
+        "x-ratelimit-category": "org_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1445,7 +1487,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_org_read",
+        "x-ratelimit-category": "org_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1524,7 +1566,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_org_read",
+        "x-ratelimit-category": "org_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -1585,7 +1627,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_write",
+        "x-ratelimit-category": "org_write",
         "requestBody": {
           "description": "Create a media upload request",
           "required": true,
@@ -1636,7 +1678,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_org_read",
+        "x-ratelimit-category": "org_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_media_id"
@@ -1695,7 +1737,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_ads_read",
+        "x-ratelimit-category": "ads_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -1840,7 +1882,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_ads_read",
+        "x-ratelimit-category": "ads_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2014,7 +2056,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_ads_read",
+        "x-ratelimit-category": "ads_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2194,7 +2236,7 @@
             ]
           }
         ],
-        "x-ratelimit-category": "basic_ads_read",
+        "x-ratelimit-category": "ads_read",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2447,6 +2489,974 @@
           "ad_accounts"
         ]
       }
+    },
+    "/ad_accounts/{ad_account_id}/reports": {
+      "get": {
+        "summary": "Get the account analytics report created by the async call",
+        "description": "This returns a URL to an analytics report given a token returned from the post request report creation call. You can use the URL to download the report and it's valid for an hour.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.",
+        "operationId": "analytics/get_report",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_analytics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_token_required"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdsAnalyticsGetAsyncResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid ad account ads analytics parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 400,
+                  "message": "Invalid ad account ads analytics parameters."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ad_accounts"
+        ]
+      },
+      "post": {
+        "summary": "Create async request for an account analytics report",
+        "description": "This returns a token that you can use to download the report when it is ready. Note that this endpoint requires the parameters to be passed as JSON-formatted in the request body. This endpoint does not support URL query parameters.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.",
+        "operationId": "analytics/create_report",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_analytics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdsAnalyticsCreateAsyncRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdsAnalyticsCreateAsyncResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid ad account ads analytics parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 400,
+                  "message": "Invalid ad account ads analytics parameters."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ad_accounts"
+        ]
+      }
+    },
+    "/catalogs/feeds": {
+      "get": {
+        "x-ratelimit-category": "catalogs_read",
+        "summary": "List feeds",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/api/v5/#tag/Understanding-catalog-management'>Learn more</a>.</strong>\n\nFetch feeds owned by the \"operating user_account\".",
+        "operationId": "feeds/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "catalogs:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          },
+          {
+            "$ref": "#/components/parameters/query_page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CatalogsFeed"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "InvalidRequest": {
+                    "value": {
+                      "code": 1,
+                      "message": "Parameter 'page_size' was not numeric (was 3e)\""
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "UnauthorizedAccess": {
+                    "value": {
+                      "code": 29,
+                      "message": "You are not permitted to access that resource."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogs"
+        ]
+      },
+      "post": {
+        "x-ratelimit-category": "catalogs_write",
+        "summary": "Create feed",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/api/v5/#tag/Understanding-catalog-management'>Learn more</a>.</strong>\n\nCreate a new feed owned by the \"operating user_account\".",
+        "operationId": "feeds/create",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "catalogs:read",
+              "catalogs:write"
+            ]
+          }
+        ],
+        "requestBody": {
+          "description": "Request object used to created a feed.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogsFeedsCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogsFeed"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid feed parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "InvalidRequest": {
+                    "value": {
+                      "code": 1,
+                      "message": "Invalid request: ..."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "UnauthorizedAccess": {
+                    "value": {
+                      "code": 29,
+                      "message": "You are not permitted to access that resource."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Business account required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "BusinessAccountRequired": {
+                    "value": {
+                      "code": 654,
+                      "message": "You must have a business account to operate as merchant."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "User website required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "UserWebsiteRequired": {
+                    "value": {
+                      "code": 4168,
+                      "message": "User does not have a website."
+                    }
+                  },
+                  "UserWebsiteNotVerified": {
+                    "value": {
+                      "code": 4169,
+                      "message": "User does not have a verified website."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unique feed name is required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "FeedDuplicatedName": {
+                    "value": {
+                      "code": 4170,
+                      "message": "The feed name already exists."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogs"
+        ]
+      }
+    },
+    "/catalogs/feeds/{feed_id}": {
+      "get": {
+        "x-ratelimit-category": "catalogs_read",
+        "summary": "Get feed",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/api/v5/#tag/Understanding-catalog-management'>Learn more</a>.</strong>\n\nGet a single feed owned by the \"operating user_account\".",
+        "operationId": "feeds/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "catalogs:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_catalogs_feed_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogsFeed"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid feed parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "InvalidRequest": {
+                    "value": {
+                      "code": 1,
+                      "message": "'feed_id' value '1511851494501_' must match the pattern: ^\\d+$\"}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "UnauthorizedAccess": {
+                    "value": {
+                      "code": 29,
+                      "message": "You are not permitted to access that resource."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data feed not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "FeedNotFound": {
+                    "value": {
+                      "code": 4161,
+                      "message": "Sorry! We could not find your catalogs feed."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogs"
+        ]
+      },
+      "patch": {
+        "x-ratelimit-category": "catalogs_write",
+        "summary": "Update feed",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/api/v5/#tag/Understanding-catalog-management'>Learn more</a>.</strong>\n\nUpdate a feed owned by the \"operating user_account\".",
+        "operationId": "feeds/update",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "catalogs:read",
+              "catalogs:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_catalogs_feed_id"
+          }
+        ],
+        "requestBody": {
+          "description": "Request object used to update a feed.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogsFeedsUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogsFeed"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid feed parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "InvalidRequest": {
+                    "value": {
+                      "code": 1,
+                      "message": "Invalid request: ..."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Account not approved for feed mutations yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "MerchantDisapproved": {
+                    "value": {
+                      "code": 2625,
+                      "message": "Sorry, you cannot perform this action. Account is disapproved."
+                    }
+                  },
+                  "MerchantUnderReview": {
+                    "value": {
+                      "code": 2625,
+                      "message": "Sorry, you cannot perform this action. Account is under review."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data feed not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "FeedNotFound": {
+                    "value": {
+                      "code": 4161,
+                      "message": "Sorry! We could not find your catalogs feed."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogs"
+        ]
+      },
+      "delete": {
+        "x-ratelimit-category": "catalogs_write",
+        "summary": "Delete feed",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/api/v5/#tag/Understanding-catalog-management'>Learn more</a>.</strong>\n\nDelete a feed owned by the \"operating user_account\".",
+        "operationId": "feeds/delete",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "catalogs:read",
+              "catalogs:write"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_catalogs_feed_id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Feed deleted successfully."
+          },
+          "400": {
+            "description": "Invalid feed parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "InvalidRequest": {
+                    "value": {
+                      "code": 1,
+                      "message": "'feed_id' value '1511851494501_' must match the pattern: ^\\d+$\"}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Account not approved for feed mutations yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "MerchantDisapproved": {
+                    "value": {
+                      "code": 2625,
+                      "message": "Sorry, you cannot perform this action. Account is disapproved."
+                    }
+                  },
+                  "MerchantUnderReview": {
+                    "value": {
+                      "code": 2625,
+                      "message": "Sorry, you cannot perform this action. Account is under review."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data feed not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "FeedNotFound": {
+                    "value": {
+                      "code": 4161,
+                      "message": "Sorry! We could not find your catalogs feed."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. Can't delete a feed with active promotions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "FeedHasActivePromotions": {
+                    "value": {
+                      "code": 4162,
+                      "message": "We can't disable a Product Group with active promotions."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogs"
+        ]
+      }
+    },
+    "/catalogs/feeds/{feed_id}/processing_results": {
+      "get": {
+        "x-ratelimit-category": "catalogs_read",
+        "summary": "List processing results for a given feed",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/api/v5/#tag/Understanding-catalog-management'>Learn more</a>.</strong>\n\nFetch a feed processing results owned by the owner user account.",
+        "operationId": "feed_processing_results/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "catalogs:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_catalogs_feed_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          },
+          {
+            "$ref": "#/components/parameters/query_page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CatalogsFeedProcessingResult"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "InvalidRequest": {
+                    "value": {
+                      "code": 1,
+                      "message": "Parameter 'page_size' was not numeric (was 3e)\""
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "UnauthorizedAccess": {
+                    "value": {
+                      "code": 29,
+                      "message": "You are not permitted to access that resource."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Feed not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "FeedNotFound": {
+                    "value": {
+                      "code": 4161,
+                      "message": "Sorry! We could not find your catalogs feed."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogs"
+        ]
+      }
+    },
+    "/catalogs/items/batch/{batch_id}": {
+      "get": {
+        "summary": "Get catalogs items batch",
+        "description": "Get a single catalogs items batch created by the \"operating user_account\"",
+        "operationId": "items_batch/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "catalogs:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "catalogs_read",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_catalogs_items_batch_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response containing the requested catalogs items batch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogsItemsBatch"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to access catalogs items batch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to access catalogs items batch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Catalogs items batch not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogs"
+        ]
+      }
+    },
+    "/catalogs/items/batch": {
+      "post": {
+        "summary": "Perform an operation on an item batch",
+        "description": "This endpoint supports multiple operations on a set of one or more catalog items",
+        "operationId": "items_batch/post",
+        "x-ratelimit-category": "catalogs_write",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "catalogs:read",
+              "catalogs:write"
+            ]
+          }
+        ],
+        "requestBody": {
+          "description": "Request object used to create catalogs items in a batch",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogsItemsBatchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response containing the requested catalogs items batch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogsItemsBatch"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to post catalogs items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to post catalogs items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogs"
+        ]
+      }
     }
   },
   "components": {
@@ -2458,11 +3468,14 @@
             "authorizationUrl": "https://www.pinterest.com/oauth/",
             "tokenUrl": "https://api.pinterest.com/v5/oauth/token",
             "scopes": {
-              "ads:read": "See all of your advertising data",
+              "ads:read": "See all of your advertising data, including ads, ad groups, campaigns etc.",
+              "ads:write": "Create, update, or delete ads, ad groups, campaigns etc.",
               "boards:read": "See your public boards, including group boards you join",
               "boards:read_secret": "See your secret boards",
               "boards:write": "Create, update, or delete your public boards",
               "boards:write_secret": "Create, update, or delete your secret boards",
+              "catalogs:read": "See all of your catalogs data",
+              "catalogs:write": "Create, update, or delete your catalogs data",
               "pins:read": "See your public Pins",
               "pins:read_secret": "See your secret Pins",
               "pins:write": "Create, update, or delete your public Pins",
@@ -2537,65 +3550,91 @@
       },
       "AnalyticsResponse": {
         "type": "object",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/AnalyticsMetricsResponse"
+        }
+      },
+      "AnalyticsMetricsResponse": {
+        "type": "object",
         "properties": {
-          "all": {
-            "type": "object",
-            "properties": {
-              "daily_metrics": {
-                "description": "Array with the requested daily metric records",
-                "items": {
+          "daily_metrics": {
+            "description": "Array with the requested daily metric records",
+            "items": {
+              "type": "object",
+              "properties": {
+                "data_status": {
+                  "description": "Metrics availablity, e.g., \"READY\".",
+                  "example": "READY",
+                  "type": "string",
+                  "enum": [
+                    "PROCESSING",
+                    "READY",
+                    "ESTIMATE",
+                    "BEFORE_BUSINESS_CREATED",
+                    "BEFORE_DATA_RETENTION_PERIOD",
+                    "BEFORE_PIN_DATA_RETENTION_PERIOD",
+                    "BEFORE_METRIC_START_DATE",
+                    "BEFORE_CORE_METRIC_START_DATE",
+                    "BEFORE_PIN_FORMAT_METRIC_START_DATE",
+                    "BEFORE_AUDIENCE_METRIC_START_DATE",
+                    "BEFORE_AUDIENCE_MONTHLY_METRIC_START_DATE",
+                    "BEFORE_VIDEO_METRIC_START_DATE",
+                    "BEFORE_CONVERSION_METRIC_START_DATE",
+                    "PURCHASERS_METRIC_SMALLER_THAN_THRESHOLD",
+                    "IN_BAD_TAG_DATE",
+                    "BEFORE_PUBLISHED_METRIC_START_DATE",
+                    "BEFORE_ASSIST_METRIC_START_DATE",
+                    "BEFORE_PIN_CREATED",
+                    "BEFORE_ACCOUNT_CLAIMED",
+                    "BEFORE_DEMOGRAPHIC_FILTERS_START_DATE",
+                    "AUDIENCE_SEGMENT_SMALLER_THAN_THRESHOLD",
+                    "AUDIENCE_TOTAL_SMALLER_THAN_THRESHOLD",
+                    "BEFORE_PRODUCT_GROUP_FILTER_START_DATE"
+                  ]
+                },
+                "date": {
+                  "description": "Metrics date (UTC): YYYY-MM-DD.",
+                  "example": "2019-12-01",
+                  "type": "string"
+                },
+                "metrics": {
+                  "description": "The metric name and daily value for each requested metric",
                   "type": "object",
-                  "properties": {
-                    "data_status": {
-                      "description": "Metrics availablity, e.g., \"READY\".",
-                      "example": "READY",
-                      "type": "string"
-                    },
-                    "date": {
-                      "description": "Metrics date (UTC): YYYY-MM-DD.",
-                      "example": "2019-12-01",
-                      "type": "string"
-                    },
-                    "metrics": {
-                      "description": "The metric name and daily value for each requested metric",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "number"
-                      },
-                      "example": {
-                        "ENGAGEMENT": 100,
-                        "CLICKTHROUGH_RATE": 0.2,
-                        "CLICKTHROUGH": 200,
-                        "CLOSEUP": 37,
-                        "CLOSEUP_RATE": 0.5,
-                        "ENGAGEMENT_RATE": 0.2,
-                        "SAVE": 20,
-                        "SAVE_RATE": 0.18,
-                        "IMPRESSION": 240
-                      }
-                    }
+                  "additionalProperties": {
+                    "type": "number"
+                  },
+                  "example": {
+                    "ENGAGEMENT": 100,
+                    "CLICKTHROUGH_RATE": 0.2,
+                    "CLICKTHROUGH": 200,
+                    "CLOSEUP": 37,
+                    "CLOSEUP_RATE": 0.5,
+                    "ENGAGEMENT_RATE": 0.2,
+                    "SAVE": 20,
+                    "SAVE_RATE": 0.18,
+                    "IMPRESSION": 240
                   }
-                },
-                "type": "array"
-              },
-              "summary_metrics": {
-                "description": "The metric name and value over the requested period for each requested metric",
-                "type": "object",
-                "additionalProperties": {
-                  "type": "number"
-                },
-                "example": {
-                  "ENGAGEMENT": 100,
-                  "CLICKTHROUGH_RATE": 0.2,
-                  "CLICKTHROUGH": 200,
-                  "CLOSEUP": 37,
-                  "CLOSEUP_RATE": 0.5,
-                  "ENGAGEMENT_RATE": 0.2,
-                  "SAVE": 20,
-                  "SAVE_RATE": 0.18,
-                  "IMPRESSION": 240
                 }
               }
+            },
+            "type": "array"
+          },
+          "summary_metrics": {
+            "description": "The metric name and value over the requested period for each requested metric",
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "example": {
+              "ENGAGEMENT": 100,
+              "CLICKTHROUGH_RATE": 0.2,
+              "CLICKTHROUGH": 200,
+              "CLOSEUP": 37,
+              "CLOSEUP_RATE": 0.5,
+              "ENGAGEMENT_RATE": 0.2,
+              "SAVE": 20,
+              "SAVE_RATE": 0.18,
+              "IMPRESSION": 240
             }
           }
         }
@@ -2853,6 +3892,43 @@
           }
         ]
       },
+      "AdsAnalyticsMetricsFilter": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "$ref": "#/components/schemas/AdsAnalyticsFilterColumn"
+          },
+          "operator": {
+            "$ref": "#/components/schemas/AdsAnalyticsFilterOperator"
+          },
+          "values": {
+            "type": "array",
+            "description": "List of values for filtering",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1
+          }
+        }
+      },
+      "AdsAnalyticsFilterColumn": {
+        "type": "string",
+        "description": "Reporting columns for sync reporting data filter",
+        "example": "SPEND_IN_DOLLAR",
+        "enum": [
+          "SPEND_IN_DOLLAR",
+          "TOTAL_IMPRESSION"
+        ]
+      },
+      "AdsAnalyticsFilterOperator": {
+        "type": "string",
+        "description": "Filter operator for sync reporting",
+        "example": "LESS_THAN",
+        "enum": [
+          "LESS_THAN",
+          "GREATER_THAN"
+        ]
+      },
       "AdsAnalyticsResponse": {
         "type": "array",
         "items": {
@@ -2880,6 +3956,26 @@
             "TOTAL_CLICKTHROUGH": 216
           }
         }
+      },
+      "AdsAnalyticsTargetingType": {
+        "type": "string",
+        "description": "Reporting targeting type",
+        "example": "APPTYPE",
+        "enum": [
+          "KEYWORD",
+          "APPTYPE",
+          "GENDER",
+          "LOCATION",
+          "PLACEMENT",
+          "COUNTRY",
+          "TARGETED_INTEREST",
+          "PINNER_INTEREST",
+          "AUDIENCE_INCLUDE",
+          "AUDIENCE_EXCLUDE",
+          "GEO",
+          "AGE_BUCKET",
+          "REGION"
+        ]
       },
       "ActionType": {
         "type": "string",
@@ -3111,290 +4207,10 @@
             }
           },
           "country": {
-            "type": "string",
-            "description": "Country ID.",
-            "example": "US",
-            "enum": [
-              "AD",
-              "AE",
-              "AF",
-              "AG",
-              "AI",
-              "AL",
-              "AM",
-              "AO",
-              "AQ",
-              "AR",
-              "AS",
-              "AT",
-              "AU",
-              "AW",
-              "AX",
-              "AZ",
-              "BA",
-              "BB",
-              "BD",
-              "BE",
-              "BF",
-              "BG",
-              "BH",
-              "BI",
-              "BJ",
-              "BL",
-              "BM",
-              "BN",
-              "BO",
-              "BQ",
-              "BR",
-              "BS",
-              "BT",
-              "BV",
-              "BW",
-              "BY",
-              "BZ",
-              "CA",
-              "CC",
-              "CD",
-              "CF",
-              "CG",
-              "CH",
-              "CI",
-              "CK",
-              "CL",
-              "CM",
-              "CO",
-              "CR",
-              "CU",
-              "CV",
-              "CW",
-              "CX",
-              "CY",
-              "CZ",
-              "DE",
-              "DJ",
-              "DK",
-              "DM",
-              "DO",
-              "DZ",
-              "EC",
-              "EE",
-              "EG",
-              "EH",
-              "ER",
-              "ES",
-              "ET",
-              "FI",
-              "FJ",
-              "FK",
-              "FM",
-              "FO",
-              "FR",
-              "GA",
-              "GB",
-              "GD",
-              "GE",
-              "GF",
-              "GG",
-              "GH",
-              "GI",
-              "GL",
-              "GM",
-              "GN",
-              "GP",
-              "GQ",
-              "GR",
-              "GS",
-              "GT",
-              "GU",
-              "GW",
-              "GY",
-              "HK",
-              "HM",
-              "HN",
-              "HR",
-              "HT",
-              "HU",
-              "ID",
-              "IE",
-              "IL",
-              "IM",
-              "IN",
-              "IO",
-              "IQ",
-              "IR",
-              "IS",
-              "IT",
-              "JE",
-              "JM",
-              "JO",
-              "JP",
-              "KE",
-              "KG",
-              "KH",
-              "KI",
-              "KM",
-              "KN",
-              "KR",
-              "KW",
-              "KY",
-              "KZ",
-              "LA",
-              "LB",
-              "LC",
-              "LI",
-              "LK",
-              "LR",
-              "LS",
-              "LT",
-              "LU",
-              "LV",
-              "LY",
-              "MA",
-              "MC",
-              "MD",
-              "ME",
-              "MF",
-              "MG",
-              "MH",
-              "MK",
-              "ML",
-              "MM",
-              "MN",
-              "MO",
-              "MP",
-              "MQ",
-              "MR",
-              "MS",
-              "MT",
-              "MU",
-              "MV",
-              "MW",
-              "MX",
-              "MY",
-              "MZ",
-              "NA",
-              "NC",
-              "NE",
-              "NF",
-              "NG",
-              "NI",
-              "NL",
-              "NO",
-              "NP",
-              "NR",
-              "NU",
-              "NZ",
-              "OM",
-              "PA",
-              "PE",
-              "PF",
-              "PG",
-              "PH",
-              "PK",
-              "PL",
-              "PM",
-              "PN",
-              "PR",
-              "PS",
-              "PT",
-              "PW",
-              "PY",
-              "QA",
-              "RE",
-              "RO",
-              "RS",
-              "RU",
-              "RW",
-              "SA",
-              "SB",
-              "SC",
-              "SD",
-              "SE",
-              "SG",
-              "SH",
-              "SI",
-              "SJ",
-              "SK",
-              "SL",
-              "SM",
-              "SN",
-              "SO",
-              "SR",
-              "SS",
-              "ST",
-              "SV",
-              "SX",
-              "SY",
-              "SZ",
-              "TC",
-              "TD",
-              "TF",
-              "TG",
-              "TH",
-              "TJ",
-              "TK",
-              "TL",
-              "TM",
-              "TN",
-              "TO",
-              "TR",
-              "TT",
-              "TV",
-              "TW",
-              "TZ",
-              "UA",
-              "UG",
-              "UM",
-              "US",
-              "UY",
-              "UZ",
-              "VA",
-              "VC",
-              "VE",
-              "VG",
-              "VI",
-              "VN",
-              "VU",
-              "WF",
-              "WS",
-              "YE",
-              "YT",
-              "ZA",
-              "ZM",
-              "ZW"
-            ]
+            "$ref": "#/components/schemas/Country"
           },
           "currency": {
-            "type": "string",
-            "description": "Currency Codes from ISO 4217",
-            "example": "USD",
-            "enum": [
-              "UNK",
-              "USD",
-              "GBP",
-              "CAD",
-              "EUR",
-              "AUD",
-              "NZD",
-              "SEK",
-              "ILS",
-              "CHF",
-              "HKD",
-              "JPY",
-              "SGD",
-              "KRW",
-              "NOK",
-              "DKK",
-              "PLN",
-              "RON",
-              "HUF",
-              "CZK",
-              "BRL",
-              "MXN",
-              "ARS",
-              "CLP",
-              "COP"
-            ]
+            "$ref": "#/components/schemas/Currency"
           }
         }
       },
@@ -3425,6 +4241,376 @@
             "TOTAL_CLICKTHROUGH": 216
           }
         }
+      },
+      "AdsAnalyticsGetAsyncResponse": {
+        "type": "object",
+        "properties": {
+          "report_status": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "size": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "AdsAnalyticsCreateAsyncRequest": {
+        "type": "object",
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "start_date": {
+                "description": "Metric report start date (UTC). Format: YYYY-MM-DD",
+                "type": "string",
+                "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})$",
+                "example": "2020-12-20"
+              },
+              "end_date": {
+                "description": "Metric report end date (UTC). Format: YYYY-MM-DD",
+                "type": "string",
+                "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})$",
+                "example": "2020-12-20"
+              },
+              "granularity": {
+                "description": "TOTAL - metrics are aggregated over the specified date range.<br> DAY - metrics are broken down daily.<br> HOUR - metrics are broken down hourly.<br>WEEKLY - metrics are broken down weekly.<br>MONTHLY - metrics are broken down monthly",
+                "type": "string",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Granularity"
+                  }
+                ]
+              },
+              "click_window_days": {
+                "description": "Number of days to use as the conversion attribution window for a pin click action. Applies to Pinterest Tag conversion metrics. Prior conversion tags use their defined attribution windows. If not specified, defaults to `30` days.",
+                "type": "integer",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ConversionAttributionWindowDays"
+                  }
+                ],
+                "default": 30
+              },
+              "engagement_window_days": {
+                "description": "Number of days to use as the conversion attribution window for an engagement action. Engagements include saves, closeups, link clicks, and carousel card swipes. Applies to Pinterest Tag conversion metrics. Prior conversion tags use their defined attribution windows. If not specified, defaults to `30` days.",
+                "type": "integer",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ConversionAttributionWindowDays"
+                  }
+                ],
+                "default": 30
+              },
+              "view_window_days": {
+                "description": "Number of days to use as the conversion attribution window for a view action. Applies to Pinterest Tag conversion metrics. Prior conversion tags use their defined attribution windows. If not specified, defaults to `1` day.",
+                "type": "integer",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ConversionAttributionWindowDays"
+                  }
+                ],
+                "default": 1
+              },
+              "conversion_report_time": {
+                "description": "The date by which the conversion metrics returned from this endpoint will be reported. There are two dates associated with a conversion event: the date that the user interacted with the ad, and the date that the user completed a conversion event.",
+                "type": "string",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ConversionReportTimeType"
+                  }
+                ],
+                "default": "TIME_OF_AD_ACTION"
+              },
+              "attribution_types": {
+                "description": "List of types of attribution for the conversion report",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ConversionReportAttributionType"
+                }
+              }
+            },
+            "required": [
+              "start_date",
+              "end_date",
+              "granularity"
+            ]
+          },
+          {
+            "type": "object",
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "campaign_ids": {
+                    "type": "array",
+                    "description": "List of campaign ids",
+                    "example": [
+                      "12345678"
+                    ],
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "maxItems": 500,
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "campaign_statuses": {
+                    "type": "array",
+                    "description": "List of status values for filtering",
+                    "example": [
+                      "RUNNING",
+                      "PAUSED"
+                    ],
+                    "items": {
+                      "$ref": "#/components/schemas/CampaignSummaryStatus"
+                    },
+                    "maxItems": 6,
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "campaign_objective_types": {
+                    "type": "array",
+                    "description": "List of values for filtering",
+                    "example": [
+                      "AWARENESS",
+                      "VIDEO_VIEW"
+                    ],
+                    "items": {
+                      "$ref": "#/components/schemas/ObjectiveType"
+                    },
+                    "maxItems": 6,
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "ad_group_ids": {
+                    "type": "array",
+                    "description": "List of ad group ids",
+                    "example": [
+                      "12345678"
+                    ],
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "maxItems": 500,
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "ad_group_statuses": {
+                    "type": "array",
+                    "description": "List of values for filtering",
+                    "example": [
+                      "RUNNING",
+                      "PAUSED"
+                    ],
+                    "items": {
+                      "$ref": "#/components/schemas/AdGroupSummaryStatus"
+                    },
+                    "maxItems": 6,
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "ad_ids": {
+                    "type": "array",
+                    "description": "List of ad ids",
+                    "example": [
+                      "12345678"
+                    ],
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "maxItems": 500,
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "ad_statuses": {
+                    "type": "array",
+                    "description": "List of values for filtering",
+                    "example": [
+                      "APPROVED",
+                      "PAUSED"
+                    ],
+                    "items": {
+                      "$ref": "#/components/schemas/PinPromotionSummaryStatus"
+                    },
+                    "maxItems": 6,
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "product_group_ids": {
+                    "type": "array",
+                    "description": "List of product group ids",
+                    "example": [
+                      "12345678"
+                    ],
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "maxItems": 500,
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "product_group_statuses": {
+                    "type": "array",
+                    "description": "List of values for filtering",
+                    "example": [
+                      "RUNNING",
+                      "PAUSED"
+                    ],
+                    "items": {
+                      "$ref": "#/components/schemas/ProductGroupSummaryStatus"
+                    },
+                    "maxItems": 6,
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "product_item_ids": {
+                    "type": "array",
+                    "description": "List of product item ids",
+                    "example": [
+                      "12345678"
+                    ],
+                    "items": {
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "maxItems": 500,
+                    "minItems": 1
+                  }
+                }
+              },
+              {
+                "$ref": "#/components/schemas/TargetingTypeFilter"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "metrics_filters": {
+                    "type": "array",
+                    "description": "List of metrics filters",
+                    "minItems": 1,
+                    "items": {
+                      "$ref": "#/components/schemas/AdsAnalyticsMetricsFilter"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "required": [
+              "level",
+              "columns"
+            ],
+            "properties": {
+              "columns": {
+                "description": "Metric and entity columns",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ReportingColumnAsync"
+                }
+              },
+              "level": {
+                "type": "string",
+                "description": "Level of the report",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/MetricsReportingLevel"
+                  }
+                ],
+                "example": "CAMPAIGN"
+              },
+              "report_format": {
+                "description": "Specification for formatting report data",
+                "type": "string",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/DataOutputFormat"
+                  }
+                ],
+                "default": "JSON"
+              }
+            }
+          }
+        ]
+      },
+      "AdsAnalyticsCreateAsyncResponse": {
+        "type": "object",
+        "properties": {
+          "report_status": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "BatchOperation": {
+        "description": "The operation performed by the batch",
+        "example": "UPDATE",
+        "type": "string",
+        "enum": [
+          "UPDATE",
+          "CREATE",
+          "UPSERT"
+        ]
+      },
+      "BatchOperationStatus": {
+        "description": "The status of the operation performed by the batch",
+        "example": "PROCESSING",
+        "type": "string",
+        "enum": [
+          "PROCESSING",
+          "COMPLETED"
+        ]
       },
       "Board": {
         "title": "Board",
@@ -3592,6 +4778,1364 @@
           }
         }
       },
+      "CatalogsDbItem": {
+        "type": "object",
+        "title": "db_item",
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-03-14T15:15:22Z"
+          },
+          "id": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-03-14T15:16:34Z"
+          }
+        }
+      },
+      "CatalogsFeed": {
+        "type": "object",
+        "title": "feed",
+        "description": "Catalogs Catalogs Feed object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CatalogsDbItem"
+          },
+          {
+            "type": "object",
+            "title": "feed_fields",
+            "properties": {
+              "default_country": {
+                "$ref": "#/components/schemas/Country"
+              },
+              "default_availability": {
+                "$ref": "#/components/schemas/ProductAvailabilityType"
+              },
+              "default_currency": {
+                "$ref": "#/components/schemas/NullableCurrency"
+              },
+              "name": {
+                "description": "A human-friendly name associated to a given feed. This value is currently nullable due to historical reasons. It is expected to become non-nullable in the future.",
+                "nullable": true,
+                "type": "string"
+              },
+              "format": {
+                "$ref": "#/components/schemas/CatalogsFormat"
+              },
+              "default_locale": {
+                "description": "The locale used within a feed for product descriptions.",
+                "example": "en_US",
+                "type": "string"
+              },
+              "credentials": {
+                "$ref": "#/components/schemas/CatalogsFeedCredentials"
+              },
+              "location": {
+                "description": "The URL where a feed is available for download. This URL is what Pinterest will use to download a feed for processing.",
+                "type": "string"
+              },
+              "preferred_processing_schedule": {
+                "$ref": "#/components/schemas/CatalogsFeedProcessingSchedule"
+              },
+              "status": {
+                "$ref": "#/components/schemas/CatalogsStatus"
+              }
+            },
+            "required": [
+              "credentials",
+              "default_availability",
+              "default_country",
+              "default_currency",
+              "default_locale",
+              "format",
+              "location",
+              "name",
+              "preferred_processing_schedule",
+              "status"
+            ]
+          }
+        ]
+      },
+      "CatalogsFeedCredentials": {
+        "type": "object",
+        "nullable": true,
+        "description": "Use this if your feed file requires username and password.",
+        "properties": {
+          "password": {
+            "description": "The required password for downloading a feed.",
+            "type": "string",
+            "format": "password"
+          },
+          "username": {
+            "description": "The required username for downloading a feed.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "CatalogsFeedIngestionDetails": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "$ref": "#/components/schemas/CatalogsFeedIngestionErrors"
+          },
+          "info": {
+            "$ref": "#/components/schemas/CatalogsFeedIngestionInfo"
+          }
+        },
+        "required": [
+          "errors",
+          "info"
+        ]
+      },
+      "CatalogsFeedIngestionErrors": {
+        "type": "object",
+        "properties": {
+          "image_download_error": {
+            "type": "integer"
+          },
+          "image_download_connection_timeout": {
+            "type": "integer"
+          },
+          "image_format_unrecognize": {
+            "type": "integer"
+          },
+          "line_level_internal_error": {
+            "type": "integer"
+          },
+          "large_product_count_decrease": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          }
+        }
+      },
+      "CatalogsFeedIngestionInfo": {
+        "type": "object",
+        "properties": {
+          "in_stock": {
+            "type": "integer"
+          },
+          "out_of_stock": {
+            "type": "integer"
+          },
+          "preorder": {
+            "type": "integer"
+          }
+        }
+      },
+      "CatalogsFeedProcessingResult": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CatalogsDbItem"
+          },
+          {
+            "type": "object",
+            "title": "catalogs_feed_processing_result_fields",
+            "properties": {
+              "ingestion_details": {
+                "$ref": "#/components/schemas/CatalogsFeedIngestionDetails"
+              },
+              "status": {
+                "$ref": "#/components/schemas/CatalogsFeedProcessingStatus"
+              },
+              "product_counts": {
+                "$ref": "#/components/schemas/CatalogsFeedProductCounts"
+              },
+              "validation_details": {
+                "$ref": "#/components/schemas/CatalogsFeedValidationDetails"
+              }
+            },
+            "required": [
+              "ingestion_details",
+              "status",
+              "product_counts",
+              "validation_details"
+            ]
+          }
+        ]
+      },
+      "CatalogsFeedProcessingStatus": {
+        "type": "string",
+        "enum": [
+          "COMPLETED",
+          "COMPLETED_EARLY",
+          "DISAPPROVED",
+          "FAILED",
+          "PROCESSING",
+          "QUEUED_FOR_PROCESSING",
+          "UNDER_APPEAL",
+          "UNDER_REVIEW"
+        ]
+      },
+      "CatalogsFeedProcessingSchedule": {
+        "type": "object",
+        "title": "catalogs_processing_schedule",
+        "description": "Optional daily processing schedule. Use this to configure the preferred time for processing a feed (otherwise random).",
+        "nullable": true,
+        "properties": {
+          "time": {
+            "description": "A time in format HH:MM with leading 0 (zero)",
+            "type": "string",
+            "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
+            "example": "02:59"
+          },
+          "timezone": {
+            "description": "The timezone considered for the processing schedule time.",
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "Africa/Abidjan",
+              "Africa/Accra",
+              "Africa/Algiers",
+              "Africa/Bissau",
+              "Africa/Cairo",
+              "Africa/Casablanca",
+              "Africa/Ceuta",
+              "Africa/El_Aaiun",
+              "Africa/Johannesburg",
+              "Africa/Juba",
+              "Africa/Khartoum",
+              "Africa/Lagos",
+              "Africa/Maputo",
+              "Africa/Monrovia",
+              "Africa/Nairobi",
+              "Africa/Ndjamena",
+              "Africa/Sao_Tome",
+              "Africa/Tripoli",
+              "Africa/Tunis",
+              "Africa/Windhoek",
+              "America/Adak",
+              "America/Anchorage",
+              "America/Araguaina",
+              "America/Argentina/Buenos_Aires",
+              "America/Argentina/Catamarca",
+              "America/Argentina/Cordoba",
+              "America/Argentina/Jujuy",
+              "America/Argentina/La_Rioja",
+              "America/Argentina/Mendoza",
+              "America/Argentina/Rio_Gallegos",
+              "America/Argentina/Salta",
+              "America/Argentina/San_Juan",
+              "America/Argentina/San_Luis",
+              "America/Argentina/Tucuman",
+              "America/Argentina/Ushuaia",
+              "America/Asuncion",
+              "America/Atikokan",
+              "America/Bahia",
+              "America/Bahia_Banderas",
+              "America/Barbados",
+              "America/Belem",
+              "America/Belize",
+              "America/Blanc-Sablon",
+              "America/Boa_Vista",
+              "America/Bogota",
+              "America/Boise",
+              "America/Cambridge_Bay",
+              "America/Campo_Grande",
+              "America/Cancun",
+              "America/Caracas",
+              "America/Cayenne",
+              "America/Chicago",
+              "America/Chihuahua",
+              "America/Costa_Rica",
+              "America/Creston",
+              "America/Cuiaba",
+              "America/Curacao",
+              "America/Danmarkshavn",
+              "America/Dawson",
+              "America/Dawson_Creek",
+              "America/Denver",
+              "America/Detroit",
+              "America/Edmonton",
+              "America/Eirunepe",
+              "America/El_Salvador",
+              "America/Fort_Nelson",
+              "America/Fortaleza",
+              "America/Glace_Bay",
+              "America/Goose_Bay",
+              "America/Grand_Turk",
+              "America/Guatemala",
+              "America/Guayaquil",
+              "America/Guyana",
+              "America/Halifax",
+              "America/Havana",
+              "America/Hermosillo",
+              "America/Indiana/Indianapolis",
+              "America/Indiana/Knox",
+              "America/Indiana/Marengo",
+              "America/Indiana/Petersburg",
+              "America/Indiana/Tell_City",
+              "America/Indiana/Vevay",
+              "America/Indiana/Vincennes",
+              "America/Indiana/Winamac",
+              "America/Inuvik",
+              "America/Iqaluit",
+              "America/Jamaica",
+              "America/Juneau",
+              "America/Kentucky/Louisville",
+              "America/Kentucky/Monticello",
+              "America/La_Paz",
+              "America/Lima",
+              "America/Los_Angeles",
+              "America/Maceio",
+              "America/Managua",
+              "America/Manaus",
+              "America/Martinique",
+              "America/Matamoros",
+              "America/Mazatlan",
+              "America/Menominee",
+              "America/Merida",
+              "America/Metlakatla",
+              "America/Mexico_City",
+              "America/Miquelon",
+              "America/Moncton",
+              "America/Monterrey",
+              "America/Montevideo",
+              "America/Nassau",
+              "America/New_York",
+              "America/Nipigon",
+              "America/Nome",
+              "America/Noronha",
+              "America/North_Dakota/Beulah",
+              "America/North_Dakota/Center",
+              "America/North_Dakota/New_Salem",
+              "America/Nuuk",
+              "America/Ojinaga",
+              "America/Panama",
+              "America/Pangnirtung",
+              "America/Paramaribo",
+              "America/Phoenix",
+              "America/Port-au-Prince",
+              "America/Port_of_Spain",
+              "America/Porto_Velho",
+              "America/Puerto_Rico",
+              "America/Punta_Arenas",
+              "America/Rainy_River",
+              "America/Rankin_Inlet",
+              "America/Recife",
+              "America/Regina",
+              "America/Resolute",
+              "America/Rio_Branco",
+              "America/Santarem",
+              "America/Santiago",
+              "America/Santo_Domingo",
+              "America/Sao_Paulo",
+              "America/Scoresbysund",
+              "America/Sitka",
+              "America/St_Johns",
+              "America/Swift_Current",
+              "America/Tegucigalpa",
+              "America/Thule",
+              "America/Thunder_Bay",
+              "America/Tijuana",
+              "America/Toronto",
+              "America/Vancouver",
+              "America/Whitehorse",
+              "America/Winnipeg",
+              "America/Yakutat",
+              "America/Yellowknife",
+              "Antarctica/Casey",
+              "Antarctica/Davis",
+              "Antarctica/DumontDUrville",
+              "Antarctica/Macquarie",
+              "Antarctica/Mawson",
+              "Antarctica/Palmer",
+              "Antarctica/Rothera",
+              "Antarctica/Syowa",
+              "Antarctica/Troll",
+              "Antarctica/Vostok",
+              "Asia/Almaty",
+              "Asia/Amman",
+              "Asia/Anadyr",
+              "Asia/Aqtau",
+              "Asia/Aqtobe",
+              "Asia/Ashgabat",
+              "Asia/Atyrau",
+              "Asia/Baghdad",
+              "Asia/Baku",
+              "Asia/Bangkok",
+              "Asia/Barnaul",
+              "Asia/Beirut",
+              "Asia/Bishkek",
+              "Asia/Brunei",
+              "Asia/Chita",
+              "Asia/Choibalsan",
+              "Asia/Colombo",
+              "Asia/Damascus",
+              "Asia/Dhaka",
+              "Asia/Dili",
+              "Asia/Dubai",
+              "Asia/Dushanbe",
+              "Asia/Famagusta",
+              "Asia/Gaza",
+              "Asia/Hebron",
+              "Asia/Ho_Chi_Minh",
+              "Asia/Hong_Kong",
+              "Asia/Hovd",
+              "Asia/Irkutsk",
+              "Asia/Jakarta",
+              "Asia/Jayapura",
+              "Asia/Jerusalem",
+              "Asia/Kabul",
+              "Asia/Kamchatka",
+              "Asia/Karachi",
+              "Asia/Kathmandu",
+              "Asia/Khandyga",
+              "Asia/Kolkata",
+              "Asia/Krasnoyarsk",
+              "Asia/Kuala_Lumpur",
+              "Asia/Kuching",
+              "Asia/Macau",
+              "Asia/Magadan",
+              "Asia/Makassar",
+              "Asia/Manila",
+              "Asia/Nicosia",
+              "Asia/Novokuznetsk",
+              "Asia/Novosibirsk",
+              "Asia/Omsk",
+              "Asia/Oral",
+              "Asia/Pontianak",
+              "Asia/Pyongyang",
+              "Asia/Qatar",
+              "Asia/Qostanay",
+              "Asia/Qyzylorda",
+              "Asia/Riyadh",
+              "Asia/Sakhalin",
+              "Asia/Samarkand",
+              "Asia/Seoul",
+              "Asia/Shanghai",
+              "Asia/Singapore",
+              "Asia/Srednekolymsk",
+              "Asia/Taipei",
+              "Asia/Tashkent",
+              "Asia/Tbilisi",
+              "Asia/Tehran",
+              "Asia/Thimphu",
+              "Asia/Tokyo",
+              "Asia/Tomsk",
+              "Asia/Ulaanbaatar",
+              "Asia/Urumqi",
+              "Asia/Ust-Nera",
+              "Asia/Vladivostok",
+              "Asia/Yakutsk",
+              "Asia/Yangon",
+              "Asia/Yekaterinburg",
+              "Asia/Yerevan",
+              "Atlantic/Azores",
+              "Atlantic/Bermuda",
+              "Atlantic/Canary",
+              "Atlantic/Cape_Verde",
+              "Atlantic/Faroe",
+              "Atlantic/Madeira",
+              "Atlantic/Reykjavik",
+              "Atlantic/South_Georgia",
+              "Atlantic/Stanley",
+              "Australia/Adelaide",
+              "Australia/Brisbane",
+              "Australia/Broken_Hill",
+              "Australia/Currie",
+              "Australia/Darwin",
+              "Australia/Eucla",
+              "Australia/Hobart",
+              "Australia/Lindeman",
+              "Australia/Lord_Howe",
+              "Australia/Melbourne",
+              "Australia/Perth",
+              "Australia/Sydney",
+              "CET",
+              "CST6CDT",
+              "EET",
+              "EST",
+              "EST5EDT",
+              "Etc/GMT",
+              "Etc/GMT+1",
+              "Etc/GMT+10",
+              "Etc/GMT+11",
+              "Etc/GMT+12",
+              "Etc/GMT+2",
+              "Etc/GMT+3",
+              "Etc/GMT+4",
+              "Etc/GMT+5",
+              "Etc/GMT+6",
+              "Etc/GMT+7",
+              "Etc/GMT+8",
+              "Etc/GMT+9",
+              "Etc/GMT-1",
+              "Etc/GMT-10",
+              "Etc/GMT-11",
+              "Etc/GMT-12",
+              "Etc/GMT-13",
+              "Etc/GMT-14",
+              "Etc/GMT-2",
+              "Etc/GMT-3",
+              "Etc/GMT-4",
+              "Etc/GMT-5",
+              "Etc/GMT-6",
+              "Etc/GMT-7",
+              "Etc/GMT-8",
+              "Etc/GMT-9",
+              "Etc/UTC",
+              "Europe/Amsterdam",
+              "Europe/Andorra",
+              "Europe/Astrakhan",
+              "Europe/Athens",
+              "Europe/Belgrade",
+              "Europe/Berlin",
+              "Europe/Brussels",
+              "Europe/Bucharest",
+              "Europe/Budapest",
+              "Europe/Chisinau",
+              "Europe/Copenhagen",
+              "Europe/Dublin",
+              "Europe/Gibraltar",
+              "Europe/Helsinki",
+              "Europe/Istanbul",
+              "Europe/Kaliningrad",
+              "Europe/Kiev",
+              "Europe/Kirov",
+              "Europe/Lisbon",
+              "Europe/London",
+              "Europe/Luxembourg",
+              "Europe/Madrid",
+              "Europe/Malta",
+              "Europe/Minsk",
+              "Europe/Monaco",
+              "Europe/Moscow",
+              "Europe/Oslo",
+              "Europe/Paris",
+              "Europe/Prague",
+              "Europe/Riga",
+              "Europe/Rome",
+              "Europe/Samara",
+              "Europe/Saratov",
+              "Europe/Simferopol",
+              "Europe/Sofia",
+              "Europe/Stockholm",
+              "Europe/Tallinn",
+              "Europe/Tirane",
+              "Europe/Ulyanovsk",
+              "Europe/Uzhgorod",
+              "Europe/Vienna",
+              "Europe/Vilnius",
+              "Europe/Volgograd",
+              "Europe/Warsaw",
+              "Europe/Zaporozhye",
+              "Europe/Zurich",
+              "HST",
+              "Indian/Chagos",
+              "Indian/Christmas",
+              "Indian/Cocos",
+              "Indian/Kerguelen",
+              "Indian/Mahe",
+              "Indian/Maldives",
+              "Indian/Mauritius",
+              "Indian/Reunion",
+              "MET",
+              "MST",
+              "MST7MDT",
+              "PST8PDT",
+              "Pacific/Apia",
+              "Pacific/Auckland",
+              "Pacific/Bougainville",
+              "Pacific/Chatham",
+              "Pacific/Chuuk",
+              "Pacific/Easter",
+              "Pacific/Efate",
+              "Pacific/Enderbury",
+              "Pacific/Fakaofo",
+              "Pacific/Fiji",
+              "Pacific/Funafuti",
+              "Pacific/Galapagos",
+              "Pacific/Gambier",
+              "Pacific/Guadalcanal",
+              "Pacific/Guam",
+              "Pacific/Honolulu",
+              "Pacific/Kiritimati",
+              "Pacific/Kosrae",
+              "Pacific/Kwajalein",
+              "Pacific/Majuro",
+              "Pacific/Marquesas",
+              "Pacific/Nauru",
+              "Pacific/Niue",
+              "Pacific/Norfolk",
+              "Pacific/Noumea",
+              "Pacific/Pago_Pago",
+              "Pacific/Palau",
+              "Pacific/Pitcairn",
+              "Pacific/Pohnpei",
+              "Pacific/Port_Moresby",
+              "Pacific/Rarotonga",
+              "Pacific/Tahiti",
+              "Pacific/Tarawa",
+              "Pacific/Tongatapu",
+              "Pacific/Wake",
+              "Pacific/Wallis",
+              "WET",
+              null
+            ]
+          }
+        },
+        "required": [
+          "time",
+          "timezone"
+        ]
+      },
+      "CatalogsFeedProductCounts": {
+        "type": "object",
+        "description": "The counts can be null early in the process.",
+        "nullable": true,
+        "properties": {
+          "original": {
+            "description": "The number of products in the feed file",
+            "type": "integer"
+          }
+        }
+      },
+      "CatalogsFeedValidationDetails": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "$ref": "#/components/schemas/CatalogsFeedValidationErrors"
+          },
+          "warnings": {
+            "$ref": "#/components/schemas/CatalogsFeedValidationWarnings"
+          }
+        },
+        "required": [
+          "errors",
+          "warnings"
+        ]
+      },
+      "CatalogsFeedValidationErrors": {
+        "type": "object",
+        "properties": {
+          "fetch_error": {
+            "type": "integer"
+          },
+          "fetch_inactive_feed_error": {
+            "type": "integer"
+          },
+          "encoding_error": {
+            "type": "integer"
+          },
+          "delimiter_error": {
+            "type": "integer"
+          },
+          "required_columns_missing": {
+            "type": "integer"
+          },
+          "image_link_invalid": {
+            "type": "integer"
+          },
+          "itemid_missing": {
+            "type": "integer"
+          },
+          "title_missing": {
+            "type": "integer"
+          },
+          "description_missing": {
+            "type": "integer"
+          },
+          "product_category_invalid": {
+            "type": "integer"
+          },
+          "product_link_missing": {
+            "type": "integer"
+          },
+          "image_link_missing": {
+            "type": "integer"
+          },
+          "availability_invalid": {
+            "type": "integer"
+          },
+          "product_price_invalid": {
+            "type": "integer"
+          },
+          "link_format_invalid": {
+            "type": "integer"
+          },
+          "parse_line_error": {
+            "type": "integer"
+          },
+          "adwords_format_invalid": {
+            "type": "integer"
+          },
+          "product_category_missing": {
+            "type": "integer"
+          },
+          "internal_service_error": {
+            "type": "integer"
+          },
+          "no_verified_domain": {
+            "type": "integer"
+          },
+          "adult_invalid": {
+            "type": "integer"
+          },
+          "invalid_domain": {
+            "type": "integer"
+          },
+          "feed_length_too_long": {
+            "type": "integer"
+          },
+          "link_length_too_long": {
+            "type": "integer"
+          },
+          "malformed_xml": {
+            "type": "integer"
+          },
+          "redirect_invalid": {
+            "type": "integer"
+          },
+          "price_missing": {
+            "type": "integer"
+          },
+          "feed_too_small": {
+            "type": "integer"
+          },
+          "condition_invalid": {
+            "type": "integer"
+          },
+          "shopify_no_products": {
+            "type": "integer"
+          },
+          "max_items_per_item_group_exceeded": {
+            "type": "integer"
+          },
+          "item_main_image_download_failure": {
+            "type": "integer"
+          },
+          "pinjoin_content_unsafe": {
+            "type": "integer"
+          },
+          "blocklisted_image_signature": {
+            "type": "integer"
+          }
+        }
+      },
+      "CatalogsFeedValidationWarnings": {
+        "type": "object",
+        "properties": {
+          "title_length_too_long": {
+            "type": "integer"
+          },
+          "description_length_too_long": {
+            "type": "integer"
+          },
+          "gender_invalid": {
+            "type": "integer"
+          },
+          "age_group_invalid": {
+            "type": "integer"
+          },
+          "size_type_invalid": {
+            "type": "integer"
+          },
+          "link_format_warning": {
+            "type": "integer"
+          },
+          "duplicate_products": {
+            "type": "integer"
+          },
+          "duplicate_links": {
+            "type": "integer"
+          },
+          "sales_price_invalid": {
+            "type": "integer"
+          },
+          "product_category_depth_warning": {
+            "type": "integer"
+          },
+          "adwords_same_as_link": {
+            "type": "integer"
+          },
+          "duplicate_headers": {
+            "type": "integer"
+          },
+          "fetch_same_signature": {
+            "type": "integer"
+          },
+          "adwords_format_warning": {
+            "type": "integer"
+          },
+          "additional_image_link_warning": {
+            "type": "integer"
+          },
+          "image_link_warning": {
+            "type": "integer"
+          },
+          "shipping_invalid": {
+            "type": "integer"
+          },
+          "tax_invalid": {
+            "type": "integer"
+          },
+          "shipping_weight_invalid": {
+            "type": "integer"
+          },
+          "expiration_date_invalid": {
+            "type": "integer"
+          },
+          "availability_date_invalid": {
+            "type": "integer"
+          },
+          "sale_date_invalid": {
+            "type": "integer"
+          },
+          "weight_unit_invalid": {
+            "type": "integer"
+          },
+          "is_bundle_invalid": {
+            "type": "integer"
+          },
+          "updated_time_invalid": {
+            "type": "integer"
+          },
+          "custom_label_length_too_long": {
+            "type": "integer"
+          },
+          "product_type_length_too_long": {
+            "type": "integer"
+          },
+          "too_many_additional_image_links": {
+            "type": "integer"
+          },
+          "multipack_invalid": {
+            "type": "integer"
+          },
+          "indexed_product_count_large_delta": {
+            "type": "integer"
+          },
+          "item_additional_image_download_failure": {
+            "type": "integer"
+          },
+          "optional_product_category_missing": {
+            "type": "integer"
+          },
+          "optional_product_category_invalid": {
+            "type": "integer"
+          },
+          "optional_condition_missing": {
+            "type": "integer"
+          },
+          "optional_condition_invalid": {
+            "type": "integer"
+          },
+          "ios_deep_link_invalid": {
+            "type": "integer"
+          },
+          "android_deep_link_invalid": {
+            "type": "integer"
+          },
+          "availability_normalized": {
+            "type": "integer"
+          },
+          "condition_normalized": {
+            "type": "integer"
+          },
+          "gender_normalized": {
+            "type": "integer"
+          },
+          "size_type_normalized": {
+            "type": "integer"
+          },
+          "age_group_normalized": {
+            "type": "integer"
+          },
+          "utm_source_auto_corrected": {
+            "type": "integer"
+          },
+          "country_does_not_map_to_currency": {
+            "type": "integer"
+          },
+          "min_ad_price_invalid": {
+            "type": "integer"
+          }
+        }
+      },
+      "CatalogsFeedsCreateRequest": {
+        "type": "object",
+        "title": "feeds_create_request",
+        "description": "Request object for creating a feed. Please, be aware that \"default_country\" and \"default_locale\" are not required in the spec for forward compatibility but for now the API will not accept requests without those fields.",
+        "properties": {
+          "default_country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "default_availability": {
+            "$ref": "#/components/schemas/ProductAvailabilityType"
+          },
+          "default_currency": {
+            "$ref": "#/components/schemas/NullableCurrency"
+          },
+          "name": {
+            "description": "A human-friendly name associated to a given feed.",
+            "type": "string"
+          },
+          "format": {
+            "$ref": "#/components/schemas/CatalogsFormat"
+          },
+          "default_locale": {
+            "description": "The locale used within a feed for product descriptions.",
+            "example": "en_US",
+            "type": "string"
+          },
+          "credentials": {
+            "$ref": "#/components/schemas/CatalogsFeedCredentials"
+          },
+          "location": {
+            "description": "The URL where a feed is available for download. This URL is what Pinterest will use to download a feed for processing.",
+            "type": "string"
+          },
+          "preferred_processing_schedule": {
+            "$ref": "#/components/schemas/CatalogsFeedProcessingSchedule"
+          }
+        },
+        "required": [
+          "format",
+          "location",
+          "name"
+        ]
+      },
+      "CatalogsFeedsUpdateRequest": {
+        "type": "object",
+        "title": "catalogs_feeds_update_request",
+        "description": "Request object for updating a feed.",
+        "properties": {
+          "default_availability": {
+            "$ref": "#/components/schemas/ProductAvailabilityType"
+          },
+          "default_currency": {
+            "$ref": "#/components/schemas/NullableCurrency"
+          },
+          "name": {
+            "description": "A human-friendly name associated to a given feed.",
+            "type": "string"
+          },
+          "format": {
+            "$ref": "#/components/schemas/CatalogsFormat"
+          },
+          "credentials": {
+            "$ref": "#/components/schemas/CatalogsFeedCredentials"
+          },
+          "location": {
+            "type": "string",
+            "description": "The URL where a feed is available for download. This URL is what Pinterest will use to download a feed for processing."
+          },
+          "preferred_processing_schedule": {
+            "$ref": "#/components/schemas/CatalogsFeedProcessingSchedule"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CatalogsStatus"
+          }
+        }
+      },
+      "CatalogsFormat": {
+        "description": "The file format of a feed.",
+        "type": "string",
+        "enum": [
+          "TSV",
+          "CSV",
+          "XML"
+        ]
+      },
+      "CatalogsItemsBatch": {
+        "type": "object",
+        "description": "Object describing the catalogs items batch",
+        "properties": {
+          "items": {
+            "description": "Array with the catalogs items processing records part of the catalogs items batch",
+            "items": {
+              "$ref": "#/components/schemas/ItemProcessingRecord"
+            },
+            "type": "array"
+          },
+          "batch_id": {
+            "description": "Id of the catalogs items batch",
+            "example": "595953100599279259-66753b9bb65c46c49bd8503b27fecf9e",
+            "type": "string"
+          },
+          "created_time": {
+            "description": "Time of the batch creation: YYYY-MM-DD'T'hh:mm:ssTZD",
+            "example": "2020-01-01T20:10:40-00:00",
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "completed_time": {
+            "description": "Time of the batch completion: YYYY-MM-DD'T'hh:mm:ssTZD",
+            "example": "2022-03-10T15:37:10-00:00",
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/BatchOperationStatus"
+          }
+        }
+      },
+      "CatalogsItemsBatchRequest": {
+        "type": "object",
+        "description": "Request object of catalogs items batch",
+        "properties": {
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/BatchOperation"
+          },
+          "items": {
+            "type": "array",
+            "description": "Array with catalogs items",
+            "items": {
+              "$ref": "#/components/schemas/ItemBatchRecord"
+            }
+          }
+        }
+      },
+      "CatalogsStatus": {
+        "type": "string",
+        "description": "Status for catalogs entities. Present in catalogs_feed values. When a feed is deleted, the response will inform DELETED as status.",
+        "enum": [
+          "ACTIVE",
+          "INACTIVE"
+        ]
+      },
+      "ConversionAttributionWindowDays": {
+        "type": "integer",
+        "enum": [
+          1,
+          7,
+          30,
+          60
+        ]
+      },
+      "ConversionReportAttributionType": {
+        "type": "string",
+        "description": "Attribution type. Refers to the Pinterest Tag endpoints",
+        "example": "INDIVIDUAL",
+        "enum": [
+          "INDIVIDUAL",
+          "HOUSEHOLD"
+        ]
+      },
+      "ConversionReportTimeType": {
+        "type": "string",
+        "description": "Conversion report time type",
+        "example": "TIME_OF_AD_ACTION",
+        "enum": [
+          "TIME_OF_AD_ACTION",
+          "TIME_OF_CONVERSION"
+        ]
+      },
+      "Country": {
+        "type": "string",
+        "description": "Country ID from ISO 3166-1 alpha-2.",
+        "example": "US",
+        "enum": [
+          "AD",
+          "AE",
+          "AF",
+          "AG",
+          "AI",
+          "AL",
+          "AM",
+          "AO",
+          "AQ",
+          "AR",
+          "AS",
+          "AT",
+          "AU",
+          "AW",
+          "AX",
+          "AZ",
+          "BA",
+          "BB",
+          "BD",
+          "BE",
+          "BF",
+          "BG",
+          "BH",
+          "BI",
+          "BJ",
+          "BL",
+          "BM",
+          "BN",
+          "BO",
+          "BQ",
+          "BR",
+          "BS",
+          "BT",
+          "BV",
+          "BW",
+          "BY",
+          "BZ",
+          "CA",
+          "CC",
+          "CD",
+          "CF",
+          "CG",
+          "CH",
+          "CI",
+          "CK",
+          "CL",
+          "CM",
+          "CO",
+          "CR",
+          "CU",
+          "CV",
+          "CW",
+          "CX",
+          "CY",
+          "CZ",
+          "DE",
+          "DJ",
+          "DK",
+          "DM",
+          "DO",
+          "DZ",
+          "EC",
+          "EE",
+          "EG",
+          "EH",
+          "ER",
+          "ES",
+          "ET",
+          "FI",
+          "FJ",
+          "FK",
+          "FM",
+          "FO",
+          "FR",
+          "GA",
+          "GB",
+          "GD",
+          "GE",
+          "GF",
+          "GG",
+          "GH",
+          "GI",
+          "GL",
+          "GM",
+          "GN",
+          "GP",
+          "GQ",
+          "GR",
+          "GS",
+          "GT",
+          "GU",
+          "GW",
+          "GY",
+          "HK",
+          "HM",
+          "HN",
+          "HR",
+          "HT",
+          "HU",
+          "ID",
+          "IE",
+          "IL",
+          "IM",
+          "IN",
+          "IO",
+          "IQ",
+          "IR",
+          "IS",
+          "IT",
+          "JE",
+          "JM",
+          "JO",
+          "JP",
+          "KE",
+          "KG",
+          "KH",
+          "KI",
+          "KM",
+          "KN",
+          "KR",
+          "KW",
+          "KY",
+          "KZ",
+          "LA",
+          "LB",
+          "LC",
+          "LI",
+          "LK",
+          "LR",
+          "LS",
+          "LT",
+          "LU",
+          "LV",
+          "LY",
+          "MA",
+          "MC",
+          "MD",
+          "ME",
+          "MF",
+          "MG",
+          "MH",
+          "MK",
+          "ML",
+          "MM",
+          "MN",
+          "MO",
+          "MP",
+          "MQ",
+          "MR",
+          "MS",
+          "MT",
+          "MU",
+          "MV",
+          "MW",
+          "MX",
+          "MY",
+          "MZ",
+          "NA",
+          "NC",
+          "NE",
+          "NF",
+          "NG",
+          "NI",
+          "NL",
+          "NO",
+          "NP",
+          "NR",
+          "NU",
+          "NZ",
+          "OM",
+          "PA",
+          "PE",
+          "PF",
+          "PG",
+          "PH",
+          "PK",
+          "PL",
+          "PM",
+          "PN",
+          "PR",
+          "PS",
+          "PT",
+          "PW",
+          "PY",
+          "QA",
+          "RE",
+          "RO",
+          "RS",
+          "RU",
+          "RW",
+          "SA",
+          "SB",
+          "SC",
+          "SD",
+          "SE",
+          "SG",
+          "SH",
+          "SI",
+          "SJ",
+          "SK",
+          "SL",
+          "SM",
+          "SN",
+          "SO",
+          "SR",
+          "SS",
+          "ST",
+          "SV",
+          "SX",
+          "SY",
+          "SZ",
+          "TC",
+          "TD",
+          "TF",
+          "TG",
+          "TH",
+          "TJ",
+          "TK",
+          "TL",
+          "TM",
+          "TN",
+          "TO",
+          "TR",
+          "TT",
+          "TV",
+          "TW",
+          "TZ",
+          "UA",
+          "UG",
+          "UM",
+          "US",
+          "UY",
+          "UZ",
+          "VA",
+          "VC",
+          "VE",
+          "VG",
+          "VI",
+          "VN",
+          "VU",
+          "WF",
+          "WS",
+          "YE",
+          "YT",
+          "ZA",
+          "ZM",
+          "ZW"
+        ]
+      },
+      "Currency": {
+        "type": "string",
+        "description": "Currency Codes from ISO 4217",
+        "example": "USD",
+        "enum": [
+          "UNK",
+          "USD",
+          "GBP",
+          "CAD",
+          "EUR",
+          "AUD",
+          "NZD",
+          "SEK",
+          "ILS",
+          "CHF",
+          "HKD",
+          "JPY",
+          "SGD",
+          "KRW",
+          "NOK",
+          "DKK",
+          "PLN",
+          "RON",
+          "HUF",
+          "CZK",
+          "BRL",
+          "MXN",
+          "ARS",
+          "CLP",
+          "COP"
+        ]
+      },
+      "DataOutputFormat": {
+        "type": "string",
+        "description": "Format of generated report",
+        "example": "JSON",
+        "enum": [
+          "JSON",
+          "CSV"
+        ]
+      },
       "EntityStatus": {
         "type": "string",
         "description": "Entity status",
@@ -3610,6 +6154,398 @@
           "HOUR",
           "WEEK",
           "MONTH"
+        ]
+      },
+      "ItemAttributes": {
+        "type": "object",
+        "properties": {
+          "ad_link": {
+            "description": "Allows advertisers to specify a separate URL that can be used to track traffic coming from Pinterest shopping ads. Must send full URL including tracking—do not send tracking parameters only. At this time we do not support impression tracking. Must begin with http:// or https://.",
+            "example": "https://www.example.com/cat/denim-shirt/item012?utm_source=Pinterest",
+            "type": "string"
+          },
+          "additional_image_link": {
+            "description": "The links to additional images for your product. Up to five additional images can be used to show a product from different angles or to show different stages. Separate each additional image with a comma. We recommend enclosing the whole string with quotes. Must begin with http:// or https://",
+            "example": [
+              "https://scene.example.com/image/image_v2.jpg",
+              "https://scene.example.com/image/image_v3.jpg"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          },
+          "adult": {
+            "description": "Set this attribute to TRUE if you're submitting items that are considered “adult”. These will not be shown on Pinterest.",
+            "example": true,
+            "type": "boolean"
+          },
+          "age_group": {
+            "description": "The age group to apply a demographic range to the product. Must be one of the following values: ‘newborn’, ‘infant’, ‘toddler’, ‘kids’, ‘adult’.",
+            "example": "newborn",
+            "type": "string"
+          },
+          "availability": {
+            "description": "The availability of the product. Must be one of the following values: ‘in stock’, ‘out of stock’, ‘preorder’.",
+            "example": "in stock",
+            "type": "string"
+          },
+          "average_review_rating": {
+            "description": "Average reviews for the item. Can be a number from 1-5.",
+            "example": 5,
+            "type": "number"
+          },
+          "brand": {
+            "description": "The brand of the product.",
+            "example": "Josie’s Denim",
+            "type": "string"
+          },
+          "color": {
+            "description": "The primary color of the product.",
+            "example": "blue",
+            "type": "string"
+          },
+          "condition": {
+            "description": "The condition of the product. Must be one of the following values: ‘new’, ‘used’, ‘refurbished’.",
+            "example": "new",
+            "type": "string"
+          },
+          "custom_label_0": {
+            "description": "Custom grouping of products.",
+            "example": "Best sellers",
+            "type": "string",
+            "maxLength": 1000
+          },
+          "custom_label_1": {
+            "description": "Custom grouping of products.",
+            "example": "Summer promotion",
+            "type": "string",
+            "maxLength": 1000
+          },
+          "custom_label_2": {
+            "description": "Custom grouping of products.",
+            "example": "Winter sales",
+            "type": "string",
+            "maxLength": 1000
+          },
+          "custom_label_3": {
+            "description": "Custom grouping of products.",
+            "example": "Woman dress",
+            "type": "string",
+            "maxLength": 1000
+          },
+          "custom_label_4": {
+            "description": "Custom grouping of products.",
+            "example": "Man hat",
+            "type": "string",
+            "maxLength": 1000
+          },
+          "description": {
+            "description": "The description of the product.",
+            "example": "Casual fit denim shirt made with the finest quality Japanese denim.",
+            "type": "string",
+            "maxLength": 10000
+          },
+          "free_shipping_label": {
+            "description": "The item is free to ship.",
+            "example": true,
+            "type": "boolean"
+          },
+          "free_shipping_limit": {
+            "description": "The minimum order purchase necessary for the customer to get free shipping. Only relevant if free shipping is offered.",
+            "example": "35 USD",
+            "type": "string"
+          },
+          "gender": {
+            "description": "The gender associated with the product. Must be one of the following values: ‘male’, ‘female’, ‘unisex’.",
+            "example": "unisex",
+            "type": "string"
+          },
+          "google_product_category": {
+            "description": "The categorization of the product based on the standardized Google Product Taxonomy. This is a set taxonomy. Both the text values and numeric codes are accepted.",
+            "example": "Apparel & Accessories > Clothing > Shirts & Tops",
+            "type": "string"
+          },
+          "gtin": {
+            "description": "The unique universal product identifier.",
+            "example": 3234567890126,
+            "type": "integer"
+          },
+          "id": {
+            "description": "The user-created unique ID that represents the product. Only Unicode characters are accepted.",
+            "example": "DS0294-L",
+            "type": "string",
+            "maxLength": 127
+          },
+          "image_link": {
+            "description": "The link to the main product images. Images should be at least 75x75 pixels to avoid errors. Use the additional_image_link field to add more images of your product. The URL of your image_link must be accessible by the Pinterest user-agent, and send the accurate images. Please make sure there are no template or placeholder images at the link. Must start with http:// or https://",
+            "example": [
+              "https://scene.example.com/image/image.jpg"
+            ],
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          },
+          "item_group_id": {
+            "description": "The parent ID of the product.",
+            "example": "DS0294",
+            "type": "string",
+            "maxLength": 127
+          },
+          "last_updated_time": {
+            "description": "The millisecond timestamp when the item was lastly modified by the merchant.",
+            "example": 1641483432072,
+            "type": "integer",
+            "format": "int64"
+          },
+          "link": {
+            "description": "The landing page for the product.",
+            "example": "https://www.example.com/cat/womens-clothing/denim-shirt-0294",
+            "type": "string",
+            "maxLength": 511
+          },
+          "material": {
+            "description": "The material used to make the product.",
+            "example": "cotton",
+            "type": "string"
+          },
+          "min_ad_price": {
+            "description": "The minimum advertised price of the product. It supports the following formats, \"19.99 USD\", \"19.99USD\" and \"19.99\". If the currency is not included, we default to US dollars.",
+            "example": "19.99 USD",
+            "type": "string"
+          },
+          "mobile_link": {
+            "description": "The mobile-optimized version of your landing page. Must begin with http:// or https://.",
+            "example": "https://m.example.com/cat/womens-clothing/denim-shirt-0294",
+            "type": "string"
+          },
+          "mpn": {
+            "description": "Manufacturer Part Number are alpha-numeric codes created by the manufacturer of a product to uniquely identify it among all products from the same manufacturer.",
+            "example": "PI12345NTEREST",
+            "type": "string"
+          },
+          "number_of_ratings": {
+            "description": "The number of ratings for the item.",
+            "example": 10,
+            "type": "integer"
+          },
+          "number_of_reviews": {
+            "description": "The number of reviews available for the item.",
+            "example": 10,
+            "type": "integer"
+          },
+          "pattern": {
+            "description": "The description of the pattern used for the product.",
+            "example": "plaid",
+            "type": "string"
+          },
+          "price": {
+            "description": "The price of the product. It supports the following formats, \"24.99 USD\", \"24.99USD\" and \"24.99\". If the currency is not included, we default to US dollars.",
+            "example": "24.99 USD",
+            "type": "string"
+          },
+          "product_type": {
+            "description": "The categorization of your product based on your custom product taxonomy. Subcategories must be sent separated by “ > “. The > must be wrapped by spaces. We do not recognize any other delimiters such as comma or pipe.",
+            "example": "Clothing > Women’s > Shirts > Denim",
+            "type": "string",
+            "maxLength": 1000
+          },
+          "sale_price": {
+            "description": "The discounted price of the product. The sale_price must be lower than the price. It supports the following formats, \"14.99 USD\", \"14.99USD\" and \"14.99\". If the currency is not included, we default to US dollars.",
+            "example": "14.99 USD",
+            "type": "string"
+          },
+          "shipping": {
+            "description": "Shipping consists of one group of up to four elements, country, region, service (all optional) and price (required). All colons, even for blank values, are required.",
+            "example": "US:CA:Ground:0 USD",
+            "type": "string"
+          },
+          "shipping_height": {
+            "description": "The height of the package needed to ship the product. Ensure there is a space between the numeric string and the metric.",
+            "example": "12 in",
+            "type": "string"
+          },
+          "shipping_weight": {
+            "description": "The weight of the product. Ensure there is a space between the numeric string and the metric.",
+            "example": "3 kg",
+            "type": "string"
+          },
+          "shipping_width": {
+            "description": "The width of the package needed to ship the product. Ensure there is a space between the numeric string and the metric.",
+            "example": "16 in",
+            "type": "string"
+          },
+          "size": {
+            "description": "The size of the product.",
+            "example": "M",
+            "type": "string"
+          },
+          "size_system": {
+            "description": "Indicates the country’s sizing system in which you are submitting your product.",
+            "example": "US",
+            "type": "string"
+          },
+          "size_type": {
+            "description": "Additional description for the size. Must be one of the following values: ‘regular’, ‘petite’, ‘plus’, ‘big_and_tall’, ‘maternity’.",
+            "example": "regular",
+            "type": "string"
+          },
+          "tax": {
+            "description": "Tax consists of one group of up to four elements, country, region, rate (all required) and tax_ship (optional). All colons, even for blank values, are required.",
+            "example": "US:1025433:6.00:y",
+            "type": "string"
+          },
+          "title": {
+            "description": "The name of the product.",
+            "example": "Women’s denim shirt, large",
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      },
+      "ItemBatchRecord": {
+        "type": "object",
+        "description": "Object describing an item batch record",
+        "properties": {
+          "item_id": {
+            "description": "The catalog item id in the merchant namespace",
+            "example": "DS0294-M",
+            "type": "string"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/ItemAttributes"
+          }
+        }
+      },
+      "ItemProcessingRecord": {
+        "type": "object",
+        "description": "Object describing an item processing record",
+        "properties": {
+          "item_id": {
+            "description": "The catalog item id in the merchant namespace",
+            "example": "DS0294-M",
+            "type": "string"
+          },
+          "errors": {
+            "description": "Array with the validation errors for the item processing record.\nA non empty errors list causes the item processing to fail.",
+            "items": {
+              "$ref": "#/components/schemas/ItemValidationEvent"
+            },
+            "type": "array"
+          },
+          "warnings": {
+            "description": "Array with the validation warnings for the item processing record",
+            "items": {
+              "$ref": "#/components/schemas/ItemValidationEvent"
+            },
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ItemProcessingStatus"
+          }
+        }
+      },
+      "ItemProcessingStatus": {
+        "description": "The status of the item processing record",
+        "example": "SUCCESS",
+        "type": "string",
+        "enum": [
+          "SUCCESS",
+          "FAILURE",
+          "PROCESSING"
+        ]
+      },
+      "ItemValidationEvent": {
+        "type": "object",
+        "description": "Object describing an item validation event",
+        "properties": {
+          "attribute": {
+            "description": "The attribute that the item validation event references",
+            "example": "title",
+            "type": "string"
+          },
+          "code": {
+            "description": "The event code that the item validation event references",
+            "example": 106,
+            "type": "integer"
+          },
+          "message": {
+            "description": "Title message describing the item validation event",
+            "example": "Title is missing from product metadata.",
+            "type": "string"
+          }
+        }
+      },
+      "Language": {
+        "type": "string",
+        "description": "Language code, which is among the offical ISO 639-1 language list.",
+        "example": "EN",
+        "enum": [
+          "AM",
+          "AR",
+          "AZ",
+          "BG",
+          "BN",
+          "BS",
+          "CA",
+          "CS",
+          "DA",
+          "DV",
+          "DZ",
+          "DE",
+          "EL",
+          "EN",
+          "ES",
+          "ET",
+          "FA",
+          "FI",
+          "FR",
+          "HE",
+          "HI",
+          "HR",
+          "HU",
+          "HY",
+          "ID",
+          "IN",
+          "IS",
+          "IT",
+          "IW",
+          "JA",
+          "KA",
+          "KM",
+          "KO",
+          "LO",
+          "LT",
+          "LV",
+          "MK",
+          "MN",
+          "MS",
+          "MY",
+          "NB",
+          "NE",
+          "NL",
+          "NO",
+          "PL",
+          "PT",
+          "RO",
+          "RU",
+          "SK",
+          "SL",
+          "SQ",
+          "SR",
+          "SV",
+          "TL",
+          "UK",
+          "VI",
+          "TE",
+          "TH",
+          "TR",
+          "XX",
+          "ZH"
         ]
       },
       "MediaUpload": {
@@ -3759,6 +6695,197 @@
         "type": "string",
         "enum": [
           "video"
+        ]
+      },
+      "MetricsReportingLevel": {
+        "type": "string",
+        "description": "Level of the reporting request",
+        "example": "CAMPAIGN",
+        "enum": [
+          "ADVERTISER",
+          "ADVERTISER_TARGETING",
+          "CAMPAIGN",
+          "CAMPAIGN_TARGETING",
+          "AD_GROUP",
+          "AD_GROUP_TARGETING",
+          "PIN_PROMOTION",
+          "PIN_PROMOTION_TARGETING",
+          "KEYWORD",
+          "PRODUCT_GROUP",
+          "PRODUCT_GROUP_TARGETING",
+          "PRODUCT_ITEM"
+        ]
+      },
+      "NullableCurrency": {
+        "type": "string",
+        "description": "Currency Codes from ISO 4217.",
+        "example": "USD",
+        "nullable": true,
+        "enum": [
+          "AED",
+          "AFN",
+          "ALL",
+          "AMD",
+          "ANG",
+          "AOA",
+          "ARS",
+          "AUD",
+          "AWG",
+          "AZN",
+          "BAM",
+          "BBD",
+          "BDT",
+          "BGN",
+          "BHD",
+          "BIF",
+          "BMD",
+          "BND",
+          "BOB",
+          "BRL",
+          "BSD",
+          "BTN",
+          "BWP",
+          "BYN",
+          "BYR",
+          "BZD",
+          "CAD",
+          "CDF",
+          "CHF",
+          "CLP",
+          "CNY",
+          "COP",
+          "CRC",
+          "CUC",
+          "CUP",
+          "CVE",
+          "CZK",
+          "DJF",
+          "DKK",
+          "DOP",
+          "DZD",
+          "EGP",
+          "ERN",
+          "ETB",
+          "EUR",
+          "FJD",
+          "FKP",
+          "GBP",
+          "GEL",
+          "GGP",
+          "GHS",
+          "GIP",
+          "GMD",
+          "GNF",
+          "GTQ",
+          "GYD",
+          "HKD",
+          "HNL",
+          "HRK",
+          "HTG",
+          "HUF",
+          "IDR",
+          "ILS",
+          "IMP",
+          "INR",
+          "IQD",
+          "IRR",
+          "ISK",
+          "JEP",
+          "JMD",
+          "JOD",
+          "JPY",
+          "KES",
+          "KGS",
+          "KHR",
+          "KMF",
+          "KPW",
+          "KRW",
+          "KWD",
+          "KYD",
+          "KZT",
+          "LAK",
+          "LBP",
+          "LKR",
+          "LRD",
+          "LSL",
+          "LYD",
+          "MAD",
+          "MDL",
+          "MGA",
+          "MKD",
+          "MMK",
+          "MNT",
+          "MOP",
+          "MRO",
+          "MUR",
+          "MVR",
+          "MWK",
+          "MXN",
+          "MYR",
+          "MZN",
+          "NAD",
+          "NGN",
+          "NIO",
+          "NOK",
+          "NPR",
+          "NZD",
+          "OMR",
+          "PAB",
+          "PEN",
+          "PGK",
+          "PHP",
+          "PKR",
+          "PLN",
+          "PYG",
+          "QAR",
+          "RON",
+          "RSD",
+          "RUB",
+          "RWF",
+          "SAR",
+          "SBD",
+          "SCR",
+          "SDG",
+          "SEK",
+          "SGD",
+          "SHP",
+          "SLL",
+          "SOS",
+          "SPL",
+          "SRD",
+          "STD",
+          "SVC",
+          "SYP",
+          "SZL",
+          "THB",
+          "TJS",
+          "TMT",
+          "TND",
+          "TOP",
+          "TRY",
+          "TTD",
+          "TVD",
+          "TWD",
+          "TZS",
+          "UAH",
+          "UGX",
+          "USD",
+          "UYU",
+          "UZS",
+          "VEF",
+          "VND",
+          "VUV",
+          "WST",
+          "XAF",
+          "XCD",
+          "XDR",
+          "XOF",
+          "XPF",
+          "YER",
+          "ZAR",
+          "ZMW",
+          "ZWD",
+          null
         ]
       },
       "OauthAccessTokenRequest": {
@@ -4191,6 +7318,17 @@
           "ARCHIVED"
         ]
       },
+      "ProductAvailabilityType": {
+        "nullable": true,
+        "description": "Default availability for products in a feed.",
+        "type": "string",
+        "enum": [
+          "IN_STOCK",
+          "OUT_OF_STOCK",
+          "PREORDER",
+          null
+        ]
+      },
       "ProductGroupAnalyticsResponse": {
         "type": "array",
         "items": {
@@ -4218,6 +7356,538 @@
             "TOTAL_CLICKTHROUGH": 216
           }
         }
+      },
+      "ProductGroupSummaryStatus": {
+        "type": "string",
+        "description": "Summary status for product group",
+        "example": "RUNNING",
+        "enum": [
+          "RUNNING",
+          "PAUSED",
+          "EXCLUDED",
+          "ARCHIVED"
+        ]
+      },
+      "ReportingColumnAsync": {
+        "type": "string",
+        "description": "Reporting columns",
+        "example": "SPEND_IN_MICRO_DOLLAR",
+        "enum": [
+          "SPEND_IN_MICRO_DOLLAR",
+          "PAID_IMPRESSION",
+          "CPC_IN_MICRO_DOLLAR",
+          "ECPC_IN_MICRO_DOLLAR",
+          "CTR",
+          "ECTR",
+          "CAMPAIGN_NAME",
+          "CAMPAIGN_STATUS",
+          "AD_STATUS",
+          "PIN_PROMOTION_STATUS",
+          "PIN_ID",
+          "TOTAL_ENGAGEMENT",
+          "ENGAGEMENT_1",
+          "ENGAGEMENT_2",
+          "ECPM_IN_MICRO_DOLLAR",
+          "CTR_2",
+          "CAMPAIGN_ID",
+          "ADVERTISER_ID",
+          "AD_ACCOUNT_ID",
+          "PIN_PROMOTION_ID",
+          "AD_ID",
+          "AD_GROUP_ID",
+          "CAMPAIGN_MANAGED_STATUS",
+          "CPM_IN_MICRO_DOLLAR",
+          "AD_GROUP_NAME",
+          "AD_GROUP_STATUS",
+          "PRODUCT_GROUP_ID",
+          "CLICKTHROUGH_1",
+          "REPIN_1",
+          "IMPRESSION_1",
+          "IMPRESSION_1_GROSS",
+          "CLICKTHROUGH_1_GROSS",
+          "OUTBOUND_CLICK_1",
+          "CLICKTHROUGH_2",
+          "REPIN_2",
+          "IMPRESSION_2",
+          "OUTBOUND_CLICK_2",
+          "TOTAL_IMPRESSION_USER",
+          "TOTAL_IMPRESSION_FREQUENCY",
+          "TOTAL_ENGAGEMENT_PAGE_VISIT",
+          "TOTAL_ENGAGEMENT_SIGNUP",
+          "TOTAL_ENGAGEMENT_CHECKOUT",
+          "TOTAL_ENGAGEMENT_CUSTOM",
+          "TOTAL_ENGAGEMENT_ADD_TO_CART",
+          "TOTAL_ENGAGEMENT_LEAD",
+          "TOTAL_ENGAGEMENT_SEARCH",
+          "TOTAL_ENGAGEMENT_WATCH_VIDEO",
+          "TOTAL_ENGAGEMENT_VIEW_CATEGORY",
+          "TOTAL_ENGAGEMENT_APP_INSTALL",
+          "TOTAL_ENGAGEMENT_UNKNOWN",
+          "TOTAL_CLICK_PAGE_VISIT",
+          "TOTAL_CLICK_SIGNUP",
+          "TOTAL_CLICK_CHECKOUT",
+          "TOTAL_CLICK_CUSTOM",
+          "TOTAL_CLICK_ADD_TO_CART",
+          "TOTAL_CLICK_LEAD",
+          "TOTAL_CLICK_SEARCH",
+          "TOTAL_CLICK_WATCH_VIDEO",
+          "TOTAL_CLICK_VIEW_CATEGORY",
+          "TOTAL_CLICK_APP_INSTALL",
+          "TOTAL_CLICK_UNKNOWN",
+          "TOTAL_VIEW_PAGE_VISIT",
+          "TOTAL_VIEW_SIGNUP",
+          "TOTAL_VIEW_CHECKOUT",
+          "TOTAL_VIEW_CUSTOM",
+          "TOTAL_VIEW_ADD_TO_CART",
+          "TOTAL_VIEW_LEAD",
+          "TOTAL_VIEW_SEARCH",
+          "TOTAL_VIEW_WATCH_VIDEO",
+          "TOTAL_VIEW_VIEW_CATEGORY",
+          "TOTAL_VIEW_APP_INSTALL",
+          "TOTAL_VIEW_UNKNOWN",
+          "TOTAL_CONVERSIONS",
+          "TOTAL_ENGAGEMENT_PAGE_VISIT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_ENGAGEMENT_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_ENGAGEMENT_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_ENGAGEMENT_CUSTOM_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_ENGAGEMENT_ADD_TO_CART_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_ENGAGEMENT_LEAD_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_ENGAGEMENT_SEARCH_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_ENGAGEMENT_WATCH_VIDEO_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_ENGAGEMENT_VIEW_CATEGORY_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_ENGAGEMENT_APP_INSTALL_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_ENGAGEMENT_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CLICK_PAGE_VISIT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CLICK_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CLICK_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CLICK_CUSTOM_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CLICK_ADD_TO_CART_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CLICK_LEAD_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CLICK_SEARCH_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CLICK_WATCH_VIDEO_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CLICK_VIEW_CATEGORY_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CLICK_APP_INSTALL_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CLICK_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_VIEW_PAGE_VISIT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_VIEW_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_VIEW_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_VIEW_CUSTOM_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_VIEW_ADD_TO_CART_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_VIEW_LEAD_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_VIEW_SEARCH_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_VIEW_WATCH_VIDEO_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_VIEW_VIEW_CATEGORY_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_VIEW_APP_INSTALL_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_VIEW_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CONVERSIONS_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_ENGAGEMENT_PAGE_VISIT_QUANTITY",
+          "TOTAL_ENGAGEMENT_SIGNUP_QUANTITY",
+          "TOTAL_ENGAGEMENT_CHECKOUT_QUANTITY",
+          "TOTAL_ENGAGEMENT_CUSTOM_QUANTITY",
+          "TOTAL_ENGAGEMENT_ADD_TO_CART_QUANTITY",
+          "TOTAL_ENGAGEMENT_LEAD_QUANTITY",
+          "TOTAL_ENGAGEMENT_SEARCH_QUANTITY",
+          "TOTAL_ENGAGEMENT_WATCH_VIDEO_QUANTITY",
+          "TOTAL_ENGAGEMENT_VIEW_CATEGORY_QUANTITY",
+          "TOTAL_ENGAGEMENT_UNKNOWN_QUANTITY",
+          "TOTAL_CLICK_PAGE_VISIT_QUANTITY",
+          "TOTAL_CLICK_SIGNUP_QUANTITY",
+          "TOTAL_CLICK_CHECKOUT_QUANTITY",
+          "TOTAL_CLICK_CUSTOM_QUANTITY",
+          "TOTAL_CLICK_ADD_TO_CART_QUANTITY",
+          "TOTAL_CLICK_LEAD_QUANTITY",
+          "TOTAL_CLICK_SEARCH_QUANTITY",
+          "TOTAL_CLICK_WATCH_VIDEO_QUANTITY",
+          "TOTAL_CLICK_VIEW_CATEGORY_QUANTITY",
+          "TOTAL_CLICK_UNKNOWN_QUANTITY",
+          "TOTAL_VIEW_PAGE_VISIT_QUANTITY",
+          "TOTAL_VIEW_SIGNUP_QUANTITY",
+          "TOTAL_VIEW_CHECKOUT_QUANTITY",
+          "TOTAL_VIEW_CUSTOM_QUANTITY",
+          "TOTAL_VIEW_ADD_TO_CART_QUANTITY",
+          "TOTAL_VIEW_LEAD_QUANTITY",
+          "TOTAL_VIEW_SEARCH_QUANTITY",
+          "TOTAL_VIEW_WATCH_VIDEO_QUANTITY",
+          "TOTAL_VIEW_VIEW_CATEGORY_QUANTITY",
+          "TOTAL_VIEW_UNKNOWN_QUANTITY",
+          "TOTAL_CONVERSIONS_QUANTITY",
+          "ONSITE_CHECKOUTS_1",
+          "PIN_PROMOTION_NAME",
+          "AD_NAME",
+          "CAMPAIGN_LIFETIME_SPEND_CAP",
+          "CAMPAIGN_DAILY_SPEND_CAP",
+          "TOTAL_PAGE_VISIT_DESKTOP_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_PAGE_VISIT_DESKTOP_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_PAGE_VISIT_DESKTOP_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_PAGE_VISIT_MOBILE_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_PAGE_VISIT_MOBILE_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_PAGE_VISIT_MOBILE_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_PAGE_VISIT_TABLET_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_PAGE_VISIT_TABLET_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_PAGE_VISIT_TABLET_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_SIGNUP_DESKTOP_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_SIGNUP_DESKTOP_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_SIGNUP_DESKTOP_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_SIGNUP_MOBILE_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_SIGNUP_MOBILE_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_SIGNUP_MOBILE_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_SIGNUP_TABLET_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_SIGNUP_TABLET_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_SIGNUP_TABLET_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_CHECKOUT_DESKTOP_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_CHECKOUT_DESKTOP_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_CHECKOUT_DESKTOP_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_CHECKOUT_MOBILE_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_CHECKOUT_MOBILE_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_CHECKOUT_MOBILE_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_CHECKOUT_TABLET_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_CHECKOUT_TABLET_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_CHECKOUT_TABLET_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_CUSTOM_DESKTOP_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_CUSTOM_DESKTOP_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_CUSTOM_DESKTOP_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_CUSTOM_MOBILE_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_CUSTOM_MOBILE_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_CUSTOM_MOBILE_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_CUSTOM_TABLET_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_CUSTOM_TABLET_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_CUSTOM_TABLET_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_ADD_TO_CART_DESKTOP_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_ADD_TO_CART_DESKTOP_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_ADD_TO_CART_DESKTOP_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_ADD_TO_CART_MOBILE_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_ADD_TO_CART_MOBILE_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_ADD_TO_CART_MOBILE_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_ADD_TO_CART_TABLET_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_ADD_TO_CART_TABLET_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_ADD_TO_CART_TABLET_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_LEAD_DESKTOP_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_LEAD_DESKTOP_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_LEAD_DESKTOP_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_LEAD_MOBILE_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_LEAD_MOBILE_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_LEAD_MOBILE_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_LEAD_TABLET_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_LEAD_TABLET_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_LEAD_TABLET_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_SEARCH_DESKTOP_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_SEARCH_DESKTOP_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_SEARCH_DESKTOP_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_SEARCH_MOBILE_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_SEARCH_MOBILE_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_SEARCH_MOBILE_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_SEARCH_TABLET_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_SEARCH_TABLET_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_SEARCH_TABLET_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_WATCH_VIDEO_DESKTOP_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_WATCH_VIDEO_DESKTOP_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_WATCH_VIDEO_DESKTOP_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_WATCH_VIDEO_MOBILE_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_WATCH_VIDEO_MOBILE_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_WATCH_VIDEO_MOBILE_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_WATCH_VIDEO_TABLET_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_WATCH_VIDEO_TABLET_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_WATCH_VIDEO_TABLET_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_VIEW_CATEGORY_DESKTOP_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_VIEW_CATEGORY_DESKTOP_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_VIEW_CATEGORY_DESKTOP_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_VIEW_CATEGORY_MOBILE_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_VIEW_CATEGORY_MOBILE_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_VIEW_CATEGORY_MOBILE_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_VIEW_CATEGORY_TABLET_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_VIEW_CATEGORY_TABLET_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_VIEW_CATEGORY_TABLET_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_APP_INSTALL_DESKTOP_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_APP_INSTALL_DESKTOP_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_APP_INSTALL_DESKTOP_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_APP_INSTALL_MOBILE_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_APP_INSTALL_MOBILE_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_APP_INSTALL_MOBILE_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_APP_INSTALL_TABLET_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_APP_INSTALL_TABLET_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_APP_INSTALL_TABLET_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_UNKNOWN_DESKTOP_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_UNKNOWN_DESKTOP_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_UNKNOWN_DESKTOP_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_UNKNOWN_MOBILE_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_UNKNOWN_MOBILE_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_UNKNOWN_MOBILE_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_UNKNOWN_TABLET_ACTION_TO_DESKTOP_CONVERSION",
+          "TOTAL_UNKNOWN_TABLET_ACTION_TO_MOBILE_CONVERSION",
+          "TOTAL_UNKNOWN_TABLET_ACTION_TO_TABLET_CONVERSION",
+          "TOTAL_CHECKOUT",
+          "TOTAL_CUSTOM",
+          "TOTAL_LEAD",
+          "TOTAL_APP_INSTALL",
+          "TOTAL_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_APP_INSTALL_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_CHECKOUT_QUANTITY",
+          "APP_INSTALL_COST_PER_ACTION",
+          "VIDEO_3SEC_VIEWS_1",
+          "VIDEO_P100_COMPLETE_1",
+          "VIDEO_P0_COMBINED_1",
+          "VIDEO_P25_COMBINED_1",
+          "VIDEO_P50_COMBINED_1",
+          "VIDEO_P75_COMBINED_1",
+          "VIDEO_P95_COMBINED_1",
+          "VIDEO_MRC_VIEWS_1",
+          "VIDEO_3SEC_VIEWS_2",
+          "VIDEO_P100_COMPLETE_2",
+          "VIDEO_P0_COMBINED_2",
+          "VIDEO_P25_COMBINED_2",
+          "VIDEO_P50_COMBINED_2",
+          "VIDEO_P75_COMBINED_2",
+          "VIDEO_P95_COMBINED_2",
+          "VIDEO_MRC_VIEWS_2",
+          "VIDEO_LENGTH",
+          "CPV_IN_MICRO_DOLLAR",
+          "CPCV_IN_MICRO_DOLLAR",
+          "CPCV_P95_IN_MICRO_DOLLAR",
+          "TOTAL_VIDEO_3SEC_VIEWS",
+          "VIDEO_AVG_WATCHTIME_IN_SECOND_1",
+          "VIDEO_AVG_WATCHTIME_IN_SECOND_2",
+          "TOTAL_VIDEO_AVG_WATCHTIME_IN_SECOND",
+          "WEB_CHECKOUT_COST_PER_ACTION",
+          "WEB_CHECKOUT_ROAS",
+          "TOTAL_WEB_CHECKOUT",
+          "TOTAL_WEB_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_CLICK_CHECKOUT",
+          "TOTAL_WEB_CLICK_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_ENGAGEMENT_CHECKOUT",
+          "TOTAL_WEB_ENGAGEMENT_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_VIEW_CHECKOUT",
+          "TOTAL_WEB_VIEW_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "INAPP_CHECKOUT_COST_PER_ACTION",
+          "INAPP_CHECKOUT_ROAS",
+          "TOTAL_INAPP_CHECKOUT",
+          "TOTAL_INAPP_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_CLICK_CHECKOUT",
+          "TOTAL_INAPP_CLICK_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_ENGAGEMENT_CHECKOUT",
+          "TOTAL_INAPP_ENGAGEMENT_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_VIEW_CHECKOUT",
+          "TOTAL_INAPP_VIEW_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "OFFLINE_CHECKOUT_COST_PER_ACTION",
+          "OFFLINE_CHECKOUT_ROAS",
+          "TOTAL_OFFLINE_CHECKOUT",
+          "TOTAL_OFFLINE_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_CLICK_CHECKOUT",
+          "TOTAL_OFFLINE_CLICK_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_ENGAGEMENT_CHECKOUT",
+          "TOTAL_OFFLINE_ENGAGEMENT_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_VIEW_CHECKOUT",
+          "TOTAL_OFFLINE_VIEW_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+          "WEB_ADD_TO_CART_COST_PER_ACTION",
+          "WEB_ADD_TO_CART_ROAS",
+          "TOTAL_WEB_ADD_TO_CART",
+          "TOTAL_WEB_ADD_TO_CART_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_CLICK_ADD_TO_CART",
+          "TOTAL_WEB_CLICK_ADD_TO_CART_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_ENGAGEMENT_ADD_TO_CART",
+          "TOTAL_WEB_ENGAGEMENT_ADD_TO_CART_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_VIEW_ADD_TO_CART",
+          "TOTAL_WEB_VIEW_ADD_TO_CART_VALUE_IN_MICRO_DOLLAR",
+          "INAPP_ADD_TO_CART_COST_PER_ACTION",
+          "INAPP_ADD_TO_CART_ROAS",
+          "TOTAL_INAPP_ADD_TO_CART",
+          "TOTAL_INAPP_ADD_TO_CART_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_CLICK_ADD_TO_CART",
+          "TOTAL_INAPP_CLICK_ADD_TO_CART_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_ENGAGEMENT_ADD_TO_CART",
+          "TOTAL_INAPP_ENGAGEMENT_ADD_TO_CART_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_VIEW_ADD_TO_CART",
+          "TOTAL_INAPP_VIEW_ADD_TO_CART_VALUE_IN_MICRO_DOLLAR",
+          "WEB_PAGE_VISIT_COST_PER_ACTION",
+          "WEB_PAGE_VISIT_ROAS",
+          "TOTAL_WEB_PAGE_VISIT",
+          "TOTAL_WEB_PAGE_VISIT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_CLICK_PAGE_VISIT",
+          "TOTAL_WEB_CLICK_PAGE_VISIT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_ENGAGEMENT_PAGE_VISIT",
+          "TOTAL_WEB_ENGAGEMENT_PAGE_VISIT_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_VIEW_PAGE_VISIT",
+          "TOTAL_WEB_VIEW_PAGE_VISIT_VALUE_IN_MICRO_DOLLAR",
+          "WEB_SIGNUP_COST_PER_ACTION",
+          "WEB_SIGNUP_ROAS",
+          "TOTAL_WEB_SIGNUP",
+          "TOTAL_WEB_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_CLICK_SIGNUP",
+          "TOTAL_WEB_CLICK_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_ENGAGEMENT_SIGNUP",
+          "TOTAL_WEB_ENGAGEMENT_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_VIEW_SIGNUP",
+          "TOTAL_WEB_VIEW_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "INAPP_SIGNUP_COST_PER_ACTION",
+          "INAPP_SIGNUP_ROAS",
+          "TOTAL_INAPP_SIGNUP",
+          "TOTAL_INAPP_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_CLICK_SIGNUP",
+          "TOTAL_INAPP_CLICK_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_ENGAGEMENT_SIGNUP",
+          "TOTAL_INAPP_ENGAGEMENT_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_VIEW_SIGNUP",
+          "TOTAL_INAPP_VIEW_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "OFFLINE_SIGNUP_COST_PER_ACTION",
+          "OFFLINE_SIGNUP_ROAS",
+          "TOTAL_OFFLINE_SIGNUP",
+          "TOTAL_OFFLINE_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_CLICK_SIGNUP",
+          "TOTAL_OFFLINE_CLICK_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_ENGAGEMENT_SIGNUP",
+          "TOTAL_OFFLINE_ENGAGEMENT_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_VIEW_SIGNUP",
+          "TOTAL_OFFLINE_VIEW_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "WEB_WATCH_VIDEO_COST_PER_ACTION",
+          "WEB_WATCH_VIDEO_ROAS",
+          "TOTAL_WEB_WATCH_VIDEO",
+          "TOTAL_WEB_WATCH_VIDEO_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_CLICK_WATCH_VIDEO",
+          "TOTAL_WEB_CLICK_WATCH_VIDEO_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_ENGAGEMENT_WATCH_VIDEO",
+          "TOTAL_WEB_ENGAGEMENT_WATCH_VIDEO_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_VIEW_WATCH_VIDEO",
+          "TOTAL_WEB_VIEW_WATCH_VIDEO_VALUE_IN_MICRO_DOLLAR",
+          "WEB_LEAD_COST_PER_ACTION",
+          "WEB_LEAD_ROAS",
+          "TOTAL_WEB_LEAD",
+          "TOTAL_WEB_LEAD_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_CLICK_LEAD",
+          "TOTAL_WEB_CLICK_LEAD_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_ENGAGEMENT_LEAD",
+          "TOTAL_WEB_ENGAGEMENT_LEAD_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_VIEW_LEAD",
+          "TOTAL_WEB_VIEW_LEAD_VALUE_IN_MICRO_DOLLAR",
+          "OFFLINE_LEAD_COST_PER_ACTION",
+          "OFFLINE_LEAD_ROAS",
+          "TOTAL_OFFLINE_LEAD",
+          "TOTAL_OFFLINE_LEAD_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_CLICK_LEAD",
+          "TOTAL_OFFLINE_CLICK_LEAD_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_ENGAGEMENT_LEAD",
+          "TOTAL_OFFLINE_ENGAGEMENT_LEAD_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_VIEW_LEAD",
+          "TOTAL_OFFLINE_VIEW_LEAD_VALUE_IN_MICRO_DOLLAR",
+          "WEB_SEARCH_COST_PER_ACTION",
+          "WEB_SEARCH_ROAS",
+          "TOTAL_WEB_SEARCH",
+          "TOTAL_WEB_SEARCH_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_CLICK_SEARCH",
+          "TOTAL_WEB_CLICK_SEARCH_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_ENGAGEMENT_SEARCH",
+          "TOTAL_WEB_ENGAGEMENT_SEARCH_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_VIEW_SEARCH",
+          "TOTAL_WEB_VIEW_SEARCH_VALUE_IN_MICRO_DOLLAR",
+          "INAPP_SEARCH_COST_PER_ACTION",
+          "INAPP_SEARCH_ROAS",
+          "TOTAL_INAPP_SEARCH",
+          "TOTAL_INAPP_SEARCH_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_CLICK_SEARCH",
+          "TOTAL_INAPP_CLICK_SEARCH_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_ENGAGEMENT_SEARCH",
+          "TOTAL_INAPP_ENGAGEMENT_SEARCH_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_VIEW_SEARCH",
+          "TOTAL_INAPP_VIEW_SEARCH_VALUE_IN_MICRO_DOLLAR",
+          "WEB_VIEW_CATEGORY_COST_PER_ACTION",
+          "WEB_VIEW_CATEGORY_ROAS",
+          "TOTAL_WEB_VIEW_CATEGORY",
+          "TOTAL_WEB_VIEW_CATEGORY_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_CLICK_VIEW_CATEGORY",
+          "TOTAL_WEB_CLICK_VIEW_CATEGORY_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_ENGAGEMENT_VIEW_CATEGORY",
+          "TOTAL_WEB_ENGAGEMENT_VIEW_CATEGORY_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_VIEW_VIEW_CATEGORY",
+          "TOTAL_WEB_VIEW_VIEW_CATEGORY_VALUE_IN_MICRO_DOLLAR",
+          "WEB_CUSTOM_COST_PER_ACTION",
+          "WEB_CUSTOM_ROAS",
+          "TOTAL_WEB_CUSTOM",
+          "TOTAL_WEB_CUSTOM_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_CLICK_CUSTOM",
+          "TOTAL_WEB_CLICK_CUSTOM_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_ENGAGEMENT_CUSTOM",
+          "TOTAL_WEB_ENGAGEMENT_CUSTOM_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_VIEW_CUSTOM",
+          "TOTAL_WEB_VIEW_CUSTOM_VALUE_IN_MICRO_DOLLAR",
+          "OFFLINE_CUSTOM_COST_PER_ACTION",
+          "OFFLINE_CUSTOM_ROAS",
+          "TOTAL_OFFLINE_CUSTOM",
+          "TOTAL_OFFLINE_CUSTOM_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_CLICK_CUSTOM",
+          "TOTAL_OFFLINE_CLICK_CUSTOM_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_ENGAGEMENT_CUSTOM",
+          "TOTAL_OFFLINE_ENGAGEMENT_CUSTOM_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_VIEW_CUSTOM",
+          "TOTAL_OFFLINE_VIEW_CUSTOM_VALUE_IN_MICRO_DOLLAR",
+          "WEB_UNKNOWN_COST_PER_ACTION",
+          "WEB_UNKNOWN_ROAS",
+          "TOTAL_WEB_UNKNOWN",
+          "TOTAL_WEB_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_CLICK_UNKNOWN",
+          "TOTAL_WEB_CLICK_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_ENGAGEMENT_UNKNOWN",
+          "TOTAL_WEB_ENGAGEMENT_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_WEB_VIEW_UNKNOWN",
+          "TOTAL_WEB_VIEW_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "INAPP_UNKNOWN_COST_PER_ACTION",
+          "INAPP_UNKNOWN_ROAS",
+          "TOTAL_INAPP_UNKNOWN",
+          "TOTAL_INAPP_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_CLICK_UNKNOWN",
+          "TOTAL_INAPP_CLICK_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_ENGAGEMENT_UNKNOWN",
+          "TOTAL_INAPP_ENGAGEMENT_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_VIEW_UNKNOWN",
+          "TOTAL_INAPP_VIEW_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "OFFLINE_UNKNOWN_COST_PER_ACTION",
+          "OFFLINE_UNKNOWN_ROAS",
+          "TOTAL_OFFLINE_UNKNOWN",
+          "TOTAL_OFFLINE_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_CLICK_UNKNOWN",
+          "TOTAL_OFFLINE_CLICK_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_ENGAGEMENT_UNKNOWN",
+          "TOTAL_OFFLINE_ENGAGEMENT_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_OFFLINE_VIEW_UNKNOWN",
+          "TOTAL_OFFLINE_VIEW_UNKNOWN_VALUE_IN_MICRO_DOLLAR",
+          "INAPP_APP_INSTALL_COST_PER_ACTION",
+          "INAPP_APP_INSTALL_ROAS",
+          "TOTAL_INAPP_APP_INSTALL",
+          "TOTAL_INAPP_APP_INSTALL_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_CLICK_APP_INSTALL",
+          "TOTAL_INAPP_CLICK_APP_INSTALL_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_ENGAGEMENT_APP_INSTALL",
+          "TOTAL_INAPP_ENGAGEMENT_APP_INSTALL_VALUE_IN_MICRO_DOLLAR",
+          "TOTAL_INAPP_VIEW_APP_INSTALL",
+          "TOTAL_INAPP_VIEW_APP_INSTALL_VALUE_IN_MICRO_DOLLAR",
+          "IDEA_PIN_PRODUCT_TAG_VISIT_1",
+          "IDEA_PIN_PRODUCT_TAG_VISIT_2",
+          "REPIN_RATE",
+          "TOTAL_VIDEO_P95_COMBINED",
+          "AD_GROUP_ENTITY_STATUS",
+          "ECPCV_P95_IN_DOLLAR",
+          "ENGAGEMENT_RATE",
+          "PAGE_VISIT_COST_PER_ACTION",
+          "TOTAL_PAGE_VISIT",
+          "CHECKOUT_ROAS",
+          "TOTAL_SIGNUP_VALUE_IN_MICRO_DOLLAR",
+          "ECPCV_IN_DOLLAR",
+          "TOTAL_VIDEO_P75_COMBINED",
+          "TOTAL_VIDEO_P50_COMBINED",
+          "TOTAL_SIGNUP",
+          "TOTAL_VIDEO_P0_COMBINED",
+          "SPEND_IN_DOLLAR",
+          "EENGAGEMENT_RATE",
+          "TOTAL_VIDEO_P25_COMBINED",
+          "CPM_IN_DOLLAR",
+          "ECPV_IN_DOLLAR",
+          "TOTAL_CLICKTHROUGH",
+          "ECPE_IN_DOLLAR",
+          "TOTAL_VIDEO_P100_COMPLETE",
+          "CAMPAIGN_ENTITY_STATUS",
+          "PAGE_VISIT_ROAS",
+          "TOTAL_REPIN_RATE",
+          "TOTAL_VIDEO_MRC_VIEWS",
+          "TOTAL_IDEA_PIN_PRODUCT_TAG_VISIT",
+          "ECPC_IN_DOLLAR"
+        ]
       },
       "CampaignCommon": {
         "required": [
@@ -4301,6 +7971,20 @@
           "AWARENESS_RESERVED",
           "ENGAGEMENT"
         ]
+      },
+      "TargetingTypeFilter": {
+        "type": "object",
+        "properties": {
+          "targeting_types": {
+            "type": "array",
+            "description": "List of targeting types",
+            "items": {
+              "$ref": "#/components/schemas/AdsAnalyticsTargetingType"
+            },
+            "maxItems": 5,
+            "minItems": 1
+          }
+        }
       },
       "TrackingUrls": {
         "description": "Third-party tracking URLs. Up to three tracking URLs are supported for each event type. Tracking URLs set at the ad group or ad level can override those set at the campaign level. For more information, see <a href=\"https://help.pinterest.com/en/business/article/third-party-and-dynamic-tracking\" target=\"_blank\">Third-party and dynamic tracking</a>.",
@@ -4414,6 +8098,26 @@
         "schema": {
           "type": "string",
           "pattern": "^\\d+$"
+        }
+      },
+      "path_catalogs_feed_id": {
+        "description": "Unique identifier of a feed",
+        "in": "path",
+        "required": true,
+        "name": "feed_id",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
+      "path_catalogs_items_batch_id": {
+        "name": "batch_id",
+        "in": "path",
+        "description": "Id of a catalogs items batch to fetch",
+        "example": "595953100599279259-66753b9bb65c46c49bd8503b27fecf9e",
+        "required": true,
+        "schema": {
+          "type": "string"
         }
       },
       "path_media_id": {
@@ -4623,6 +8327,7 @@
               "TOTAL_CLICKTHROUGH",
               "TOTAL_CLICK_CHECKOUT",
               "TOTAL_CLICK_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+              "TOTAL_CLICK_LEAD",
               "TOTAL_CLICK_SIGNUP",
               "TOTAL_CLICK_SIGNUP_VALUE_IN_MICRO_DOLLAR",
               "TOTAL_CONVERSIONS",
@@ -4630,6 +8335,7 @@
               "TOTAL_ENGAGEMENT",
               "TOTAL_ENGAGEMENT_CHECKOUT",
               "TOTAL_ENGAGEMENT_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+              "TOTAL_ENGAGEMENT_LEAD",
               "TOTAL_ENGAGEMENT_SIGNUP",
               "TOTAL_ENGAGEMENT_SIGNUP_VALUE_IN_MICRO_DOLLAR",
               "TOTAL_IDEA_PIN_PRODUCT_TAG_VISIT",
@@ -4651,6 +8357,7 @@
               "TOTAL_VIDEO_P95_COMBINED",
               "TOTAL_VIEW_CHECKOUT",
               "TOTAL_VIEW_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
+              "TOTAL_VIEW_LEAD",
               "TOTAL_VIEW_SIGNUP",
               "TOTAL_VIEW_SIGNUP_VALUE_IN_MICRO_DOLLAR",
               "TOTAL_WEB_CHECKOUT",
@@ -4735,21 +8442,6 @@
             "TIME_OF_CONVERSION"
           ],
           "default": "TIME_OF_AD_ACTION"
-        }
-      },
-      "query_downstream": {
-        "description": "Include downstream metrics? Default is 0 (false).",
-        "in": "query",
-        "name": "downstream",
-        "required": false,
-        "schema": {
-          "default": 0,
-          "enum": [
-            0,
-            1,
-            2
-          ],
-          "type": "integer"
         }
       },
       "query_end_date": {
@@ -4854,21 +8546,7 @@
         },
         "style": "form"
       },
-      "query_owned_content_list": {
-        "description": "Get metrics for domains or owned accounts, default is all. ",
-        "explode": false,
-        "in": "query",
-        "name": "owned_content_list",
-        "required": false,
-        "schema": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "style": "form"
-      },
-      "query_split_field": {
+      "query_split_field_user_account": {
         "description": "How to split the data into groups. Not including this param means data won't be split.",
         "required": false,
         "in": "query",
@@ -4879,12 +8557,23 @@
           "enum": [
             "NO_SPLIT",
             "APP_TYPE",
-            "CONTENT_TYPE",
             "OWNED_CONTENT",
-            "SOURCE",
-            "PIN_FORMAT",
-            "CONVERSION_TYPE",
-            "ATTRIBUTION_EVENT"
+            "PIN_FORMAT"
+          ],
+          "type": "string"
+        }
+      },
+      "query_split_field_pins": {
+        "description": "How to split the data into groups. Not including this param means data won't be split.",
+        "required": false,
+        "in": "query",
+        "explode": false,
+        "name": "split_field",
+        "schema": {
+          "default": "NO_SPLIT",
+          "enum": [
+            "NO_SPLIT",
+            "APP_TYPE"
           ],
           "type": "string"
         }
@@ -4954,6 +8643,15 @@
         "schema": {
           "type": "string",
           "format": "date"
+        }
+      },
+      "query_token_required": {
+        "name": "token",
+        "description": "Token returned from the post request creation call",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string"
         }
       },
       "query_include_shared_accounts": {
