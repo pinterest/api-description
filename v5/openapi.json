@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "5.3.0",
-    "title": "Pinterest REST API",
+    "version": "5.1.1",
+    "title": "Pinterest REST API (Beta)",
     "description": "Pinterest's REST API",
     "contact": {
       "name": "Pinterest, Inc.",
@@ -244,7 +244,7 @@
     "/pins": {
       "post": {
         "summary": "Create Pin",
-        "description": "Create a Pin on a board or board section owned by the \"operation user_account\".\n\nNote: If the current \"operation user_account\" (defined by the access token) has access to another user's Ad Accounts via Pinterest Business Access, you can modify your request to make use of the current operation_user_account's permissions to those Ad Accounts by including the ad_account_id in the path parameters for the request (e.g. .../?ad_account_id=12345&...).\n\n- This function is intended solely for publishing new content created by the user. If you are interested in saving content created by others to your Pinterest boards, sometimes called 'curated content', please use our <a href='/docs/add-ons/save-button'>Save button</a> instead. For more tips on creating fresh content for Pinterest, review our <a href='/docs/solutions/content-apps'>Content App Solutions Guide</a>.\n\n<strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.",
+        "description": "Create a Pin on a board or board section owned by the \"operation user_account\".\n\nNote: If the current \"operation user_account\" (defined by the access token) has access to another user's Ad Accounts via Pinterest Business Access, you can modify your request to make use of the current operation_user_account's permissions to those Ad Accounts by including the ad_account_id in the path parameters for the request (e.g. .../?ad_account_id=12345&...).\n\n- This function is intended solely for publishing new content created by the user. If you are interested in saving content created by others to your Pinterest boards, sometimes called 'curated content', please use our <a href='/docs/add-ons/save-button'>Save button</a> instead. For more tips on creating fresh content for Pinterest, review our <a href='/docs/solutions/content-apps'>Content App Solutions Guide</a>.",
         "tags": [
           "pins"
         ],
@@ -522,7 +522,7 @@
     "/pins/{pin_id}/analytics": {
       "get": {
         "summary": "Get Pin analytics",
-        "description": "Get analytics for a Pin owned by the \"operation user_account\" - or on a group board that has been shared with this account.\n- By default, the \"operation user_account\" is the token user_account.\n\nOptional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href=\"https://developers.pinterest.com/docs/api/v5/#operation/ad_accounts/list\">List ad accounts</a>) to use the owner of that ad_account as the \"operation user_account\". In order to do this, the token user_account must have one of the following <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a> roles on the ad_account:\n\n- For Pins on public or protected boards: Admin, Analyst.\n- For Pins on secret boards: Admin.",
+        "description": "Get analytics for a Pin owned by the \"operation user_account\" - or on a group board that has been shared with this account.\n- By default, the \"operation user_account\" is the token user_account.\n\nOptional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href=\"https://developers.pinterest.com/docs/api/v5/#operation/ad_accounts/list\">List ad accounts</a>) to use the owner of that ad_account as the \"operation user_account\". In order to do this, the token user_account must have one of the following <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a> roles on the ad_account:\n\n- For Pins on public or protected boards: Owner, Admin, Analyst, Campaign Manager.\n- For Pins on secret boards: Owner, Admin.",
         "tags": [
           "pins"
         ],
@@ -1554,7 +1554,7 @@
     "/media": {
       "get": {
         "summary": "List media uploads",
-        "description": "List media uploads filtered by given parameters.\n\n<strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.",
+        "description": "List media uploads filtered by given parameters.",
         "tags": [
           "media"
         ],
@@ -1614,7 +1614,7 @@
       },
       "post": {
         "summary": "Register media upload",
-        "description": "Register your intent to upload media\n\nThe response includes all of the information needed to upload the media\nto Pinterest.\n\nTo upload the media, make an HTTP POST request (using <tt>curl</tt>, for\nexample) to <tt>upload_url</tt> using the <tt>Content-Type</tt> header\nvalue. Send the media file's contents as the request's <tt>file</tt>\nparameter and also include all of the parameters from\n<tt>upload_parameters</tt>.\n\n<strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.",
+        "description": "Register your intent to upload media",
         "tags": [
           "media"
         ],
@@ -1646,65 +1646,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MediaUpload"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/media/{media_id}": {
-      "get": {
-        "summary": "Get media upload details",
-        "description": "Get details for a registered media upload, including its current status.\n\n<strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.",
-        "tags": [
-          "media"
-        ],
-        "operationId": "media/get",
-        "security": [
-          {
-            "pinterest_oauth2": [
-              "pins:read"
-            ]
-          }
-        ],
-        "x-ratelimit-category": "org_read",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/path_media_id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MediaUploadDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Media upload not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "code": 404,
-                  "message": "Media upload not found"
                 }
               }
             }
@@ -2561,40 +2502,56 @@
               "ads:read"
             ]
           }
-        ],
-        "x-ratelimit-category": "ads_analytics",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/path_ad_account_id"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AdsAnalyticsCreateAsyncRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdsAnalyticsCreateAsyncResponse"
-                }
-              }
-            },
-            "description": "Success"
-          },
-          "400": {
-            "description": "Invalid ad account ads analytics parameters.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+        }
+      },
+      "AnalyticsResponse": {
+        "type": "object",
+        "properties": {
+          "all": {
+            "type": "object",
+            "properties": {
+              "daily_metrics": {
+                "description": "Daily metric array.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "data_status": {
+                      "description": "Metrics availablity, e.g., \"READY\".",
+                      "example": "READY",
+                      "type": "string"
+                    },
+                    "date": {
+                      "description": "Metrics date (UTC): YYYY-MM-DD.",
+                      "example": "2019-12-01",
+                      "type": "string"
+                    },
+                    "metrics": {
+                      "description": "A dictionary of metrics and values.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "number"
+                      },
+                      "example": {
+                        "ENGAGEMENT": 100,
+                        "CLICKTHROUGH_RATE": 0.2,
+                        "CLICKTHROUGH": 200,
+                        "CLOSEUP": 37,
+                        "CLOSEUP_RATE": 0.5,
+                        "ENGAGEMENT_RATE": 0.2,
+                        "SAVE": 20,
+                        "SAVE_RATE": 0.18,
+                        "IMPRESSION": 240
+                      }
+                    }
+                  }
+                },
+                "type": "array"
+              },
+              "summary_metrics": {
+                "description": "A dictionary of metrics and values.",
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number"
                 },
                 "example": {
                   "code": 400,
@@ -6459,95 +6416,6 @@
           "PROCESSING"
         ]
       },
-      "ItemValidationEvent": {
-        "type": "object",
-        "description": "Object describing an item validation event",
-        "properties": {
-          "attribute": {
-            "description": "The attribute that the item validation event references",
-            "example": "title",
-            "type": "string"
-          },
-          "code": {
-            "description": "The event code that the item validation event references",
-            "example": 106,
-            "type": "integer"
-          },
-          "message": {
-            "description": "Title message describing the item validation event",
-            "example": "Title is missing from product metadata.",
-            "type": "string"
-          }
-        }
-      },
-      "Language": {
-        "type": "string",
-        "description": "Language code, which is among the offical ISO 639-1 language list.",
-        "example": "EN",
-        "enum": [
-          "AM",
-          "AR",
-          "AZ",
-          "BG",
-          "BN",
-          "BS",
-          "CA",
-          "CS",
-          "DA",
-          "DV",
-          "DZ",
-          "DE",
-          "EL",
-          "EN",
-          "ES",
-          "ET",
-          "FA",
-          "FI",
-          "FR",
-          "HE",
-          "HI",
-          "HR",
-          "HU",
-          "HY",
-          "ID",
-          "IN",
-          "IS",
-          "IT",
-          "IW",
-          "JA",
-          "KA",
-          "KM",
-          "KO",
-          "LO",
-          "LT",
-          "LV",
-          "MK",
-          "MN",
-          "MS",
-          "MY",
-          "NB",
-          "NE",
-          "NL",
-          "NO",
-          "PL",
-          "PT",
-          "RO",
-          "RU",
-          "SK",
-          "SL",
-          "SQ",
-          "SR",
-          "SV",
-          "TL",
-          "UK",
-          "VI",
-          "TE",
-          "TH",
-          "TR",
-          "XX",
-          "ZH"
-        ]
-      },
       "MediaUpload": {
         "title": "Media upload",
         "description": "Media upload that has been registered but not uploaded/processed yet.",
@@ -6566,13 +6434,11 @@
                     "$ref": "#/components/schemas/MediaUploadType"
                   }
                 ],
-                "type": "string",
-                "example": "video"
+                "type": "string"
               },
               "upload_url": {
                 "type": "string",
-                "description": "The URL where you will POST your media file.",
-                "example": "https://pinterest-media-upload.s3-accelerate.amazonaws.com/"
+                "description": "The URL where you will POST your media file."
               },
               "upload_parameters": {
                 "type": "object",
@@ -6600,29 +6466,13 @@
                     "type": "string"
                   },
                   "Content-Type": {
-                    "type": "string",
-                    "example": "multipart/form-data"
+                    "type": "string"
                   }
                 }
               }
             }
           }
-        ],
-        "example": {
-          "media_id": "12345",
-          "media_type": "video",
-          "upload_url": "https://pinterest-media-upload.s3-accelerate.amazonaws.com/",
-          "upload_parameters": {
-            "x-amz-data": "20220127T185143Z",
-            "x-amz-signature": "fcd6309a6aaee213348666a72abed8b44552a43acb6b340e8e1b288d21a5fe92",
-            "key": "uploads/11/aa/22/3:video:203014033110991560:5212123920968240771",
-            "policy": "eyJleHBpcmF0aW9uIjoiMj..==",
-            "x-amz-credential": "ASIA6QZJ64OPIKV7FRVX/20220127/us-east-1/s3/aws4_request",
-            "x-amz-security-token": "IQoJb3JpZ2luX2VjEJr...==",
-            "x-amz-algorithm": "AWS4-HMAC-SHA256",
-            "Content-Type": "multipart/form-data"
-          }
-        }
+        ]
       },
       "MediaUploadDetails": {
         "title": "Media upload details",
@@ -6631,7 +6481,7 @@
         "properties": {
           "media_id": {
             "type": "string",
-            "pattern": "^\\d+$",
+            "pattern": "\\d+",
             "readOnly": true
           },
           "media_type": {
@@ -6643,6 +6493,11 @@
             "type": "string",
             "readOnly": true
           },
+          "signature": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
           "status": {
             "allOf": [
               {
@@ -6652,11 +6507,6 @@
             "type": "string",
             "readOnly": true
           }
-        },
-        "example": {
-          "media_id": "12345",
-          "media_type": "video",
-          "status": "succeeded"
         }
       },
       "MediaUploadRequest": {
@@ -6676,10 +6526,7 @@
         },
         "required": [
           "media_type"
-        ],
-        "example": {
-          "media_type": "video"
-        }
+        ]
       },
       "MediaUploadStatus": {
         "description": "Media upload status",
@@ -7094,12 +6941,12 @@
           "board_id": {
             "description": "The board to which this Pin belongs.",
             "type": "string",
-            "pattern": "^\\d+$"
+            "pattern": "\\d+"
           },
           "board_section_id": {
             "description": "The board section to which this Pin belongs.",
             "type": "string",
-            "pattern": "^\\d+$",
+            "pattern": "\\d+",
             "nullable": true
           },
           "board_owner": {
@@ -7295,7 +7142,7 @@
               },
               "media_id": {
                 "type": "string",
-                "pattern": "^\\d+$"
+                "pattern": "\\d+"
               }
             },
             "required": [
@@ -7943,18 +7790,6 @@
                 "$ref": "#/components/schemas/TrackingUrls"
               }
             ]
-          },
-          "start_time": {
-            "type": "integer",
-            "description": "Campaign start time. Unix timestamp in seconds. Only used for Campaign Budget Optimization (CBO) campaigns.",
-            "example": 1580865126,
-            "nullable": true
-          },
-          "end_time": {
-            "type": "integer",
-            "description": "Campaign end time. Unix timestamp in seconds. Only used for Campaign Budget Optimization (CBO) campaigns.",
-            "example": 1644023526,
-            "nullable": true
           }
         }
       },
@@ -8100,36 +7935,6 @@
           "pattern": "^\\d+$"
         }
       },
-      "path_catalogs_feed_id": {
-        "description": "Unique identifier of a feed",
-        "in": "path",
-        "required": true,
-        "name": "feed_id",
-        "schema": {
-          "type": "string",
-          "pattern": "^\\d+$"
-        }
-      },
-      "path_catalogs_items_batch_id": {
-        "name": "batch_id",
-        "in": "path",
-        "description": "Id of a catalogs items batch to fetch",
-        "example": "595953100599279259-66753b9bb65c46c49bd8503b27fecf9e",
-        "required": true,
-        "schema": {
-          "type": "string"
-        }
-      },
-      "path_media_id": {
-        "name": "media_id",
-        "description": "Media identifier",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "pattern": "^\\d+$"
-        }
-      },
       "path_pin_id": {
         "name": "pin_id",
         "description": "Unique identifier of a Pin.",
@@ -8149,7 +7954,7 @@
         }
       },
       "query_ad_group_ids": {
-        "description": "List of Ad group Ids to use to filter the results.",
+        "description": "List of Ad group Ids.",
         "in": "query",
         "name": "ad_group_ids",
         "required": false,
@@ -8164,7 +7969,7 @@
         }
       },
       "query_ad_group_ids_required": {
-        "description": "List of Ad group Ids to use to filter the results.",
+        "description": "List of Ad group Ids.",
         "in": "query",
         "name": "ad_group_ids",
         "required": true,
@@ -8179,7 +7984,7 @@
         }
       },
       "query_ad_ids": {
-        "description": "List of Ad Ids to use to filter the results.",
+        "description": "List of Ad Ids.",
         "in": "query",
         "name": "ad_ids",
         "required": false,
@@ -8194,7 +7999,7 @@
         }
       },
       "query_ad_ids_required": {
-        "description": "List of Ad Ids to use to filter the results.",
+        "description": "List of Ad Ids.",
         "in": "query",
         "name": "ad_ids",
         "required": true,
@@ -8234,7 +8039,7 @@
         }
       },
       "query_campaign_ids": {
-        "description": "List of Campaign Ids to use to filter the results.",
+        "description": "List of Campaign Ids.",
         "in": "query",
         "name": "campaign_ids",
         "required": false,
@@ -8249,7 +8054,7 @@
         }
       },
       "query_campaign_ids_required": {
-        "description": "List of Campaign Ids to use to filter the results.",
+        "description": "List of Campaign Ids.",
         "in": "query",
         "name": "campaign_ids",
         "required": true,
@@ -8264,7 +8069,7 @@
         }
       },
       "query_columns": {
-        "description": "Columns to retrieve. **NOTE**: Any metrics defined as MICRO_DOLLARS returns a value based on the advertiser profile's currency field. For USD,($1/1,000,000, or $0.000001 - one one-ten-thousandth of a cent). it's microdollars. Otherwise, it's in microunits of the advertiser's currency.<br/>For example, if the advertiser's currency is GBP (British pound sterling), all MICRO_DOLLARS fields will be in GBP microunits (1/1,000,000 British pound).<br/>If a column has no value, it may not be returned",
+        "description": "Columns to retrieve. **NOTE**: Any metrics defined as MICRO_DOLLARS returns a value based on the advertiser profile's currency field.  For USD, it's microdollars. Otherwise, it's in microunits of the advertiser's currency. <br> For example, if the advertiser's currency is GBP (British pound sterling), all MICRO_DOLLARS fields will be in GBP microunits. <br> If a column has no value, it may not be returned",
         "explode": false,
         "in": "query",
         "name": "columns",
@@ -8494,7 +8299,14 @@
         "name": "granularity",
         "required": true,
         "schema": {
-          "$ref": "#/components/schemas/Granularity"
+          "type": "string",
+          "enum": [
+            "TOTAL",
+            "DAY",
+            "HOUR",
+            "WEEK",
+            "MONTH"
+          ]
         }
       },
       "query_metric_types": {
@@ -8621,7 +8433,7 @@
         }
       },
       "query_product_group_ids_required": {
-        "description": "List of Product group Ids to use to filter the results.",
+        "description": "List of Product group Ids.",
         "in": "query",
         "name": "product_group_ids",
         "required": true,
@@ -8665,7 +8477,7 @@
         }
       },
       "query_translate_interests_to_names": {
-        "description": "Return interests as text names (if value is true) rather than topic IDs.",
+        "description": "Return interests as text names and not topic IDs?",
         "in": "query",
         "name": "translate_interests_to_names",
         "required": false,
