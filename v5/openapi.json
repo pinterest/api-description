@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "5.1.1",
-    "title": "Pinterest REST API (Beta)",
+    "version": "5.3.0",
+    "title": "Pinterest REST API",
     "description": "Pinterest's REST API",
     "contact": {
       "name": "Pinterest, Inc.",
@@ -244,7 +244,7 @@
     "/pins": {
       "post": {
         "summary": "Create Pin",
-        "description": "Create a Pin on a board or board section owned by the \"operation user_account\".\n\nNote: If the current \"operation user_account\" (defined by the access token) has access to another user's Ad Accounts via Pinterest Business Access, you can modify your request to make use of the current operation_user_account's permissions to those Ad Accounts by including the ad_account_id in the path parameters for the request (e.g. .../?ad_account_id=12345&...).\n\n- This function is intended solely for publishing new content created by the user. If you are interested in saving content created by others to your Pinterest boards, sometimes called 'curated content', please use our <a href='/docs/add-ons/save-button'>Save button</a> instead. For more tips on creating fresh content for Pinterest, review our <a href='/docs/solutions/content-apps'>Content App Solutions Guide</a>.",
+        "description": "Create a Pin on a board or board section owned by the \"operation user_account\".\n\nNote: If the current \"operation user_account\" (defined by the access token) has access to another user's Ad Accounts via Pinterest Business Access, you can modify your request to make use of the current operation_user_account's permissions to those Ad Accounts by including the ad_account_id in the path parameters for the request (e.g. .../?ad_account_id=12345&...).\n\n- This function is intended solely for publishing new content created by the user. If you are interested in saving content created by others to your Pinterest boards, sometimes called 'curated content', please use our <a href='/docs/add-ons/save-button'>Save button</a> instead. For more tips on creating fresh content for Pinterest, review our <a href='/docs/solutions/content-apps'>Content App Solutions Guide</a>.\n\n<strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.",
         "tags": [
           "pins"
         ],
@@ -522,7 +522,7 @@
     "/pins/{pin_id}/analytics": {
       "get": {
         "summary": "Get Pin analytics",
-        "description": "Get analytics for a Pin owned by the \"operation user_account\" - or on a group board that has been shared with this account.\n- By default, the \"operation user_account\" is the token user_account.\n\nOptional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href=\"https://developers.pinterest.com/docs/api/v5/#operation/ad_accounts/list\">List ad accounts</a>) to use the owner of that ad_account as the \"operation user_account\". In order to do this, the token user_account must have one of the following <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a> roles on the ad_account:\n\n- For Pins on public or protected boards: Owner, Admin, Analyst, Campaign Manager.\n- For Pins on secret boards: Owner, Admin.",
+        "description": "Get analytics for a Pin owned by the \"operation user_account\" - or on a group board that has been shared with this account.\n- By default, the \"operation user_account\" is the token user_account.\n\nOptional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href=\"https://developers.pinterest.com/docs/api/v5/#operation/ad_accounts/list\">List ad accounts</a>) to use the owner of that ad_account as the \"operation user_account\". In order to do this, the token user_account must have one of the following <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a> roles on the ad_account:\n\n- For Pins on public or protected boards: Admin, Analyst.\n- For Pins on secret boards: Admin.",
         "tags": [
           "pins"
         ],
@@ -1554,7 +1554,7 @@
     "/media": {
       "get": {
         "summary": "List media uploads",
-        "description": "List media uploads filtered by given parameters.",
+        "description": "List media uploads filtered by given parameters.\n\n<strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.",
         "tags": [
           "media"
         ],
@@ -1614,7 +1614,7 @@
       },
       "post": {
         "summary": "Register media upload",
-        "description": "Register your intent to upload media",
+        "description": "Register your intent to upload media\n\nThe response includes all of the information needed to upload the media\nto Pinterest.\n\nTo upload the media, make an HTTP POST request (using <tt>curl</tt>, for\nexample) to <tt>upload_url</tt> using the <tt>Content-Type</tt> header\nvalue. Send the media file's contents as the request's <tt>file</tt>\nparameter and also include all of the parameters from\n<tt>upload_parameters</tt>.\n\n<strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.",
         "tags": [
           "media"
         ],
@@ -1646,6 +1646,65 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MediaUpload"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/media/{media_id}": {
+      "get": {
+        "summary": "Get media upload details",
+        "description": "Get details for a registered media upload, including its current status.\n\n<strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.",
+        "tags": [
+          "media"
+        ],
+        "operationId": "media/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "pins:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "org_read",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_media_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaUploadDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Media upload not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 404,
+                  "message": "Media upload not found"
                 }
               }
             }
@@ -2502,56 +2561,40 @@
               "ads:read"
             ]
           }
-        }
-      },
-      "AnalyticsResponse": {
-        "type": "object",
-        "properties": {
-          "all": {
-            "type": "object",
-            "properties": {
-              "daily_metrics": {
-                "description": "Daily metric array.",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "data_status": {
-                      "description": "Metrics availablity, e.g., \"READY\".",
-                      "example": "READY",
-                      "type": "string"
-                    },
-                    "date": {
-                      "description": "Metrics date (UTC): YYYY-MM-DD.",
-                      "example": "2019-12-01",
-                      "type": "string"
-                    },
-                    "metrics": {
-                      "description": "A dictionary of metrics and values.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "number"
-                      },
-                      "example": {
-                        "ENGAGEMENT": 100,
-                        "CLICKTHROUGH_RATE": 0.2,
-                        "CLICKTHROUGH": 200,
-                        "CLOSEUP": 37,
-                        "CLOSEUP_RATE": 0.5,
-                        "ENGAGEMENT_RATE": 0.2,
-                        "SAVE": 20,
-                        "SAVE_RATE": 0.18,
-                        "IMPRESSION": 240
-                      }
-                    }
-                  }
-                },
-                "type": "array"
-              },
-              "summary_metrics": {
-                "description": "A dictionary of metrics and values.",
-                "type": "object",
-                "additionalProperties": {
-                  "type": "number"
+        ],
+        "x-ratelimit-category": "ads_analytics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdsAnalyticsCreateAsyncRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdsAnalyticsCreateAsyncResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid ad account ads analytics parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 },
                 "example": {
                   "code": 400,
@@ -3401,6 +3444,613 @@
           },
           "default": {
             "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogs"
+        ]
+      }
+    },
+    "/catalogs/product_groups/{product_group_id}": {
+      "delete": {
+        "x-ratelimit-category": "catalogs_write",
+        "summary": "Delete product group",
+        "description": "Delete a product group from being in use in Catalogs.",
+        "operationId": "catalogs_product_groups/delete",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_catalogs_product_group_id"
+          }
+        ],
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "catalogs:write"
+            ]
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Catalogs Product Group deleted successfully."
+          },
+          "400": {
+            "description": "Invalid catalogs product group id parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "InvalidRequest": {
+                    "value": {
+                      "code": 1,
+                      "message": "'catalogs_product_group_id' value '11851494501_' must match the pattern: ^\\d+$\"}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "UnauthorizedAccess": {
+                    "value": {
+                      "code": 29,
+                      "message": "You are not permitted to access that resource."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Account not approved for feed mutations yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "MerchantDisapproved": {
+                    "value": {
+                      "code": 2625,
+                      "message": "Sorry, you cannot perform this action. Account is disapproved."
+                    }
+                  },
+                  "MerchantUnderReview": {
+                    "value": {
+                      "code": 2625,
+                      "message": "Sorry, you cannot perform this action. Account is under review."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Catalogs product group not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CatalogsProductGroupNotFound": {
+                    "value": {
+                      "code": 4180,
+                      "message": "Sorry! We could not find your catalogs product group."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. Can't delete this catalogs product group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CatalogsProductGroupHasActivePromotions": {
+                    "value": {
+                      "code": 4176,
+                      "message": "We can't delete a Catalogs Product Group with active promotions."
+                    }
+                  },
+                  "CatalogsProductGroupIsAllProduct": {
+                    "value": {
+                      "code": 4177,
+                      "message": "You cannot disable an 'ALL_PRODUCTS' catalogs product group."
+                    }
+                  },
+                  "CatalogsMerchantNotCreated": {
+                    "value": {
+                      "code": 4182,
+                      "message": "Can't create a catalogs product group without an existing catalog."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogs"
+        ]
+      },
+      "patch": {
+        "x-ratelimit-category": "catalogs_write",
+        "summary": "Update product group",
+        "description": "Update product group to use in Catalogs.",
+        "operationId": "catalogs_product_groups/update",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_catalogs_product_group_id"
+          }
+        ],
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "catalogs:write"
+            ]
+          }
+        ],
+        "requestBody": {
+          "description": "Request object used to Update a catalogs product group.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogsProductGroupUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogsProductGroup"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "InvalidRequest": {
+                    "value": {
+                      "code": 1,
+                      "message": "'catalogs_product_group_id' value '11851494501_' must match the pattern: ^\\d+$\"}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "UnauthorizedAccess": {
+                    "value": {
+                      "code": 29,
+                      "message": "You are not permitted to access that resource."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Catalogs product group not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CatalogsProductGroupNotFound": {
+                    "value": {
+                      "code": 4180,
+                      "message": "Sorry! We could not find your catalogs product group."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. Can't update this catalogs product group to this value.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CatalogsProductGroupFiltersAlreadyExist": {
+                    "value": {
+                      "code": 4178,
+                      "message": "A catalogs product group with these filters already exists for this feed."
+                    }
+                  },
+                  "CatalogsProductGroupNameAlreadyExist": {
+                    "value": {
+                      "code": 4179,
+                      "message": "A catalogs product group with this name already exists for this feed."
+                    }
+                  },
+                  "CatalogsMerchantNotCreated": {
+                    "value": {
+                      "code": 4182,
+                      "message": "Can't create a catalogs product group without an existing catalog."
+                    }
+                  },
+                  "CatalogsProductGroupInvalid": {
+                    "value": {
+                      "code": 4183,
+                      "message": "This catalog product group failed validation, please ensure its attributes are set correctly."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogs"
+        ]
+      }
+    },
+    "/catalogs/product_groups": {
+      "get": {
+        "x-ratelimit-category": "catalogs_read",
+        "summary": "Get product groups list",
+        "description": "Get a list of product groups for a given Catalogs Feed Id.",
+        "operationId": "catalogs_product_groups/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "catalogs:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_catalogs_feed_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          },
+          {
+            "$ref": "#/components/parameters/query_page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CatalogsProductGroup"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid feed parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "InvalidRequest": {
+                    "value": {
+                      "code": 1,
+                      "message": "'feed_id' value '1511851494501_' must match the pattern: ^\\d+$\"}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "UnauthorizedAccess": {
+                    "value": {
+                      "code": 29,
+                      "message": "You are not permitted to access that resource."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Account not approved for feed mutations yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "MerchantDisapproved": {
+                    "value": {
+                      "code": 2625,
+                      "message": "Sorry, you cannot perform this action. Account is disapproved."
+                    }
+                  },
+                  "MerchantUnderReview": {
+                    "value": {
+                      "code": 2625,
+                      "message": "Sorry, you cannot perform this action. Account is under review."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data feed not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "FeedNotFound": {
+                    "value": {
+                      "code": 4161,
+                      "message": "Sorry! We could not find your catalogs feed."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. Can't create this catalogs product group with this value.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CatalogsMerchantNotCreated": {
+                    "value": {
+                      "code": 4182,
+                      "message": "Can't create a catalogs product group without an existing catalog."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalogs"
+        ]
+      },
+      "post": {
+        "x-ratelimit-category": "catalogs_write",
+        "summary": "Create product group",
+        "description": "Create product group to use in Catalogs.",
+        "operationId": "catalogs_product_groups/create",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "catalogs:write"
+            ]
+          }
+        ],
+        "requestBody": {
+          "description": "Request object used to created a catalogs product group.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogsProductGroupCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CatalogsProductGroup"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "InvalidRequest": {
+                    "value": {
+                      "code": 1,
+                      "message": "'feed_id' value '1511851494501_' must match the pattern: ^\\d+$\"}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "UnauthorizedAccess": {
+                    "value": {
+                      "code": 29,
+                      "message": "You are not permitted to access that resource."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Account not approved for feed mutations yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "MerchantDisapproved": {
+                    "value": {
+                      "code": 2625,
+                      "message": "Sorry, you cannot perform this action. Account is disapproved."
+                    }
+                  },
+                  "MerchantUnderReview": {
+                    "value": {
+                      "code": 2626,
+                      "message": "Sorry, you cannot perform this action. Account is under review."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. Can't create this catalogs product group with this value.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "CatalogsProductGroupFiltersAlreadyExist": {
+                    "value": {
+                      "code": 4178,
+                      "message": "A catalogs product group with these filters already exists for this feed."
+                    }
+                  },
+                  "CatalogsProductGroupNameAlreadyExist": {
+                    "value": {
+                      "code": 4179,
+                      "message": "A catalogs product group with this name already exists for this feed."
+                    }
+                  },
+                  "CatalogsMerchantNotCreated": {
+                    "value": {
+                      "code": 4182,
+                      "message": "Can't create a catalogs product group without an existing catalog."
+                    }
+                  },
+                  "CatalogsProductGroupInvalid": {
+                    "value": {
+                      "code": 4183,
+                      "message": "This catalog product group failed validation, please ensure its attributes are set correctly."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5771,6 +6421,668 @@
           "INACTIVE"
         ]
       },
+      "CatalogsProductGroupType": {
+        "type": "string",
+        "title": "product_group_type",
+        "description": "Catalog product group type",
+        "enum": [
+          "MERCHANT_CREATED",
+          "ALL_PRODUCTS",
+          "BEST_DEALS",
+          "PINNER_FAVORITES",
+          "TOP_SELLERS",
+          "BACK_IN_STOCK",
+          "NEW_ARRIVALS"
+        ],
+        "example": "TOP_SELLERS"
+      },
+      "CatalogsProductGroupStatus": {
+        "type": "string",
+        "enum": [
+          "ACTIVE",
+          "INACTIVE"
+        ]
+      },
+      "CatalogsProductGroup": {
+        "type": "object",
+        "description": "catalog product group entity",
+        "properties": {
+          "id": {
+            "description": "ID of the catalog product group.",
+            "example": "2680059592705",
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "name": {
+            "description": "Name of catalog product group",
+            "example": "Most Popular",
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "filters": {
+            "$ref": "#/components/schemas/CatalogsProductGroupFilters"
+          },
+          "type": {
+            "$ref": "#/components/schemas/CatalogsProductGroupType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CatalogsProductGroupStatus"
+          },
+          "feed_id": {
+            "description": "id of the catalogs feed belonging to this catalog product group",
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "created_at": {
+            "description": "Unix timestamp in seconds of when catalog product group was created.",
+            "example": 1621350033000,
+            "type": "integer"
+          },
+          "updated_at": {
+            "description": "Unix timestamp in seconds of last time catalog product group was updated.",
+            "example": 1622742155000,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "filters",
+          "id"
+        ]
+      },
+      "CatalogsProductGroupUpdateRequest": {
+        "type": "object",
+        "title": "product_groups_update_request",
+        "description": "Request object for updating a product group.",
+        "properties": {
+          "feed_id": {
+            "description": "Catalog Feed id pertaining to the catalog product group.",
+            "example": "2680059592705",
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "filters": {
+            "$ref": "#/components/schemas/CatalogsProductGroupFilters"
+          }
+        },
+        "required": [
+          "name",
+          "feed_id",
+          "filters"
+        ]
+      },
+      "CatalogsProductGroupCreateRequest": {
+        "type": "object",
+        "title": "product_groups_create_request",
+        "description": "Request object for creating a product group.",
+        "properties": {
+          "feed_id": {
+            "description": "Catalog Feed id pertaining to the catalog product group.",
+            "example": "2680059592705",
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "filters": {
+            "$ref": "#/components/schemas/CatalogsProductGroupFilters"
+          }
+        },
+        "required": [
+          "name",
+          "feed_id",
+          "filters"
+        ]
+      },
+      "CatalogsProductGroupFilters": {
+        "description": "Object holding a group of filters for a catalog product group",
+        "title": "catalogs_product_group_filters",
+        "type": "object",
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/CatalogsProductGroupFiltersAnyOf"
+          },
+          {
+            "$ref": "#/components/schemas/CatalogsProductGroupFiltersAllOf"
+          }
+        ]
+      },
+      "CatalogsProductGroupFiltersAnyOf": {
+        "type": "object",
+        "properties": {
+          "any_of": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/CatalogsProductGroupFilterKeys"
+            }
+          }
+        }
+      },
+      "CatalogsProductGroupFiltersAllOf": {
+        "type": "object",
+        "properties": {
+          "all_of": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/CatalogsProductGroupFilterKeys"
+            }
+          }
+        }
+      },
+      "CatalogsProductGroupFilterKeys": {
+        "title": "catalogs_product_group_keys",
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/MinPriceFilter"
+          },
+          {
+            "$ref": "#/components/schemas/MaxPriceFilter"
+          },
+          {
+            "$ref": "#/components/schemas/CurrencyFilter"
+          },
+          {
+            "$ref": "#/components/schemas/ItemIdFilter"
+          },
+          {
+            "$ref": "#/components/schemas/AvailabilityFilter"
+          },
+          {
+            "$ref": "#/components/schemas/BrandFilter"
+          },
+          {
+            "$ref": "#/components/schemas/ConditionFilter"
+          },
+          {
+            "$ref": "#/components/schemas/CustomLabel0Filter"
+          },
+          {
+            "$ref": "#/components/schemas/CustomLabel1Filter"
+          },
+          {
+            "$ref": "#/components/schemas/CustomLabel2Filter"
+          },
+          {
+            "$ref": "#/components/schemas/CustomLabel3Filter"
+          },
+          {
+            "$ref": "#/components/schemas/CustomLabel4Filter"
+          },
+          {
+            "$ref": "#/components/schemas/ItemGroupIdFilter"
+          },
+          {
+            "$ref": "#/components/schemas/GenderFilter"
+          },
+          {
+            "$ref": "#/components/schemas/ProductType4Filter"
+          },
+          {
+            "$ref": "#/components/schemas/ProductType3Filter"
+          },
+          {
+            "$ref": "#/components/schemas/ProductType2Filter"
+          },
+          {
+            "$ref": "#/components/schemas/ProductType1Filter"
+          },
+          {
+            "$ref": "#/components/schemas/ProductType0Filter"
+          },
+          {
+            "$ref": "#/components/schemas/GoogleProductCategory6Filter"
+          },
+          {
+            "$ref": "#/components/schemas/GoogleProductCategory5Filter"
+          },
+          {
+            "$ref": "#/components/schemas/GoogleProductCategory4Filter"
+          },
+          {
+            "$ref": "#/components/schemas/GoogleProductCategory3Filter"
+          },
+          {
+            "$ref": "#/components/schemas/GoogleProductCategory2Filter"
+          },
+          {
+            "$ref": "#/components/schemas/GoogleProductCategory1Filter"
+          },
+          {
+            "$ref": "#/components/schemas/GoogleProductCategory0Filter"
+          }
+        ]
+      },
+      "CatalogsProductGroupMultipleStringListCriteria": {
+        "title": "catalogs_product_group_multiple_string_list_criteria",
+        "type": "object",
+        "properties": {
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "negated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "negated",
+          "values"
+        ]
+      },
+      "CatalogsProductGroupMultipleStringCriteria": {
+        "title": "catalogs_product_group_multiple_string_criteria",
+        "type": "object",
+        "properties": {
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "negated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "values",
+          "negated"
+        ]
+      },
+      "CatalogsProductGroupCurrencyCriteria": {
+        "title": "catalogs_product_group_currency_criteria",
+        "type": "object",
+        "properties": {
+          "values": {
+            "$ref": "#/components/schemas/NonNullableCatalogsCurrency"
+          },
+          "negated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "values",
+          "negated"
+        ]
+      },
+      "CatalogsProductGroupPricingCriteria": {
+        "title": "catalogs_product_group_pricing_criteria",
+        "type": "object",
+        "properties": {
+          "inclusion": {
+            "type": "boolean"
+          },
+          "values": {
+            "type": "number"
+          },
+          "negated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "inclusion",
+          "values",
+          "negated"
+        ]
+      },
+      "MinPriceFilter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "MIN_PRICE": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupPricingCriteria"
+          }
+        },
+        "required": [
+          "MIN_PRICE"
+        ]
+      },
+      "MaxPriceFilter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "MAX_PRICE": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupPricingCriteria"
+          }
+        },
+        "required": [
+          "MAX_PRICE"
+        ]
+      },
+      "CurrencyFilter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CURRENCY": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupCurrencyCriteria"
+          }
+        },
+        "required": [
+          "CURRENCY"
+        ]
+      },
+      "ItemIdFilter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ITEM_ID": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupCurrencyCriteria"
+          }
+        },
+        "required": [
+          "ITEM_ID"
+        ]
+      },
+      "AvailabilityFilter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "AVAILABILITY": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringCriteria"
+          }
+        },
+        "required": [
+          "AVAILABILITY"
+        ]
+      },
+      "BrandFilter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "BRAND": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringCriteria"
+          }
+        },
+        "required": [
+          "BRAND"
+        ]
+      },
+      "ConditionFilter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CONDITION": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringCriteria"
+          }
+        },
+        "required": [
+          "CONDITION"
+        ]
+      },
+      "CustomLabel0Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CUSTOM_LABEL_0": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringCriteria"
+          }
+        },
+        "required": [
+          "CUSTOM_LABEL_0"
+        ]
+      },
+      "CustomLabel1Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CUSTOM_LABEL_1": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringCriteria"
+          }
+        },
+        "required": [
+          "CUSTOM_LABEL_1"
+        ]
+      },
+      "CustomLabel2Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CUSTOM_LABEL_2": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringCriteria"
+          }
+        },
+        "required": [
+          "CUSTOM_LABEL_2"
+        ]
+      },
+      "CustomLabel3Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CUSTOM_LABEL_3": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringCriteria"
+          }
+        },
+        "required": [
+          "CUSTOM_LABEL_3"
+        ]
+      },
+      "CustomLabel4Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CUSTOM_LABEL_4": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringCriteria"
+          }
+        },
+        "required": [
+          "CUSTOM_LABEL_4"
+        ]
+      },
+      "ItemGroupIdFilter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ITEM_GROUP_ID": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringCriteria"
+          }
+        },
+        "required": [
+          "ITEM_GROUP_ID"
+        ]
+      },
+      "GenderFilter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "GENDER": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringCriteria"
+          }
+        },
+        "required": [
+          "GENDER"
+        ]
+      },
+      "ProductType4Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "PRODUCT_TYPE_4": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringListCriteria"
+          }
+        },
+        "required": [
+          "PRODUCT_TYPE_4"
+        ]
+      },
+      "ProductType3Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "PRODUCT_TYPE_3": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringListCriteria"
+          }
+        },
+        "required": [
+          "PRODUCT_TYPE_3"
+        ]
+      },
+      "ProductType2Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "PRODUCT_TYPE_2": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringListCriteria"
+          }
+        },
+        "required": [
+          "PRODUCT_TYPE_2"
+        ]
+      },
+      "ProductType1Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "PRODUCT_TYPE_1": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringListCriteria"
+          }
+        },
+        "required": [
+          "PRODUCT_TYPE_1"
+        ]
+      },
+      "ProductType0Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "PRODUCT_TYPE_0": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringListCriteria"
+          }
+        },
+        "required": [
+          "PRODUCT_TYPE_0"
+        ]
+      },
+      "GoogleProductCategory6Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "GOOGLE_PRODUCT_CATEGORY_6": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringListCriteria"
+          }
+        },
+        "required": [
+          "GOOGLE_PRODUCT_CATEGORY_6"
+        ]
+      },
+      "GoogleProductCategory5Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "GOOGLE_PRODUCT_CATEGORY_5": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringListCriteria"
+          }
+        },
+        "required": [
+          "GOOGLE_PRODUCT_CATEGORY_5"
+        ]
+      },
+      "GoogleProductCategory4Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "GOOGLE_PRODUCT_CATEGORY_4": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringListCriteria"
+          }
+        },
+        "required": [
+          "GOOGLE_PRODUCT_CATEGORY_4"
+        ]
+      },
+      "GoogleProductCategory3Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "GOOGLE_PRODUCT_CATEGORY_3": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringListCriteria"
+          }
+        },
+        "required": [
+          "GOOGLE_PRODUCT_CATEGORY_3"
+        ]
+      },
+      "GoogleProductCategory2Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "GOOGLE_PRODUCT_CATEGORY_2": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringListCriteria"
+          }
+        },
+        "required": [
+          "GOOGLE_PRODUCT_CATEGORY_2"
+        ]
+      },
+      "GoogleProductCategory1Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "GOOGLE_PRODUCT_CATEGORY_1": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringListCriteria"
+          }
+        },
+        "required": [
+          "GOOGLE_PRODUCT_CATEGORY_1"
+        ]
+      },
+      "GoogleProductCategory0Filter": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "GOOGLE_PRODUCT_CATEGORY_0": {
+            "type": "object",
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleStringListCriteria"
+          }
+        },
+        "required": [
+          "GOOGLE_PRODUCT_CATEGORY_0"
+        ]
+      },
       "ConversionAttributionWindowDays": {
         "type": "integer",
         "enum": [
@@ -6416,6 +7728,95 @@
           "PROCESSING"
         ]
       },
+      "ItemValidationEvent": {
+        "type": "object",
+        "description": "Object describing an item validation event",
+        "properties": {
+          "attribute": {
+            "description": "The attribute that the item validation event references",
+            "example": "title",
+            "type": "string"
+          },
+          "code": {
+            "description": "The event code that the item validation event references",
+            "example": 106,
+            "type": "integer"
+          },
+          "message": {
+            "description": "Title message describing the item validation event",
+            "example": "Title is missing from product metadata.",
+            "type": "string"
+          }
+        }
+      },
+      "Language": {
+        "type": "string",
+        "description": "Language code, which is among the offical ISO 639-1 language list.",
+        "example": "EN",
+        "enum": [
+          "AM",
+          "AR",
+          "AZ",
+          "BG",
+          "BN",
+          "BS",
+          "CA",
+          "CS",
+          "DA",
+          "DV",
+          "DZ",
+          "DE",
+          "EL",
+          "EN",
+          "ES",
+          "ET",
+          "FA",
+          "FI",
+          "FR",
+          "HE",
+          "HI",
+          "HR",
+          "HU",
+          "HY",
+          "ID",
+          "IN",
+          "IS",
+          "IT",
+          "IW",
+          "JA",
+          "KA",
+          "KM",
+          "KO",
+          "LO",
+          "LT",
+          "LV",
+          "MK",
+          "MN",
+          "MS",
+          "MY",
+          "NB",
+          "NE",
+          "NL",
+          "NO",
+          "PL",
+          "PT",
+          "RO",
+          "RU",
+          "SK",
+          "SL",
+          "SQ",
+          "SR",
+          "SV",
+          "TL",
+          "UK",
+          "VI",
+          "TE",
+          "TH",
+          "TR",
+          "XX",
+          "ZH"
+        ]
+      },
       "MediaUpload": {
         "title": "Media upload",
         "description": "Media upload that has been registered but not uploaded/processed yet.",
@@ -6434,11 +7835,13 @@
                     "$ref": "#/components/schemas/MediaUploadType"
                   }
                 ],
-                "type": "string"
+                "type": "string",
+                "example": "video"
               },
               "upload_url": {
                 "type": "string",
-                "description": "The URL where you will POST your media file."
+                "description": "The URL where you will POST your media file.",
+                "example": "https://pinterest-media-upload.s3-accelerate.amazonaws.com/"
               },
               "upload_parameters": {
                 "type": "object",
@@ -6466,13 +7869,29 @@
                     "type": "string"
                   },
                   "Content-Type": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "multipart/form-data"
                   }
                 }
               }
             }
           }
-        ]
+        ],
+        "example": {
+          "media_id": "12345",
+          "media_type": "video",
+          "upload_url": "https://pinterest-media-upload.s3-accelerate.amazonaws.com/",
+          "upload_parameters": {
+            "x-amz-data": "20220127T185143Z",
+            "x-amz-signature": "fcd6309a6aaee213348666a72abed8b44552a43acb6b340e8e1b288d21a5fe92",
+            "key": "uploads/11/aa/22/3:video:203014033110991560:5212123920968240771",
+            "policy": "eyJleHBpcmF0aW9uIjoiMj..==",
+            "x-amz-credential": "ASIA6QZJ64OPIKV7FRVX/20220127/us-east-1/s3/aws4_request",
+            "x-amz-security-token": "IQoJb3JpZ2luX2VjEJr...==",
+            "x-amz-algorithm": "AWS4-HMAC-SHA256",
+            "Content-Type": "multipart/form-data"
+          }
+        }
       },
       "MediaUploadDetails": {
         "title": "Media upload details",
@@ -6481,7 +7900,7 @@
         "properties": {
           "media_id": {
             "type": "string",
-            "pattern": "\\d+",
+            "pattern": "^\\d+$",
             "readOnly": true
           },
           "media_type": {
@@ -6493,11 +7912,6 @@
             "type": "string",
             "readOnly": true
           },
-          "signature": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
           "status": {
             "allOf": [
               {
@@ -6507,6 +7921,11 @@
             "type": "string",
             "readOnly": true
           }
+        },
+        "example": {
+          "media_id": "12345",
+          "media_type": "video",
+          "status": "succeeded"
         }
       },
       "MediaUploadRequest": {
@@ -6526,7 +7945,10 @@
         },
         "required": [
           "media_type"
-        ]
+        ],
+        "example": {
+          "media_type": "video"
+        }
       },
       "MediaUploadStatus": {
         "description": "Media upload status",
@@ -6561,6 +7983,177 @@
           "PRODUCT_GROUP",
           "PRODUCT_GROUP_TARGETING",
           "PRODUCT_ITEM"
+        ]
+      },
+      "NonNullableCatalogsCurrency": {
+        "type": "string",
+        "description": "Currency Codes from ISO 4217.",
+        "nullable": false,
+        "example": "USD",
+        "enum": [
+          "AED",
+          "AFN",
+          "ALL",
+          "AMD",
+          "ANG",
+          "AOA",
+          "ARS",
+          "AUD",
+          "AWG",
+          "AZN",
+          "BAM",
+          "BBD",
+          "BDT",
+          "BGN",
+          "BHD",
+          "BIF",
+          "BMD",
+          "BND",
+          "BOB",
+          "BRL",
+          "BSD",
+          "BTN",
+          "BWP",
+          "BYN",
+          "BYR",
+          "BZD",
+          "CAD",
+          "CDF",
+          "CHF",
+          "CLP",
+          "CNY",
+          "COP",
+          "CRC",
+          "CUC",
+          "CUP",
+          "CVE",
+          "CZK",
+          "DJF",
+          "DKK",
+          "DOP",
+          "DZD",
+          "EGP",
+          "ERN",
+          "ETB",
+          "EUR",
+          "FJD",
+          "FKP",
+          "GBP",
+          "GEL",
+          "GGP",
+          "GHS",
+          "GIP",
+          "GMD",
+          "GNF",
+          "GTQ",
+          "GYD",
+          "HKD",
+          "HNL",
+          "HRK",
+          "HTG",
+          "HUF",
+          "IDR",
+          "ILS",
+          "IMP",
+          "INR",
+          "IQD",
+          "IRR",
+          "ISK",
+          "JEP",
+          "JMD",
+          "JOD",
+          "JPY",
+          "KES",
+          "KGS",
+          "KHR",
+          "KMF",
+          "KPW",
+          "KRW",
+          "KWD",
+          "KYD",
+          "KZT",
+          "LAK",
+          "LBP",
+          "LKR",
+          "LRD",
+          "LSL",
+          "LYD",
+          "MAD",
+          "MDL",
+          "MGA",
+          "MKD",
+          "MMK",
+          "MNT",
+          "MOP",
+          "MRO",
+          "MUR",
+          "MVR",
+          "MWK",
+          "MXN",
+          "MYR",
+          "MZN",
+          "NAD",
+          "NGN",
+          "NIO",
+          "NOK",
+          "NPR",
+          "NZD",
+          "OMR",
+          "PAB",
+          "PEN",
+          "PGK",
+          "PHP",
+          "PKR",
+          "PLN",
+          "PYG",
+          "QAR",
+          "RON",
+          "RSD",
+          "RUB",
+          "RWF",
+          "SAR",
+          "SBD",
+          "SCR",
+          "SDG",
+          "SEK",
+          "SGD",
+          "SHP",
+          "SLL",
+          "SOS",
+          "SPL",
+          "SRD",
+          "STD",
+          "SVC",
+          "SYP",
+          "SZL",
+          "THB",
+          "TJS",
+          "TMT",
+          "TND",
+          "TOP",
+          "TRY",
+          "TTD",
+          "TVD",
+          "TWD",
+          "TZS",
+          "UAH",
+          "UGX",
+          "USD",
+          "UYU",
+          "UZS",
+          "VEF",
+          "VND",
+          "VUV",
+          "WST",
+          "XAF",
+          "XCD",
+          "XDR",
+          "XOF",
+          "XPF",
+          "YER",
+          "ZAR",
+          "ZMW",
+          "ZWD"
         ]
       },
       "NullableCurrency": {
@@ -6941,12 +8534,12 @@
           "board_id": {
             "description": "The board to which this Pin belongs.",
             "type": "string",
-            "pattern": "\\d+"
+            "pattern": "^\\d+$"
           },
           "board_section_id": {
             "description": "The board section to which this Pin belongs.",
             "type": "string",
-            "pattern": "\\d+",
+            "pattern": "^\\d+$",
             "nullable": true
           },
           "board_owner": {
@@ -7142,7 +8735,7 @@
               },
               "media_id": {
                 "type": "string",
-                "pattern": "\\d+"
+                "pattern": "^\\d+$"
               }
             },
             "required": [
@@ -7790,6 +9383,18 @@
                 "$ref": "#/components/schemas/TrackingUrls"
               }
             ]
+          },
+          "start_time": {
+            "type": "integer",
+            "description": "Campaign start time. Unix timestamp in seconds. Only used for Campaign Budget Optimization (CBO) campaigns.",
+            "example": 1580865126,
+            "nullable": true
+          },
+          "end_time": {
+            "type": "integer",
+            "description": "Campaign end time. Unix timestamp in seconds. Only used for Campaign Budget Optimization (CBO) campaigns.",
+            "example": 1644023526,
+            "nullable": true
           }
         }
       },
@@ -7935,6 +9540,46 @@
           "pattern": "^\\d+$"
         }
       },
+      "path_catalogs_feed_id": {
+        "description": "Unique identifier of a feed",
+        "in": "path",
+        "required": true,
+        "name": "feed_id",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
+      "path_catalogs_items_batch_id": {
+        "name": "batch_id",
+        "in": "path",
+        "description": "Id of a catalogs items batch to fetch",
+        "example": "595953100599279259-66753b9bb65c46c49bd8503b27fecf9e",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "path_catalogs_product_group_id": {
+        "description": "Unique identifier of a product group",
+        "in": "path",
+        "required": true,
+        "name": "product_group_id",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
+      "path_media_id": {
+        "name": "media_id",
+        "description": "Media identifier",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
       "path_pin_id": {
         "name": "pin_id",
         "description": "Unique identifier of a Pin.",
@@ -7954,7 +9599,7 @@
         }
       },
       "query_ad_group_ids": {
-        "description": "List of Ad group Ids.",
+        "description": "List of Ad group Ids to use to filter the results.",
         "in": "query",
         "name": "ad_group_ids",
         "required": false,
@@ -7969,7 +9614,7 @@
         }
       },
       "query_ad_group_ids_required": {
-        "description": "List of Ad group Ids.",
+        "description": "List of Ad group Ids to use to filter the results.",
         "in": "query",
         "name": "ad_group_ids",
         "required": true,
@@ -7984,7 +9629,7 @@
         }
       },
       "query_ad_ids": {
-        "description": "List of Ad Ids.",
+        "description": "List of Ad Ids to use to filter the results.",
         "in": "query",
         "name": "ad_ids",
         "required": false,
@@ -7999,7 +9644,7 @@
         }
       },
       "query_ad_ids_required": {
-        "description": "List of Ad Ids.",
+        "description": "List of Ad Ids to use to filter the results.",
         "in": "query",
         "name": "ad_ids",
         "required": true,
@@ -8039,7 +9684,7 @@
         }
       },
       "query_campaign_ids": {
-        "description": "List of Campaign Ids.",
+        "description": "List of Campaign Ids to use to filter the results.",
         "in": "query",
         "name": "campaign_ids",
         "required": false,
@@ -8054,7 +9699,7 @@
         }
       },
       "query_campaign_ids_required": {
-        "description": "List of Campaign Ids.",
+        "description": "List of Campaign Ids to use to filter the results.",
         "in": "query",
         "name": "campaign_ids",
         "required": true,
@@ -8068,8 +9713,18 @@
           "maxItems": 100
         }
       },
+      "query_catalogs_feed_id": {
+        "description": "Unique identifier of a feed",
+        "in": "query",
+        "required": true,
+        "name": "feed_id",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
       "query_columns": {
-        "description": "Columns to retrieve. **NOTE**: Any metrics defined as MICRO_DOLLARS returns a value based on the advertiser profile's currency field.  For USD, it's microdollars. Otherwise, it's in microunits of the advertiser's currency. <br> For example, if the advertiser's currency is GBP (British pound sterling), all MICRO_DOLLARS fields will be in GBP microunits. <br> If a column has no value, it may not be returned",
+        "description": "Columns to retrieve. **NOTE**: Any metrics defined as MICRO_DOLLARS returns a value based on the advertiser profile's currency field. For USD,($1/1,000,000, or $0.000001 - one one-ten-thousandth of a cent). it's microdollars. Otherwise, it's in microunits of the advertiser's currency.<br/>For example, if the advertiser's currency is GBP (British pound sterling), all MICRO_DOLLARS fields will be in GBP microunits (1/1,000,000 British pound).<br/>If a column has no value, it may not be returned",
         "explode": false,
         "in": "query",
         "name": "columns",
@@ -8299,14 +9954,7 @@
         "name": "granularity",
         "required": true,
         "schema": {
-          "type": "string",
-          "enum": [
-            "TOTAL",
-            "DAY",
-            "HOUR",
-            "WEEK",
-            "MONTH"
-          ]
+          "$ref": "#/components/schemas/Granularity"
         }
       },
       "query_metric_types": {
@@ -8433,7 +10081,7 @@
         }
       },
       "query_product_group_ids_required": {
-        "description": "List of Product group Ids.",
+        "description": "List of Product group Ids to use to filter the results.",
         "in": "query",
         "name": "product_group_ids",
         "required": true,
@@ -8477,7 +10125,7 @@
         }
       },
       "query_translate_interests_to_names": {
-        "description": "Return interests as text names and not topic IDs?",
+        "description": "Return interests as text names (if value is true) rather than topic IDs.",
         "in": "query",
         "name": "translate_interests_to_names",
         "required": false,
