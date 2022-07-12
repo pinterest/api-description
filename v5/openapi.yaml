@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 5.4.0
+  version: 5.4.1
   title: Pinterest REST API
   description: Pinterest's REST API
   contact:
@@ -2837,7 +2837,7 @@ paths:
       x-ratelimit-category: catalogs_read
       summary: List item issues for a given processing result
       description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/api/v5/#tag/Understanding-catalog-management'>Learn more</a>.</strong>
+        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>
 
         List item validation issues for a given feed processing result. Please note that for now query parameters 'item_numbers' and 'item_validation_issue' cannot be used simultaneously until it is implemented in some release in the future.
       operationId: items_issues/list
@@ -3032,6 +3032,78 @@ paths:
                 $ref: '#/components/schemas/Error'
         default:
           description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - catalogs
+  /catalogs/products/get_by_product_group_filters:
+    post:
+      x-ratelimit-category: catalogs_read
+      summary: List products that meet the criteria of the filter you provide.
+      description: |-
+        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>
+        List products Pins that meet the criteria specified in the Catalogs Product Group Filter given in the request.
+        Note: This endpoint has been implemented in POST to allow for complex filters. This specific POST endpoint is designed to be idempotent.
+      operationId: products_by_product_group_filter/list
+      security:
+      - pinterest_oauth2:
+        - boards:read
+        - catalogs:read
+        - pins:read
+      parameters:
+      - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
+      requestBody:
+        description: Object holding a group of filters for a catalog product group
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CatalogsListProductsByFilterRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Paginated'
+                - properties:
+                    items:
+                      description: Pins
+                      items:
+                        $ref: '#/components/schemas/CatalogsProduct'
+          description: Success
+        '401':
+          description: Unauthorized access.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedAccess:
+                  value:
+                    code: 29
+                    message: You are not permitted to access that resource.
+        '409':
+          description: Conflict. Can't get products.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                CatalogsMerchantNotCreated:
+                  value:
+                    code: 4182
+                    message: Can't acccess this feature without an existing catalog.
+                CatalogsProductGroupFiltersInvalid:
+                  value:
+                    code: 4183
+                    message: Catalog product group filters failed validation, please
+                      ensure all filters are set correctly.
+        default:
+          description: Unexpected error.
           content:
             application/json:
               schema:
@@ -3347,7 +3419,7 @@ paths:
       x-ratelimit-category: catalogs_read
       summary: List products for a given product group
       description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/api/v5/#tag/Understanding-catalog-management'>Learn more</a>.</strong>
+        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>
 
         Get a list of product pins for a given Catalogs Product Group Id.
       operationId: catalogs_product_group_pins/list
@@ -6312,6 +6384,25 @@ components:
           description: Array with catalogs items
           items:
             $ref: '#/components/schemas/ItemBatchRecord'
+    CatalogsListProductsByFilterRequest:
+      description: Request object to list products for a given product group filter.
+      type: object
+      oneOf:
+      - description: Request object to list products for a given feed_id and product
+          group filter.
+        type: object
+        additionalProperties: false
+        properties:
+          feed_id:
+            description: Catalog Feed id pertaining to the catalog product group filter.
+            example: '2680059592705'
+            type: string
+            pattern: ^\d+$
+          filters:
+            $ref: '#/components/schemas/CatalogsProductGroupFilters'
+        required:
+        - feed_id
+        - filters
     CatalogsStatus:
       type: string
       description: Status for catalogs entities. Present in catalogs_feed values.
