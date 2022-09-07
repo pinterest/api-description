@@ -105,6 +105,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "description": "Generate an OAuth access token.",
           "required": true,
@@ -156,6 +159,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_ad_account_id"
@@ -215,6 +221,9 @@
           }
         ],
         "x-ratelimit-category": "org_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_start_date"
@@ -310,6 +319,9 @@
           }
         ],
         "x-ratelimit-category": "org_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_start_date"
@@ -397,6 +409,9 @@
           }
         ],
         "x-ratelimit-category": "org_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_start_date"
@@ -486,6 +501,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "description": "Create a new Pin.",
           "required": true,
@@ -618,6 +636,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_pin_id"
@@ -695,6 +716,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_pin_id"
@@ -764,6 +788,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_pin_id"
@@ -878,6 +905,9 @@
           }
         ],
         "x-ratelimit-category": "org_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_pin_id"
@@ -983,6 +1013,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -1058,6 +1091,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "description": "Create a board using a single board json object.",
           "required": true,
@@ -1123,6 +1159,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1181,6 +1220,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1278,6 +1320,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1372,6 +1417,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1436,6 +1484,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1549,6 +1600,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1649,6 +1703,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1733,6 +1790,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1844,6 +1904,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1923,6 +1986,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -1984,6 +2050,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "description": "Create a media upload request",
           "required": true,
@@ -2035,6 +2104,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_media_id"
@@ -2094,6 +2166,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -2157,6 +2232,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "content": {
             "application/json": {
@@ -2205,6 +2283,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2250,6 +2331,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2333,6 +2417,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2409,7 +2496,7 @@
       },
       "post": {
         "summary": "Create campaigns",
-        "description": "Create multiple new campaigns. Every campaign has its own campaign_id and houses one or more ad groups, which contain one or more ads.\nFor more, see <a href=\"https://help.pinterest.com/en/business/article/set-up-your-campaign/\">Set up your campaign</a>. <p/>\n<strong>Note:</strong>\n- The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul> \n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>",
+        "description": "Create multiple new campaigns. Every campaign has its own campaign_id and houses one or more ad groups, which contain one or more ads.\nFor more, see <a href=\"https://help.pinterest.com/en/business/article/set-up-your-campaign/\">Set up your campaign</a>. <p/>\n<strong>Note:</strong>\n- The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>",
         "tags": [
           "campaigns"
         ],
@@ -2422,6 +2509,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2466,7 +2556,7 @@
       },
       "patch": {
         "summary": "Update campaigns",
-        "description": "Update multiple ad campaigns based on campaign_ids. <p/>\n<strong>Note:</strong><p/>\n- <p>The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>  \n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>",
+        "description": "Update multiple ad campaigns based on campaign_ids. <p/>\n<strong>Note:</strong><p/>\n- <p>The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>",
         "tags": [
           "campaigns"
         ],
@@ -2479,6 +2569,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2535,6 +2628,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2583,6 +2679,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2669,6 +2768,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2751,7 +2853,7 @@
       },
       "post": {
         "summary": "Create ad groups",
-        "description": "Create multiple new ad groups. All ads in a given ad group will have the same budget, bid, run dates, targeting, and placement (search, browse, other). For more information, <a href=\"https://help.pinterest.com/en/business/article/campaign-structure\" target=\"_blank\"> click here</a>.</p>\n<strong>Note:</strong>\n- 'bid_in_micro_currency' and 'budget_in_micro_currency' should be expressed in microcurrency amounts based on the currency field set in the advertiser's profile.<p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul> \n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>\n- Ad groups belong to ad campaigns. Some types of campaigns (e.g. budget optimization) have limits on the number of ad groups they can hold. If you exceed those limits, you will get an error message.",
+        "description": "Create multiple new ad groups. All ads in a given ad group will have the same budget, bid, run dates, targeting, and placement (search, browse, other). For more information, <a href=\"https://help.pinterest.com/en/business/article/campaign-structure\" target=\"_blank\"> click here</a>.</p>\n<strong>Note:</strong>\n- 'bid_in_micro_currency' and 'budget_in_micro_currency' should be expressed in microcurrency amounts based on the currency field set in the advertiser's profile.<p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>\n- Ad groups belong to ad campaigns. Some types of campaigns (e.g. budget optimization) have limits on the number of ad groups they can hold. If you exceed those limits, you will get an error message.",
         "operationId": "ad_groups/create",
         "security": [
           {
@@ -2761,6 +2863,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2820,6 +2925,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2881,6 +2989,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2929,6 +3040,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3015,6 +3129,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3106,6 +3223,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3165,6 +3285,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3227,6 +3350,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3275,6 +3401,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3364,6 +3493,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3424,7 +3556,7 @@
     },
     "/ad_accounts/{ad_account_id}/bid_floor": {
       "post": {
-        "description": "List bid floors for your campaign configuration. Bid floors are given in microcurrency values based on the currency in the bid floor specification. <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul> \n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>  \n</ul>\nFor more on bid floors see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-your-bid\"> Set your bid</a>.",
+        "description": "List bid floors for your campaign configuration. Bid floors are given in microcurrency values based on the currency in the bid floor specification. <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>\nFor more on bid floors see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-your-bid\"> Set your bid</a>.",
         "operationId": "ad_groups_bid_floor/get",
         "security": [
           {
@@ -3434,6 +3566,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3491,6 +3626,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3577,6 +3715,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3637,6 +3778,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3706,6 +3850,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3809,6 +3956,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3866,6 +4016,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3922,6 +4075,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3967,63 +4123,6 @@
         ]
       }
     },
-    "/ad_accounts/{ad_account_id}/insights/audiences/{scope}/{type}/{category_id}": {
-      "get": {
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\n<p>Get information about a category's sub-level interests.</p>\n<p>For a list of interests, their IDs, and hierarchy, see <a class=\"reference external\"\nhref=\"https://docs.google.com/spreadsheets/d/1HxL-0Z3p2fgxis9YBP2HWC3tvPrs1hAuHDRtH-NJTIM/edit#gid=118370875\">List of interests</a>.</p>\n<p>A category is a level-one (L1) interest.</p>\n<p>For example, in the interest hierarchy <b>Animals > Mammals > Dogs</b>, Animals is the category.</p>",
-        "operationId": "audiences/insights_category/list",
-        "security": [
-          {
-            "pinterest_oauth2": [
-              "ads:read"
-            ]
-          }
-        ],
-        "x-ratelimit-category": "ads_read",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/path_ad_account_id"
-          },
-          {
-            "$ref": "#/components/parameters/path_scope"
-          },
-          {
-            "$ref": "#/components/parameters/path_type"
-          },
-          {
-            "$ref": "#/components/parameters/path_category_id"
-          },
-          {
-            "$ref": "#/components/parameters/query_sort"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AudienceInsightCategoryArrayResponse"
-                }
-              }
-            },
-            "description": "Success"
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            },
-            "description": "Unexpected error"
-          }
-        },
-        "summary": "Get category sub-interest",
-        "tags": [
-          "audiences"
-        ]
-      }
-    },
     "/ad_accounts/{ad_account_id}/customer_lists": {
       "post": {
         "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\n<p>Create a customer list from your records(hashed or plain-text email addresses, or hashed MAIDs or IDFAs).</p>\n<p>A customer list is one of the four types of Pinterest audiences: for more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>\nor the <a href=\"https://developers.pinterest.com/docs/features/ads-management/#Audiences\" target=\"_blank\">Audiences</a> section of the ads management guide.<p/>\n<p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\" target=\"_blank\">requirements</a></u> for what type of information is allowed when uploading a customer list.</b></p>\n<p>When you create a customer list, the system scans the list for existing Pinterest accounts;\nthe list must include at least 100 Pinterest accounts. Your original list will be deleted when the matching process\nis complete. The filtered list – containing only the Pinterest accounts that were included in your starting\nlist – is what will be used to create the audience.</p>\n<p>Note that once you have created your customer list, you must convert it into an audience (of the “CUSTOMER_LIST” type)\nusing the <a href=\"#operation/create_audience_handler\">create audience endpoint</a> before it can be used.</p>",
@@ -4036,6 +4135,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4090,6 +4192,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4159,6 +4264,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4204,6 +4312,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4263,6 +4374,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4335,6 +4449,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4388,6 +4505,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4442,6 +4562,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4496,6 +4619,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4555,6 +4681,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4607,6 +4736,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_input_term"
@@ -4657,6 +4789,9 @@
       "get": {
         "description": "Get the text of the terms of service and see whether the advertiser has accepted the terms of service.",
         "operationId": "terms_of_service/get",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4717,6 +4852,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -4814,6 +4952,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "description": "Request object used to created a feed.",
           "required": true,
@@ -4967,6 +5108,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_feed_id"
@@ -5065,6 +5209,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_feed_id"
@@ -5180,6 +5327,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_feed_id"
@@ -5296,6 +5446,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_feed_id"
@@ -5415,6 +5568,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -5540,6 +5696,9 @@
           }
         ],
         "x-ratelimit-category": "catalogs_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_catalogs_items_country"
@@ -5611,6 +5770,9 @@
           }
         ],
         "x-ratelimit-category": "catalogs_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_items_batch_id"
@@ -5675,10 +5837,13 @@
     },
     "/catalogs/items/batch": {
       "post": {
-        "summary": "Perform an operation on an item batch",
+        "summary": "Operate on item batch",
         "description": "This endpoint supports multiple operations on a set of one or more catalog items. <a href=\"/docs/features/catalog-management/#Using%20batch%20updates%20for%20catalog%20management\" target=\"_blank\">See detailed documentation here.</a>",
         "operationId": "items_batch/post",
         "x-ratelimit-category": "catalogs_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "security": [
           {
             "pinterest_oauth2": [
@@ -5748,7 +5913,7 @@
     "/catalogs/products/get_by_product_group_filters": {
       "post": {
         "x-ratelimit-category": "catalogs_read",
-        "summary": "List products that meet the criteria of the filter you provide",
+        "summary": "List filtered products",
         "description": "List products Pins that meet the criteria specified in the Catalogs Product Group Filter given in the request.\nNote: This endpoint has been implemented in POST to allow for complex filters. This specific POST endpoint is designed to be idempotent.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "products_by_product_group_filter/list",
         "security": [
@@ -5760,6 +5925,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -5865,9 +6033,12 @@
     "/catalogs/product_groups/{product_group_id}": {
       "get": {
         "x-ratelimit-category": "catalogs_read",
-        "summary": "Get a product group",
+        "summary": "Get product group",
         "description": "Get a singe product group for a given Catalogs Product Group Id.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_groups/get",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_product_group_id"
@@ -6007,6 +6178,9 @@
         "summary": "Delete product group",
         "description": "Delete a product group from being in use in Catalogs.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_groups/delete",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_product_group_id"
@@ -6151,6 +6325,9 @@
         "summary": "Update product group",
         "description": "Update product group to use in Catalogs.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_groups/update",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_product_group_id"
@@ -6324,7 +6501,7 @@
     "/catalogs/product_groups/{product_group_id}/products": {
       "get": {
         "x-ratelimit-category": "catalogs_read",
-        "summary": "List products for a given product group",
+        "summary": "List products",
         "description": "Get a list of product pins for a given Catalogs Product Group Id.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_group_pins/list",
         "security": [
@@ -6336,6 +6513,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -6445,7 +6625,7 @@
     "/catalogs/product_groups/{product_group_id}/product_counts": {
       "get": {
         "x-ratelimit-category": "catalogs_read",
-        "summary": "Get product counts for a given product group",
+        "summary": "Get product counts",
         "description": "Get a product counts for a given Catalogs Product Group.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_groups/product_counts_get",
         "security": [
@@ -6455,6 +6635,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_product_group_id"
@@ -6526,7 +6709,7 @@
     "/catalogs/product_groups": {
       "get": {
         "x-ratelimit-category": "catalogs_read",
-        "summary": "Get product groups list",
+        "summary": "List product groups",
         "description": "Get a list of product groups for a given Catalogs Feed Id.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_groups/list",
         "security": [
@@ -6536,6 +6719,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_catalogs_feed_id"
@@ -6695,6 +6881,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "description": "Request object used to created a catalogs product group.",
           "required": true,
@@ -6842,6 +7031,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -6882,6 +7074,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_interest_id"
@@ -6927,6 +7122,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_targeting_type"
@@ -6984,6 +7182,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_list_input_terms"
@@ -7053,6 +7254,11 @@
             }
           }
         }
+      },
+      "conversion_token": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "This security scheme only applies to the conversion events endpoint (POST /ad_accounts/{ad_account_id}/events). This endpoint requires a bearer token generated via Ads Manager (ads.pinterest.com)."
       },
       "basic": {
         "type": "http",
@@ -8551,17 +8757,6 @@
           "id": {
             "example": "549755885175",
             "type": "string"
-          }
-        }
-      },
-      "AudienceInsightCategoryArrayResponse": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AudienceInsightCategoryCommon"
-            }
           }
         }
       },
@@ -10924,12 +11119,29 @@
       "CatalogsItemsBatchRequest": {
         "type": "object",
         "description": "Request object of catalogs items batch",
-        "required": [
-          "country",
-          "language",
-          "operation",
-          "items"
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CatalogsItemsUpdateBatchRequest"
+          },
+          {
+            "$ref": "#/components/schemas/CatalogsItemsCreateBatchRequest"
+          },
+          {
+            "$ref": "#/components/schemas/CatalogsItemsDeleteDiscontinuedBatchRequest"
+          }
         ],
+        "discriminator": {
+          "propertyName": "operation",
+          "mapping": {
+            "UPDATE": "#/components/schemas/CatalogsItemsUpdateBatchRequest",
+            "CREATE": "#/components/schemas/CatalogsItemsCreateBatchRequest",
+            "DELETE_DISCONTINUED": "#/components/schemas/CatalogsItemsDeleteDiscontinuedBatchRequest"
+          }
+        }
+      },
+      "CatalogsItemsCreateBatchRequest": {
+        "description": "Request object to create catalogs items",
+        "type": "object",
         "properties": {
           "country": {
             "$ref": "#/components/schemas/Country"
@@ -10944,10 +11156,76 @@
             "type": "array",
             "description": "Array with catalogs items",
             "items": {
-              "$ref": "#/components/schemas/ItemBatchRecord"
+              "$ref": "#/components/schemas/ItemCreateBatchRecord"
+            },
+            "minItems": 1,
+            "maxItems": 50
+          }
+        },
+        "required": [
+          "country",
+          "language",
+          "operation",
+          "items"
+        ]
+      },
+      "CatalogsItemsUpdateBatchRequest": {
+        "description": "Request object to update catalogs items",
+        "type": "object",
+        "properties": {
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/BatchOperation"
+          },
+          "items": {
+            "type": "array",
+            "description": "Array with catalogs items",
+            "items": {
+              "$ref": "#/components/schemas/ItemUpdateBatchRecord"
+            },
+            "minItems": 1,
+            "maxItems": 1000
+          }
+        },
+        "required": [
+          "country",
+          "language",
+          "operation",
+          "items"
+        ]
+      },
+      "CatalogsItemsDeleteDiscontinuedBatchRequest": {
+        "description": "Request object to discontinue catalogs items",
+        "type": "object",
+        "properties": {
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/BatchOperation"
+          },
+          "items": {
+            "type": "array",
+            "description": "Array with catalogs items",
+            "items": {
+              "$ref": "#/components/schemas/ItemDeleteDiscontinuedBatchRecord"
             }
           }
-        }
+        },
+        "required": [
+          "country",
+          "language",
+          "operation",
+          "items"
+        ]
       },
       "CatalogsListProductsByFilterRequest": {
         "description": "Request object to list products for a given product group filter.",
@@ -11352,7 +11630,7 @@
       "CatalogsProductGroupType": {
         "type": "string",
         "title": "product_group_type",
-        "description": "Catalog product group type",
+        "description": "<p>Catalog product group type</p>\n<p>MERCHANT_CREATED: Product groups created by merchants.\n<br>ALL_PRODUCTS: Consists of every product in your latest successful feed upload.\n<br>BEST_DEALS: Consists of products with the deepest drop in price.\n<br>PINNER_FAVORITES: Consists of products that are resonating most with people on Pinterest, based on engagement.\n<br>TOP_SELLERS: Consists of products with the highest conversion rate, if you have the conversion tag installed.\n<br>BACK_IN_STOCK: Consists of products that were previously out of stock and are now in stock.\n<br>NEW_ARRIVALS: Consists of products that are new to your Catalog.\n<br>SHOPIFY_COLLECTION: Product groups created based on Shopify Product Collections.\n<br>I2PC: Product groups created based on predicted product category.</p>",
         "enum": [
           "MERCHANT_CREATED",
           "ALL_PRODUCTS",
@@ -11360,7 +11638,9 @@
           "PINNER_FAVORITES",
           "TOP_SELLERS",
           "BACK_IN_STOCK",
-          "NEW_ARRIVALS"
+          "NEW_ARRIVALS",
+          "SHOPIFY_COLLECTIONS",
+          "I2PC"
         ],
         "example": "TOP_SELLERS"
       },
@@ -12777,24 +13057,47 @@
       },
       "ItemAttributes": {
         "type": "object",
+        "allOf": [
+          {
+            "properties": {
+              "additional_image_link": {
+                "description": "<p><= 2000 characters</p>\n<p>The links to additional images for your product. Up to ten\nadditional images can be used to show a product from different angles\nor to show different stages. Must begin with http:// or https://.</p>",
+                "example": [
+                  "https://scene.example.com/image/image_v2.jpg",
+                  "https://scene.example.com/image/image_v3.jpg"
+                ],
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "image_link": {
+                "description": "<p><= 2000 characters</p>\n<p>The link to the main product images. Images should be at least\n75x75 pixels to avoid errors. Use the additional_image_link field to add\nmore images of your product. The URL of your image_link must be accessible\nby the Pinterest user-agent, and send the accurate images. Please make\nsure there are no template or placeholder images at the link. Must start\nwith http:// or https://.</p>",
+                "example": [
+                  "https://scene.example.com/image/image.jpg"
+                ],
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/UpdatableItemAttributes"
+          }
+        ]
+      },
+      "UpdatableItemAttributes": {
+        "type": "object",
         "properties": {
           "ad_link": {
             "description": "Allows advertisers to specify a separate URL that can be used to track traffic coming from Pinterest shopping ads. Must send full URL including tracking—do not send tracking parameters only. At this time we do not support impression tracking. Must begin with http:// or https://.",
             "example": "https://www.example.com/cat/denim-shirt/item012?utm_source=Pinterest",
             "type": "string",
             "nullable": true
-          },
-          "additional_image_link": {
-            "description": "<p><= 2000 characters</p>\n<p>The links to additional images for your product. Up to ten\nadditional images can be used to show a product from different angles\nor to show different stages. Must begin with http:// or https://.</p>",
-            "example": [
-              "https://scene.example.com/image/image_v2.jpg",
-              "https://scene.example.com/image/image_v3.jpg"
-            ],
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string"
-            }
           },
           "adult": {
             "description": "Set this attribute to TRUE if you're submitting items that are considered “adult”. These will not be shown on Pinterest.",
@@ -12803,13 +13106,13 @@
             "nullable": true
           },
           "age_group": {
-            "description": "The age group to apply a demographic range to the product. Must be one of the following values: ‘newborn’, ‘infant’, ‘toddler’, ‘kids’, ‘adult’.",
+            "description": "The age group to apply a demographic range to the product. Must be one of the following values (upper or lowercased): ‘newborn’, ‘infant’, ‘toddler’, ‘kids’, or ‘adult’.",
             "example": "newborn",
             "type": "string",
             "nullable": true
           },
           "availability": {
-            "description": "The availability of the product. Must be one of the following values: ‘in stock’, ‘out of stock’, ‘preorder’.",
+            "description": "The availability of the product. Must be one of the following values (upper or lowercased): ‘in stock’, ‘out of stock’, ‘preorder’.",
             "example": "in stock",
             "type": "string"
           },
@@ -12838,7 +13141,7 @@
             "nullable": true
           },
           "condition": {
-            "description": "The condition of the product. Must be one of the following values: ‘new’, ‘used’, ‘refurbished’.",
+            "description": "The condition of the product. Must be one of the following values (upper or lowercased): ‘new’, ‘used’, or ‘refurbished’.",
             "example": "new",
             "type": "string",
             "nullable": true
@@ -12891,7 +13194,7 @@
             "nullable": true
           },
           "gender": {
-            "description": "The gender associated with the product. Must be one of the following values: ‘male’, ‘female’, ‘unisex’.",
+            "description": "The gender associated with the product. Must be one of the following values (upper or lowercased): ‘male’, ‘female’, or ‘unisex’.",
             "example": "unisex",
             "type": "string",
             "nullable": true
@@ -12913,17 +13216,6 @@
             "example": "DS0294-L",
             "type": "string",
             "deprecated": true
-          },
-          "image_link": {
-            "description": "<p><= 2000 characters</p>\n<p>The link to the main product images. Images should be at least\n75x75 pixels to avoid errors. Use the additional_image_link field to add\nmore images of your product. The URL of your image_link must be accessible\nby the Pinterest user-agent, and send the accurate images. Please make\nsure there are no template or placeholder images at the link. Must start\nwith http:// or https://.</p>",
-            "example": [
-              "https://scene.example.com/image/image.jpg"
-            ],
-            "type": "array",
-            "minItems": 1,
-            "items": {
-              "type": "string"
-            }
           },
           "item_group_id": {
             "description": "<p><= 127 characters</p>\n<p>The parent ID of the product.</p>",
@@ -13033,13 +13325,13 @@
             "nullable": true
           },
           "size_system": {
-            "description": "Indicates the country’s sizing system in which you are submitting your product.",
+            "description": "Indicates the country’s sizing system in which you are submitting your product. Must be one of the following values (upper or lowercased): ‘US’, ‘UK’, ‘EU’, ‘DE’, ‘FR’, ‘JP’, ‘CN’, ‘IT’, ‘BR’, ‘MEX’, or ‘AU’.",
             "example": "US",
             "type": "string",
             "nullable": true
           },
           "size_type": {
-            "description": "Additional description for the size. Must be one of the following values: ‘regular’, ‘petite’, ‘plus’, ‘big_and_tall’, ‘maternity’.",
+            "description": "Additional description for the size. Must be one of the following values (upper or lowercased): ‘regular’, ‘petite’, ‘plus’, ‘big_and_tall’, or ‘maternity’.",
             "example": "regular",
             "type": "string",
             "nullable": true
@@ -13084,6 +13376,21 @@
       "ItemBatchRecord": {
         "type": "object",
         "description": "Object describing an item batch record",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ItemCreateBatchRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ItemDeleteDiscontinuedBatchRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ItemUpdateBatchRecord"
+          }
+        ]
+      },
+      "ItemCreateBatchRecord": {
+        "type": "object",
+        "description": "Object describing an item batch record to create items",
         "properties": {
           "item_id": {
             "description": "The catalog item id in the merchant namespace",
@@ -13092,6 +13399,31 @@
           },
           "attributes": {
             "$ref": "#/components/schemas/ItemAttributes"
+          }
+        }
+      },
+      "ItemDeleteDiscontinuedBatchRecord": {
+        "type": "object",
+        "description": "Object describing an item batch record to discontinue items",
+        "properties": {
+          "item_id": {
+            "description": "The catalog item id in the merchant namespace",
+            "example": "DS0294-M",
+            "type": "string"
+          }
+        }
+      },
+      "ItemUpdateBatchRecord": {
+        "type": "object",
+        "description": "Object describing an item batch record to update items",
+        "properties": {
+          "item_id": {
+            "description": "The catalog item id in the merchant namespace",
+            "example": "DS0294-M",
+            "type": "string"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/UpdatableItemAttributes"
           }
         }
       },
@@ -16131,37 +16463,6 @@
           "pattern": "^\\d+$"
         }
       },
-      "path_scope": {
-        "name": "scope",
-        "description": "Generated audience scope to request.",
-        "in": "path",
-        "required": true,
-        "style": "simple",
-        "schema": {
-          "$ref": "#/components/schemas/AudienceDefinitionScope"
-        }
-      },
-      "path_type": {
-        "name": "type",
-        "description": "Generated audience type to request.",
-        "in": "path",
-        "required": true,
-        "style": "simple",
-        "schema": {
-          "$ref": "#/components/schemas/AudienceDefinitionType"
-        }
-      },
-      "path_category_id": {
-        "name": "category_id",
-        "description": "Category (L1 interest) numeric ID.",
-        "in": "path",
-        "required": true,
-        "style": "simple",
-        "schema": {
-          "type": "string",
-          "pattern": "^\\d+$"
-        }
-      },
       "query_ad_account_id": {
         "name": "ad_account_id",
         "description": "Unique identifier of an ad account.",
@@ -17093,21 +17394,6 @@
           "minimum": 1,
           "maximum": 10,
           "default": 4
-        }
-      },
-      "query_sort": {
-        "description": "Sort method. Only RATIO is supported.",
-        "explode": false,
-        "in": "query",
-        "name": "sort",
-        "required": false,
-        "schema": {
-          "default": "RATIO",
-          "type": "string",
-          "example": "RATIO",
-          "enum": [
-            "RATIO"
-          ]
         }
       }
     }

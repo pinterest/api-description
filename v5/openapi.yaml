@@ -72,6 +72,8 @@ paths:
       security:
       - basic: []
       x-ratelimit-category: org_read
+      x-sandbox:
+        enabled: false
       requestBody:
         description: Generate an OAuth access token.
         required: true
@@ -107,6 +109,8 @@ paths:
       - pinterest_oauth2:
         - user_accounts:read
       x-ratelimit-category: org_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_ad_account_id'
       responses:
@@ -146,6 +150,8 @@ paths:
       - pinterest_oauth2:
         - user_accounts:read
       x-ratelimit-category: org_analytics
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_start_date'
       - $ref: '#/components/parameters/query_end_date'
@@ -202,6 +208,8 @@ paths:
         - pins:read
         - user_accounts:read
       x-ratelimit-category: org_analytics
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_start_date'
       - $ref: '#/components/parameters/query_end_date'
@@ -251,6 +259,8 @@ paths:
         - pins:read
         - user_accounts:read
       x-ratelimit-category: org_analytics
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_start_date'
       - $ref: '#/components/parameters/query_end_date'
@@ -305,6 +315,8 @@ paths:
         - pins:read
         - pins:write
       x-ratelimit-category: org_write
+      x-sandbox:
+        enabled: false
       requestBody:
         description: Create a new Pin.
         required: true
@@ -403,6 +415,8 @@ paths:
         - boards:read
         - pins:read
       x-ratelimit-category: org_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_pin_id'
       - $ref: '#/components/parameters/query_ad_account_id'
@@ -452,6 +466,8 @@ paths:
         - pins:read
         - pins:write
       x-ratelimit-category: org_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_pin_id'
       responses:
@@ -497,6 +513,8 @@ paths:
         - pins:read
         - pins:write
       x-ratelimit-category: org_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_pin_id'
       requestBody:
@@ -578,6 +596,8 @@ paths:
         - boards:read
         - pins:read
       x-ratelimit-category: org_analytics
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_pin_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -641,6 +661,8 @@ paths:
       - pinterest_oauth2:
         - boards:read
       x-ratelimit-category: org_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -686,6 +708,8 @@ paths:
         - boards:read
         - boards:write
       x-ratelimit-category: org_write
+      x-sandbox:
+        enabled: false
       requestBody:
         description: Create a board using a single board json object.
         required: true
@@ -728,6 +752,8 @@ paths:
       - pinterest_oauth2:
         - boards:read
       x-ratelimit-category: org_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       responses:
@@ -763,6 +789,8 @@ paths:
         - boards:read
         - boards:write
       x-ratelimit-category: org_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       requestBody:
@@ -831,6 +859,8 @@ paths:
         - boards:read
         - boards:write
       x-ratelimit-category: org_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       responses:
@@ -897,6 +927,8 @@ paths:
       - pinterest_oauth2:
         - boards:read
       x-ratelimit-category: org_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/query_bookmark'
@@ -933,6 +965,8 @@ paths:
         - boards:read
         - boards:write
       x-ratelimit-category: org_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       requestBody:
@@ -1007,6 +1041,8 @@ paths:
         - boards:read
         - boards:write
       x-ratelimit-category: org_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/path_board_section_id'
@@ -1070,6 +1106,8 @@ paths:
         - boards:read
         - boards:write
       x-ratelimit-category: org_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/path_board_section_id'
@@ -1123,6 +1161,8 @@ paths:
         - boards:read
         - pins:read
       x-ratelimit-category: org_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/path_board_section_id'
@@ -1188,6 +1228,8 @@ paths:
         - boards:read
         - pins:read
       x-ratelimit-category: org_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/query_bookmark'
@@ -1234,6 +1276,8 @@ paths:
       - pinterest_oauth2:
         - pins:read
       x-ratelimit-category: org_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -1279,6 +1323,8 @@ paths:
         - pins:read
         - pins:write
       x-ratelimit-category: org_write
+      x-sandbox:
+        enabled: false
       requestBody:
         description: Create a media upload request
         required: true
@@ -1313,6 +1359,8 @@ paths:
       - pinterest_oauth2:
         - pins:read
       x-ratelimit-category: org_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_media_id'
       responses:
@@ -1350,6 +1398,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -1387,6 +1437,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       requestBody:
         content:
           application/json:
@@ -1416,6 +1468,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       responses:
@@ -1444,6 +1498,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -1489,6 +1545,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_campaign_ids'
@@ -1539,7 +1597,7 @@ paths:
         \ of the standard unit of currency selected in the advertiser\u2019s profile.</p>\n\
         <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001\
-        \ </li>\n</ul> \n<p><strong>To convert between currency and microcurrency</strong>,\
+        \ </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>,\
         \ using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars\
         \ to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars\
         \ to dollars, divide microdollars by 1,000,000</li>\n</ul>"
@@ -1550,6 +1608,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -1584,7 +1644,7 @@ paths:
         \ unit is 10^(-6) of the standard unit of currency selected in the advertiser\u2019\
         s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as\
         \ an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
-        \  <li>1 microdollar = $0.000001 </li>\n</ul>  \n<p><strong>To convert between\
+        \  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between\
         \ currency and microcurrency</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n\
         \  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n\
@@ -1596,6 +1656,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -1629,6 +1691,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_campaign_id'
@@ -1658,6 +1722,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -1705,6 +1771,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_campaign_ids'
@@ -1757,7 +1825,7 @@ paths:
         \ standard unit of currency selected in the advertiser\u2019s profile.</p>\n\
         <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001\
-        \ </li>\n</ul> \n<p><strong>To convert between currency and microcurrency</strong>,\
+        \ </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>,\
         \ using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars\
         \ to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars\
         \ to dollars, divide microdollars by 1,000,000</li>\n</ul>\n- Ad groups belong\
@@ -1769,6 +1837,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -1805,6 +1875,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -1846,6 +1918,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_ad_group_id'
@@ -1875,6 +1949,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -1927,6 +2003,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_campaign_ids'
@@ -1974,6 +2052,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2010,6 +2090,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2052,6 +2134,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_ad_id'
@@ -2081,6 +2165,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -2130,6 +2216,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2173,17 +2261,19 @@ paths:
         \ unit is 10^(-6) of the standard unit of currency selected in the advertiser\u2019\
         s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as\
         \ an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
-        \  <li>1 microdollar = $0.000001 </li>\n</ul> \n<p><strong>To convert between\
+        \  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between\
         \ currency and microcurrency</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n\
-        \  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\
-        \  \n</ul>\nFor more on bid floors see <a class=\"reference external\" href=\"\
+        \  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n\
+        </ul>\nFor more on bid floors see <a class=\"reference external\" href=\"\
         https://help.pinterest.com/en/business/article/set-your-bid\"> Set your bid</a>."
       operationId: ad_groups_bid_floor/get
       security:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2220,6 +2310,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -2266,6 +2358,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_token_required'
@@ -2303,6 +2397,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2346,6 +2442,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_audience_ids'
@@ -2401,6 +2499,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2437,6 +2537,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_audience_id'
@@ -2471,6 +2573,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_audience_id'
@@ -2493,42 +2597,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
-      tags:
-      - audiences
-  /ad_accounts/{ad_account_id}/insights/audiences/{scope}/{type}/{category_id}:
-    get:
-      description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
-        <p>Get information about a category's sub-level interests.</p>
-        <p>For a list of interests, their IDs, and hierarchy, see <a class="reference external"
-        href="https://docs.google.com/spreadsheets/d/1HxL-0Z3p2fgxis9YBP2HWC3tvPrs1hAuHDRtH-NJTIM/edit#gid=118370875">List of interests</a>.</p>
-        <p>A category is a level-one (L1) interest.</p>
-        <p>For example, in the interest hierarchy <b>Animals > Mammals > Dogs</b>, Animals is the category.</p>
-      operationId: audiences/insights_category/list
-      security:
-      - pinterest_oauth2:
-        - ads:read
-      x-ratelimit-category: ads_read
-      parameters:
-      - $ref: '#/components/parameters/path_ad_account_id'
-      - $ref: '#/components/parameters/path_scope'
-      - $ref: '#/components/parameters/path_type'
-      - $ref: '#/components/parameters/path_category_id'
-      - $ref: '#/components/parameters/query_sort'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AudienceInsightCategoryArrayResponse'
-          description: Success
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Unexpected error
-      summary: Get category sub-interest
       tags:
       - audiences
   /ad_accounts/{ad_account_id}/customer_lists:
@@ -2557,6 +2625,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2595,6 +2665,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_page_size'
@@ -2633,6 +2705,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_customer_list_id'
@@ -2668,6 +2742,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_customer_list_id'
@@ -2704,6 +2780,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_campaign_id'
@@ -2742,6 +2820,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2775,6 +2855,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2807,6 +2889,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2839,6 +2923,8 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2874,6 +2960,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_product_group_promotion_id'
@@ -2906,6 +2994,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_input_term'
       - $ref: '#/components/parameters/query_term_limit'
@@ -2936,6 +3026,8 @@ paths:
       description: Get the text of the terms of service and see whether the advertiser
         has accepted the terms of service.
       operationId: terms_of_service/get
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_include_html'
@@ -2972,6 +3064,8 @@ paths:
       security:
       - pinterest_oauth2:
         - catalogs:read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -3030,6 +3124,8 @@ paths:
       - pinterest_oauth2:
         - catalogs:read
         - catalogs:write
+      x-sandbox:
+        enabled: false
       requestBody:
         description: Request object used to created a feed.
         required: true
@@ -3127,6 +3223,8 @@ paths:
       security:
       - pinterest_oauth2:
         - catalogs:read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_catalogs_feed_id'
       responses:
@@ -3190,6 +3288,8 @@ paths:
       - pinterest_oauth2:
         - catalogs:read
         - catalogs:write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_catalogs_feed_id'
       requestBody:
@@ -3264,6 +3364,8 @@ paths:
       - pinterest_oauth2:
         - catalogs:read
         - catalogs:write
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_catalogs_feed_id'
       responses:
@@ -3339,6 +3441,8 @@ paths:
       security:
       - pinterest_oauth2:
         - catalogs:read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_catalogs_feed_id'
       - $ref: '#/components/parameters/query_bookmark'
@@ -3409,6 +3513,8 @@ paths:
       security:
       - pinterest_oauth2:
         - catalogs:read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -3480,6 +3586,8 @@ paths:
       - pinterest_oauth2:
         - catalogs:read
       x-ratelimit-category: catalogs_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_catalogs_items_country'
       - $ref: '#/components/parameters/query_catalogs_items'
@@ -3522,6 +3630,8 @@ paths:
       - pinterest_oauth2:
         - catalogs:read
       x-ratelimit-category: catalogs_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_catalogs_items_batch_id'
       responses:
@@ -3559,12 +3669,14 @@ paths:
       - catalogs
   /catalogs/items/batch:
     post:
-      summary: Perform an operation on an item batch
+      summary: Operate on item batch
       description: This endpoint supports multiple operations on a set of one or more
         catalog items. <a href="/docs/features/catalog-management/#Using%20batch%20updates%20for%20catalog%20management"
         target="_blank">See detailed documentation here.</a>
       operationId: items_batch/post
       x-ratelimit-category: catalogs_write
+      x-sandbox:
+        enabled: false
       security:
       - pinterest_oauth2:
         - catalogs:read
@@ -3606,7 +3718,7 @@ paths:
   /catalogs/products/get_by_product_group_filters:
     post:
       x-ratelimit-category: catalogs_read
-      summary: List products that meet the criteria of the filter you provide
+      summary: List filtered products
       description: |-
         List products Pins that meet the criteria specified in the Catalogs Product Group Filter given in the request.
         Note: This endpoint has been implemented in POST to allow for complex filters. This specific POST endpoint is designed to be idempotent.
@@ -3618,6 +3730,8 @@ paths:
         - boards:read
         - catalogs:read
         - pins:read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -3679,12 +3793,14 @@ paths:
   /catalogs/product_groups/{product_group_id}:
     get:
       x-ratelimit-category: catalogs_read
-      summary: Get a product group
+      summary: Get product group
       description: |-
         Get a singe product group for a given Catalogs Product Group Id.
 
         <a href='/docs/features/catalog-management/'>Learn more</a>
       operationId: catalogs_product_groups/get
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
       security:
@@ -3776,6 +3892,8 @@ paths:
 
         <a href='/docs/features/catalog-management/'>Learn more</a>
       operationId: catalogs_product_groups/delete
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
       security:
@@ -3871,6 +3989,8 @@ paths:
 
         <a href='/docs/features/catalog-management/'>Learn more</a>
       operationId: catalogs_product_groups/update
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
       security:
@@ -3983,7 +4103,7 @@ paths:
   /catalogs/product_groups/{product_group_id}/products:
     get:
       x-ratelimit-category: catalogs_read
-      summary: List products for a given product group
+      summary: List products
       description: |-
         Get a list of product pins for a given Catalogs Product Group Id.
 
@@ -3994,6 +4114,8 @@ paths:
         - boards:read
         - catalogs:read
         - pins:read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -4056,7 +4178,7 @@ paths:
   /catalogs/product_groups/{product_group_id}/product_counts:
     get:
       x-ratelimit-category: catalogs_read
-      summary: Get product counts for a given product group
+      summary: Get product counts
       description: |-
         Get a product counts for a given Catalogs Product Group.
 
@@ -4065,6 +4187,8 @@ paths:
       security:
       - pinterest_oauth2:
         - catalogs:read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
       responses:
@@ -4107,7 +4231,7 @@ paths:
   /catalogs/product_groups:
     get:
       x-ratelimit-category: catalogs_read
-      summary: Get product groups list
+      summary: List product groups
       description: |-
         Get a list of product groups for a given Catalogs Feed Id.
 
@@ -4116,6 +4240,8 @@ paths:
       security:
       - pinterest_oauth2:
         - catalogs:read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_catalogs_feed_id'
       - $ref: '#/components/parameters/query_bookmark'
@@ -4215,6 +4341,8 @@ paths:
       security:
       - pinterest_oauth2:
         - catalogs:write
+      x-sandbox:
+        enabled: false
       requestBody:
         description: Request object used to created a catalogs product group.
         required: true
@@ -4315,6 +4443,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       responses:
         '200':
           content:
@@ -4341,6 +4471,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_interest_id'
       responses:
@@ -4370,6 +4502,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/path_targeting_type'
       - $ref: '#/components/parameters/query_client_id'
@@ -4403,6 +4537,8 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
+      x-sandbox:
+        enabled: false
       parameters:
       - $ref: '#/components/parameters/query_list_input_terms'
       responses:
@@ -4450,6 +4586,12 @@ components:
             pins:write: Create, update, or delete your public Pins
             pins:write_secret: Create, update, or delete your secret Pins
             user_accounts:read: See your user accounts
+    conversion_token:
+      type: http
+      scheme: bearer
+      description: This security scheme only applies to the conversion events endpoint
+        (POST /ad_accounts/{ad_account_id}/events). This endpoint requires a bearer
+        token generated via Ads Manager (ads.pinterest.com).
     basic:
       type: http
       scheme: basic
@@ -5571,13 +5713,6 @@ components:
         id:
           example: '549755885175'
           type: string
-    AudienceInsightCategoryArrayResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/AudienceInsightCategoryCommon'
     AudienceDefinitionScope:
       description: Generated audience scope to request.
       type: string
@@ -7541,11 +7676,19 @@ components:
     CatalogsItemsBatchRequest:
       type: object
       description: Request object of catalogs items batch
-      required:
-      - country
-      - language
-      - operation
-      - items
+      oneOf:
+      - $ref: '#/components/schemas/CatalogsItemsUpdateBatchRequest'
+      - $ref: '#/components/schemas/CatalogsItemsCreateBatchRequest'
+      - $ref: '#/components/schemas/CatalogsItemsDeleteDiscontinuedBatchRequest'
+      discriminator:
+        propertyName: operation
+        mapping:
+          UPDATE: '#/components/schemas/CatalogsItemsUpdateBatchRequest'
+          CREATE: '#/components/schemas/CatalogsItemsCreateBatchRequest'
+          DELETE_DISCONTINUED: '#/components/schemas/CatalogsItemsDeleteDiscontinuedBatchRequest'
+    CatalogsItemsCreateBatchRequest:
+      description: Request object to create catalogs items
+      type: object
       properties:
         country:
           $ref: '#/components/schemas/Country'
@@ -7557,7 +7700,56 @@ components:
           type: array
           description: Array with catalogs items
           items:
-            $ref: '#/components/schemas/ItemBatchRecord'
+            $ref: '#/components/schemas/ItemCreateBatchRecord'
+          minItems: 1
+          maxItems: 50
+      required:
+      - country
+      - language
+      - operation
+      - items
+    CatalogsItemsUpdateBatchRequest:
+      description: Request object to update catalogs items
+      type: object
+      properties:
+        country:
+          $ref: '#/components/schemas/Country'
+        language:
+          $ref: '#/components/schemas/Language'
+        operation:
+          $ref: '#/components/schemas/BatchOperation'
+        items:
+          type: array
+          description: Array with catalogs items
+          items:
+            $ref: '#/components/schemas/ItemUpdateBatchRecord'
+          minItems: 1
+          maxItems: 1000
+      required:
+      - country
+      - language
+      - operation
+      - items
+    CatalogsItemsDeleteDiscontinuedBatchRequest:
+      description: Request object to discontinue catalogs items
+      type: object
+      properties:
+        country:
+          $ref: '#/components/schemas/Country'
+        language:
+          $ref: '#/components/schemas/Language'
+        operation:
+          $ref: '#/components/schemas/BatchOperation'
+        items:
+          type: array
+          description: Array with catalogs items
+          items:
+            $ref: '#/components/schemas/ItemDeleteDiscontinuedBatchRecord'
+      required:
+      - country
+      - language
+      - operation
+      - items
     CatalogsListProductsByFilterRequest:
       description: Request object to list products for a given product group filter.
       type: object
@@ -7924,7 +8116,17 @@ components:
     CatalogsProductGroupType:
       type: string
       title: product_group_type
-      description: Catalog product group type
+      description: |-
+        <p>Catalog product group type</p>
+        <p>MERCHANT_CREATED: Product groups created by merchants.
+        <br>ALL_PRODUCTS: Consists of every product in your latest successful feed upload.
+        <br>BEST_DEALS: Consists of products with the deepest drop in price.
+        <br>PINNER_FAVORITES: Consists of products that are resonating most with people on Pinterest, based on engagement.
+        <br>TOP_SELLERS: Consists of products with the highest conversion rate, if you have the conversion tag installed.
+        <br>BACK_IN_STOCK: Consists of products that were previously out of stock and are now in stock.
+        <br>NEW_ARRIVALS: Consists of products that are new to your Catalog.
+        <br>SHOPIFY_COLLECTION: Product groups created based on Shopify Product Collections.
+        <br>I2PC: Product groups created based on predicted product category.</p>
       enum:
       - MERCHANT_CREATED
       - ALL_PRODUCTS
@@ -7933,6 +8135,8 @@ components:
       - TOP_SELLERS
       - BACK_IN_STOCK
       - NEW_ARRIVALS
+      - SHOPIFY_COLLECTIONS
+      - I2PC
       example: TOP_SELLERS
     CatalogsProductGroupStatus:
       type: string
@@ -9031,6 +9235,39 @@ components:
       - MONTH
     ItemAttributes:
       type: object
+      allOf:
+      - properties:
+          additional_image_link:
+            description: |-
+              <p><= 2000 characters</p>
+              <p>The links to additional images for your product. Up to ten
+              additional images can be used to show a product from different angles
+              or to show different stages. Must begin with http:// or https://.</p>
+            example:
+            - https://scene.example.com/image/image_v2.jpg
+            - https://scene.example.com/image/image_v3.jpg
+            type: array
+            nullable: true
+            items:
+              type: string
+          image_link:
+            description: |-
+              <p><= 2000 characters</p>
+              <p>The link to the main product images. Images should be at least
+              75x75 pixels to avoid errors. Use the additional_image_link field to add
+              more images of your product. The URL of your image_link must be accessible
+              by the Pinterest user-agent, and send the accurate images. Please make
+              sure there are no template or placeholder images at the link. Must start
+              with http:// or https://.</p>
+            example:
+            - https://scene.example.com/image/image.jpg
+            type: array
+            minItems: 1
+            items:
+              type: string
+      - $ref: '#/components/schemas/UpdatableItemAttributes'
+    UpdatableItemAttributes:
+      type: object
       properties:
         ad_link:
           description: "Allows advertisers to specify a separate URL that can be used\
@@ -9041,19 +9278,6 @@ components:
           example: https://www.example.com/cat/denim-shirt/item012?utm_source=Pinterest
           type: string
           nullable: true
-        additional_image_link:
-          description: |-
-            <p><= 2000 characters</p>
-            <p>The links to additional images for your product. Up to ten
-            additional images can be used to show a product from different angles
-            or to show different stages. Must begin with http:// or https://.</p>
-          example:
-          - https://scene.example.com/image/image_v2.jpg
-          - https://scene.example.com/image/image_v3.jpg
-          type: array
-          nullable: true
-          items:
-            type: string
         adult:
           description: "Set this attribute to TRUE if you're submitting items that\
             \ are considered \u201Cadult\u201D. These will not be shown on Pinterest."
@@ -9062,15 +9286,16 @@ components:
           nullable: true
         age_group:
           description: "The age group to apply a demographic range to the product.\
-            \ Must be one of the following values: \u2018newborn\u2019, \u2018infant\u2019\
-            , \u2018toddler\u2019, \u2018kids\u2019, \u2018adult\u2019."
+            \ Must be one of the following values (upper or lowercased): \u2018newborn\u2019\
+            , \u2018infant\u2019, \u2018toddler\u2019, \u2018kids\u2019, or \u2018\
+            adult\u2019."
           example: newborn
           type: string
           nullable: true
         availability:
           description: "The availability of the product. Must be one of the following\
-            \ values: \u2018in stock\u2019, \u2018out of stock\u2019, \u2018preorder\u2019\
-            ."
+            \ values (upper or lowercased): \u2018in stock\u2019, \u2018out of stock\u2019\
+            , \u2018preorder\u2019."
           example: in stock
           type: string
         average_review_rating:
@@ -9098,7 +9323,8 @@ components:
           nullable: true
         condition:
           description: "The condition of the product. Must be one of the following\
-            \ values: \u2018new\u2019, \u2018used\u2019, \u2018refurbished\u2019."
+            \ values (upper or lowercased): \u2018new\u2019, \u2018used\u2019, or\
+            \ \u2018refurbished\u2019."
           example: new
           type: string
           nullable: true
@@ -9156,8 +9382,8 @@ components:
           nullable: true
         gender:
           description: "The gender associated with the product. Must be one of the\
-            \ following values: \u2018male\u2019, \u2018female\u2019, \u2018unisex\u2019\
-            ."
+            \ following values (upper or lowercased): \u2018male\u2019, \u2018female\u2019\
+            , or \u2018unisex\u2019."
           example: unisex
           type: string
           nullable: true
@@ -9181,21 +9407,6 @@ components:
           example: DS0294-L
           type: string
           deprecated: true
-        image_link:
-          description: |-
-            <p><= 2000 characters</p>
-            <p>The link to the main product images. Images should be at least
-            75x75 pixels to avoid errors. Use the additional_image_link field to add
-            more images of your product. The URL of your image_link must be accessible
-            by the Pinterest user-agent, and send the accurate images. Please make
-            sure there are no template or placeholder images at the link. Must start
-            with http:// or https://.</p>
-          example:
-          - https://scene.example.com/image/image.jpg
-          type: array
-          minItems: 1
-          items:
-            type: string
         item_group_id:
           description: |-
             <p><= 127 characters</p>
@@ -9310,14 +9521,18 @@ components:
           nullable: true
         size_system:
           description: "Indicates the country\u2019s sizing system in which you are\
-            \ submitting your product."
+            \ submitting your product. Must be one of the following values (upper\
+            \ or lowercased): \u2018US\u2019, \u2018UK\u2019, \u2018EU\u2019, \u2018\
+            DE\u2019, \u2018FR\u2019, \u2018JP\u2019, \u2018CN\u2019, \u2018IT\u2019\
+            , \u2018BR\u2019, \u2018MEX\u2019, or \u2018AU\u2019."
           example: US
           type: string
           nullable: true
         size_type:
           description: "Additional description for the size. Must be one of the following\
-            \ values: \u2018regular\u2019, \u2018petite\u2019, \u2018plus\u2019, \u2018\
-            big_and_tall\u2019, \u2018maternity\u2019."
+            \ values (upper or lowercased): \u2018regular\u2019, \u2018petite\u2019\
+            , \u2018plus\u2019, \u2018big_and_tall\u2019, or \u2018maternity\u2019\
+            ."
           example: regular
           type: string
           nullable: true
@@ -9360,6 +9575,13 @@ components:
     ItemBatchRecord:
       type: object
       description: Object describing an item batch record
+      oneOf:
+      - $ref: '#/components/schemas/ItemCreateBatchRecord'
+      - $ref: '#/components/schemas/ItemDeleteDiscontinuedBatchRecord'
+      - $ref: '#/components/schemas/ItemUpdateBatchRecord'
+    ItemCreateBatchRecord:
+      type: object
+      description: Object describing an item batch record to create items
       properties:
         item_id:
           description: The catalog item id in the merchant namespace
@@ -9367,6 +9589,24 @@ components:
           type: string
         attributes:
           $ref: '#/components/schemas/ItemAttributes'
+    ItemDeleteDiscontinuedBatchRecord:
+      type: object
+      description: Object describing an item batch record to discontinue items
+      properties:
+        item_id:
+          description: The catalog item id in the merchant namespace
+          example: DS0294-M
+          type: string
+    ItemUpdateBatchRecord:
+      type: object
+      description: Object describing an item batch record to update items
+      properties:
+        item_id:
+          description: The catalog item id in the merchant namespace
+          example: DS0294-M
+          type: string
+        attributes:
+          $ref: '#/components/schemas/UpdatableItemAttributes'
     ItemProcessingRecord:
       type: object
       description: Object describing an item processing record
@@ -11907,31 +12147,6 @@ components:
       schema:
         type: string
         pattern: ^\d+$
-    path_scope:
-      name: scope
-      description: Generated audience scope to request.
-      in: path
-      required: true
-      style: simple
-      schema:
-        $ref: '#/components/schemas/AudienceDefinitionScope'
-    path_type:
-      name: type
-      description: Generated audience type to request.
-      in: path
-      required: true
-      style: simple
-      schema:
-        $ref: '#/components/schemas/AudienceDefinitionType'
-    path_category_id:
-      name: category_id
-      description: Category (L1 interest) numeric ID.
-      in: path
-      required: true
-      style: simple
-      schema:
-        type: string
-        pattern: ^\d+$
     query_ad_account_id:
       name: ad_account_id
       description: Unique identifier of an ad account.
@@ -12736,15 +12951,3 @@ components:
         minimum: 1
         maximum: 10
         default: 4
-    query_sort:
-      description: Sort method. Only RATIO is supported.
-      explode: false
-      in: query
-      name: sort
-      required: false
-      schema:
-        default: RATIO
-        type: string
-        example: RATIO
-        enum:
-        - RATIO
