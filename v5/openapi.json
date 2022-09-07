@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "5.4.1",
+    "version": "5.5.0",
     "title": "Pinterest REST API",
     "description": "Pinterest's REST API",
     "contact": {
@@ -15,10 +15,6 @@
     },
     "termsOfService": "https://developers.pinterest.com/terms/"
   },
-  "externalDocs": {
-    "description": "Pinterest developer documentation main page",
-    "url": "https://developers.pinterest.com/"
-  },
   "servers": [
     {
       "url": "https://api.pinterest.com/v5"
@@ -27,7 +23,7 @@
   "tags": [
     {
       "name": "ad_accounts",
-      "description": "View analytical information about advertising.\n\n\nNote: If the current operation_user_account (defined by the access token)\nhas access to another user's Ad Accounts via\n<a href='/docs/api/v5/#tag/Understanding-business-access'>Pinterest Business Access</a>,\nyou can modify your request to use the current operation_user_account's\npermissions to those Ad Accounts by including the ad_account_id in the path\nparameters for the request (e.g. .../?ad_account_id=12345&...)."
+      "description": "View analytical information about advertising.\n\n\nNote: If the current operation_user_account (defined by the access token)\nhas access to another user's Ad Accounts via\n<a href='/docs/reference/business-access/'>Pinterest Business Access</a>,\nyou can modify your request to use the current operation_user_account's\npermissions to those Ad Accounts by including the ad_account_id in the path\nparameters for the request (e.g. .../?ad_account_id=12345&...)."
     },
     {
       "name": "ad_groups",
@@ -36,6 +32,10 @@
     {
       "name": "ads",
       "description": "View, create or update ads."
+    },
+    {
+      "name": "audiences",
+      "description": "View, create, or update audiences."
     },
     {
       "name": "boards",
@@ -48,6 +48,14 @@
     {
       "name": "catalogs",
       "description": "Manage information about shopping product catalogs and items."
+    },
+    {
+      "name": "customer_lists",
+      "description": "View, create, or update customer lists."
+    },
+    {
+      "name": "keywords",
+      "description": "View, create or update keywords."
     },
     {
       "name": "media",
@@ -66,6 +74,10 @@
       "description": "Product Group Promotion"
     },
     {
+      "name": "resources",
+      "description": "View, create or update resources."
+    },
+    {
       "name": "terms",
       "description": "Get related and suggested terms."
     },
@@ -82,15 +94,20 @@
     "/oauth/token": {
       "post": {
         "summary": "Generate OAuth access token",
-        "description": "Generate an OAuth access token by using an authorization code or a refresh token.\n\nSee <a href='/docs/api/v5/#tag/Authentication'>Authentication</a> for more.",
+        "description": "Generate an OAuth access token by using an authorization code or a refresh token.\n\nSee <a href='/docs/getting-started/authentication/'>Authentication</a> for more.",
         "tags": [
           "oauth"
         ],
         "operationId": "oauth/token",
         "security": [
-          {}
+          {
+            "basic": []
+          }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "description": "Generate an OAuth access token.",
           "required": true,
@@ -129,7 +146,7 @@
     "/user_account": {
       "get": {
         "summary": "Get user account",
-        "description": "Get account information for the \"operation user_account\"\n- By default, the \"operation user_account\" is the token user_account.\n\nIf using Business Access: Specify an ad_account_id to use the owner of that ad_account as the \"operation user_account\". See <a href='/docs/api/v5/#tag/Understanding-business-access'>Understanding Business Access</a> for more information.",
+        "description": "Get account information for the \"operation user_account\"\n- By default, the \"operation user_account\" is the token user_account.\n\nIf using Business Access: Specify an ad_account_id to use the owner of that ad_account as the \"operation user_account\". See <a href='/docs/reference/business-access/'>Understanding Business Access</a> for more information.",
         "tags": [
           "user_account"
         ],
@@ -142,6 +159,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_ad_account_id"
@@ -201,6 +221,9 @@
           }
         ],
         "x-ratelimit-category": "org_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_start_date"
@@ -296,6 +319,9 @@
           }
         ],
         "x-ratelimit-category": "org_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_start_date"
@@ -383,6 +409,9 @@
           }
         ],
         "x-ratelimit-category": "org_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_start_date"
@@ -472,6 +501,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "description": "Create a new Pin.",
           "required": true,
@@ -604,6 +636,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_pin_id"
@@ -681,6 +716,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_pin_id"
@@ -731,6 +769,125 @@
         }
       }
     },
+    "/pins/{pin_id}/save": {
+      "post": {
+        "summary": "Save pin",
+        "description": "Save a pin on a board or board section owned by the \"operation user_account\".\n- By default, the \"operation user_account\" is the token user_account.",
+        "tags": [
+          "pins"
+        ],
+        "operationId": "pins/save",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "boards:read",
+              "boards:write",
+              "pins:read",
+              "pins:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_pin_id"
+          }
+        ],
+        "requestBody": {
+          "description": "Request object used to save an existing pin",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "board_id": {
+                    "description": "Unique identifier of the board to which the pin will be saved.",
+                    "type": "string",
+                    "pattern": "^\\d+$"
+                  },
+                  "board_section_id": {
+                    "description": "Unique identifier of the board section to which the pin will be saved.",
+                    "type": "string",
+                    "pattern": "^\\d+$",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully saved pin.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pin"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to access Board or Pin.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 29,
+                  "message": "You are not permitted to access that resource."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Board or Pin not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "BoardNotFound": {
+                    "value": {
+                      "code": 40,
+                      "message": "Board not found."
+                    }
+                  },
+                  "PinNotFound": {
+                    "value": {
+                      "code": 50,
+                      "message": "Pin not found."
+                    }
+                  },
+                  "BoardSectionNotFound": {
+                    "value": {
+                      "code": 2031,
+                      "message": "Sorry! We couldn't find this board section."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/pins/{pin_id}/analytics": {
       "get": {
         "summary": "Get Pin analytics",
@@ -748,6 +905,9 @@
           }
         ],
         "x-ratelimit-category": "org_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_pin_id"
@@ -853,6 +1013,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -928,6 +1091,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "description": "Create a board using a single board json object.",
           "required": true,
@@ -993,6 +1159,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1051,6 +1220,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1148,6 +1320,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1242,6 +1417,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1306,6 +1484,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1419,6 +1600,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1519,6 +1703,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1603,6 +1790,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1714,6 +1904,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_board_id"
@@ -1793,6 +1986,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -1854,6 +2050,9 @@
           }
         ],
         "x-ratelimit-category": "org_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "description": "Create a media upload request",
           "required": true,
@@ -1905,6 +2104,9 @@
           }
         ],
         "x-ratelimit-category": "org_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_media_id"
@@ -1964,6 +2166,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -2014,7 +2219,7 @@
       },
       "post": {
         "summary": "Create ad account",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nCreate a new ad account. Different ad accounts can support different currencies, payment methods, etc.\nAn ad account is needed to create campaigns, ad groups, and ads; other accounts (your employees or partners) can be assigned business access and appropriate roles to access an ad account. <p/>\nYou can set up up to 50 ad accounts per user. (The user must have a business account to create an ad account.) <p/>\nFor more, see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/create-an-advertiser-account\">Create an advertiser account</a>.",
+        "description": "Create a new ad account. Different ad accounts can support different currencies, payment methods, etc.\nAn ad account is needed to create campaigns, ad groups, and ads; other accounts (your employees or partners) can be assigned business access and appropriate roles to access an ad account. <p/>\nYou can set up up to 50 ad accounts per user. (The user must have a business account to create an ad account.) <p/>\nFor more, see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/create-an-advertiser-account\">Create an advertiser account</a>.",
         "tags": [
           "ad_accounts"
         ],
@@ -2027,6 +2232,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "content": {
             "application/json": {
@@ -2065,7 +2273,7 @@
     "/ad_accounts/{ad_account_id}": {
       "get": {
         "summary": "Get ad account",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nGet an ad account",
+        "description": "Get an ad account",
         "operationId": "ad_accounts/get",
         "security": [
           {
@@ -2075,6 +2283,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2120,6 +2331,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2203,6 +2417,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2279,7 +2496,7 @@
       },
       "post": {
         "summary": "Create campaigns",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nCreate multiple new campaigns. Every campaign has its own campaign_id and houses one or more ad groups, which contain one or more ads.\nFor more, see <a href=\"https://help.pinterest.com/en/business/article/set-up-your-campaign/\">Set up your campaign</a>. <p/>\n<strong>Note:</strong>\n- The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\nMicrocurrency is used to track very small transactions, based on the currency field set in the advertiser's profile.\nA microcurrency unit is one one-millionth of the standard unit of currency selected in the advertiser's profile (e.g. a microdollar is $0.000001.)",
+        "description": "Create multiple new campaigns. Every campaign has its own campaign_id and houses one or more ad groups, which contain one or more ads.\nFor more, see <a href=\"https://help.pinterest.com/en/business/article/set-up-your-campaign/\">Set up your campaign</a>. <p/>\n<strong>Note:</strong>\n- The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>",
         "tags": [
           "campaigns"
         ],
@@ -2292,6 +2509,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2336,7 +2556,7 @@
       },
       "patch": {
         "summary": "Update campaigns",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nUpdate multiple ad campaigns based on campaign_ids. <p/>\n<strong>Note:</strong><p/>\n- The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\nMicrocurrency is used to track very small transactions, based on the currency field set in the advertiser's profile.\nA microcurrency unit is one one-millionth of the standard unit of currency selected in the advertiser's profile (e.g. a microdollar is $0.000001.)",
+        "description": "Update multiple ad campaigns based on campaign_ids. <p/>\n<strong>Note:</strong><p/>\n- <p>The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>",
         "tags": [
           "campaigns"
         ],
@@ -2349,6 +2569,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2395,7 +2618,7 @@
     "/ad_accounts/{ad_account_id}/campaigns/{campaign_id}": {
       "get": {
         "summary": "Get campaign",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nGet a specific campaign given the campaign ID.",
+        "description": "Get a specific campaign given the campaign ID.",
         "operationId": "campaigns/get",
         "security": [
           {
@@ -2405,6 +2628,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2453,6 +2679,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2522,7 +2751,7 @@
           }
         },
         "tags": [
-          "ad_accounts"
+          "campaigns"
         ]
       }
     },
@@ -2539,6 +2768,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2621,7 +2853,7 @@
       },
       "post": {
         "summary": "Create ad groups",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nCreate multiple new ad groups. All ads in a given ad group will have the same budget, bid, run dates, targeting, and placement (search, browse, other). For more information, <a href=\"https://help.pinterest.com/en/business/article/campaign-structure\" target=\"_blank\"> click here</a>.</p>\n<strong>Note:</strong>\n- 'bid_in_micro_currency' and 'budget_in_micro_currency' should be expressed in microcurrency amounts based on the currency field set in the advertiser's profile.\nMicrocurrency is used to track very small transactions, based on the currency field set in the advertiser's profile.\nA microcurrency unit is one one-millionth of the standard unit of currency selected in the advertiser's profile (e.g. a microdollar is $0.000001.)\n- Ad groups belong to ad campaigns. Some types of campaigns (e.g. budget optimization) have limits on the number of ad groups they can hold. If you exceed those limits, you will get an error message.",
+        "description": "Create multiple new ad groups. All ads in a given ad group will have the same budget, bid, run dates, targeting, and placement (search, browse, other). For more information, <a href=\"https://help.pinterest.com/en/business/article/campaign-structure\" target=\"_blank\"> click here</a>.</p>\n<strong>Note:</strong>\n- 'bid_in_micro_currency' and 'budget_in_micro_currency' should be expressed in microcurrency amounts based on the currency field set in the advertiser's profile.<p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>\n- Ad groups belong to ad campaigns. Some types of campaigns (e.g. budget optimization) have limits on the number of ad groups they can hold. If you exceed those limits, you will get an error message.",
         "operationId": "ad_groups/create",
         "security": [
           {
@@ -2631,6 +2863,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2680,7 +2915,7 @@
       },
       "patch": {
         "summary": "Update ad groups",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nUpdate multiple existing ad groups.",
+        "description": "Update multiple existing ad groups.",
         "operationId": "ad_groups/update",
         "security": [
           {
@@ -2690,6 +2925,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2741,7 +2979,7 @@
     "/ad_accounts/{ad_account_id}/ad_groups/{ad_group_id}": {
       "get": {
         "summary": "Get ad group",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nGet a specific ad given the ad ID. If your pin is rejected, rejected_reasons will\ncontain additional information from the Ad Review process.\nFor more information about our policies and rejection reasons see the <a href=\"https://www.pinterest.com/_/_/policy/advertising-guidelines/\"\ntarget=\"_blank\">Pinterest advertising standards</a>.",
+        "description": "Get a specific ad given the ad ID. If your pin is rejected, rejected_reasons will\ncontain additional information from the Ad Review process.\nFor more information about our policies and rejection reasons see the <a href=\"https://www.pinterest.com/_/_/policy/advertising-guidelines/\"\ntarget=\"_blank\">Pinterest advertising standards</a>.",
         "operationId": "ad_groups/get",
         "security": [
           {
@@ -2751,6 +2989,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2799,6 +3040,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2868,7 +3112,7 @@
           }
         },
         "tags": [
-          "ad_accounts"
+          "ad_groups"
         ]
       }
     },
@@ -2885,6 +3129,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2966,7 +3213,7 @@
         ]
       },
       "post": {
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nCreate multiple new ads. Request must contain ad_group_id, creative_type, and the source Pin pin_id.",
+        "description": "Create multiple new ads. Request must contain ad_group_id, creative_type, and the source Pin pin_id.",
         "operationId": "ads/create",
         "security": [
           {
@@ -2976,6 +3223,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2985,7 +3235,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdCreateRequest"
+                "items": {
+                  "$ref": "#/components/schemas/AdCreateRequest"
+                },
+                "maxItems": 30,
+                "minItems": 1,
+                "type": "array"
               }
             }
           },
@@ -3020,7 +3275,7 @@
         ]
       },
       "patch": {
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nUpdate multiple existing ads",
+        "description": "Update multiple existing ads",
         "operationId": "ads/update",
         "security": [
           {
@@ -3030,6 +3285,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3039,7 +3297,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdUpdateRequest"
+                "items": {
+                  "$ref": "#/components/schemas/AdUpdateRequest"
+                },
+                "maxItems": 30,
+                "minItems": 1,
+                "type": "array"
               }
             }
           },
@@ -3077,7 +3340,7 @@
     "/ad_accounts/{ad_account_id}/ads/{ad_id}": {
       "get": {
         "summary": "Get ad",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nGet a specific ad given the ad ID. If your pin is rejected, rejected_reasons will\ncontain additional information from the Ad Review process.\nFor more information about our policies and rejection reasons see the <a href=\"https://www.pinterest.com/_/_/policy/advertising-guidelines/\"\ntarget=\"_blank\">Pinterest advertising standards</a>.",
+        "description": "Get a specific ad given the ad ID. If your pin is rejected, rejected_reasons will\ncontain additional information from the Ad Review process.\nFor more information about our policies and rejection reasons see the <a href=\"https://www.pinterest.com/_/_/policy/advertising-guidelines/\"\ntarget=\"_blank\">Pinterest advertising standards</a>.",
         "operationId": "ads/get",
         "security": [
           {
@@ -3087,6 +3350,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3135,6 +3401,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3204,14 +3473,14 @@
           }
         },
         "tags": [
-          "ad_accounts"
+          "ads"
         ]
       }
     },
     "/ad_accounts/{ad_account_id}/ad_previews": {
       "post": {
         "summary": "Create ad preview with pin or image",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nCreate an ad preview given an ad account ID and either an existing organic pin ID or the URL for an image to be used to create the Pin and the ad. <p/>\nIf you are creating a preview from an existing Pin, that Pin must be promotable: that is, it must have a clickthrough link and meet other requirements. (See <a href=\"https://help.pinterest.com/en/business/article/promoted-pins-overview\" target=\"_blank\">Ads Overview</a>.) <p/>\nYou can view the returned preview URL on a webpage or iframe for 7 days, after which the URL expires.",
+        "description": "Create an ad preview given an ad account ID and either an existing organic pin ID or the URL for an image to be used to create the Pin and the ad. <p/>\nIf you are creating a preview from an existing Pin, that Pin must be promotable: that is, it must have a clickthrough link and meet other requirements. (See <a href=\"https://help.pinterest.com/en/business/article/promoted-pins-overview\" target=\"_blank\">Ads Overview</a>.) <p/>\nYou can view the returned preview URL on a webpage or iframe for 7 days, after which the URL expires.",
         "tags": [
           "ads"
         ],
@@ -3224,6 +3493,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3284,7 +3556,7 @@
     },
     "/ad_accounts/{ad_account_id}/bid_floor": {
       "post": {
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nList bid floors for your campaign configuration. Bid floors are given in microcurrency values based on the currency in the bid floor specification. <p/>\nMicrocurrency is used to track very small transactions, based on the currency field set in the advertiser's profile. A microcurrency unit is one one-millionth of the standard unit of currency selected in the advertiser's profile (e.g. a microdollar is $0.000001.) <p/>\nFor more on bid floors see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-your-bid\"> Set your bid</a>.",
+        "description": "List bid floors for your campaign configuration. Bid floors are given in microcurrency values based on the currency in the bid floor specification. <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>\nFor more on bid floors see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-your-bid\"> Set your bid</a>.",
         "operationId": "ad_groups_bid_floor/get",
         "security": [
           {
@@ -3294,6 +3566,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3351,6 +3626,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3420,7 +3698,7 @@
           }
         },
         "tags": [
-          "ad_accounts"
+          "product_group_promotions"
         ]
       }
     },
@@ -3437,6 +3715,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3497,6 +3778,9 @@
           }
         ],
         "x-ratelimit-category": "ads_analytics",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3553,9 +3837,722 @@
         ]
       }
     },
+    "/ad_accounts/{ad_account_id}/audiences": {
+      "get": {
+        "summary": "List audiences",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nGet list of audiences for the ad account.",
+        "operationId": "audiences/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_audience_ids"
+          },
+          {
+            "$ref": "#/components/parameters/query_audience_type"
+          },
+          {
+            "$ref": "#/components/parameters/query_audience_types"
+          },
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          },
+          {
+            "$ref": "#/components/parameters/query_entity_statuses"
+          },
+          {
+            "$ref": "#/components/parameters/query_flatten_rule"
+          },
+          {
+            "$ref": "#/components/parameters/query_order"
+          },
+          {
+            "$ref": "#/components/parameters/query_order_by"
+          },
+          {
+            "$ref": "#/components/parameters/query_page_size"
+          },
+          {
+            "$ref": "#/components/parameters/query_search_query"
+          },
+          {
+            "$ref": "#/components/parameters/query_start_index"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Audience"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid ad account audience parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 400,
+                  "message": "Invalid ad account audience parameters."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "audiences"
+        ]
+      },
+      "post": {
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nCreate an audience you can use in targeting for specific ad groups. Targeting combines customer information with\nthe ways users interact with Pinterest to help you reach specific groups of users; you can include or exclude\nspecific audience_ids when you create an ad group. <p/>\nFor more, see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>.",
+        "operationId": "audiences/create",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudienceCreateRequest"
+              }
+            }
+          },
+          "description": "List of ads to create, size limit [1, 30]",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Audience"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "summary": "Create audience",
+        "tags": [
+          "audiences"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/audiences/{audience_id}": {
+      "get": {
+        "summary": "Get audience",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nGet a specific audience given the audience ID.",
+        "operationId": "audiences/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/path_audience_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Audience"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Audience not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "audiences"
+        ]
+      },
+      "patch": {
+        "summary": "Update audience",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nUpdate (edit or remove) an existing targeting audience.",
+        "operationId": "audiences/update",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/path_audience_id"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudienceUpdateRequest"
+              }
+            }
+          },
+          "description": "The audience to be updated."
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Audience"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "audiences"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/customer_lists": {
+      "post": {
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\n<p>Create a customer list from your records(hashed or plain-text email addresses, or hashed MAIDs or IDFAs).</p>\n<p>A customer list is one of the four types of Pinterest audiences: for more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>\nor the <a href=\"https://developers.pinterest.com/docs/features/ads-management/#Audiences\" target=\"_blank\">Audiences</a> section of the ads management guide.<p/>\n<p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\" target=\"_blank\">requirements</a></u> for what type of information is allowed when uploading a customer list.</b></p>\n<p>When you create a customer list, the system scans the list for existing Pinterest accounts;\nthe list must include at least 100 Pinterest accounts. Your original list will be deleted when the matching process\nis complete. The filtered list – containing only the Pinterest accounts that were included in your starting\nlist – is what will be used to create the audience.</p>\n<p>Note that once you have created your customer list, you must convert it into an audience (of the “CUSTOMER_LIST” type)\nusing the <a href=\"#operation/create_audience_handler\">create audience endpoint</a> before it can be used.</p>",
+        "operationId": "customer_lists/create",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerListRequest"
+              }
+            }
+          },
+          "description": "Parameters to get Customer lists info",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerList"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "summary": "Create customer lists",
+        "tags": [
+          "customer_lists"
+        ]
+      },
+      "get": {
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\n<p>Get a set of customer lists including id and name based on the filters provided.</p>\n<p>(Customer lists are a type of audience.) For more information, see\n<a href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>\n or the <a href=\"https://developers.pinterest.com/docs/features/ads-management/#Audiences\" target=\"_blank\">Audiences</a>\nsection of the ads management guide.</p>",
+        "operationId": "customer_lists/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_page_size"
+          },
+          {
+            "$ref": "#/components/parameters/query_order"
+          },
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CustomerList"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "summary": "Get customer lists",
+        "tags": [
+          "customer_lists"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/customer_lists/{customer_list_id}": {
+      "get": {
+        "summary": "Get customer list",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nGets a specific customer list given the customer list ID.",
+        "operationId": "customer_lists/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/path_customer_list_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerList"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "customer_lists"
+        ]
+      },
+      "patch": {
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\n<p>Append or remove records to/from an existing customer list. (A customer list is one of the four types of Pinterest audiences.)</p>\n<p>When you add records to an existing customer list, the system scans the additions for existing Pinterest\naccounts; those are the records that will be added to your “CUSTOMER_LIST” audience. Your original list of records\nto add will be deleted when the matching process is complete.</p>\n<p>For more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>\nor the <a href=\"https://developers.pinterest.com/docs/features/ads-management/#Audiences\" target=\"_blank\">Audiences</a>\nsection of the ads management guide.</p>",
+        "operationId": "customer_lists/update",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/path_customer_list_id"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerListUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerList"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "summary": "Update customer lists",
+        "tags": [
+          "customer_lists"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/keywords": {
+      "get": {
+        "summary": "Get keywords",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\n<p>Get a list of keywords based on the filters provided.</p>",
+        "operationId": "keywords/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_campaign_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_ad_group_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_match_types"
+          },
+          {
+            "$ref": "#/components/parameters/query_page_size"
+          },
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "description": "Keywords",
+                          "items": {
+                            "$ref": "#/components/schemas/KeywordsResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "keywords"
+        ]
+      },
+      "post": {
+        "summary": "Create keywords",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nCreate keywords.",
+        "operationId": "keywords/create",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeywordsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeywordsResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "keywords"
+        ]
+      },
+      "patch": {
+        "summary": "Update keywords",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\n<p>Update one or more keywords' bid and archived fields.</p> <p>Archiving a keyword effectively deletes it - keywords no longer receive metrics and no longer visible within the parent entity's keywords list.</p>",
+        "operationId": "keywords/update",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeywordUpdateBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeywordsResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "keywords"
+        ]
+      }
+    },
     "/ad_accounts/{ad_account_id}/product_group_promotions": {
       "post": {
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nAdd one or more product groups from your catalog to an existing ad group. (Product groups added to an ad group are a 'product group promotion.')",
+        "description": "Add one or more product groups from your catalog to an existing ad group. (Product groups added to an ad group are a 'product group promotion.')",
         "operationId": "product_group_promotions/create",
         "security": [
           {
@@ -3565,6 +4562,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3609,7 +4609,7 @@
         ]
       },
       "patch": {
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nUpdate multiple existing Product Group Promotions (by product_group_id)",
+        "description": "Update multiple existing Product Group Promotions (by product_group_id)",
         "operationId": "product_group_promotions/update",
         "security": [
           {
@@ -3619,6 +4619,9 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3668,7 +4671,7 @@
     },
     "/ad_accounts/{ad_account_id}/product_group_promotions/{product_group_promotion_id}": {
       "get": {
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nGet a product group promotion by id",
+        "description": "Get a product group promotion by id",
         "operationId": "product_group_promotion/get",
         "security": [
           {
@@ -3678,6 +4681,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3717,7 +4723,7 @@
     "/terms/suggested": {
       "get": {
         "summary": "List suggested terms",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nGet popular search terms that begin with your input term. <p/>\nExample: 'sport' would return popular terms like 'sports bar' and 'sportswear', but not 'motor sports' since the phrase does not begin with the given term.",
+        "description": "Get popular search terms that begin with your input term. <p/>\nExample: 'sport' would return popular terms like 'sports bar' and 'sportswear', but not 'motor sports' since the phrase does not begin with the given term.",
         "tags": [
           "terms"
         ],
@@ -3730,6 +4736,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_input_term"
@@ -3778,8 +4787,11 @@
     },
     "/ad_accounts/{ad_account_id}/terms_of_service": {
       "get": {
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nGet the text of the terms of service and see whether the advertiser has accepted the terms of service.",
+        "description": "Get the text of the terms of service and see whether the advertiser has accepted the terms of service.",
         "operationId": "terms_of_service/get",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3831,7 +4843,7 @@
       "get": {
         "x-ratelimit-category": "catalogs_read",
         "summary": "List feeds",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nFetch feeds owned by the \"operating user_account\".",
+        "description": "Fetch feeds owned by the \"operating user_account\".\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "feeds/list",
         "security": [
           {
@@ -3840,6 +4852,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -3927,7 +4942,7 @@
       "post": {
         "x-ratelimit-category": "catalogs_write",
         "summary": "Create feed",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nCreate a new feed owned by the \"operating user_account\".",
+        "description": "Create a new feed owned by the \"operating user_account\".\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "feeds/create",
         "security": [
           {
@@ -3937,6 +4952,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "description": "Request object used to created a feed.",
           "required": true,
@@ -4081,7 +5099,7 @@
       "get": {
         "x-ratelimit-category": "catalogs_read",
         "summary": "Get feed",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nGet a single feed owned by the \"operating user_account\".",
+        "description": "Get a single feed owned by the \"operating user_account\".\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "feeds/get",
         "security": [
           {
@@ -4090,6 +5108,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_feed_id"
@@ -4178,7 +5199,7 @@
       "patch": {
         "x-ratelimit-category": "catalogs_write",
         "summary": "Update feed",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nUpdate a feed owned by the \"operating user_account\".",
+        "description": "Update a feed owned by the \"operating user_account\".\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "feeds/update",
         "security": [
           {
@@ -4188,6 +5209,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_feed_id"
@@ -4293,7 +5317,7 @@
       "delete": {
         "x-ratelimit-category": "catalogs_write",
         "summary": "Delete feed",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nDelete a feed owned by the \"operating user_account\".",
+        "description": "Delete a feed owned by the \"operating user_account\".\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "feeds/delete",
         "security": [
           {
@@ -4303,6 +5327,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_feed_id"
@@ -4410,7 +5437,7 @@
       "get": {
         "x-ratelimit-category": "catalogs_read",
         "summary": "List processing results for a given feed",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nFetch a feed processing results owned by the owner user account. Please note that for now the bookmark parameter is not functional and only the first page will be available until it is implemented in some release in the near future.",
+        "description": "Fetch a feed processing results owned by the owner user account. Please note that for now the bookmark parameter is not functional and only the first page will be available until it is implemented in some release in the near future.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "feed_processing_results/list",
         "security": [
           {
@@ -4419,6 +5446,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_feed_id"
@@ -4529,7 +5559,7 @@
       "get": {
         "x-ratelimit-category": "catalogs_read",
         "summary": "List item issues for a given processing result",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nList item validation issues for a given feed processing result. Please note that for now query parameters 'item_numbers' and 'item_validation_issue' cannot be used simultaneously until it is implemented in some release in the future.",
+        "description": "List item validation issues for a given feed processing result. Please note that for now query parameters 'item_numbers' and 'item_validation_issue' cannot be used simultaneously until it is implemented in some release in the future.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "items_issues/list",
         "security": [
           {
@@ -4538,6 +5568,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -4663,6 +5696,9 @@
           }
         ],
         "x-ratelimit-category": "catalogs_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_catalogs_items_country"
@@ -4734,6 +5770,9 @@
           }
         ],
         "x-ratelimit-category": "catalogs_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_items_batch_id"
@@ -4798,10 +5837,13 @@
     },
     "/catalogs/items/batch": {
       "post": {
-        "summary": "Perform an operation on an item batch",
+        "summary": "Operate on item batch",
         "description": "This endpoint supports multiple operations on a set of one or more catalog items. <a href=\"/docs/features/catalog-management/#Using%20batch%20updates%20for%20catalog%20management\" target=\"_blank\">See detailed documentation here.</a>",
         "operationId": "items_batch/post",
         "x-ratelimit-category": "catalogs_write",
+        "x-sandbox": {
+          "enabled": false
+        },
         "security": [
           {
             "pinterest_oauth2": [
@@ -4871,8 +5913,8 @@
     "/catalogs/products/get_by_product_group_filters": {
       "post": {
         "x-ratelimit-category": "catalogs_read",
-        "summary": "List products that meet the criteria of the filter you provide.",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\nList products Pins that meet the criteria specified in the Catalogs Product Group Filter given in the request.\nNote: This endpoint has been implemented in POST to allow for complex filters. This specific POST endpoint is designed to be idempotent.",
+        "summary": "List filtered products",
+        "description": "List products Pins that meet the criteria specified in the Catalogs Product Group Filter given in the request.\nNote: This endpoint has been implemented in POST to allow for complex filters. This specific POST endpoint is designed to be idempotent.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "products_by_product_group_filter/list",
         "security": [
           {
@@ -4883,6 +5925,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -4988,9 +6033,12 @@
     "/catalogs/product_groups/{product_group_id}": {
       "get": {
         "x-ratelimit-category": "catalogs_read",
-        "summary": "Get a product group",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nGet a singe product group for a given Catalogs Product Group Id.",
+        "summary": "Get product group",
+        "description": "Get a singe product group for a given Catalogs Product Group Id.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_groups/get",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_product_group_id"
@@ -5128,8 +6176,11 @@
       "delete": {
         "x-ratelimit-category": "catalogs_write",
         "summary": "Delete product group",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nDelete a product group from being in use in Catalogs.",
+        "description": "Delete a product group from being in use in Catalogs.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_groups/delete",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_product_group_id"
@@ -5272,8 +6323,11 @@
       "patch": {
         "x-ratelimit-category": "catalogs_write",
         "summary": "Update product group",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nUpdate product group to use in Catalogs.",
+        "description": "Update product group to use in Catalogs.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_groups/update",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_product_group_id"
@@ -5447,8 +6501,8 @@
     "/catalogs/product_groups/{product_group_id}/products": {
       "get": {
         "x-ratelimit-category": "catalogs_read",
-        "summary": "List products for a given product group",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nGet a list of product pins for a given Catalogs Product Group Id.",
+        "summary": "List products",
+        "description": "Get a list of product pins for a given Catalogs Product Group Id.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_group_pins/list",
         "security": [
           {
@@ -5459,6 +6513,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -5568,8 +6625,8 @@
     "/catalogs/product_groups/{product_group_id}/product_counts": {
       "get": {
         "x-ratelimit-category": "catalogs_read",
-        "summary": "Get product counts for a given product group",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\nGet a product counts for a given Catalogs Product Group.",
+        "summary": "Get product counts",
+        "description": "Get a product counts for a given Catalogs Product Group.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_groups/product_counts_get",
         "security": [
           {
@@ -5578,6 +6635,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/path_catalogs_product_group_id"
@@ -5649,8 +6709,8 @@
     "/catalogs/product_groups": {
       "get": {
         "x-ratelimit-category": "catalogs_read",
-        "summary": "Get product groups list",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nGet a list of product groups for a given Catalogs Feed Id.",
+        "summary": "List product groups",
+        "description": "Get a list of product groups for a given Catalogs Feed Id.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_groups/list",
         "security": [
           {
@@ -5659,6 +6719,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_catalogs_feed_id"
@@ -5809,7 +6872,7 @@
       "post": {
         "x-ratelimit-category": "catalogs_write",
         "summary": "Create product group",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/catalog-management/'>Learn more</a>.</strong>\n\nCreate product group to use in Catalogs.",
+        "description": "Create product group to use in Catalogs.\n\n<a href='/docs/features/catalog-management/'>Learn more</a>",
         "operationId": "catalogs_product_groups/create",
         "security": [
           {
@@ -5818,6 +6881,9 @@
             ]
           }
         ],
+        "x-sandbox": {
+          "enabled": false
+        },
         "requestBody": {
           "description": "Request object used to created a catalogs product group.",
           "required": true,
@@ -5952,10 +7018,158 @@
         ]
       }
     },
+    "/resources/ad_account_countries": {
+      "get": {
+        "summary": "Get ad accounts countries",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nGet Ad Accounts countries",
+        "operationId": "ad_account_countries/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdAccountsCountryResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "resources"
+        ]
+      }
+    },
+    "/resources/targeting/interests/{interest_id}": {
+      "get": {
+        "summary": "Get interest details",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\n<p>Get details of a specific interest given interest ID.</p> <p>Click <a href=\"https://docs.google.com/spreadsheets/d/1HxL-0Z3p2fgxis9YBP2HWC3tvPrs1hAuHDRtH-NJTIM/edit#gid=118370875\" target=\"_blank\">here</a> for a spreadsheet listing interests and their IDs.</p>",
+        "operationId": "interest_targeting_options/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_interest_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SingleInterestTargetingOptionResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "resources"
+        ]
+      }
+    },
+    "/resources/targeting/{targeting_type}": {
+      "get": {
+        "summary": "Get targeting options",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\n<p>You can use targeting values in ads placement to define your intended audience. </p> <p>Targeting metrics are organized around targeting specifications.</p> <p>For more information on ads targeting, see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>.</p>\n<p><b>Sample return:</b></p> <pre class=\"literal-block\"> [{&quot;36313&quot;: &quot;Australia: Moreton Bay - North&quot;, &quot;124735&quot;: &quot;Canada: North Battleford&quot;, &quot;36109&quot;: &quot;Australia: Murray&quot;, &quot;36108&quot;: &quot;Australia: Mid North Coast&quot;, &quot;36101&quot;: &quot;Australia: Capital Region&quot;, &quot;811&quot;: &quot;U.S.: Reno&quot;, &quot;36103&quot;: &quot;Australia: Central West&quot;, &quot;36102&quot;: &quot;Australia: Central Coast&quot;, &quot;36105&quot;: &quot;Australia: Far West and Orana&quot;, &quot;36104&quot;: &quot;Australia: Coffs Harbour - Grafton&quot;, &quot;36107&quot;: &quot;Australia: Illawarra&quot;, &quot;36106&quot;: &quot;Australia: Hunter Valley Exc Newcastle&quot;, &quot;554017&quot;: &quot;New Zealand: Wanganui&quot;, &quot;554016&quot;: &quot;New Zealand: Marlborough&quot;, &quot;554015&quot;: &quot;New Zealand: Gisborne&quot;, &quot;554014&quot;: &quot;New Zealand: Tararua&quot;, &quot;554013&quot;: &quot;New Zealand: Invercargill&quot;, &quot;GR&quot;: &quot;Greece&quot;, &quot;554011&quot;: &quot;New Zealand: Whangarei&quot;, &quot;554010&quot;: &quot;New Zealand: Far North&quot;, &quot;717&quot;: &quot;U.S.: Quincy-Hannibal-Keokuk&quot;, &quot;716&quot;: &quot;U.S.: Baton Rouge&quot;,...}] </pre>",
+        "operationId": "targeting_options/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_targeting_type"
+          },
+          {
+            "$ref": "#/components/parameters/query_client_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_oauth_signature"
+          },
+          {
+            "$ref": "#/components/parameters/query_timestamp"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TargetingOptionResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "resources"
+        ]
+      }
+    },
     "/terms/related": {
       "get": {
         "summary": "List related terms",
-        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>\nGet a list of terms logically related to each input term. <p/>\nExample: the term 'workout' would list related terms like 'one song workout', 'yoga workout', 'workout motivation', etc.",
+        "description": "Get a list of terms logically related to each input term. <p/>\nExample: the term 'workout' would list related terms like 'one song workout', 'yoga workout', 'workout motivation', etc.",
         "tags": [
           "terms"
         ],
@@ -5968,6 +7182,9 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
+        "x-sandbox": {
+          "enabled": false
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/query_list_input_terms"
@@ -6037,6 +7254,11 @@
             }
           }
         }
+      },
+      "conversion_token": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "This security scheme only applies to the conversion events endpoint (POST /ad_accounts/{ad_account_id}/events). This endpoint requires a bearer token generated via Ads Manager (ads.pinterest.com)."
       },
       "basic": {
         "type": "http",
@@ -6109,7 +7331,7 @@
             "description": "ID of the ad group that contains the ad.",
             "example": "2680059592705",
             "type": "string",
-            "pattern": "^\\d+$"
+            "pattern": "^(AG)?\\d+$"
           },
           "android_deep_link": {
             "description": "Deep link URL for Android devices. Not currently available. Using this field will generate an error.",
@@ -6199,25 +7421,20 @@
         }
       },
       "AdCreateRequest": {
-        "type": "array",
-        "items": {
-          "allOf": [
-            {
-              "$ref": "#/components/schemas/AdCommon"
-            },
-            {
-              "type": "object",
-              "title": "Request schema for creating ads",
-              "required": [
-                "ad_group_id",
-                "pin_id",
-                "creative_type"
-              ],
-              "minLength": 1,
-              "maxLength": 30
-            }
-          ]
-        }
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AdCommon"
+          },
+          {
+            "type": "object",
+            "title": "Request schema for creating ads",
+            "required": [
+              "ad_group_id",
+              "pin_id",
+              "creative_type"
+            ]
+          }
+        ]
       },
       "AnalyticsResponse": {
         "type": "object",
@@ -6604,7 +7821,7 @@
             "description": "Ad group targeting specification defining the ad group target audience. For example, '{\"APPTYPE\":[\"iphone\"], \"GENDER\":[\"male\"], \"LOCALE\":[\"en-US\"], \"LOCATION\":[\"501\"], \"AGE_BUCKET\":[\"25-34\"]}'"
           },
           "lifetime_frequency_cap": {
-            "description": "Set a limit to the number of times a promoted pin from this campaign can be impressed by a pinner within the past rolling 30 days. Only available for CPM (cost per mille (1000 impressions))  ad groups. A CPM ad group has an IMPRESSION <a href=\\\"/docs/redoc/#section/Billable-event\\\">billable_event</a> value. This field **REQUIRES** the `end_time` field.",
+            "description": "Set a limit to the number of times a promoted pin from this campaign can be impressed by a pinner within the past rolling 30 days. Only available for CPM (cost per mille (1000 impressions))  ad groups. A CPM ad group has an IMPRESSION <a href=\"https://developers.pinterest.com/docs/redoc/#section/Billable-event\">billable_event</a> value. This field **REQUIRES** the `end_time` field.",
             "type": "integer",
             "example": 100
           },
@@ -6631,7 +7848,7 @@
                 "$ref": "#/components/schemas/PlacementGroupType"
               }
             ],
-            "description": "<a href=\\\"/docs/redoc/#section/Placement-group\\\">Placement group</a>."
+            "description": "<a href=\"https://developers.pinterest.com/docs/redoc/#section/Placement-group\">Placement group</a>."
           },
           "pacing_delivery_type": {
             "type": "string",
@@ -6645,7 +7862,7 @@
           "campaign_id": {
             "description": "Campaign ID of the ad group.",
             "type": "string",
-            "pattern": "^\\d+$",
+            "pattern": "^[C]?\\d+$",
             "example": "626736533506"
           },
           "billable_event": {
@@ -6817,6 +8034,41 @@
             "AD_GROUP_ID": "547602124502",
             "SPEND_IN_DOLLAR": 30,
             "TOTAL_CLICKTHROUGH": 216
+          }
+        }
+      },
+      "AdAccountsCountryResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdAccountsCountryResponseData"
+            }
+          }
+        }
+      },
+      "AdAccountsCountryResponseData": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/Country",
+            "type": "string"
+          },
+          "currency": {
+            "description": "Country currency.",
+            "example": "Dollars",
+            "type": "string"
+          },
+          "index": {
+            "type": "number",
+            "description": "Country index",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Country name",
+            "example": "United States of America"
           }
         }
       },
@@ -7116,7 +8368,7 @@
                 "properties": {
                   "campaign_objective_types": {
                     "type": "array",
-                    "description": "List of values for filtering",
+                    "description": "List of values for filtering. [\"WEB_SESSIONS\"] in BETA.",
                     "example": [
                       "AWARENESS",
                       "VIDEO_VIEW"
@@ -7327,32 +8579,540 @@
         }
       },
       "AdUpdateRequest": {
-        "type": "array",
-        "items": {
-          "allOf": [
-            {
-              "$ref": "#/components/schemas/AdCommon"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AdCommon"
+          },
+          {
+            "type": "object",
+            "title": "AdUpdateRequest",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "687195134316",
+                "pattern": "^\\d+$",
+                "description": "The ID of this ad.",
+                "title": "id"
+              }
             },
-            {
-              "type": "object",
-              "title": "AdUpdateRequest",
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "example": "687195134316",
-                  "pattern": "^\\d+$",
-                  "description": "The ID of this ad.",
-                  "title": "id"
-                }
-              },
-              "required": [
-                "id"
-              ],
-              "minLength": 1,
-              "maxLength": 30
-            }
-          ]
+            "required": [
+              "id"
+            ]
+          }
+        ]
+      },
+      "Audience": {
+        "properties": {
+          "ad_account_id": {
+            "description": "Ad account ID.",
+            "example": "549755885175",
+            "pattern": "^\\d+$",
+            "title": "ad_account_id",
+            "type": "string"
+          },
+          "id": {
+            "description": "Audience ID.",
+            "example": "1234",
+            "pattern": "^\\d+$",
+            "title": "id",
+            "type": "string"
+          },
+          "name": {
+            "description": "Audience name.",
+            "example": "ACME Tools",
+            "title": "name",
+            "type": "string"
+          },
+          "audience_type": {
+            "type": "string",
+            "description": "<a href=\"/docs/redoc/#section/Pinner-(audience)-list-type\">Audience type</a>",
+            "title": "audience_type"
+          },
+          "description": {
+            "description": "Audience description.",
+            "example": "People who love making quilts.",
+            "nullable": true,
+            "title": "description",
+            "type": "string"
+          },
+          "rule": {
+            "$ref": "#/components/schemas/AudienceRule"
+          },
+          "size": {
+            "description": "Audience size.",
+            "example": 1000,
+            "nullable": true,
+            "title": "size",
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "description": "Audience status. TOO_SMALL - Each audience list needs to have at least 100 people with Pinterest accounts before you can start using it.",
+            "title": "status"
+          },
+          "type": {
+            "description": "Always \"audience\".",
+            "example": "audience",
+            "title": "type",
+            "type": "string"
+          },
+          "created_timestamp": {
+            "description": "Creation time. Unix timestamp in seconds.",
+            "example": 1451431341,
+            "nullable": true,
+            "title": "created_time",
+            "type": "integer"
+          },
+          "updated_timestamp": {
+            "description": "Last update time. Unix timestamp in seconds.",
+            "example": 1451431341,
+            "nullable": true,
+            "title": "updated_time",
+            "type": "integer"
+          }
+        },
+        "title": "Audience",
+        "type": "object"
+      },
+      "AudienceCommon": {
+        "title": "AudienceCommon",
+        "type": "object",
+        "properties": {
+          "ad_account_id": {
+            "title": "ad_account_id",
+            "description": "Ad account ID.",
+            "type": "string",
+            "example": "549755885175",
+            "pattern": "^\\d+$"
+          },
+          "name": {
+            "title": "name",
+            "description": "Audience name.",
+            "type": "string",
+            "example": "string"
+          },
+          "rule": {
+            "$ref": "#/components/schemas/AudienceRule"
+          }
         }
+      },
+      "AudienceCreateRequest": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AudienceCommon"
+          },
+          {
+            "title": "AudienceCreateRequest",
+            "required": [
+              "audience_type",
+              "name",
+              "rule"
+            ],
+            "properties": {
+              "description": {
+                "$ref": "#/components/schemas/AudienceDescription"
+              },
+              "audience_type": {
+                "type": "string",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AudienceType"
+                  },
+                  {
+                    "title": "audience_type",
+                    "description": "<a href=\"/docs/redoc/#section/Pinner-(audience)-list-type\">Audience type</a>. Values are case-sensitive."
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "AudienceDescription": {
+        "title": "description",
+        "description": "Audience description.",
+        "type": "string",
+        "example": "string"
+      },
+      "AudienceInsightCategoryCommon": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "example": "549755885175",
+            "type": "string"
+          },
+          "name": {
+            "example": "travel",
+            "type": "string"
+          },
+          "ratio": {
+            "example": 0.551,
+            "type": "number"
+          },
+          "index": {
+            "example": 1.2,
+            "type": "number"
+          },
+          "id": {
+            "example": "549755885175",
+            "type": "string"
+          }
+        }
+      },
+      "AudienceDefinitionScope": {
+        "description": "Generated audience scope to request.",
+        "type": "string",
+        "properties": {
+          "scope": {
+            "enum": [
+              "PARTNER",
+              "PINTEREST"
+            ]
+          }
+        }
+      },
+      "AudienceDefinitionType": {
+        "description": "Generated audience type to request.",
+        "type": "string",
+        "properties": {
+          "scope": {
+            "enum": [
+              "IMPRESSION_PLUS_ENGAGEMENT",
+              "ENGAGEMENT"
+            ]
+          }
+        }
+      },
+      "AudienceRule": {
+        "description": "JSON object defining targeted audience users. Example rule formats per audience type:<br>CUSTOMER_LIST: { \"customer_list_id\": \"&lt;customer list ID&gt;\"}<br>ACTALIKE: { \"seed_id\": [\"&lt;audience ID&gt;\"], \"country\": \"US\", \"percentage\": \"10\" }<br>(Valid countries include: \"US\", \"CA\", and \"GB\". Percentage should be 1-10.<br>The targeted audience should be this % size across Pinterest.)<br>VISITOR: { \"visitor_source_id\": [\"&lt;conversion tag ID&gt;\"], \"retention_days\": \"180\", \"event_source\": {\"=\": [\"web\", \"mobile\"]}, \"ingestion_source\": {\"=\": [\"tag\"]}}<br>(Retention days should be 1-540. Retention applies to specific customers.)<br>ENGAGEMENT: {\"engagement_domain\": [\"www.entomi.com\"], \"engager_type\": 1}<br>For more details on engagement audiences, see <a href=\"https://developers.pinterest.com/docs/redoc/adtech_ads_v4/#section/November-2021\" target=\"_blank\">November 2021 changelog</a>.",
+        "properties": {
+          "country": {
+            "description": "Valid countries include: \"US\", \"CA\", and \"GB\".",
+            "example": "US",
+            "title": "country",
+            "type": "string"
+          },
+          "customer_list_id": {
+            "description": "Customer list ID. For CUSTOMER_LIST `audience_type`.",
+            "example": "5497558859876",
+            "pattern": "^\\d+$",
+            "title": "customer_list_id",
+            "type": "string"
+          },
+          "engagement_domain": {
+            "description": "The audience account's verified domain. **Required** for ENGAGEMENT `audience_type`.",
+            "example": [
+              "www.somedomain.com"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "title": "engagement_domain",
+            "type": "array"
+          },
+          "engagement_type": {
+            "description": "Engagement type enum. Optional for ENGAGEMENT `audience_type`. Supported values are `click`, `save`, `closeup`, `comment` and `like`. All engagements are included if this field is not set. ",
+            "example": "click",
+            "title": "engagement_type",
+            "type": "string"
+          },
+          "event": {
+            "description": "A Pinterest tag event. Optional for VISITOR `audience_type`. Possible values are `pagevisit`, `signup`, `checkout`, `viewcategory`, `search`, `addtocart`, `watchvideo`, `lead`, and `custom`. This field also accepts a partner-defined Pinterest tag event.",
+            "example": "checkout",
+            "title": "event",
+            "type": "string"
+          },
+          "event_data": {
+            "description": "Optional for VISITOR `audience_type`. With the Pinterest tag, you can use event data to capture event details from your website. This object lists all the available predefined event data fields in the Pinterest tag. You can include these event data fields as part of a VISITOR audience’s `rule`; however, you **must** specify an `event` for the `event_data` fields to be evaluated. Besides what’s listed, you can also create your own set of `event_data` fields and define their usages or purposes according to your website needs. However, the benefit of using the predefined event data fields is that we can provide various metrics based on those fields' data.<br>Examples per `event` type:<br>`pagevisit`<br>\"event_data\": { \"page_name\": \"My online store 123 | view items | shoe\" }<br>`signup`<br>\"event_data\": { \"lead_type\": \"New release promotion\" }<br>`checkout`<br>\"event_data\": { \"value\": 116, \"order_quantity\": 2, \"currency\": \"USD\", \"line_items\": [ { \"product_name\": \"Pillows (Set of 2)\", \"product_id\": \"11\", \"product_price\": 48, \"product_quantity\": 1 }, { \"product_name\": \"Pillows, Large (Set of 2)\", \"product_id\": \"15\", \"product_price\": 68, \"product_quantity\": 1 } ] }<br>`addtocart`<br>\"event_data\": { \"value\": 499, \"order_quantity\": 1, \"currency\": \"USD\", \"line_items\": [ { \"product_name\": \"Red leather boots\", \"product_id\": \"3486\", \"product_category\": \"shoe\", \"product_variant_id\": \"JB11103000\", \"product_price\": 499, \"product_quantity\": \"1\", \"product_brand\": \"My brand\" }]}<br>`watchvideo`<br>\"event_data\": { \"video_title\": \"My Product Video 01\" }<br>`lead`<br>\"event_data\": { \"lead_type\": \"Newsletter\" }",
+            "properties": {
+              "currency": {
+                "$ref": "#/components/schemas/Currency"
+              },
+              "lead_type": {
+                "description": "Promotion code. For example, \"Newsletter\".",
+                "example": "Newsletter",
+                "title": "lead_type",
+                "type": "string"
+              },
+              "line_items": {
+                "properties": {
+                  "product_brand": {
+                    "description": "Product brand. For example, \"Parker\".",
+                    "example": "Parker",
+                    "title": "product_brand",
+                    "type": "string"
+                  },
+                  "product_category": {
+                    "description": "Product category. For example, \"Shoes\".",
+                    "example": "Shoes",
+                    "title": "product_category",
+                    "type": "string"
+                  },
+                  "product_id": {
+                    "description": "Product ID. For example, 1414.",
+                    "example": 1414,
+                    "title": "product_id",
+                    "type": "integer"
+                  },
+                  "product_name": {
+                    "description": "Product name. For example, \"Parker Boots\".",
+                    "example": "Parker Boots",
+                    "title": "product_name",
+                    "type": "string"
+                  },
+                  "product_price": {
+                    "description": "Product price. For example, \"99.99\".",
+                    "example": "99.99",
+                    "title": "product_price",
+                    "type": "string"
+                  },
+                  "product_quantity": {
+                    "description": "Product quantity. For example, 2.",
+                    "example": 2,
+                    "title": "product_quantity",
+                    "type": "integer"
+                  },
+                  "product_variant": {
+                    "description": "Product variant. For example, \"Red\".",
+                    "example": "Red",
+                    "title": "product_variant",
+                    "type": "string"
+                  },
+                  "product_variant_id": {
+                    "description": "Product variant ID. For example, \"1414-34832\".",
+                    "example": "1414-34832",
+                    "title": "product_variant_id",
+                    "type": "string"
+                  }
+                },
+                "title": "LineItem",
+                "type": "object"
+              },
+              "order_id": {
+                "description": "Order ID. For example, \"X-151481\".",
+                "example": "X-151481",
+                "title": "order_id",
+                "type": "string"
+              },
+              "order_quantity": {
+                "description": "Order quantity. For example, 1.",
+                "example": 1,
+                "title": "order_quantity",
+                "type": "integer"
+              },
+              "page_name": {
+                "description": "Page name. For example, \"Our Favorite Pins on Pinterest\".",
+                "example": "Our Favorite Pins on Pinterest.",
+                "title": "page_name",
+                "type": "string"
+              },
+              "promo_code": {
+                "description": "Promotion code. For example, \"WINTER10\".",
+                "example": "WINTER10",
+                "title": "promo_code",
+                "type": "string"
+              },
+              "property": {
+                "description": "Property. For example, \"Athleta\".",
+                "example": "Athleta",
+                "title": "property",
+                "type": "string"
+              },
+              "search_query": {
+                "description": "Search query string. For example, \"boots\".",
+                "example": "boots",
+                "title": "search_query",
+                "type": "string"
+              },
+              "value": {
+                "description": "Product value. For example, \"199.98\"",
+                "example": "199.98",
+                "title": "value",
+                "type": "string"
+              },
+              "video_title": {
+                "description": "Video title. For example, \"How to style your Parker Boots\".",
+                "example": "How to style your Parker Boots",
+                "title": "video_title",
+                "type": "string"
+              }
+            },
+            "title": "PinterestTagEventData",
+            "type": "object"
+          },
+          "percentage": {
+            "description": "Percentage should be 1-10. The targeted audience should be this % size across Pinterest.",
+            "example": 30,
+            "title": "percentage",
+            "type": "integer"
+          },
+          "pin_id": {
+            "description": "IDs of engaged organic pins. Optional for ENGAGEMENT `audience_type`. For example, \"pin_id:\": [\"34567\"]",
+            "example": [
+              "34567"
+            ],
+            "items": {
+              "pattern": "^\\d+$",
+              "type": "string"
+            },
+            "title": "pin_id",
+            "type": "array"
+          },
+          "prefill": {
+            "description": "Optional for VISITOR `audience_type`. If `true`, the specified rule on existing engagement data is applied to pre-populate the audience. If `false`, the audience is empty at creation time. The default is `true`.",
+            "example": true,
+            "title": "prefill",
+            "type": "boolean"
+          },
+          "retention_days": {
+            "description": "Number of days a Pinterest user remains in the audience. Optional for ENGAGEMENT and VISITOR `audience_type`. Accepted range is 1-540. Defaults to 180 if not specified.",
+            "example": 30,
+            "title": "retention_days",
+            "type": "integer"
+          },
+          "seed_id": {
+            "description": "Audience ID(s). For ACTALIKE `audience_type`. ",
+            "example": [
+              "2542620639259",
+              "2542620639261"
+            ],
+            "items": {
+              "pattern": "^\\d+$",
+              "type": "string"
+            },
+            "title": "seed_id",
+            "type": "array"
+          },
+          "url": {
+            "description": "Optional for ENGAGEMENT or VISITOR `audience_type`. For ENGAGEMENT, it is the engaged pin's URL. For VISITOR, you can use it as a string or a {operator: value} object for filtering visitors based on conversion tag event URLs. Supported operators are [ =, !=, contains, not_contains].<br>Example 1:  \"url\": \"http://www.myonlinestore123.com/view_item/shoe\"<br>Example 2: \"url\": {\"contains\": \"/view_item/shoe\"}",
+            "items": {
+              "type": "string"
+            },
+            "title": "url",
+            "type": "array"
+          },
+          "visitor_source_id": {
+            "description": "The conversion tag ID, or the Pinterest tag ID, that you use on your website. For VISITOR `audience_type`.",
+            "example": "549755885175",
+            "pattern": "^\\d+$",
+            "title": "visitor_source_id",
+            "type": "string"
+          },
+          "event_source": {
+            "description": "Optional for VISITOR. You can use it as a {'=': [value]}. Supported values are: web, mobile, offline",
+            "example": {
+              "=": [
+                "web",
+                "mobile"
+              ]
+            },
+            "title": "event_source",
+            "type": "object"
+          },
+          "ingestion_source": {
+            "description": "Optional for VISITOR. You can use it as a {'=': [value]}. Supported values are: tag, mmp, file_upload, conversions_api",
+            "example": {
+              "=": [
+                "tag"
+              ]
+            },
+            "title": "ingestion_source",
+            "type": "object"
+          },
+          "engager_type": {
+            "description": "Optional for ENGAGEMENT. Engager type value should be 1-2.",
+            "example": 1,
+            "title": "engager_type",
+            "type": "integer"
+          },
+          "campaign_id": {
+            "description": "Campaign ID for engagement audience filter.",
+            "example": [
+              "626744528398"
+            ],
+            "items": {
+              "pattern": "^\\d+$",
+              "type": "string"
+            },
+            "title": "campaign_id",
+            "type": "array"
+          },
+          "ad_id": {
+            "description": "Ad ID for engagement audience filter.",
+            "example": [
+              "687201361754"
+            ],
+            "items": {
+              "pattern": "^\\d+$",
+              "type": "string"
+            },
+            "title": "ad_id",
+            "type": "array"
+          },
+          "objective_type": {
+            "description": "Objective for engagement audience filter.",
+            "example": [
+              "AWARENESS"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/ObjectiveType"
+            },
+            "title": "objective_type",
+            "type": "array"
+          },
+          "ad_account_id": {
+            "description": "Ad account ID.",
+            "example": "549755885175",
+            "pattern": "^\\d+$",
+            "title": "ad_account_id",
+            "type": "string"
+          }
+        },
+        "title": "Rule",
+        "type": "object"
+      },
+      "AudienceType": {
+        "description": "Audience type",
+        "enum": [
+          "CUSTOMER_LIST",
+          "VISITOR",
+          "ENGAGEMENT",
+          "ACTALIKE"
+        ],
+        "example": "ACTALIKE",
+        "title": "AudienceType",
+        "type": "string"
+      },
+      "AudienceUpdateOperationType": {
+        "title": "operation_type",
+        "type": "string",
+        "description": "Audience operation type (update or remove).",
+        "example": "UPDATE",
+        "default": "UPDATE",
+        "enum": [
+          "UPDATE",
+          "REMOVE"
+        ]
+      },
+      "AudienceUpdateRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AudienceCommon"
+          },
+          {
+            "title": "AudienceUpdateRequest",
+            "type": "object",
+            "properties": {
+              "description": {
+                "$ref": "#/components/schemas/AudienceDescription"
+              },
+              "operation_type": {
+                "$ref": "#/components/schemas/AudienceUpdateOperationType"
+              }
+            }
+          }
+        ]
       },
       "BatchOperation": {
         "description": "The operation performed by the batch",
@@ -7578,7 +9338,8 @@
                 }
               },
               "required": [
-                "billable_event"
+                "billable_event",
+                "currency"
               ],
               "title": "BidFloorSpec",
               "type": "object"
@@ -7927,8 +9688,7 @@
               {
                 "$ref": "#/components/schemas/EntityStatus"
               }
-            ],
-            "default": "ACTIVE"
+            ]
           },
           "lifetime_spend_cap": {
             "description": "Campaign total spending cap.",
@@ -7979,17 +9739,33 @@
             "$ref": "#/components/schemas/CampaignCommon"
           },
           {
-            "type": "object",
             "properties": {
+              "status": {
+                "type": "string",
+                "default": "ACTIVE",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/EntityStatus"
+                  }
+                ]
+              },
               "is_campaign_budget_optimization": {
                 "type": "boolean",
-                "description": "Determines if a campaign automatically generate ad-group level budgets given a campaign budget to maximize campaign outcome. When transitioning from non-cbo to cbo, all previous child ad group budget will be cleared.",
-                "example": true
+                "default": false,
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CampaignIsCampaignBudgetOptimization"
+                  }
+                ]
               },
               "is_flexible_daily_budgets": {
                 "type": "boolean",
-                "description": "Determine if a campaign has flexible daily budgets setup.",
-                "example": true
+                "default": false,
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CampaignIsFlexibleDailyBudgets"
+                  }
+                ]
               },
               "default_ad_group_budget_in_micro_currency": {
                 "type": "integer",
@@ -7999,11 +9775,12 @@
               },
               "is_automated_campaign": {
                 "type": "boolean",
-                "description": "Specifies whether the campaign was created in the automated campaign flow",
-                "example": true
-              },
-              "objective_type": {
-                "$ref": "#/components/schemas/ObjectiveType"
+                "default": false,
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CampaignIsAutomatedCampaign"
+                  }
+                ]
               }
             }
           }
@@ -8016,12 +9793,16 @@
             "$ref": "#/components/schemas/CampaignCreateCommon"
           },
           {
-            "type": "object",
             "required": [
               "name",
               "objective_type",
               "ad_account_id"
-            ]
+            ],
+            "properties": {
+              "objective_type": {
+                "$ref": "#/components/schemas/ObjectiveType"
+              }
+            }
           }
         ]
       },
@@ -8044,6 +9825,13 @@
           },
           {
             "$ref": "#/components/schemas/CampaignResponse"
+          },
+          {
+            "properties": {
+              "objective_type": {
+                "$ref": "#/components/schemas/ObjectiveType"
+              }
+            }
           }
         ]
       },
@@ -8071,6 +9859,24 @@
           }
         },
         "type": "object"
+      },
+      "CampaignIsCampaignBudgetOptimization": {
+        "type": "boolean",
+        "description": "Determines if a campaign automatically generate ad-group level budgets given a campaign budget to maximize campaign outcome. When transitioning from non-cbo to cbo, all previous child ad group budget will be cleared.",
+        "example": true,
+        "default": false
+      },
+      "CampaignIsAutomatedCampaign": {
+        "type": "boolean",
+        "description": "Specifies whether the campaign was created in the automated campaign flow",
+        "example": true,
+        "default": false
+      },
+      "CampaignIsFlexibleDailyBudgets": {
+        "type": "boolean",
+        "description": "Determine if a campaign has flexible daily budgets setup.",
+        "example": true,
+        "default": false
       },
       "CampaignResponse": {
         "allOf": [
@@ -8166,6 +9972,7 @@
         ]
       },
       "CampaignUpdateRequest": {
+        "type": "object",
         "allOf": [
           {
             "$ref": "#/components/schemas/CampaignId"
@@ -8177,7 +9984,44 @@
             "$ref": "#/components/schemas/CampaignCreateCommon"
           },
           {
-            "type": "object",
+            "properties": {
+              "is_campaign_budget_optimization": {
+                "type": "boolean",
+                "nullable": true,
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CampaignIsCampaignBudgetOptimization"
+                  }
+                ]
+              },
+              "is_flexible_daily_budgets": {
+                "type": "boolean",
+                "nullable": true,
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CampaignIsFlexibleDailyBudgets"
+                  }
+                ]
+              },
+              "is_automated_campaign": {
+                "type": "boolean",
+                "nullable": true,
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CampaignIsAutomatedCampaign"
+                  }
+                ]
+              },
+              "status": {
+                "type": "string",
+                "nullable": true,
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/EntityStatus"
+                  }
+                ]
+              }
+            },
             "required": [
               "id",
               "ad_account_id"
@@ -9275,6 +11119,29 @@
       "CatalogsItemsBatchRequest": {
         "type": "object",
         "description": "Request object of catalogs items batch",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CatalogsItemsUpdateBatchRequest"
+          },
+          {
+            "$ref": "#/components/schemas/CatalogsItemsCreateBatchRequest"
+          },
+          {
+            "$ref": "#/components/schemas/CatalogsItemsDeleteDiscontinuedBatchRequest"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "operation",
+          "mapping": {
+            "UPDATE": "#/components/schemas/CatalogsItemsUpdateBatchRequest",
+            "CREATE": "#/components/schemas/CatalogsItemsCreateBatchRequest",
+            "DELETE_DISCONTINUED": "#/components/schemas/CatalogsItemsDeleteDiscontinuedBatchRequest"
+          }
+        }
+      },
+      "CatalogsItemsCreateBatchRequest": {
+        "description": "Request object to create catalogs items",
+        "type": "object",
         "properties": {
           "country": {
             "$ref": "#/components/schemas/Country"
@@ -9289,10 +11156,76 @@
             "type": "array",
             "description": "Array with catalogs items",
             "items": {
-              "$ref": "#/components/schemas/ItemBatchRecord"
+              "$ref": "#/components/schemas/ItemCreateBatchRecord"
+            },
+            "minItems": 1,
+            "maxItems": 50
+          }
+        },
+        "required": [
+          "country",
+          "language",
+          "operation",
+          "items"
+        ]
+      },
+      "CatalogsItemsUpdateBatchRequest": {
+        "description": "Request object to update catalogs items",
+        "type": "object",
+        "properties": {
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/BatchOperation"
+          },
+          "items": {
+            "type": "array",
+            "description": "Array with catalogs items",
+            "items": {
+              "$ref": "#/components/schemas/ItemUpdateBatchRecord"
+            },
+            "minItems": 1,
+            "maxItems": 1000
+          }
+        },
+        "required": [
+          "country",
+          "language",
+          "operation",
+          "items"
+        ]
+      },
+      "CatalogsItemsDeleteDiscontinuedBatchRequest": {
+        "description": "Request object to discontinue catalogs items",
+        "type": "object",
+        "properties": {
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/BatchOperation"
+          },
+          "items": {
+            "type": "array",
+            "description": "Array with catalogs items",
+            "items": {
+              "$ref": "#/components/schemas/ItemDeleteDiscontinuedBatchRecord"
             }
           }
-        }
+        },
+        "required": [
+          "country",
+          "language",
+          "operation",
+          "items"
+        ]
       },
       "CatalogsListProductsByFilterRequest": {
         "description": "Request object to list products for a given product group filter.",
@@ -9697,7 +11630,7 @@
       "CatalogsProductGroupType": {
         "type": "string",
         "title": "product_group_type",
-        "description": "Catalog product group type",
+        "description": "<p>Catalog product group type</p>\n<p>MERCHANT_CREATED: Product groups created by merchants.\n<br>ALL_PRODUCTS: Consists of every product in your latest successful feed upload.\n<br>BEST_DEALS: Consists of products with the deepest drop in price.\n<br>PINNER_FAVORITES: Consists of products that are resonating most with people on Pinterest, based on engagement.\n<br>TOP_SELLERS: Consists of products with the highest conversion rate, if you have the conversion tag installed.\n<br>BACK_IN_STOCK: Consists of products that were previously out of stock and are now in stock.\n<br>NEW_ARRIVALS: Consists of products that are new to your Catalog.\n<br>SHOPIFY_COLLECTION: Product groups created based on Shopify Product Collections.\n<br>I2PC: Product groups created based on predicted product category.</p>",
         "enum": [
           "MERCHANT_CREATED",
           "ALL_PRODUCTS",
@@ -9705,7 +11638,9 @@
           "PINNER_FAVORITES",
           "TOP_SELLERS",
           "BACK_IN_STOCK",
-          "NEW_ARRIVALS"
+          "NEW_ARRIVALS",
+          "SHOPIFY_COLLECTIONS",
+          "I2PC"
         ],
         "example": "TOP_SELLERS"
       },
@@ -10236,6 +12171,150 @@
           "pin"
         ]
       },
+      "CustomerList": {
+        "properties": {
+          "ad_account_id": {
+            "description": "Associated ad account ID.",
+            "example": "549756359984",
+            "title": "ad_account_id",
+            "type": "string"
+          },
+          "created_time": {
+            "description": "Creation time. Unix timestamp in seconds.",
+            "example": 1452208622,
+            "title": "created_time",
+            "type": "number"
+          },
+          "id": {
+            "description": "Customer list ID.",
+            "example": "643",
+            "title": "id",
+            "type": "string"
+          },
+          "name": {
+            "description": "Customer list name.",
+            "example": "The Glengarry Glen Ross leads",
+            "title": "name",
+            "type": "string"
+          },
+          "num_batches": {
+            "description": "Total number of list updates.  List creation counts as one batch. Each <a href=\"/docs/redoc/#operation/ads_v3_customer_list_add_handler_PUT\">Append</a> or <a href=\"/docs/redoc/#operation/ads_v3_customer_list_remove_handler_PUT\">Remove API</a> call counts as another. List creation via the Ads Manager UI could result in more than one batch since the UI breaks up large lists.",
+            "example": 2,
+            "title": "num_batches",
+            "type": "number"
+          },
+          "num_removed_user_records": {
+            "description": "Number of removed user records. In a <a href=\"/docs/redoc/#operation/ads_v3_customer_list_remove_handler_PUT\">Remove API</a> call, this counter increases even if the user is not found in the list.",
+            "example": 0,
+            "title": "num_removed_user_records",
+            "type": "number"
+          },
+          "num_uploaded_user_records": {
+            "description": "Number of uploaded user records. In an <a href=\"/docs/redoc/#operation/ads_v3_customer_list_add_handler_PUT\">Append API</a> call, this counter increases even if the uploaded user is already in the list.",
+            "example": 11,
+            "title": "num_uploaded_user_records",
+            "type": "number"
+          },
+          "status": {
+            "description": "Customer list status. TOO_SMALL - the list has less than 100 Pinterest users.",
+            "enum": [
+              "PROCESSING",
+              "READY",
+              "TOO_SMALL",
+              "UPLOADING"
+            ],
+            "example": "PROCESSING",
+            "title": "status",
+            "type": "string"
+          },
+          "type": {
+            "description": "Always \"customerlist\".",
+            "example": "customerlist",
+            "title": "type",
+            "type": "string"
+          },
+          "updated_time": {
+            "description": "Last update time. Unix timestamp in seconds.",
+            "example": 1461269616,
+            "title": "updated_time",
+            "type": "number"
+          },
+          "exceptions": {
+            "description": "Customer list errors",
+            "title": "exceptions",
+            "type": "object"
+          }
+        },
+        "title": "CustomerList",
+        "type": "object"
+      },
+      "CustomerListRequest": {
+        "properties": {
+          "name": {
+            "description": "Customer list name.",
+            "example": "The Glengarry Glen Ross leads",
+            "title": "name",
+            "type": "string"
+          },
+          "records": {
+            "description": "Records list. Can be any combination of emails, MAIDs, or IDFAs. Emails must be lowercase and can be plain text or hashed using SHA1, SHA256, or MD5. MAIDs and IDFAs must be hashed with SHA1, SHA256, or MD5.",
+            "example": "email1@pinterest.com,email2@pinterest.com,..<more records>",
+            "title": "records",
+            "type": "string"
+          },
+          "list_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserListType"
+              }
+            ],
+            "default": "EMAIL",
+            "title": "list_type",
+            "type": "string"
+          },
+          "exceptions": {
+            "description": "Customer list errors.",
+            "title": "exceptions",
+            "type": "object"
+          }
+        },
+        "required": [
+          "name",
+          "records"
+        ],
+        "title": "CustomerListCreate",
+        "type": "object"
+      },
+      "CustomerListUpdateRequest": {
+        "properties": {
+          "records": {
+            "description": "Records list. Can be any combination of emails, MAIDs, or IDFAs. Emails must be lowercase and can be plain text or hashed using SHA1, SHA256, or MD5. MAIDs and IDFAs must be hashed with SHA1, SHA256, or MD5.",
+            "example": "email2@pinterest.com,email6@pinterest.com,",
+            "title": "records",
+            "type": "string"
+          },
+          "operation_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserListOperationType"
+              }
+            ],
+            "title": "operation_type",
+            "type": "string"
+          },
+          "exceptions": {
+            "$ref": "#/components/schemas/Exception",
+            "title": "exceptions",
+            "type": "object"
+          }
+        },
+        "required": [
+          "operation_type",
+          "records"
+        ],
+        "title": "CustomerListUpdate",
+        "type": "object"
+      },
       "MinPriceFilter": {
         "type": "object",
         "additionalProperties": false,
@@ -10433,6 +12512,20 @@
         "required": [
           "GENDER"
         ]
+      },
+      "GetAudiencesOrderBy": {
+        "type": "string",
+        "enum": [
+          "NONE",
+          "ID",
+          "SIZE",
+          "CREATION_DATE",
+          "UPDATED_TIME",
+          "NAME",
+          "STATUS",
+          "TYPE"
+        ],
+        "example": "NAME"
       },
       "ProductType4Filter": {
         "type": "object",
@@ -10964,25 +13057,47 @@
       },
       "ItemAttributes": {
         "type": "object",
+        "allOf": [
+          {
+            "properties": {
+              "additional_image_link": {
+                "description": "<p><= 2000 characters</p>\n<p>The links to additional images for your product. Up to ten\nadditional images can be used to show a product from different angles\nor to show different stages. Must begin with http:// or https://.</p>",
+                "example": [
+                  "https://scene.example.com/image/image_v2.jpg",
+                  "https://scene.example.com/image/image_v3.jpg"
+                ],
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "image_link": {
+                "description": "<p><= 2000 characters</p>\n<p>The link to the main product images. Images should be at least\n75x75 pixels to avoid errors. Use the additional_image_link field to add\nmore images of your product. The URL of your image_link must be accessible\nby the Pinterest user-agent, and send the accurate images. Please make\nsure there are no template or placeholder images at the link. Must start\nwith http:// or https://.</p>",
+                "example": [
+                  "https://scene.example.com/image/image.jpg"
+                ],
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/UpdatableItemAttributes"
+          }
+        ]
+      },
+      "UpdatableItemAttributes": {
+        "type": "object",
         "properties": {
           "ad_link": {
             "description": "Allows advertisers to specify a separate URL that can be used to track traffic coming from Pinterest shopping ads. Must send full URL including tracking—do not send tracking parameters only. At this time we do not support impression tracking. Must begin with http:// or https://.",
             "example": "https://www.example.com/cat/denim-shirt/item012?utm_source=Pinterest",
             "type": "string",
             "nullable": true
-          },
-          "additional_image_link": {
-            "description": "The links to additional images for your product. Up to five additional images can be used to show a product from different angles or to show different stages. Separate each additional image with a comma. We recommend enclosing the whole string with quotes. Must begin with http:// or https://",
-            "example": [
-              "https://scene.example.com/image/image_v2.jpg",
-              "https://scene.example.com/image/image_v3.jpg"
-            ],
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string",
-              "maxLength": 2000
-            }
           },
           "adult": {
             "description": "Set this attribute to TRUE if you're submitting items that are considered “adult”. These will not be shown on Pinterest.",
@@ -10991,16 +13106,15 @@
             "nullable": true
           },
           "age_group": {
-            "description": "The age group to apply a demographic range to the product. Must be one of the following values: ‘newborn’, ‘infant’, ‘toddler’, ‘kids’, ‘adult’.",
+            "description": "The age group to apply a demographic range to the product. Must be one of the following values (upper or lowercased): ‘newborn’, ‘infant’, ‘toddler’, ‘kids’, or ‘adult’.",
             "example": "newborn",
             "type": "string",
             "nullable": true
           },
           "availability": {
-            "description": "The availability of the product. Must be one of the following values: ‘in stock’, ‘out of stock’, ‘preorder’.",
+            "description": "The availability of the product. Must be one of the following values (upper or lowercased): ‘in stock’, ‘out of stock’, ‘preorder’.",
             "example": "in stock",
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "average_review_rating": {
             "description": "Average reviews for the item. Can be a number from 1-5.",
@@ -11027,51 +13141,45 @@
             "nullable": true
           },
           "condition": {
-            "description": "The condition of the product. Must be one of the following values: ‘new’, ‘used’, ‘refurbished’.",
+            "description": "The condition of the product. Must be one of the following values (upper or lowercased): ‘new’, ‘used’, or ‘refurbished’.",
             "example": "new",
             "type": "string",
             "nullable": true
           },
           "custom_label_0": {
-            "description": "Custom grouping of products.",
+            "description": "<p><= 1000 characters</p>\n<p>Custom grouping of products.</p>",
             "example": "Best sellers",
             "type": "string",
-            "maxLength": 1000,
             "nullable": true
           },
           "custom_label_1": {
-            "description": "Custom grouping of products.",
+            "description": "<p><= 1000 characters</p>\n<p>Custom grouping of products.</p>",
             "example": "Summer promotion",
             "type": "string",
-            "maxLength": 1000,
             "nullable": true
           },
           "custom_label_2": {
-            "description": "Custom grouping of products.",
+            "description": "<p><= 1000 characters</p>\n<p>Custom grouping of products.</p>",
             "example": "Winter sales",
             "type": "string",
-            "maxLength": 1000,
             "nullable": true
           },
           "custom_label_3": {
-            "description": "Custom grouping of products.",
+            "description": "<p><= 1000 characters</p>\n<p>Custom grouping of products.</p>",
             "example": "Woman dress",
             "type": "string",
-            "maxLength": 1000,
             "nullable": true
           },
           "custom_label_4": {
-            "description": "Custom grouping of products.",
+            "description": "<p><= 1000 characters</p>\n<p>Custom grouping of products.</p>",
             "example": "Man hat",
             "type": "string",
-            "maxLength": 1000,
             "nullable": true
           },
           "description": {
-            "description": "The description of the product.",
+            "description": "<p><= 10000 characters</p>\n<p>The description of the product.</p>",
             "example": "Casual fit denim shirt made with the finest quality Japanese denim.",
-            "type": "string",
-            "maxLength": 10000
+            "type": "string"
           },
           "free_shipping_label": {
             "description": "The item is free to ship.",
@@ -11086,7 +13194,7 @@
             "nullable": true
           },
           "gender": {
-            "description": "The gender associated with the product. Must be one of the following values: ‘male’, ‘female’, ‘unisex’.",
+            "description": "The gender associated with the product. Must be one of the following values (upper or lowercased): ‘male’, ‘female’, or ‘unisex’.",
             "example": "unisex",
             "type": "string",
             "nullable": true
@@ -11104,28 +13212,15 @@
             "nullable": true
           },
           "id": {
-            "description": "The user-created unique ID that represents the product. Only Unicode characters are accepted.",
+            "description": "<p><= 127 characters</p>\n<p>The user-created unique ID that represents the product. Only\nUnicode characters are accepted.</p>",
             "example": "DS0294-L",
             "type": "string",
-            "maxLength": 127
-          },
-          "image_link": {
-            "description": "The link to the main product images. Images should be at least 75x75 pixels to avoid errors. Use the additional_image_link field to add more images of your product. The URL of your image_link must be accessible by the Pinterest user-agent, and send the accurate images. Please make sure there are no template or placeholder images at the link. Must start with http:// or https://",
-            "example": [
-              "https://scene.example.com/image/image.jpg"
-            ],
-            "type": "array",
-            "minItems": 1,
-            "items": {
-              "type": "string",
-              "maxLength": 2000
-            }
+            "deprecated": true
           },
           "item_group_id": {
-            "description": "The parent ID of the product.",
+            "description": "<p><= 127 characters</p>\n<p>The parent ID of the product.</p>",
             "example": "DS0294",
             "type": "string",
-            "maxLength": 127,
             "nullable": true
           },
           "last_updated_time": {
@@ -11136,11 +13231,9 @@
             "nullable": true
           },
           "link": {
-            "description": "The landing page for the product.",
+            "description": "<p><= 511 characters</p>\n<p>The landing page for the product.</p>",
             "example": "https://www.example.com/cat/womens-clothing/denim-shirt-0294",
-            "type": "string",
-            "maxLength": 511,
-            "nullable": true
+            "type": "string"
           },
           "material": {
             "description": "The material used to make the product.",
@@ -11190,10 +13283,9 @@
             "type": "string"
           },
           "product_type": {
-            "description": "The categorization of your product based on your custom product taxonomy. Subcategories must be sent separated by “ > “. The > must be wrapped by spaces. We do not recognize any other delimiters such as comma or pipe.",
+            "description": "<p><= 1000 characters</p>\n<p>The categorization of your product based on your custom product\ntaxonomy. Subcategories must be sent separated by “ > “. The > must be\nwrapped by spaces. We do not recognize any other delimiters such as comma\nor pipe.</p>",
             "example": "Clothing > Women’s > Shirts > Denim",
             "type": "string",
-            "maxLength": 1000,
             "nullable": true
           },
           "sale_price": {
@@ -11233,13 +13325,13 @@
             "nullable": true
           },
           "size_system": {
-            "description": "Indicates the country’s sizing system in which you are submitting your product.",
+            "description": "Indicates the country’s sizing system in which you are submitting your product. Must be one of the following values (upper or lowercased): ‘US’, ‘UK’, ‘EU’, ‘DE’, ‘FR’, ‘JP’, ‘CN’, ‘IT’, ‘BR’, ‘MEX’, or ‘AU’.",
             "example": "US",
             "type": "string",
             "nullable": true
           },
           "size_type": {
-            "description": "Additional description for the size. Must be one of the following values: ‘regular’, ‘petite’, ‘plus’, ‘big_and_tall’, ‘maternity’.",
+            "description": "Additional description for the size. Must be one of the following values (upper or lowercased): ‘regular’, ‘petite’, ‘plus’, ‘big_and_tall’, or ‘maternity’.",
             "example": "regular",
             "type": "string",
             "nullable": true
@@ -11251,10 +13343,9 @@
             "nullable": true
           },
           "title": {
-            "description": "The name of the product.",
+            "description": "<p><= 500 characters</p>\n<p>The name of the product.</p>",
             "example": "Women’s denim shirt, large",
-            "type": "string",
-            "maxLength": 500
+            "type": "string"
           },
           "variant_names": {
             "description": "Options for this variant. People will see these options next to your Pin and can select the one they want. List them in the order you want them displayed.",
@@ -11285,6 +13376,21 @@
       "ItemBatchRecord": {
         "type": "object",
         "description": "Object describing an item batch record",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ItemCreateBatchRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ItemDeleteDiscontinuedBatchRecord"
+          },
+          {
+            "$ref": "#/components/schemas/ItemUpdateBatchRecord"
+          }
+        ]
+      },
+      "ItemCreateBatchRecord": {
+        "type": "object",
+        "description": "Object describing an item batch record to create items",
         "properties": {
           "item_id": {
             "description": "The catalog item id in the merchant namespace",
@@ -11293,6 +13399,31 @@
           },
           "attributes": {
             "$ref": "#/components/schemas/ItemAttributes"
+          }
+        }
+      },
+      "ItemDeleteDiscontinuedBatchRecord": {
+        "type": "object",
+        "description": "Object describing an item batch record to discontinue items",
+        "properties": {
+          "item_id": {
+            "description": "The catalog item id in the merchant namespace",
+            "example": "DS0294-M",
+            "type": "string"
+          }
+        }
+      },
+      "ItemUpdateBatchRecord": {
+        "type": "object",
+        "description": "Object describing an item batch record to update items",
+        "properties": {
+          "item_id": {
+            "description": "The catalog item id in the merchant namespace",
+            "example": "DS0294-M",
+            "type": "string"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/UpdatableItemAttributes"
           }
         }
       },
@@ -11370,70 +13501,6 @@
           }
         ]
       },
-      "Items": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "properties": {
-              "status": {
-                "$ref": "#/components/schemas/EntityStatus"
-              },
-              "tracking_url": {
-                "description": "Tracking template for proudct group promotions. 4000 limit",
-                "example": "https://www.pinterest.com",
-                "nullable": true,
-                "title": "tracking_url",
-                "type": "string"
-              },
-              "catalogs_product_group_id": {
-                "description": "ID of the catalogs product group that this product group promotion references",
-                "example": "1231235",
-                "title": "catalogs_product_group_id",
-                "type": "string"
-              },
-              "catalogs_product_group_name": {
-                "description": "Catalogs product group",
-                "example": "catalogProductGroupName",
-                "title": "product_group_promotion_name",
-                "type": "string"
-              },
-              "creative_type": {
-                "$ref": "#/components/schemas/CreativeType"
-              },
-              "collections_hero_pin_id": {
-                "description": "Hero Pin ID if this PG is promoted as a Collection",
-                "example": "123123",
-                "nullable": true,
-                "title": "collections_hero_pin_id",
-                "type": "string"
-              },
-              "collections_hero_destination_url": {
-                "description": "Collections Hero Destination Url",
-                "example": "http://www.pinterest.com",
-                "nullable": true,
-                "title": "collections_hero_destination_url",
-                "type": "string"
-              },
-              "slideshow_collections_title": {
-                "description": "Slideshow Collections Title",
-                "example": "Title",
-                "nullable": true,
-                "title": "slideshow_collections_title",
-                "type": "string"
-              },
-              "slideshow_collections_description": {
-                "description": "Slideshow Collections Description",
-                "example": "Description",
-                "nullable": true,
-                "title": "slideshow_collections_description",
-                "type": "string"
-              }
-            },
-            "title": "ProductGroupPromotionCommon",
-            "type": "object"
-          }
-        }
-      },
       "ItemValidationEvent": {
         "type": "object",
         "description": "Object describing an item validation event",
@@ -11452,6 +13519,167 @@
             "description": "Title message describing the item validation event",
             "example": "Title is missing from product metadata.",
             "type": "string"
+          }
+        }
+      },
+      "Keyword": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KeywordsCommon"
+          },
+          {
+            "type": "object"
+          }
+        ],
+        "properties": {
+          "archived": {
+            "type": "boolean",
+            "example": false
+          },
+          "id": {
+            "description": "Keyword ID .",
+            "example": "383791336903426391",
+            "pattern": "^\\d+$",
+            "title": "id",
+            "type": "string"
+          },
+          "parent_id": {
+            "description": "Keyword parent entity ID (advertiser, campaign, ad group, ad).",
+            "example": "383791336903426391",
+            "pattern": "^\\d+$",
+            "title": "parent_id",
+            "type": "string"
+          },
+          "parent_type": {
+            "type": "string",
+            "description": "Parent entity type",
+            "example": "campaign"
+          },
+          "type": {
+            "type": "string",
+            "description": "Always keyword",
+            "example": "keyword"
+          }
+        }
+      },
+      "KeywordsCommon": {
+        "type": "object",
+        "properties": {
+          "bid": {
+            "type": "number",
+            "description": "Keyword custom bid",
+            "example": 200000
+          },
+          "match_type": {
+            "$ref": "#/components/schemas/MatchTypeResponse"
+          },
+          "value": {
+            "type": "string",
+            "description": "Keyword value (120 chars max)."
+          }
+        },
+        "required": [
+          "match_type",
+          "value"
+        ]
+      },
+      "KeywordError": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Keyword"
+          },
+          "error_messages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "KeywordsRequest": {
+        "type": "object",
+        "properties": {
+          "keywords": {
+            "type": "array",
+            "description": "Keyword JSON array. Each array element has 3 fields",
+            "items": {
+              "$ref": "#/components/schemas/KeywordsCommon"
+            }
+          },
+          "parent_id": {
+            "description": "Keyword parent entity ID (advertiser, campaign, ad group, ad).",
+            "example": "383791336903426391",
+            "pattern": "^((AG)|C)?\\d+$",
+            "title": "parent_id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "keywords",
+          "parent_id"
+        ]
+      },
+      "KeywordUpdate": {
+        "title": "KeywordUpdate",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Keyword ID.",
+            "example": "2886364308355",
+            "pattern": "^\\d+$",
+            "title": "id"
+          },
+          "archived": {
+            "type": "boolean",
+            "description": "Is keyword archived?",
+            "example": false,
+            "title": "archived"
+          },
+          "bid": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Keyword custom bid in microcurrency - null if inherited from parent ad group.",
+            "example": 200000,
+            "nullable": true,
+            "title": "bid"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "KeywordUpdateBody": {
+        "type": "object",
+        "properties": {
+          "keywords": {
+            "description": "Keywords to update. Object array. Each object has 3 possible fields:<br>1. \"id\": (required) keyword ID<br>2. \"archived\": boolean. Should keyword be archived?<br>3. \"bid\": number<br>For example: [{\"id\":\"2886610576653\", \"archived\": false, \"bid\": 20000}, {\"id\":\"2886610576654\",  \"archived\": true, \"bid\": 20000}, ...]",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KeywordUpdate"
+            },
+            "title": "keywords"
+          }
+        },
+        "required": [
+          "keywords"
+        ]
+      },
+      "KeywordsResponse": {
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KeywordError"
+            }
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Keyword"
+            }
           }
         }
       },
@@ -11521,6 +13749,32 @@
           "TR",
           "XX",
           "ZH"
+        ]
+      },
+      "MatchType": {
+        "type": "string",
+        "description": "Keyword match type",
+        "example": "BROAD",
+        "enum": [
+          "BROAD",
+          "PHRASE",
+          "EXACT",
+          "EXACT_NEGATIVE",
+          "PHRASE_NEGATIVE"
+        ]
+      },
+      "MatchTypeResponse": {
+        "type": "string",
+        "description": "Keyword match type",
+        "nullable": true,
+        "example": "BROAD",
+        "enum": [
+          "BROAD",
+          "PHRASE",
+          "EXACT",
+          "EXACT_NEGATIVE",
+          "PHRASE_NEGATIVE",
+          null
         ]
       },
       "MediaUpload": {
@@ -12373,6 +14627,12 @@
             ],
             "type": "object",
             "writeOnly": true
+          },
+          "parent_pin_id": {
+            "description": "The source pin id if this pin was saved from another pin. <a href=\"https://help.pinterest.com/article/save-pins-on-pinterest\">Learn more</a>.",
+            "type": "string",
+            "pattern": "^\\d+$",
+            "nullable": true
           }
         }
       },
@@ -12639,7 +14899,7 @@
           "CAROUSEL",
           "MAX_VIDEO",
           "SHOP_THE_PIN",
-          "STORY"
+          "IDEA"
         ],
         "example": "REGULAR",
         "title": "CreativeType"
@@ -12697,7 +14957,7 @@
       "ProductGroupPromotion": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/Items/properties/items"
+            "$ref": "#/components/schemas/ProductGroupPromotionCommon"
           }
         ],
         "properties": {
@@ -12705,7 +14965,8 @@
             "description": "ID of the product group promotion.",
             "example": "2680059592705",
             "title": "id",
-            "type": "string"
+            "type": "string",
+            "pattern": "^\\d+$"
           },
           "ad_group_id": {
             "description": "ID of the ad group the product group belongs to.",
@@ -12753,7 +15014,8 @@
             "example": "1231234",
             "nullable": true,
             "title": "parent_id",
-            "type": "string"
+            "type": "string",
+            "pattern": "^\\d+$"
           },
           "slideshow_collections_title": {
             "description": "Slideshow Collections Title",
@@ -12772,6 +15034,67 @@
         },
         "type": "object",
         "title": "ProductGroupPromotion"
+      },
+      "ProductGroupPromotionCommon": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/EntityStatus"
+          },
+          "tracking_url": {
+            "description": "Tracking template for proudct group promotions. 4000 limit",
+            "example": "https://www.pinterest.com",
+            "nullable": true,
+            "title": "tracking_url",
+            "type": "string"
+          },
+          "catalogs_product_group_id": {
+            "description": "ID of the catalogs product group that this product group promotion references",
+            "example": "1231235",
+            "title": "catalogs_product_group_id",
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "catalogs_product_group_name": {
+            "description": "Catalogs product group",
+            "example": "catalogProductGroupName",
+            "title": "product_group_promotion_name",
+            "type": "string"
+          },
+          "creative_type": {
+            "$ref": "#/components/schemas/CreativeType"
+          },
+          "collections_hero_pin_id": {
+            "description": "Hero Pin ID if this PG is promoted as a Collection",
+            "example": "123123",
+            "nullable": true,
+            "title": "collections_hero_pin_id",
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "collections_hero_destination_url": {
+            "description": "Collections Hero Destination Url",
+            "example": "http://www.pinterest.com",
+            "nullable": true,
+            "title": "collections_hero_destination_url",
+            "type": "string"
+          },
+          "slideshow_collections_title": {
+            "description": "Slideshow Collections Title",
+            "example": "Title",
+            "nullable": true,
+            "title": "slideshow_collections_title",
+            "type": "string"
+          },
+          "slideshow_collections_description": {
+            "description": "Slideshow Collections Description",
+            "example": "Description",
+            "nullable": true,
+            "title": "slideshow_collections_description",
+            "type": "string"
+          }
+        },
+        "title": "ProductGroupPromotionCommon",
+        "type": "object"
       },
       "ProductGroupPromotionCreateRequest": {
         "example": {
@@ -12803,13 +15126,13 @@
           "ad_group_id": {
             "description": "ID of the Ad Group the Product Group Promotion belongs to.",
             "example": "2680059592705",
-            "pattern": "^\\d+$",
+            "pattern": "^(AG)?\\d+$",
             "title": "ad_group_id",
             "type": "string"
           },
           "product_group_promotion": {
             "items": {
-              "$ref": "#/components/schemas/Items/properties/items"
+              "$ref": "#/components/schemas/ProductGroupPromotionCommon"
             },
             "title": "product_group_promotion",
             "type": "array"
@@ -12825,19 +15148,33 @@
       "ProductGroupPromotionArrayResponse": {
         "description": "Product group promotions array.",
         "items": {
-          "properties": {
-            "data": {
-              "$ref": "#/components/schemas/ProductGroupPromotion"
-            },
-            "exceptions": {
-              "$ref": "#/components/schemas/Exception"
-            }
-          },
-          "title": "ProductGroupPromotionArrayElement",
-          "type": "object"
+          "$ref": "#/components/schemas/ProductGroupPromotionArrayElement"
         },
         "title": "ProductGroupPromotionArrayResponse",
         "type": "array"
+      },
+      "ProductGroupPromotionArrayElement": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ProductGroupPromotion"
+          },
+          "exceptions": {
+            "$ref": "#/components/schemas/Exception"
+          }
+        },
+        "title": "ProductGroupPromotionArrayElement",
+        "type": "object"
+      },
+      "ProductGroupPromotionUpdateItem": {
+        "properties": {
+          "id": {
+            "description": "ID of the product group.",
+            "example": "2680059592705",
+            "title": "id",
+            "type": "string"
+          }
+        },
+        "title": "ProductGroupPromotionUpdateItem"
       },
       "ProductGroupPromotionUpdateResponseItem": {
         "properties": {
@@ -12855,7 +15192,7 @@
         "example": {
           "product_group_promotion": [
             {
-              "product_group_promotion_id": "1234123",
+              "catalogs_product_group_id": "1234123",
               "slideshow_collections_description": "Description",
               "creative_type": "REGULAR",
               "collections_hero_pin_id": "123123",
@@ -12867,7 +15204,7 @@
               "id": "2680059592705"
             },
             {
-              "product_group_promotion_id": "1231231",
+              "catalogs_product_group_id": "1231231",
               "slideshow_collections_description": "Other description",
               "creative_type": "REGULAR",
               "collections_hero_pin_id": "123124",
@@ -12891,15 +15228,7 @@
           },
           "product_group_promotion": {
             "items": {
-              "properties": {
-                "id": {
-                  "description": "ID of the product group.",
-                  "example": "2680059592705",
-                  "title": "id",
-                  "type": "string"
-                }
-              },
-              "title": "ProductGroupPromotionUpdateItem"
+              "$ref": "#/components/schemas/ProductGroupPromotionUpdateItem"
             },
             "title": "product_group_promotion",
             "type": "array"
@@ -13438,17 +15767,56 @@
       },
       "ObjectiveType": {
         "type": "string",
-        "description": "Campaign objective type.",
+        "description": "Campaign objective type. [\"WEB_SESSIONS\"] in BETA.",
         "enum": [
           "AWARENESS",
           "CONSIDERATION",
           "VIDEO_VIEW",
           "WEB_CONVERSION",
           "CATALOG_SALES",
-          "WEB_SESSIONS",
-          "AWARENESS_RESERVED",
-          "ENGAGEMENT"
+          "WEB_SESSIONS"
         ]
+      },
+      "SingleInterestTargetingOptionResponse": {
+        "title": "SingleInterestTargetingOptionData",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "id",
+            "pattern": "\\d+",
+            "example": "945391946569"
+          },
+          "name": {
+            "type": "string",
+            "title": "name",
+            "example": "Dress"
+          },
+          "child_interests": {
+            "type": "array",
+            "title": "child_interests",
+            "items": {
+              "type": "string"
+            }
+          },
+          "level": {
+            "type": "integer",
+            "title": "level",
+            "example": 2
+          }
+        }
+      },
+      "TargetingOptionResponse": {
+        "title": "TargetingOptionResponse",
+        "type": "array",
+        "nullable": true,
+        "items": {
+          "type": "object",
+          "example": {
+            "36313": "Australia: Moreton Bay - North",
+            "124735": "Canada: North Battleford"
+          }
+        }
       },
       "TargetingTypeFilter": {
         "type": "object",
@@ -13813,7 +16181,7 @@
           "GEO": {
             "type": "array",
             "nullable": true,
-            "description": "Location region codes, e.g., \"BE-VOV\" (East Flanders, Belgium) For complete list, click here or postal codes, e.g., \"US-94107\". Use either region codes or postal codes but not both.",
+            "description": "Location region codes, e.g., \"BE-VOV\" (East Flanders, Belgium) For complete list, <a href=\"https://help.pinterest.com/sub/helpcenter/partner/pinterest_location_targeting_codes.xlsx\" target=\"_blank\">click here</a> or postal codes, e.g., \"US-94107\". Use either region codes or postal codes but not both.",
             "items": {
               "type": "string"
             }
@@ -13883,6 +16251,20 @@
         },
         "type": "array"
       },
+      "UserListType": {
+        "description": "User list type",
+        "enum": [
+          "EMAIL",
+          "IDFA",
+          "MAID",
+          "LR_ID",
+          "DLX_ID",
+          "HASHED_PINNER_ID"
+        ],
+        "example": "EMAIL",
+        "title": "UserListType",
+        "type": "string"
+      },
       "UserListOperationType": {
         "description": "User list operation type (add or remove)",
         "enum": [
@@ -13912,12 +16294,23 @@
         "required": true,
         "schema": {
           "type": "string",
-          "pattern": "^\\d+$"
+          "pattern": "^\\d+$",
+          "maxLength": 19
         }
       },
       "path_ad_group_id": {
         "name": "ad_group_id",
         "description": "Unique identifier of an ad group.",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
+      "path_audience_id": {
+        "name": "audience_id",
+        "description": "Unique identifier of an audience",
         "in": "path",
         "required": true,
         "schema": {
@@ -13933,6 +16326,41 @@
         "schema": {
           "type": "string",
           "pattern": "^\\d+$"
+        }
+      },
+      "path_interest_id": {
+        "name": "interest_id",
+        "description": "Unique identifier of an interest.",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
+      "path_targeting_type": {
+        "name": "targeting_type",
+        "description": "Public targeting type.",
+        "in": "path",
+        "required": true,
+        "style": "simple",
+        "schema": {
+          "title": "PublicTargetingType",
+          "description": "Public ad targeting type with external names",
+          "type": "string",
+          "example": "APPTYPE",
+          "enum": [
+            "APPTYPE",
+            "GENDER",
+            "LOCALE",
+            "AGE_BUCKET",
+            "LOCATION",
+            "GEO",
+            "INTEREST",
+            "KEYWORD",
+            "AUDIENCE_INCLUDE",
+            "AUDIENCE_EXCLUDE"
+          ]
         }
       },
       "path_board_id": {
@@ -14044,6 +16472,16 @@
           "pattern": "^\\d+$"
         }
       },
+      "query_ad_group_id": {
+        "description": "Ad group Id.",
+        "in": "query",
+        "name": "ad_group_id",
+        "example": "123123123",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
       "query_ad_group_ids": {
         "description": "List of Ad group Ids to use to filter the results.",
         "in": "query",
@@ -14120,6 +16558,45 @@
           "type": "string"
         }
       },
+      "query_audience_ids": {
+        "description": "List of audience ids to use to filter the results.",
+        "in": "query",
+        "name": "audience_ids",
+        "required": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        }
+      },
+      "query_audience_type": {
+        "description": "The type of audience to filter for.",
+        "in": "query",
+        "name": "audience_type",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
+      "query_audience_types": {
+        "description": "The types of audience to filter for.",
+        "in": "query",
+        "name": "audience_types",
+        "required": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/AudienceType"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        }
+      },
       "query_bookmark": {
         "name": "bookmark",
         "description": "Cursor used to fetch the next page of items",
@@ -14127,6 +16604,16 @@
         "required": false,
         "schema": {
           "type": "string"
+        }
+      },
+      "query_campaign_id": {
+        "description": "Campaign Id to use to filter the results.",
+        "in": "query",
+        "name": "campaign_id",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
         }
       },
       "query_campaign_ids": {
@@ -14158,6 +16645,18 @@
           "minItems": 1,
           "maxItems": 100
         }
+      },
+      "query_client_id": {
+        "name": "client_id",
+        "description": "Client ID.",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$",
+          "example": "1094834"
+        },
+        "style": "form"
       },
       "query_catalogs_feed_id": {
         "description": "Unique identifier of a feed",
@@ -14242,6 +16741,8 @@
             "description": "Name of the reporting column",
             "example": "SPEND_IN_DOLLAR",
             "enum": [
+              "ADVERTISER_ID",
+              "PIN_PROMOTION_ID",
               "AD_ACCOUNT_ID",
               "AD_GROUP_ENTITY_STATUS",
               "AD_GROUP_ID",
@@ -14292,6 +16793,7 @@
               "TOTAL_CHECKOUT",
               "TOTAL_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
               "TOTAL_CLICKTHROUGH",
+              "TOTAL_CLICK_ADD_TO_CART",
               "TOTAL_CLICK_CHECKOUT",
               "TOTAL_CLICK_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
               "TOTAL_CLICK_LEAD",
@@ -14309,6 +16811,7 @@
               "TOTAL_IMPRESSION_FREQUENCY",
               "TOTAL_IMPRESSION_USER",
               "TOTAL_LEAD",
+              "TOTAL_OFFLINE_CHECKOUT",
               "TOTAL_PAGE_VISIT",
               "TOTAL_REPIN_RATE",
               "TOTAL_SIGNUP",
@@ -14322,6 +16825,7 @@
               "TOTAL_VIDEO_P50_COMBINED",
               "TOTAL_VIDEO_P75_COMBINED",
               "TOTAL_VIDEO_P95_COMBINED",
+              "TOTAL_VIEW_ADD_TO_CART",
               "TOTAL_VIEW_CHECKOUT",
               "TOTAL_VIEW_CHECKOUT_VALUE_IN_MICRO_DOLLAR",
               "TOTAL_VIEW_LEAD",
@@ -14400,6 +16904,18 @@
           "default": 1
         }
       },
+      "query_country_code": {
+        "name": "country_code",
+        "description": "Two letter country code (ISO 3166-1 alpha-2)",
+        "in": "query",
+        "example": "US",
+        "required": true,
+        "explode": true,
+        "schema": {
+          "type": "string"
+        },
+        "style": "form"
+      },
       "query_conversion_attribution_conversion_report_time": {
         "description": "The date by which the conversion metrics returned from this endpoint will be reported. There are two dates associated with a conversion event: the date that the user interacted with the ad, and the date that the user completed a conversion event.",
         "example": "TIME_OF_AD_ACTION",
@@ -14442,6 +16958,15 @@
           }
         }
       },
+      "query_flatten_rule": {
+        "description": "Uniform the format of Audiences rules for presentation on Web UI.",
+        "in": "query",
+        "name": "flatten_rule",
+        "required": false,
+        "schema": {
+          "type": "boolean"
+        }
+      },
       "query_from_claimed_content": {
         "description": "Filter on Pins that match your claimed domain.",
         "in": "query",
@@ -14458,7 +16983,7 @@
         }
       },
       "query_granularity": {
-        "description": "Granularity",
+        "description": "TOTAL - metrics are aggregated over the specified date range.<br> DAY - metrics are broken down daily.<br> HOUR - metrics are broken down hourly.<br>WEEKLY - metrics are broken down weekly.<br>MONTHLY - metrics are broken down monthly",
         "example": "DAY",
         "in": "query",
         "name": "granularity",
@@ -14466,6 +16991,17 @@
         "schema": {
           "$ref": "#/components/schemas/Granularity"
         }
+      },
+      "query_oauth_signature": {
+        "name": "oauth_signature",
+        "description": "Oauth signature",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "8209f"
+        },
+        "style": "form"
       },
       "query_list_input_terms": {
         "description": "List of input terms.",
@@ -14478,6 +17014,21 @@
             "type": "string",
             "example": "workout"
           }
+        }
+      },
+      "query_match_types": {
+        "explode": true,
+        "description": "Keyword <a href=\"/docs/redoc/#section/Match-type-(keyword).\">match type</a>",
+        "in": "query",
+        "name": "match_types",
+        "required": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/MatchType"
+          },
+          "minItems": 1,
+          "maxItems": 5
         }
       },
       "query_metric_types": {
@@ -14504,6 +17055,25 @@
           "type": "array"
         },
         "style": "form"
+      },
+      "query_search_query": {
+        "description": "String keywords to search for audiences by.",
+        "in": "query",
+        "name": "search_query",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "query_start_index": {
+        "description": "he starting index for returned list.",
+        "in": "query",
+        "name": "start_index",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
       },
       "query_video_pin_metric_types": {
         "description": "Metric types to get video data for, default is all. ",
@@ -14553,6 +17123,15 @@
           "type": "array"
         },
         "style": "form"
+      },
+      "query_order_by": {
+        "description": "The audience field to order results by.",
+        "in": "query",
+        "name": "order_by",
+        "required": false,
+        "schema": {
+          "$ref": "#/components/schemas/GetAudiencesOrderBy"
+        }
       },
       "query_split_field_user_account": {
         "description": "How to split the data into groups. Not including this param means data won't be split.",
@@ -14687,7 +17266,7 @@
       },
       "query_page_size": {
         "name": "page_size",
-        "description": "Maximum number of items to include in a single page of the response. See documentation on <a href='/docs/api/v5/#tag/Pagination'>Pagination</a> for more information.",
+        "description": "Maximum number of items to include in a single page of the response. See documentation on <a href='/docs/getting-started/pagination/'>Pagination</a> for more information.",
         "in": "query",
         "required": false,
         "schema": {
@@ -14757,6 +17336,18 @@
           "default": true
         }
       },
+      "query_timestamp": {
+        "name": "timestamp",
+        "description": "Timestamp",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "1618338184277",
+          "pattern": "\\d+"
+        },
+        "style": "form"
+      },
       "query_translate_interests_to_names": {
         "description": "Return interests as text names (if value is true) rather than topic IDs.",
         "in": "query",
@@ -14775,6 +17366,21 @@
         "required": true,
         "schema": {
           "type": "string"
+        }
+      },
+      "query_product_group_promotion_ids": {
+        "description": "List of Product group promotion Ids.",
+        "in": "query",
+        "name": "product_group_promotion_ids",
+        "required": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "minItems": 1,
+          "maxItems": 100
         }
       },
       "query_term_limit": {
