@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 5.5.0
+  version: 5.6.0
   title: Pinterest REST API
   description: Pinterest's REST API
   contact:
@@ -31,12 +31,20 @@ tags:
   description: View, create or update ads.
 - name: audiences
   description: View, create, or update audiences.
+- name: audience_insights
+  description: View audience insights.
 - name: boards
   description: View, create, update, or delete information about boards.
+- name: bulk
+  description: Create, update, or download ads-related entities in bulk.
 - name: campaigns
   description: View, create or update campaigns.
 - name: catalogs
   description: Manage information about shopping product catalogs and items.
+- name: conversion_events
+  description: Submit conversion events via the Pinterest API.
+- name: conversion_tags
+  description: View, create, or update conversion tags.
 - name: customer_lists
   description: View, create, or update customer lists.
 - name: keywords
@@ -45,6 +53,8 @@ tags:
   description: Register and manage media uploads.
 - name: oauth
   description: Generating and refreshing OAuth access tokens.
+- name: order_lines
+  description: View order lines.
 - name: pins
   description: View, create, update, or delete information about Pins.
 - name: product_group_promotions
@@ -72,8 +82,7 @@ paths:
       security:
       - basic: []
       x-ratelimit-category: org_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       requestBody:
         description: Generate an OAuth access token.
         required: true
@@ -109,8 +118,7 @@ paths:
       - pinterest_oauth2:
         - user_accounts:read
       x-ratelimit-category: org_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/query_ad_account_id'
       responses:
@@ -150,8 +158,7 @@ paths:
       - pinterest_oauth2:
         - user_accounts:read
       x-ratelimit-category: org_analytics
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/query_start_date'
       - $ref: '#/components/parameters/query_end_date'
@@ -208,8 +215,7 @@ paths:
         - pins:read
         - user_accounts:read
       x-ratelimit-category: org_analytics
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/query_start_date'
       - $ref: '#/components/parameters/query_end_date'
@@ -259,8 +265,7 @@ paths:
         - pins:read
         - user_accounts:read
       x-ratelimit-category: org_analytics
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/query_start_date'
       - $ref: '#/components/parameters/query_end_date'
@@ -315,8 +320,7 @@ paths:
         - pins:read
         - pins:write
       x-ratelimit-category: org_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       requestBody:
         description: Create a new Pin.
         required: true
@@ -415,8 +419,7 @@ paths:
         - boards:read
         - pins:read
       x-ratelimit-category: org_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_pin_id'
       - $ref: '#/components/parameters/query_ad_account_id'
@@ -466,8 +469,7 @@ paths:
         - pins:read
         - pins:write
       x-ratelimit-category: org_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_pin_id'
       responses:
@@ -513,8 +515,7 @@ paths:
         - pins:read
         - pins:write
       x-ratelimit-category: org_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_pin_id'
       requestBody:
@@ -596,8 +597,7 @@ paths:
         - boards:read
         - pins:read
       x-ratelimit-category: org_analytics
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_pin_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -661,8 +661,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
       x-ratelimit-category: org_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -708,8 +707,7 @@ paths:
         - boards:read
         - boards:write
       x-ratelimit-category: org_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       requestBody:
         description: Create a board using a single board json object.
         required: true
@@ -752,8 +750,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
       x-ratelimit-category: org_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       responses:
@@ -789,8 +786,7 @@ paths:
         - boards:read
         - boards:write
       x-ratelimit-category: org_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       requestBody:
@@ -859,8 +855,7 @@ paths:
         - boards:read
         - boards:write
       x-ratelimit-category: org_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       responses:
@@ -927,8 +922,7 @@ paths:
       - pinterest_oauth2:
         - boards:read
       x-ratelimit-category: org_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/query_bookmark'
@@ -965,8 +959,7 @@ paths:
         - boards:read
         - boards:write
       x-ratelimit-category: org_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       requestBody:
@@ -1041,8 +1034,7 @@ paths:
         - boards:read
         - boards:write
       x-ratelimit-category: org_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/path_board_section_id'
@@ -1106,8 +1098,7 @@ paths:
         - boards:read
         - boards:write
       x-ratelimit-category: org_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/path_board_section_id'
@@ -1161,8 +1152,7 @@ paths:
         - boards:read
         - pins:read
       x-ratelimit-category: org_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/path_board_section_id'
@@ -1228,8 +1218,7 @@ paths:
         - boards:read
         - pins:read
       x-ratelimit-category: org_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_board_id'
       - $ref: '#/components/parameters/query_bookmark'
@@ -1276,8 +1265,7 @@ paths:
       - pinterest_oauth2:
         - pins:read
       x-ratelimit-category: org_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -1323,8 +1311,7 @@ paths:
         - pins:read
         - pins:write
       x-ratelimit-category: org_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       requestBody:
         description: Create a media upload request
         required: true
@@ -1359,8 +1346,7 @@ paths:
       - pinterest_oauth2:
         - pins:read
       x-ratelimit-category: org_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_media_id'
       responses:
@@ -1398,8 +1384,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -1437,8 +1422,7 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       requestBody:
         content:
           application/json:
@@ -1468,8 +1452,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       responses:
@@ -1498,8 +1481,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -1534,6 +1516,50 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - ad_accounts
+  /ad_accounts/{ad_account_id}/ads/targeting_analytics:
+    get:
+      summary: Get targeting analytics for ads
+      description: |-
+        Get targeting analytics for one or more ads. For the requested ad(s) and metrics,
+        the response will include the requested metric information (e.g. SPEND_IN_DOLLAR) for the requested target type
+        (e.g. "age_bucket") for applicable values (e.g. "45-49"). <p/>
+        - The token's user_account must either be the Owner of the specified ad account, or have one
+        of the necessary roles granted to them via
+        <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
+      operationId: ad_targeting_analytics/get
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_analytics
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/query_ad_ids_required'
+      - $ref: '#/components/parameters/query_start_date'
+      - $ref: '#/components/parameters/query_end_date'
+      - $ref: '#/components/parameters/query_targeting_types'
+      - $ref: '#/components/parameters/query_columns'
+      - $ref: '#/components/parameters/query_granularity'
+      - $ref: '#/components/parameters/query_conversion_attribution_click_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_engagement_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_view_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_conversion_report_time'
+      - $ref: '#/components/parameters/query_attribution_types'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      tags:
+      - ads
   /ad_accounts/{ad_account_id}/campaigns:
     get:
       summary: List campaigns
@@ -1545,8 +1571,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_campaign_ids'
@@ -1608,8 +1633,7 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -1656,8 +1680,7 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -1691,8 +1714,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_campaign_id'
@@ -1722,8 +1744,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -1759,6 +1780,94 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - campaigns
+  /ad_accounts/{ad_account_id}/campaigns/targeting_analytics:
+    get:
+      summary: Get targeting analytics for campaigns
+      description: |-
+        Get targeting analytics for one or more campaigns.
+        For the requested account and metrics, the response will include the requested metric information
+        (e.g. SPEND_IN_DOLLAR) for the requested target type (e.g. "age_bucket") for applicable values (e.g. "45-49"). <p/>
+        - The token's user_account must either be the Owner of the specified ad account, or have one
+        of the necessary roles granted to them via
+        <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
+      operationId: campaign_targeting_analytics/get
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_analytics
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/query_campaign_ids_required'
+      - $ref: '#/components/parameters/query_start_date'
+      - $ref: '#/components/parameters/query_end_date'
+      - $ref: '#/components/parameters/query_targeting_types'
+      - $ref: '#/components/parameters/query_columns'
+      - $ref: '#/components/parameters/query_granularity'
+      - $ref: '#/components/parameters/query_conversion_attribution_click_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_engagement_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_view_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_conversion_report_time'
+      - $ref: '#/components/parameters/query_attribution_types'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+          description: Success
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - campaigns
+  /ad_accounts/{ad_account_id}/ad_groups/targeting_analytics:
+    get:
+      summary: Get targeting analytics for ad groups
+      description: |-
+        Get targeting analytics for one or more ad groups.
+        For the requested ad group(s) and metrics, the response will include the requested metric information
+        (e.g. SPEND_IN_DOLLAR) for the requested target type (e.g. "age_bucket") for applicable values (e.g. "45-49"). <p/>
+        - The token's user_account must either be the Owner of the specified ad account, or have one
+        of the necessary roles granted to them via
+        <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
+      operationId: ad_groups_targeting_analytics/get
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_analytics
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/query_ad_group_ids_required'
+      - $ref: '#/components/parameters/query_start_date'
+      - $ref: '#/components/parameters/query_end_date'
+      - $ref: '#/components/parameters/query_targeting_types'
+      - $ref: '#/components/parameters/query_columns'
+      - $ref: '#/components/parameters/query_granularity'
+      - $ref: '#/components/parameters/query_conversion_attribution_click_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_engagement_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_view_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_conversion_report_time'
+      - $ref: '#/components/parameters/query_attribution_types'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+          description: Success
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_groups
   /ad_accounts/{ad_account_id}/ad_groups:
     get:
       summary: List ad groups
@@ -1771,8 +1880,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_campaign_ids'
@@ -1837,8 +1945,7 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -1875,8 +1982,7 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -1918,8 +2024,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_ad_group_id'
@@ -1949,8 +2054,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -2003,8 +2107,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_campaign_ids'
@@ -2052,8 +2155,7 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2090,8 +2192,7 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2134,8 +2235,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_ad_id'
@@ -2165,8 +2265,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -2216,8 +2315,7 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2272,8 +2370,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2299,6 +2396,71 @@ paths:
       summary: Get bid floors
       tags:
       - ad_groups
+  /ad_accounts/{ad_account_id}/events:
+    post:
+      summary: Send conversion events to the Pinterest API for Conversions
+      description: |-
+        The Pinterest API offers advertisers a way to send Pinterest their conversion information (including web conversions, in-app conversions, or even offline conversions) based on their <code>ad_account_id</code>. The request body should be a JSON object.
+        - This endpoint requires an <code>access_token</code> be generated through Ads Manager. Review the <a href="/docs/conversions/conversion-management/#Authenticating%20for%20the%20Conversion%20Tracking%20endpoint">Conversions Guide</a> for more details.
+        - The token's <code>user_account</code> must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Audience, Campaign.
+        - If the merchant is submitting this information using both Pinterest conversion tags and the Pinterest API, Pinterest will remove duplicate information before reporting. (Note that events that took place offline cannot be deduplicated.)
+      operationId: events/create
+      tags:
+      - conversion_events
+      security:
+      - conversion_token: []
+      x-ratelimit-category: ads_conversions
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - name: test
+        description: |-
+          Include query param ?test=true to mark the request as a test request. The events will not be recorded but the API will still return the same response messages. Use this mode to verify your requests are working and your events are constructed correctly.
+          Warning: If you use this query parameter, be certain that it is off (set to false or deleted) before sending a legitimate (non-testing) request.
+        in: query
+        required: false
+        schema:
+          type: boolean
+      requestBody:
+        description: Conversion events.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversionEvents'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionApiResponse'
+          description: Success
+        '400':
+          description: The request was invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 4196
+                message: The request was invalid.
+        '503':
+          description: The endpoint has been ramped down and is currently not accepting
+            any traffic.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 4197
+                message: The endpoint has been ramped down and is currently not accepting
+                  any traffic.
+        default:
+          description: Unexpected errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /ad_accounts/{ad_account_id}/product_groups/analytics:
     get:
       summary: Get product group analytics
@@ -2310,8 +2472,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_start_date'
@@ -2358,8 +2519,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_token_required'
@@ -2397,8 +2557,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_analytics
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2434,29 +2593,19 @@ paths:
   /ad_accounts/{ad_account_id}/audiences:
     get:
       summary: List audiences
-      description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
-        Get list of audiences for the ad account.
+      description: Get list of audiences for the ad account.
       operationId: audiences/list
       security:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
-      - $ref: '#/components/parameters/query_audience_ids'
-      - $ref: '#/components/parameters/query_audience_type'
-      - $ref: '#/components/parameters/query_audience_types'
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_entity_statuses'
-      - $ref: '#/components/parameters/query_flatten_rule'
       - $ref: '#/components/parameters/query_order'
-      - $ref: '#/components/parameters/query_order_by'
       - $ref: '#/components/parameters/query_page_size'
-      - $ref: '#/components/parameters/query_search_query'
-      - $ref: '#/components/parameters/query_start_index'
       responses:
         '200':
           content:
@@ -2489,7 +2638,6 @@ paths:
       - audiences
     post:
       description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
         Create an audience you can use in targeting for specific ad groups. Targeting combines customer information with
         the ways users interact with Pinterest to help you reach specific groups of users; you can include or exclude
         specific audience_ids when you create an ad group. <p/>
@@ -2499,8 +2647,7 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2529,16 +2676,13 @@ paths:
   /ad_accounts/{ad_account_id}/audiences/{audience_id}:
     get:
       summary: Get audience
-      description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
-        Get a specific audience given the audience ID.
+      description: Get a specific audience given the audience ID.
       operationId: audiences/get
       security:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_audience_id'
@@ -2565,16 +2709,13 @@ paths:
       - audiences
     patch:
       summary: Update audience
-      description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
-        Update (edit or remove) an existing targeting audience.
+      description: Update (edit or remove) an existing targeting audience.
       operationId: audiences/update
       security:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_audience_id'
@@ -2601,13 +2742,11 @@ paths:
       - audiences
   /ad_accounts/{ad_account_id}/customer_lists:
     post:
-      description: "<strong>This endpoint is currently in beta and not available to\
-        \ all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong>\
-        \ <p/>\n<p>Create a customer list from your records(hashed or plain-text email\
-        \ addresses, or hashed MAIDs or IDFAs).</p>\n<p>A customer list is one of\
-        \ the four types of Pinterest audiences: for more information, see <a href=\"\
+      description: "<p>Create a customer list from your records(hashed or plain-text\
+        \ email addresses, or hashed MAIDs or IDFAs).</p>\n<p>A customer list is one\
+        \ of the four types of Pinterest audiences: for more information, see <a href=\"\
         https://help.pinterest.com/en/business/article/audience-targeting\" target=\"\
-        _blank\">Audience targeting</a>\nor the <a href=\"https://developers.pinterest.com/docs/features/ads-management/#Audiences\"\
+        _blank\">Audience targeting</a>\nor the <a href=\"/docs/ads/targeting/#Audiences\"\
         \ target=\"_blank\">Audiences</a> section of the ads management guide.<p/>\n\
         <p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\"\
         \ target=\"_blank\">requirements</a></u> for what type of information is allowed\
@@ -2625,8 +2764,7 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2654,19 +2792,17 @@ paths:
       - customer_lists
     get:
       description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
         <p>Get a set of customer lists including id and name based on the filters provided.</p>
         <p>(Customer lists are a type of audience.) For more information, see
         <a href="https://help.pinterest.com/en/business/article/audience-targeting" target="_blank">Audience targeting</a>
-         or the <a href="https://developers.pinterest.com/docs/features/ads-management/#Audiences" target="_blank">Audiences</a>
+         or the <a href="/docs/ads/targeting/#Audiences" target="_blank">Audiences</a>
         section of the ads management guide.</p>
       operationId: customer_lists/list
       security:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_page_size'
@@ -2697,16 +2833,13 @@ paths:
   /ad_accounts/{ad_account_id}/customer_lists/{customer_list_id}:
     get:
       summary: Get customer list
-      description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
-        Gets a specific customer list given the customer list ID.
+      description: Gets a specific customer list given the customer list ID.
       operationId: customer_lists/get
       security:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_customer_list_id'
@@ -2726,24 +2859,21 @@ paths:
       tags:
       - customer_lists
     patch:
-      description: "<strong>This endpoint is currently in beta and not available to\
-        \ all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong>\
-        \ <p/>\n<p>Append or remove records to/from an existing customer list. (A\
-        \ customer list is one of the four types of Pinterest audiences.)</p>\n<p>When\
-        \ you add records to an existing customer list, the system scans the additions\
-        \ for existing Pinterest\naccounts; those are the records that will be added\
-        \ to your \u201CCUSTOMER_LIST\u201D audience. Your original list of records\n\
-        to add will be deleted when the matching process is complete.</p>\n<p>For\
-        \ more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\"\
-        \ target=\"_blank\">Audience targeting</a>\nor the <a href=\"https://developers.pinterest.com/docs/features/ads-management/#Audiences\"\
+      description: "<p>Append or remove records to/from an existing customer list.\
+        \ (A customer list is one of the four types of Pinterest audiences.)</p>\n\
+        <p>When you add records to an existing customer list, the system scans the\
+        \ additions for existing Pinterest\naccounts; those are the records that will\
+        \ be added to your \u201CCUSTOMER_LIST\u201D audience. Your original list\
+        \ of records\nto add will be deleted when the matching process is complete.</p>\n\
+        <p>For more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\"\
+        \ target=\"_blank\">Audience targeting</a>\nor the <a href=\"/docs/ads/targeting/#Audiences\"\
         \ target=\"_blank\">Audiences</a>\nsection of the ads management guide.</p>"
       operationId: customer_lists/update
       security:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_customer_list_id'
@@ -2766,22 +2896,23 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
-      summary: Update customer lists
+      summary: Update customer list
       tags:
       - customer_lists
   /ad_accounts/{ad_account_id}/keywords:
     get:
       summary: Get keywords
       description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
-        <p>Get a list of keywords based on the filters provided.</p>
+        <p>Get a list of keywords based on the filters provided.</p><p>For more information, see <a target="_blank" href="https://help.pinterest.com/en/business/article/keyword-targeting">Keyword targeting</a>.</p>
+        <p><b>Notes:</b></p> <ul style="list-style-type: square;"> <li>Advertisers and campaigns can only be assigned keywords with excluding ('_NEGATIVE').</li> <li>All keyword match types are available for ad groups.</li> </ul> <p>For more information on match types, see <a href="/docs/redoc/#section/Match-type-(keyword)">match type enums</a>.</p>
+        <p><b>Returns:</b></p> <ul style="list-style-type: square;"> <li><p>A successful call returns an object containing an array of new keyword objects and an empty &quot;errors&quot; object array.</p></li> <li><p>An unsuccessful call returns an empty keywords array, and, instead, inserts the entire object with nulled/negated properties into the &quot;errors&quot; object array:</p> <pre class="last literal-block"> { "keywords": [], "errors": [ { "data": { "archived": null, "match_type": "EXACT", "parent_type": null, "value": "foobar", "parent_id": null, "type": "keyword", "id": null }, "error_messages": [ "Advertisers and Campaigns only accept excluded targeting attributes." ] } } </pre></li> </ul>
+        <p><b>Rate limit</b>: <a href="/docs/redoc/#tag/Rate-Limits">WRITE</a>.</p>
       operationId: keywords/get
       security:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_campaign_id'
@@ -2798,9 +2929,9 @@ paths:
                 - $ref: '#/components/schemas/Paginated'
                 - properties:
                     items:
-                      description: Keywords
+                      type: array
                       items:
-                        $ref: '#/components/schemas/KeywordsResponse'
+                        $ref: '#/components/schemas/Keyword'
           description: Success
         default:
           content:
@@ -2813,15 +2944,16 @@ paths:
     post:
       summary: Create keywords
       description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
-        Create keywords.
+        <p>Create keywords for following entity types(advertiser, campaign, ad group or ad).</p> <p>For more information, see <a target="_blank" href="https://help.pinterest.com/en/business/article/keyword-targeting">Keyword targeting</a>.</p>
+        <p><b>Notes:</b></p> <ul style="list-style-type: square;"> <li>Advertisers and campaigns can only be assigned keywords with excluding ('_NEGATIVE').</li> <li>All keyword match types are available for ad groups.</li> </ul> <p>For more information on match types, see <a href="/docs/redoc/#section/Match-type-(keyword)">match type enums</a>.</p>
+        <p><b>Returns:</b></p> <ul style="list-style-type: square;"> <li><p>A successful call returns an object containing an array of new keyword objects and an empty &quot;errors&quot; object array.</p></li> <li><p>An unsuccessful call returns an empty keywords array, and, instead, inserts the entire object with nulled/negated properties into the &quot;errors&quot; object array:</p> <pre class="last literal-block"> { "keywords": [], "errors": [ { "data": { "archived": null, "match_type": "EXACT", "parent_type": null, "value": "foobar", "parent_id": null, "type": "keyword", "id": null }, "error_messages": [ "Advertisers and Campaigns only accept excluded targeting attributes." ] } } </pre></li> </ul>
+        <p><b>Rate limit</b>: <a href="/docs/redoc/#tag/Rate-Limits">WRITE</a>.</p>
       operationId: keywords/create
       security:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2847,16 +2979,15 @@ paths:
       - keywords
     patch:
       summary: Update keywords
-      description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
-        <p>Update one or more keywords' bid and archived fields.</p> <p>Archiving a keyword effectively deletes it - keywords no longer receive metrics and no longer visible within the parent entity's keywords list.</p>
+      description: <p>Update one or more keywords' bid and archived fields.</p> <p>Archiving
+        a keyword effectively deletes it - keywords no longer receive metrics and
+        no longer visible within the parent entity's keywords list.</p>
       operationId: keywords/update
       security:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2880,6 +3011,38 @@ paths:
           description: Unexpected error
       tags:
       - keywords
+  /ad_accounts/{ad_account_id}/keywords/metrics:
+    get:
+      summary: Get country's keyword metrics
+      description: |-
+        See keyword metrics for a specified country, aggregated across all of Pinterest.
+        (Definitions are available from the "Get delivery metrics definitions"
+        <a href="/docs/api/v5/#operation/delivery_metrics/get">API endpoint</a>).
+      operationId: country_keywords_metrics/get
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/query_country_code'
+      - $ref: '#/components/parameters/query_keywords'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeywordsMetricsArrayResponse'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      tags:
+      - keywords
   /ad_accounts/{ad_account_id}/product_group_promotions:
     post:
       description: Add one or more product groups from your catalog to an existing
@@ -2889,8 +3052,7 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2923,8 +3085,7 @@ paths:
       - pinterest_oauth2:
         - ads:write
       x-ratelimit-category: ads_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2960,8 +3121,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_product_group_promotion_id'
@@ -2981,6 +3141,49 @@ paths:
       summary: Get a product group promotion by id
       tags:
       - product_group_promotions
+  /ad_accounts/{ad_account_id}/targeting_analytics:
+    get:
+      summary: Get targeting analytics for an ad account
+      description: |-
+        Get targeting analytics for an ad account.
+        For the requested account and metrics, the response will include the requested metric information
+        (e.g. SPEND_IN_DOLLAR) for the requested target type (e.g. "age_bucket") for applicable values (e.g. "45-49"). <p/>
+        - The token's user_account must either be the Owner of the specified ad account, or have one
+        of the necessary roles granted to them via
+        <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
+      operationId: ad_account_targeting_analytics/get
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_analytics
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/query_start_date'
+      - $ref: '#/components/parameters/query_end_date'
+      - $ref: '#/components/parameters/query_targeting_types'
+      - $ref: '#/components/parameters/query_columns'
+      - $ref: '#/components/parameters/query_granularity'
+      - $ref: '#/components/parameters/query_conversion_attribution_click_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_engagement_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_view_window_days'
+      - $ref: '#/components/parameters/query_conversion_attribution_conversion_report_time'
+      - $ref: '#/components/parameters/query_attribution_types'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+          description: Success
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_accounts
   /terms/suggested:
     get:
       summary: List suggested terms
@@ -2994,8 +3197,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/query_input_term'
       - $ref: '#/components/parameters/query_term_limit'
@@ -3026,8 +3228,7 @@ paths:
       description: Get the text of the terms of service and see whether the advertiser
         has accepted the terms of service.
       operationId: terms_of_service/get
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_include_html'
@@ -3052,23 +3253,130 @@ paths:
       summary: Get terms of service
       tags:
       - terms_of_service
+  /ad_accounts/{ad_account_id}/bulk/download:
+    post:
+      summary: Get advertiser entities in bulk
+      description: |-
+        Create an asynchronous report that may include information on campaigns, ad groups, product groups, ads,
+        and/or keywords; can filter by campaigns. Though the entities may be active, archived, or paused,
+        only active entities will return data.
+      operationId: bulk_download/create
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkDownloadRequest'
+        description: Parameters to get ad entities in bulk
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkDownloadResponse'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      tags:
+      - bulk
+  /ad_accounts/{ad_account_id}/bulk/upsert:
+    post:
+      description: |-
+        Either create or update any combination of campaigns, ad groups, product groups, ads, or keywords.
+        Note that this request will be processed asynchronously; the response will include a <code>request_id</code>
+        that can be used to obtain the status of the request.
+      operationId: bulk_upsert/create
+      security:
+      - pinterest_oauth2:
+        - ads:write
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkUpsertRequest'
+        description: Parameters to get create/update ad entities in bulk
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkUpsertResponse'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Create/update ad entities in bulk
+      tags:
+      - bulk
+  /ad_accounts/{ad_account_id}/bulk/{bulk_request_id}:
+    get:
+      description: |-
+        Get the status of a bulk request by <code>request_id</code>, along with a download URL that will allow you to download the
+        new or updated entity data (campaigns, ad groups, product groups, ads, or keywords).
+      operationId: bulk_request/get
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/path_bulk_request_id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkUpsertStatusResponse'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Download advertiser entities in bulk
+      tags:
+      - bulk
   /catalogs/feeds:
     get:
       x-ratelimit-category: catalogs_read
       summary: List feeds
       description: |-
-        Fetch feeds owned by the "operating user_account".
+        Fetch feeds owned by the "operation user_account".
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: feeds/list
       security:
       - pinterest_oauth2:
         - catalogs:read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
+      - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '200':
           content:
@@ -3116,16 +3424,20 @@ paths:
       x-ratelimit-category: catalogs_write
       summary: Create feed
       description: |-
-        Create a new feed owned by the "operating user_account".
+        Create a new feed owned by the "operation user_account".
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: feeds/create
       security:
       - pinterest_oauth2:
         - catalogs:read
         - catalogs:write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/query_ad_account_id'
       requestBody:
         description: Request object used to created a feed.
         required: true
@@ -3216,17 +3528,20 @@ paths:
       x-ratelimit-category: catalogs_read
       summary: Get feed
       description: |-
-        Get a single feed owned by the "operating user_account".
+        Get a single feed owned by the "operation user_account".
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: feeds/get
       security:
       - pinterest_oauth2:
         - catalogs:read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_feed_id'
+      - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '200':
           content:
@@ -3280,18 +3595,21 @@ paths:
       x-ratelimit-category: catalogs_write
       summary: Update feed
       description: |-
-        Update a feed owned by the "operating user_account".
+        Update a feed owned by the "operation user_account".
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: feeds/update
       security:
       - pinterest_oauth2:
         - catalogs:read
         - catalogs:write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_feed_id'
+      - $ref: '#/components/parameters/query_ad_account_id'
       requestBody:
         description: Request object used to update a feed.
         required: true
@@ -3357,17 +3675,20 @@ paths:
       summary: Delete feed
       description: |-
         Delete a feed owned by the "operating user_account".
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: feeds/delete
       security:
       - pinterest_oauth2:
         - catalogs:read
         - catalogs:write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_feed_id'
+      - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '204':
           description: Feed deleted successfully.
@@ -3434,19 +3755,22 @@ paths:
       x-ratelimit-category: catalogs_read
       summary: List processing results for a given feed
       description: |-
-        Fetch a feed processing results owned by the owner user account. Please note that for now the bookmark parameter is not functional and only the first page will be available until it is implemented in some release in the near future.
+        Fetch a feed processing results owned by the "operation user_account". Please note that for now the bookmark parameter is not functional and only the first page will be available until it is implemented in some release in the near future.
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: feed_processing_results/list
       security:
       - pinterest_oauth2:
         - catalogs:read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_feed_id'
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
+      - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '200':
           content:
@@ -3506,21 +3830,24 @@ paths:
       x-ratelimit-category: catalogs_read
       summary: List item issues for a given processing result
       description: |-
-        List item validation issues for a given feed processing result. Please note that for now query parameters 'item_numbers' and 'item_validation_issue' cannot be used simultaneously until it is implemented in some release in the future.
+        List item validation issues for a given feed processing result owned by the "operation user_account". Please note that for now query parameters 'item_numbers' and 'item_validation_issue' cannot be used simultaneously until it is implemented in some release in the future.
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: items_issues/list
       security:
       - pinterest_oauth2:
         - catalogs:read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
       - $ref: '#/components/parameters/path_catalogs_processing_result_id'
       - $ref: '#/components/parameters/query_catalogs_item_numbers'
       - $ref: '#/components/parameters/query_catalogs_item_validation_issue'
+      - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '200':
           content:
@@ -3578,20 +3905,22 @@ paths:
   /catalogs/items:
     get:
       summary: Get catalogs items
-      description: Get the items of the catalog created by the "operating user_account".
-        <a href="/docs/features/catalog-management/#Using%20batch%20updates%20for%20catalog%20management"
-        target="_blank">See detailed documentation here.</a>
+      description: |-
+        Get the items of the catalog owned by the "operation user_account". <a href="/docs/shopping/catalog/#Update%20items%20in%20batch" target="_blank">See detailed documentation here.</a>
+        - By default, the "operation user_account" is the token user_account.
+
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
       operationId: items/get
       security:
       - pinterest_oauth2:
         - catalogs:read
       x-ratelimit-category: catalogs_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/query_catalogs_items_country'
       - $ref: '#/components/parameters/query_catalogs_items'
       - $ref: '#/components/parameters/query_catalogs_items_language'
+      - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '200':
           description: Response containing the requested catalogs items
@@ -3599,12 +3928,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogsItems'
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InvalidRequest:
+                  value:
+                    code: 1
+                    message: Parameter 'item_ids' is required.
         '401':
           description: Not authorized to access catalogs items
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedAccess:
+                  value:
+                    code: 2
+                    message: Authentication failed.
         '403':
           description: Not authorized to access catalogs items
           content:
@@ -3622,18 +3967,20 @@ paths:
   /catalogs/items/batch/{batch_id}:
     get:
       summary: Get catalogs items batch
-      description: Get a single catalogs items batch created by the "operating user_account".
-        <a href="/docs/features/catalog-management/#Using%20batch%20updates%20for%20catalog%20management"
-        target="_blank">See detailed documentation here.</a>
+      description: |-
+        Get a single catalogs items batch owned by the "operating user_account". <a href="/docs/shopping/catalog/#Update%20items%20in%20batch" target="_blank">See detailed documentation here.</a>
+        - By default, the "operation user_account" is the token user_account.
+
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
       operationId: items_batch/get
       security:
       - pinterest_oauth2:
         - catalogs:read
       x-ratelimit-category: catalogs_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_items_batch_id'
+      - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '200':
           description: Response containing the requested catalogs items batch
@@ -3642,11 +3989,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/CatalogsItemsBatch'
         '401':
-          description: Not authorized to access catalogs items batch
+          description: Not authenticated to access catalogs items batch
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              examples:
+                UnauthenticatedAccess:
+                  value:
+                    code: 2
+                    message: Authentication failed.
         '403':
           description: Not authorized to access catalogs items batch
           content:
@@ -3659,6 +4011,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              examples:
+                CannotFindBatch:
+                  value:
+                    code: 4331
+                    message: Sorry! We could not find your batch ID.
+        '405':
+          description: Method Not Allowed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                MethodNotAllowed:
+                  value:
+                    status: failure
+                    code: 5
+                    data: '405 Method Not Allowed: The method is not allowed for the
+                      requested URL.'
+                    message: Method not allowed
+                    endpoint_name: null
         default:
           description: Unexpected error
           content:
@@ -3670,17 +4042,20 @@ paths:
   /catalogs/items/batch:
     post:
       summary: Operate on item batch
-      description: This endpoint supports multiple operations on a set of one or more
-        catalog items. <a href="/docs/features/catalog-management/#Using%20batch%20updates%20for%20catalog%20management"
-        target="_blank">See detailed documentation here.</a>
+      description: |-
+        This endpoint supports multiple operations on a set of one or more catalog items owned by the "operation user_account". <a href="/docs/shopping/catalog/#Update%20items%20in%20batch" target="_blank">See detailed documentation here.</a>
+        - By default, the "operation user_account" is the token user_account.
+
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
       operationId: items_batch/post
       x-ratelimit-category: catalogs_write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       security:
       - pinterest_oauth2:
         - catalogs:read
         - catalogs:write
+      parameters:
+      - $ref: '#/components/parameters/query_ad_account_id'
       requestBody:
         description: Request object used to create catalogs items in a batch
         required: true
@@ -3695,12 +4070,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CatalogsItemsBatch'
-        '401':
-          description: Not authorized to post catalogs items
+        '400':
+          description: Invalid request parameters.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              examples:
+                InvalidRequest:
+                  value:
+                    code: 1
+                    message: 'Invalid request: {''country'': ''US'', ''language'':
+                      ''EN'', ''operation'': ''CREATE'', ''items'': [{''item_id'':
+                      ''RAY_01_'', ''attributes'': {''image_link'': ''https://www.example.com/'',
+                      ''title'': ''My Product''}}]} (''https://www.example.com/''
+                      is not of type array)'
+        '401':
+          description: Not authenticated to post catalogs items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthenticatedAccess:
+                  value:
+                    code: 2
+                    message: Authentication failed.
         '403':
           description: Not authorized to post catalogs items
           content:
@@ -3720,21 +4115,24 @@ paths:
       x-ratelimit-category: catalogs_read
       summary: List filtered products
       description: |-
-        List products Pins that meet the criteria specified in the Catalogs Product Group Filter given in the request.
-        Note: This endpoint has been implemented in POST to allow for complex filters. This specific POST endpoint is designed to be idempotent.
+        List products Pins owned by the "operation user_account" that meet the criteria specified in the Catalogs Product Group Filter given in the request.
+        - This endpoint has been implemented in POST to allow for complex filters. This specific POST endpoint is designed to be idempotent.
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: products_by_product_group_filter/list
       security:
       - pinterest_oauth2:
         - boards:read
         - catalogs:read
         - pins:read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
+      - $ref: '#/components/parameters/query_ad_account_id'
       requestBody:
         description: Object holding a group of filters for a catalog product group
         required: true
@@ -3795,14 +4193,17 @@ paths:
       x-ratelimit-category: catalogs_read
       summary: Get product group
       description: |-
-        Get a singe product group for a given Catalogs Product Group Id.
+        Get a singe product group for a given Catalogs Product Group Id owned by the "operation user_account".
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: catalogs_product_groups/get
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
+      - $ref: '#/components/parameters/query_ad_account_id'
       security:
       - pinterest_oauth2:
         - catalogs:read
@@ -3888,14 +4289,17 @@ paths:
       x-ratelimit-category: catalogs_write
       summary: Delete product group
       description: |-
-        Delete a product group from being in use in Catalogs.
+        Delete a product group owned by the "operation user_account" from being in use in Catalogs.
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: catalogs_product_groups/delete
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
+      - $ref: '#/components/parameters/query_ad_account_id'
       security:
       - pinterest_oauth2:
         - catalogs:write
@@ -3985,14 +4389,17 @@ paths:
       x-ratelimit-category: catalogs_write
       summary: Update product group
       description: |-
-        Update product group to use in Catalogs.
+        Update product group owned by the "operation user_account" to use in Catalogs.
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: catalogs_product_groups/update
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
+      - $ref: '#/components/parameters/query_ad_account_id'
       security:
       - pinterest_oauth2:
         - catalogs:write
@@ -4105,21 +4512,24 @@ paths:
       x-ratelimit-category: catalogs_read
       summary: List products
       description: |-
-        Get a list of product pins for a given Catalogs Product Group Id.
+        Get a list of product pins for a given Catalogs Product Group Id owned by the "operation user_account".
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: catalogs_product_group_pins/list
       security:
       - pinterest_oauth2:
         - boards:read
         - catalogs:read
         - pins:read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
+      - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '200':
           content:
@@ -4180,17 +4590,20 @@ paths:
       x-ratelimit-category: catalogs_read
       summary: Get product counts
       description: |-
-        Get a product counts for a given Catalogs Product Group.
+        Get a product counts for a given Catalogs Product Group owned by the "operation user_account".
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: catalogs_product_groups/product_counts_get
       security:
       - pinterest_oauth2:
         - catalogs:read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
+      - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '200':
           content:
@@ -4233,19 +4646,22 @@ paths:
       x-ratelimit-category: catalogs_read
       summary: List product groups
       description: |-
-        Get a list of product groups for a given Catalogs Feed Id.
+        Get a list of product groups for a given Catalogs Feed Id owned by the "operation user_account".
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: catalogs_product_groups/list
       security:
       - pinterest_oauth2:
         - catalogs:read
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/query_catalogs_feed_id'
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
+      - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '200':
           content:
@@ -4334,15 +4750,19 @@ paths:
       x-ratelimit-category: catalogs_write
       summary: Create product group
       description: |-
-        Create product group to use in Catalogs.
+        Create product group to use in Catalogs owned by the "operation user_account".
+        - By default, the "operation user_account" is the token user_account.
 
-        <a href='/docs/features/catalog-management/'>Learn more</a>
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: catalogs_product_groups/create
       security:
       - pinterest_oauth2:
         - catalogs:write
-      x-sandbox:
-        enabled: false
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/query_ad_account_id'
       requestBody:
         description: Request object used to created a catalogs product group.
         required: true
@@ -4435,16 +4855,13 @@ paths:
   /resources/ad_account_countries:
     get:
       summary: Get ad accounts countries
-      description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
-        Get Ad Accounts countries
+      description: Get Ad Accounts countries
       operationId: ad_account_countries/get
       security:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       responses:
         '200':
           content:
@@ -4460,19 +4877,84 @@ paths:
           description: Unexpected error
       tags:
       - resources
+  /resources/delivery_metrics:
+    get:
+      summary: Get available delivery metrics' definitions
+      description: Get the definitions for the delivery metrics available for synchronous
+        or asynchronous reports.
+      operationId: delivery_metrics/get
+      security:
+      - pinterest_oauth2:
+        - ads:read
+        - pins:read
+        - user_accounts:read
+      x-ratelimit-category: ads_read
+      x-sandbox: enabled
+      parameters:
+      - $ref: '#/components/parameters/query_report_type'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryMetricsResponse'
+          description: Success
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - resources
+  /resources/metrics_ready_state:
+    get:
+      summary: Get metrics ready state
+      description: Learn whether conversion or non-conversion metrics are finalized
+        and ready to query.
+      operationId: metrics_ready_state/get
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_analytics
+      x-sandbox: enabled
+      parameters:
+      - name: date
+        description: 'Analytics reports request date (UTC). Format: YYYY-MM-DD'
+        in: query
+        required: true
+        style: form
+        schema:
+          type: string
+          pattern: ^(\d{4})-(\d{2})-(\d{2})$
+          example: '2022-07-13'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookClosedResponse'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      tags:
+      - resources
   /resources/targeting/interests/{interest_id}:
     get:
       summary: Get interest details
-      description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
-        <p>Get details of a specific interest given interest ID.</p> <p>Click <a href="https://docs.google.com/spreadsheets/d/1HxL-0Z3p2fgxis9YBP2HWC3tvPrs1hAuHDRtH-NJTIM/edit#gid=118370875" target="_blank">here</a> for a spreadsheet listing interests and their IDs.</p>
+      description: <p>Get details of a specific interest given interest ID.</p> <p>Click
+        <a href="https://docs.google.com/spreadsheets/d/1HxL-0Z3p2fgxis9YBP2HWC3tvPrs1hAuHDRtH-NJTIM/edit#gid=118370875"
+        target="_blank">here</a> for a spreadsheet listing interests and their IDs.</p>
       operationId: interest_targeting_options/get
       security:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_interest_id'
       responses:
@@ -4494,7 +4976,6 @@ paths:
     get:
       summary: Get targeting options
       description: |-
-        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/features/ads-management/'>Learn more</a>.</strong> <p/>
         <p>You can use targeting values in ads placement to define your intended audience. </p> <p>Targeting metrics are organized around targeting specifications.</p> <p>For more information on ads targeting, see <a class="reference external" href="https://help.pinterest.com/en/business/article/audience-targeting" target="_blank">Audience targeting</a>.</p>
         <p><b>Sample return:</b></p> <pre class="literal-block"> [{&quot;36313&quot;: &quot;Australia: Moreton Bay - North&quot;, &quot;124735&quot;: &quot;Canada: North Battleford&quot;, &quot;36109&quot;: &quot;Australia: Murray&quot;, &quot;36108&quot;: &quot;Australia: Mid North Coast&quot;, &quot;36101&quot;: &quot;Australia: Capital Region&quot;, &quot;811&quot;: &quot;U.S.: Reno&quot;, &quot;36103&quot;: &quot;Australia: Central West&quot;, &quot;36102&quot;: &quot;Australia: Central Coast&quot;, &quot;36105&quot;: &quot;Australia: Far West and Orana&quot;, &quot;36104&quot;: &quot;Australia: Coffs Harbour - Grafton&quot;, &quot;36107&quot;: &quot;Australia: Illawarra&quot;, &quot;36106&quot;: &quot;Australia: Hunter Valley Exc Newcastle&quot;, &quot;554017&quot;: &quot;New Zealand: Wanganui&quot;, &quot;554016&quot;: &quot;New Zealand: Marlborough&quot;, &quot;554015&quot;: &quot;New Zealand: Gisborne&quot;, &quot;554014&quot;: &quot;New Zealand: Tararua&quot;, &quot;554013&quot;: &quot;New Zealand: Invercargill&quot;, &quot;GR&quot;: &quot;Greece&quot;, &quot;554011&quot;: &quot;New Zealand: Whangarei&quot;, &quot;554010&quot;: &quot;New Zealand: Far North&quot;, &quot;717&quot;: &quot;U.S.: Quincy-Hannibal-Keokuk&quot;, &quot;716&quot;: &quot;U.S.: Baton Rouge&quot;,...}] </pre>
       operationId: targeting_options/get
@@ -4502,8 +4983,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_targeting_type'
       - $ref: '#/components/parameters/query_client_id'
@@ -4537,8 +5017,7 @@ paths:
       - pinterest_oauth2:
         - ads:read
       x-ratelimit-category: ads_read
-      x-sandbox:
-        enabled: false
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/query_list_input_terms'
       responses:
@@ -4585,7 +5064,8 @@ components:
             pins:read_secret: See your secret Pins
             pins:write: Create, update, or delete your public Pins
             pins:write_secret: Create, update, or delete your secret Pins
-            user_accounts:read: See your user accounts
+            user_accounts:read: See your user accounts and followers
+            user_accounts:write: Update your user accounts and followers
     conversion_token:
       type: http
       scheme: bearer
@@ -6451,6 +6931,21 @@ components:
           enum:
           - PUBLIC
           - SECRET
+    BookClosedResponse:
+      title: BookClosed
+      description: Creation fields
+      type: object
+      properties:
+        conversion_metrics_ready:
+          title: conversion_metrics_ready
+          description: Are conversion metrics ready?
+          type: boolean
+          example: false
+        non_conversion_metrics_ready:
+          title: non_conversion_metrics_ready
+          description: Are non-conversion metrics ready?
+          type: boolean
+          example: false
     BudgetType:
       description: Budget type. If DAILY, an ad group's daily spend will not exceed
         the budget parameter value. If LIFETIME, the end_time parameter is **REQUIRED**,
@@ -6463,6 +6958,171 @@ components:
       - LIFETIME
       - CBO_ADGROUP
       type: string
+    BulkUpsertRequest:
+      description: Two set of objects to be managed asyncronusly by bulk. One for
+        creations, one for modifications.
+      type: object
+      properties:
+        create:
+          $ref: '#/components/schemas/BulkUpsertRequestCreate'
+        update:
+          $ref: '#/components/schemas/BulkUpsertRequestUpdate'
+    BulkUpsertRequestCreate:
+      description: Request for creation of entities in bulk.
+      type: object
+      properties:
+        campaigns:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignCreateRequest'
+        ad_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdGroupCreateRequest'
+        ads:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdCreateRequest'
+        product_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductGroupPromotionCreateRequest'
+        keywords:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeywordsRequest'
+    BulkUpsertRequestUpdate:
+      description: Request for creation of entities in bulk.
+      type: object
+      properties:
+        campaigns:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignUpdateRequest'
+        ad_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdGroupUpdateRequest'
+        ads:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdUpdateRequest'
+        product_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductGroupPromotionUpdateRequest'
+        keywords:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeywordUpdate'
+    BulkUpsertResponse:
+      description: ID of the bulk request.
+      type: object
+      properties:
+        request_id:
+          type: string
+          example: 549763856477-1660864560-1407e16a-c586-4add-94df-d0b160bec0ff, 549763856477-1660864560-d0b160bec0ff
+    BulkUpsertStatus:
+      type: string
+      enum:
+      - RUNNING
+      - SUCCEEDED
+      - FAILED
+    BulkUpsertStatusResponse:
+      description: ID of the bulk request.
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/BulkUpsertStatus'
+        result_url:
+          type: string
+          example: https://pinterest-waterloo.s3.us-east-1.amazonaws.com/bulk_framework/AD_ENTITY_UPSERT/549763856637-1659122537-0b4d77d3-f620-48ce-bec9-616106afb8d4/(...)
+    BulkDownloadRequest:
+      type: object
+      description: Ad entities to get in bulk request.
+      properties:
+        entity_types:
+          type: array
+          items:
+            type: string
+            allOf:
+            - $ref: '#/components/schemas/BulkEntityType'
+          minItems: 1
+          maxItems: 5
+          description: All entity types specified will be downloaded. Fewer types
+            result in faster downloads.
+          example:
+          - CAMPAIGN
+          - AD_GROUP
+        entity_ids:
+          type: array
+          items:
+            type: string
+            pattern: ^\d+$
+          description: All entities specified by these IDs as well as their children
+            and grandchildren will be downloaded if the entity type is one of the
+            types requested to be downloaded.
+        updated_since:
+          type: string
+          pattern: ^\d+$
+          example: '1622848072'
+          description: Unix UTC timestamp to retrieve all entities that have changed
+            since this time.
+        campaign_filter:
+          type: object
+          properties:
+            start_time:
+              type: string
+              pattern: ^\d+$
+              example: '1622848072'
+              description: Unix UTC timestamp.
+            end_time:
+              type: string
+              pattern: ^\d+$
+              example: '1622848072'
+              description: Unix UTC timestamp.
+            name:
+              type: string
+              example: campaign name
+              description: Campaign name
+            campaign_status:
+              type: array
+              items:
+                $ref: '#/components/schemas/CampaignSummaryStatus'
+            objective_type:
+              type: array
+              items:
+                $ref: '#/components/schemas/ObjectiveType'
+        output_format:
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/BulkOutputFormat'
+          default: JSON
+    BulkDownloadResponse:
+      type: object
+      example:
+        request_id: '2680059592705'
+      properties:
+        request_id:
+          description: ID of the bulk request.
+          example: '2680059592705'
+          type: string
+    BulkEntityType:
+      type: string
+      description: Refers ads entity type
+      example: AD
+      enum:
+      - CAMPAIGN
+      - AD_GROUP
+      - PRODUCT_GROUP
+      - AD
+      - KEYWORD
+    BulkOutputFormat:
+      type: string
+      description: Bulk file output format
+      enum:
+      - CSV
+      - JSON
     CampaignCommon:
       type: object
       description: Campaign Data
@@ -6809,6 +7469,11 @@ components:
           - 1
           description: The product count has decreased by more than 99% compared to
             the last successful ingestion.
+        ACCOUNT_FLAGGED:
+          type: integer
+          description: We detected an issue with your account and are not currently
+            ingesting your items. Please review our policies at policy.pinterest.com/community-guidelines#section-spam
+            or contact us at help.pinterest.com/contact for more information.
     CatalogsFeedIngestionInfo:
       type: object
       properties:
@@ -7389,6 +8054,15 @@ components:
           type: integer
           description: Some items were not published because they don't meet Pinterest's
             Merchant Guidelines.
+        LIST_PRICE_INVALID:
+          type: integer
+          description: Some items have list price formatting errors in their product
+            metadata, those items will not be published.
+        PRICE_CANNOT_BE_DETERMINED:
+          type: integer
+          description: Some items were not published because price cannot be determined.
+            The price, list price, and sale price are all different, so those items
+            will not be published.
     CatalogsFeedValidationWarnings:
       type: object
       properties:
@@ -7415,6 +8089,10 @@ components:
           description: Some items have size type values that are formatted incorrectly,
             which may limit visibility in recommendations, search results and shopping
             experiences.
+        SIZE_SYSTEM_INVALID:
+          type: integer
+          description: Some items have size system values which are not one of the
+            supported size systems.
         LINK_FORMAT_WARNING:
           type: integer
           description: Some items have an invalid product link which contains invalid
@@ -7568,6 +8246,29 @@ components:
         MIN_AD_PRICE_INVALID:
           type: integer
           description: Some items include min_ad_price values that are formatted incorrectly.
+        GTIN_INVALID:
+          type: integer
+          description: Some items include incorrectly formatted GTINs.
+        INCONSISTENT_CURRENCY_VALUES:
+          type: integer
+          description: Some items include inconsistent currencies in price fields.
+        SALES_PRICE_TOO_LOW:
+          type: integer
+          description: Some items include sales price that is much lower than the
+            list price.
+        SHIPPING_WIDTH_INVALID:
+          type: integer
+          description: Some items include incorrectly formatted shipping_width.
+        SHIPPING_HEIGHT_INVALID:
+          type: integer
+          description: Some items include incorrectly formatted shipping_height.
+        SALES_PRICE_TOO_HIGH:
+          type: integer
+          description: Some items include a sales price that is higher than the list
+            price. The sales price has been defaulted to the list price.
+        MPN_INVALID:
+          type: integer
+          description: Some items include incorrectly formatted MPNs.
     CatalogsFeedsCreateRequest:
       type: object
       title: feeds_create_request
@@ -7801,6 +8502,7 @@ components:
       - EXPIRATION_DATE_INVALID
       - GENDER_INVALID
       - GENDER_NORMALIZED
+      - GTIN_INVALID
       - IMAGE_LINK_INVALID
       - IMAGE_LINK_LENGTH_TOO_LONG
       - IMAGE_LINK_MISSING
@@ -7814,8 +8516,10 @@ components:
       - LINK_FORMAT_INVALID
       - LINK_FORMAT_WARNING
       - LINK_LENGTH_TOO_LONG
+      - LIST_PRICE_INVALID
       - MAX_ITEMS_PER_ITEM_GROUP_EXCEEDED
       - MIN_AD_PRICE_INVALID
+      - MPN_INVALID
       - MULTIPACK_INVALID
       - OPTIONAL_CONDITION_INVALID
       - OPTIONAL_CONDITION_MISSING
@@ -7823,6 +8527,7 @@ components:
       - OPTIONAL_PRODUCT_CATEGORY_MISSING
       - PARSE_LINE_ERROR
       - PINJOIN_CONTENT_UNSAFE
+      - PRICE_CANNOT_BE_DETERMINED
       - PRICE_MISSING
       - PRODUCT_CATEGORY_DEPTH_WARNING
       - PRODUCT_LINK_MISSING
@@ -7830,8 +8535,13 @@ components:
       - PRODUCT_TYPE_LENGTH_TOO_LONG
       - SALE_DATE_INVALID
       - SALES_PRICE_INVALID
+      - SALES_PRICE_TOO_HIGH
+      - SALES_PRICE_TOO_LOW
       - SHIPPING_INVALID
+      - SHIPPING_HEIGHT_INVALID
       - SHIPPING_WEIGHT_INVALID
+      - SHIPPING_WIDTH_INVALID
+      - SIZE_SYSTEM_INVALID
       - SIZE_TYPE_INVALID
       - SIZE_TYPE_NORMALIZED
       - TAX_INVALID
@@ -7926,6 +8636,10 @@ components:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Product link contains too many characters, this item will not
             be published.
+        LIST_PRICE_INVALID:
+          $ref: '#/components/schemas/CatalogsItemValidationDetails'
+          description: Item has a list price formatting error, this item will not
+            be published.
         MAX_ITEMS_PER_ITEM_GROUP_EXCEEDED:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item exceed the maximum number of items per item group, this
@@ -7937,6 +8651,10 @@ components:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item will not be published because it doesn't meet Pinterest's
             Merchant Guidelines.
+        PRICE_CANNOT_BE_DETERMINED:
+          $ref: '#/components/schemas/CatalogsItemValidationDetails'
+          description: Item price cannot be determined because the price, list price,
+            and sale price are all different.
         PRICE_MISSING:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Product is missing a price, this item will not be published.
@@ -7975,6 +8693,10 @@ components:
           description: Item has an age group value that is formatted incorrectly,
             which may limit visibility in recommendations, search results and shopping
             experiences.
+        SIZE_SYSTEM_INVALID:
+          $ref: '#/components/schemas/CatalogsItemValidationDetails'
+          description: Some items have size system values which are not one of the
+            supported size systems.
         AGE_GROUP_NORMALIZED:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item includes an age_group value that is formatted incorrectly
@@ -8022,6 +8744,9 @@ components:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item includes a gender value that is formatted incorrectly
             and has been automatically corrected.
+        GTIN_INVALID:
+          $ref: '#/components/schemas/CatalogsItemValidationDetails'
+          description: Item has a GTIN value that is formatted incorrectly.
         IMAGE_LINK_WARNING:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item has an image_link URL that is formatted incorrectly and
@@ -8043,6 +8768,9 @@ components:
         MIN_AD_PRICE_INVALID:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item includes a min_ad_price value that is formatted incorrectly.
+        MPN_INVALID:
+          $ref: '#/components/schemas/CatalogsItemValidationDetails'
+          description: Item has a MPN value that is formatted incorrectly.
         MULTIPACK_INVALID:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item has an invalid multipack value.
@@ -8073,6 +8801,13 @@ components:
             be published without that product type.
         SALES_PRICE_INVALID:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
+          description: Item has an incorrectly formatted sales price.
+        SALES_PRICE_TOO_LOW:
+          $ref: '#/components/schemas/CatalogsItemValidationDetails'
+          description: Item has a sale price value that is discounted very low compared
+            to the price.
+        SALES_PRICE_TOO_HIGH:
+          $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item has a sale price value that is higher than the original
             price of the item.
         SALE_DATE_INVALID:
@@ -8082,9 +8817,17 @@ components:
         SHIPPING_INVALID:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item has a shipping value that is formatted incorrectly.
+        SHIPPING_HEIGHT_INVALID:
+          $ref: '#/components/schemas/CatalogsItemValidationDetails'
+          description: Item has an incorrectly formatted shipping_height value. The
+            value must first contain a numeric value then a valid dimension unit type.
         SHIPPING_WEIGHT_INVALID:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item has an invalid shipping_weight value.
+        SHIPPING_WIDTH_INVALID:
+          $ref: '#/components/schemas/CatalogsItemValidationDetails'
+          description: Item has an incorrectly formatted shipping_width value. The
+            value must first contain a numeric value then a valid dimension unit type.
         SIZE_TYPE_INVALID:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item has a size type value that is formatted incorrectly, which
@@ -8886,6 +9629,333 @@ components:
       - 7
       - 30
       - 60
+    ConversionEvents:
+      description: A list of events (one or more) encapsulated by a data object.
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              event_name:
+                description: The type of the user event.
+                type: string
+                enum:
+                - add_to_cart
+                - checkout
+                - custom
+                - lead
+                - page_visit
+                - search
+                - signup
+                - view_category
+                - watch_video
+                example: checkout
+              action_source:
+                description: The source indicating where the conversion event occurred.
+                example: app_ios
+                type: string
+                enum:
+                - app_android
+                - app_ios
+                - web
+                - offline
+              event_time:
+                description: The time when the event happened. Unix timestamp in seconds.
+                example: 1451431341
+                type: integer
+                format: int64
+              event_id:
+                description: A unique id string that identifies this event and can
+                  be used for deduping between events ingested via both the conversion
+                  API and Pinterest tracking.
+                type: string
+                example: eventId0001
+              event_source_url:
+                description: URL of the web conversion event.
+                type: string
+                example: https://example.org/
+                nullable: true
+              opt_out:
+                description: When action_source is web or offline, it defines whether
+                  the user has opted out of tracking for web conversion events. While
+                  when action_source is app_android or app_ios, it defines whether
+                  the user has enabled Limit Ad Tracking on their iOS device, or opted
+                  out of Ads Personalization on their Android device.
+                type: boolean
+                example: false
+              partner_name:
+                description: The third party partner name responsible to send the
+                  event to Conversions API on behalf of the advertiser. Only send
+                  this field if Pinterest has worked directly with you to define a
+                  value for partner_name.
+                type: string
+                nullable: true
+              user_data:
+                $ref: '#/components/schemas/ConversionEventsUserData'
+              custom_data:
+                description: Object containing other custom data.
+                type: object
+                additionalProperties: false
+                properties:
+                  currency:
+                    description: The ISO-4217 currency code. If not provided, we will
+                      default to the advertiser's currency set during account creation.
+                    example: USD
+                    type: string
+                    nullable: true
+                  value:
+                    description: Total value of the event. Accepted as a string in
+                      the request; it will be parsed into a double. For example, if
+                      there are two items in a checkout event, the value should be
+                      the total price
+                    example: '425325.89'
+                    type: string
+                    nullable: true
+                  content_ids:
+                    description: List of products IDs
+                    type: array
+                    items:
+                      type: string
+                  contents:
+                    description: A list of objects containing information about products,
+                      such as price and quantity.
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        item_price:
+                          description: The price of a product. Accepted as a string
+                            in the request; it will be parsed into a double. For example,
+                            if there are two products in a checkout event, the value
+                            should be the total price
+                          example: '1325.12'
+                          type: string
+                        quantity:
+                          description: The amount of a product.
+                          type: integer
+                          format: int64
+                  num_items:
+                    description: Total number of products of the event. For example,
+                      the total number of items purchased in a checkout event.
+                    type: integer
+                    format: int64
+                  order_id:
+                    description: The order ID
+                    type: string
+                    nullable: true
+                  search_string:
+                    description: The search string related to the user conversion
+                      event.
+                    type: string
+                    nullable: true
+                  opt_out_type:
+                    description: Flags for different privacy rights laws to opt out
+                      users of sharing personal information. Values should be comma
+                      separated.
+                    example: CPRA,GPC
+                    type: string
+                    nullable: true
+                  np:
+                    description: Named partner. Not required, this is for Pinterest
+                      internal use only.
+                    type: string
+                    nullable: true
+              app_id:
+                description: The app store app ID.
+                type: string
+                nullable: true
+              app_name:
+                description: Name of the app.
+                type: string
+                nullable: true
+              app_version:
+                description: Version of the app.
+                type: string
+                nullable: true
+              device_brand:
+                description: Brand of the user device.
+                type: string
+                nullable: true
+              device_carrier:
+                description: User device's mobile carrier.
+                type: string
+                nullable: true
+              device_model:
+                description: Model of the user device.
+                type: string
+                nullable: true
+              device_type:
+                description: Type of the user device.
+                type: string
+                nullable: true
+              os_version:
+                description: Version of the device operating system.
+                type: string
+                nullable: true
+              wifi:
+                description: Whether the event occurred when the user device was connected
+                  to wifi.
+                example: false
+                type: boolean
+              language:
+                description: Two-character ISO-639-1 language code indicating the
+                  user's language.
+                example: en
+                type: string
+                nullable: true
+            required:
+            - event_name
+            - action_source
+            - event_time
+            - user_data
+            - event_id
+      required:
+      - data
+    ConversionEventsUserData:
+      description: Object containing customer information data. Note, It is required
+        at least one of 1) em, 2) hashed_maids or 3) pair client_ip_address + client_user_agent.
+      type: object
+      anyOf:
+      - properties:
+          em:
+            description: Sha256 hashes of lowercase version of user's email addresses.
+              Used for matching.
+            type: array
+            items:
+              type: string
+        required:
+        - em
+      - properties:
+          hashed_maids:
+            description: Sha256 hashes of user's "Google Advertising IDs" (GAIDs)
+              or "Apple's Identifier for Advertisers" (IDFAs). Used for matching.
+            type: array
+            items:
+              type: string
+        required:
+        - hashed_maids
+      - properties:
+          client_ip_address:
+            description: The user's IP address, which can be either in IPv4 or IPv6
+              format. Used for matching.
+            type: string
+            example: 216.3.128.12
+          client_user_agent:
+            description: The user agent string of the user's web browser.
+            type: string
+            example: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36
+              (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36
+        required:
+        - client_ip_address
+        - client_user_agent
+      properties:
+        ph:
+          description: Sha256 hashes of user's phone numbers, only digits with country
+            code, area code, and number. Remove any symbols, letters, spaces and leading
+            zeros.
+          type: array
+          items:
+            type: string
+        ge:
+          description: Sha256 hashes of user's gender, in lowercase. Either "f" or
+            "m" or "n" for non-binary gender.
+          type: array
+          items:
+            type: string
+        db:
+          description: Sha256 hashes of user's date of birthday, given as year, month,
+            and day.
+          type: array
+          items:
+            type: string
+        ln:
+          description: Sha256 hashes of user's last name, in lowercase.
+          type: array
+          items:
+            type: string
+        fn:
+          description: Sha256 hashes of user's first name, in lowercase.
+          type: array
+          items:
+            type: string
+        ct:
+          description: Sha256 hashes of user's city, in lowercase, and without spaces
+            or punctuation.
+          type: array
+          items:
+            type: string
+        st:
+          description: Sha256 hashes of user's state, given as a two-letter code in
+            lowercase.
+          type: array
+          items:
+            type: string
+        zp:
+          description: Sha256 hashes of user's zipcode, only digits.
+          type: array
+          items:
+            type: string
+        country:
+          description: Sha256 hashes of two-character ISO-3166 country code indicating
+            the user's country, in lowercase.
+          type: array
+          items:
+            type: string
+        external_id:
+          description: Sha256 hashes of the unique id from the advertiser that identifies
+            a user in their space, e.g. user id, loyalty id, etc.
+          type: array
+          items:
+            type: string
+    ConversionApiResponse:
+      description: Schema describing the object in the response, which contains information
+        about the events that were received and processed.
+      type: object
+      properties:
+        num_events_received:
+          description: Total number of events received in the request.
+          type: integer
+        num_events_processed:
+          description: Number of events that were successfully processed from the
+            events.
+          type: integer
+        events:
+          description: Specific messages for each event received. The order will match
+            the order in which the events were received in the request.
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                description: Whether the event was processed successfully.
+                type: string
+                example: processed
+                enum:
+                - failed
+                - processed
+              error_message:
+                description: Error message containing more information about why the
+                  event failed to be processed.
+                type: string
+                nullable: true
+              warning_message:
+                description: Warning messages about any fields in the event which
+                  are not standard. These are not critical to event processing.
+                type: string
+                nullable: true
+            required:
+            - status
+      required:
+      - num_events_received
+      - num_events_processed
+      - events
     ConversionReportAttributionType:
       type: string
       description: Attribution type. Refers to the Pinterest Tag endpoints
@@ -9217,6 +10287,33 @@ components:
       - AUDIENCE_SEGMENT_SMALLER_THAN_THRESHOLD
       - AUDIENCE_TOTAL_SMALLER_THAN_THRESHOLD
       - BEFORE_PRODUCT_GROUP_FILTER_START_DATE
+    DeliveryMetricsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Metric's name.
+                example: AD_GROUP_ID
+              category:
+                enum:
+                - ADS
+                - ORGANIC
+                description: Category name
+                example: ADS
+              definition:
+                type: string
+                description: How the metric is defined.
+                example: Unique ID for your ad group
+              display_name:
+                type: string
+                description: Display name, when available. If unavaible it will not
+                  be returned.
+                example: Ad group ID
     EntityStatus:
       type: string
       description: Entity status
@@ -9693,7 +10790,7 @@ components:
           title: id
           type: string
         parent_id:
-          description: Keyword parent entity ID (advertiser, campaign, ad group, ad).
+          description: Keyword parent entity ID (advertiser, campaign, ad group).
           example: '383791336903426391'
           pattern: ^\d+$
           title: parent_id
@@ -9710,9 +10807,11 @@ components:
       type: object
       properties:
         bid:
-          type: number
-          description: Keyword custom bid
+          type: integer
+          description: Keyword custom bid in microcurrency - null if inherited from
+            parent ad group.
           example: 200000
+          nullable: true
         match_type:
           $ref: '#/components/schemas/MatchTypeResponse'
         value:
@@ -9739,7 +10838,7 @@ components:
           items:
             $ref: '#/components/schemas/KeywordsCommon'
         parent_id:
-          description: Keyword parent entity ID (advertiser, campaign, ad group, ad).
+          description: Keyword parent entity ID (advertiser, campaign, ad group).
           example: '383791336903426391'
           pattern: ^((AG)|C)?\d+$
           title: parent_id
@@ -9787,6 +10886,41 @@ components:
           title: keywords
       required:
       - keywords
+    KeywordMetrics:
+      description: Keyword metrics JSON
+      title: KeywordMetrics
+      type: object
+      properties:
+        avg_cpc_in_micro_currency:
+          example: 100000
+          title: avg_cpc_in_micro_currency
+          description: Average cost per click
+          type: number
+        keyword_query_volume:
+          example: 5M+
+          title: keyword_query_volume
+          description: Keyword's search frequency. This value is based on keyword
+            frequency in pepsi client response
+          type: string
+    KeywordMetricsResponse:
+      title: KeywordMetricsResponse
+      type: object
+      properties:
+        keyword:
+          description: Keyword name, e.g., "keyword":"fashion outfits"
+          example: animals
+          title: keyword
+          type: string
+        metrics:
+          $ref: '#/components/schemas/KeywordMetrics'
+    KeywordsMetricsArrayResponse:
+      type: object
+      title: KeywordMetricsArrayResponse
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeywordMetricsResponse'
     KeywordsResponse:
       properties:
         errors:
@@ -10005,6 +11139,20 @@ components:
         SAVE: 20
         SAVE_RATE: 0.18
         IMPRESSION: 240
+    MetricsResponse:
+      properties:
+        data:
+          items:
+            type: object
+            example:
+              targeting_type: AGE_BUCKET
+              targeting_value: 45-49
+              metrics:
+                AD_GROUP_ID: 2680067996745
+                DATE: '2022-04-26'
+                SPEND_IN_DOLLAR: 240
+          type: array
+      type: object
     MetricsReportingLevel:
       type: string
       description: Level of the reporting request
@@ -10551,6 +11699,7 @@ components:
       title: Pin
       description: Pin
       type: object
+      nullable: true
       properties:
         id:
           type: string
@@ -10565,12 +11714,15 @@ components:
           type: string
           nullable: true
           example: https://www.pinterest.com/
+          maxLength: 2048
         title:
           type: string
           nullable: true
+          maxLength: 100
         description:
           type: string
           nullable: true
+          maxLength: 500
         dominant_color:
           type: string
           nullable: true
@@ -10579,6 +11731,7 @@ components:
         alt_text:
           type: string
           nullable: true
+          maxLength: 500
         board_id:
           description: The board to which this Pin belongs.
           type: string
@@ -10618,9 +11771,17 @@ components:
         mapping:
           image: '#/components/schemas/PinMediaWithImage'
           video: '#/components/schemas/PinMediaWithVideo'
+          multiple_images: '#/components/schemas/PinMediaWithImages'
+          multiple_videos: '#/components/schemas/PinMediaWithVideos'
+          multiple_mixed: '#/components/schemas/PinMediaWithImageAndVideo'
       properties:
         media_type:
           type: string
+    PinMediaMetadata:
+      type: object
+      anyOf:
+      - $ref: '#/components/schemas/ImageMetadata'
+      - $ref: '#/components/schemas/VideoMetadata'
     PinMediaWithImage:
       title: image
       description: Pin with image.
@@ -10647,6 +11808,17 @@ components:
             width: 560
             height: 560
             url: https://i.pinimg.com/originals/0d/f6/f1/0df6f1f0bfe7aaca849c1bbc3607a34b.jpg
+    PinMediaWithImages:
+      title: Images
+      description: Pin with multiple images.
+      allOf:
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ImageMetadata'
+      - $ref: '#/components/schemas/PinMedia'
     PinMediaWithVideo:
       title: video
       description: Pin with video.
@@ -10688,6 +11860,28 @@ components:
         duration: 14000
         height: 1064
         width: 1280
+    PinMediaWithVideos:
+      title: Videos
+      description: Pin with multiple videos.
+      allOf:
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/VideoMetadata'
+      - $ref: '#/components/schemas/PinMedia'
+    PinMediaWithImageAndVideo:
+      title: Video and image
+      description: Pin with a mix of images and videos.
+      allOf:
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/PinMediaMetadata'
+      - $ref: '#/components/schemas/PinMedia'
     PinMediaSource:
       title: Pin media source
       description: Pin media source.
@@ -10775,6 +11969,33 @@ components:
         width: 400
         height: 300
         url: https://i.pinimg.com/400x300/0d/f6/f1/0df6f1f0bfe7aaca849c1bbc3607a34b.jpg
+    ImageMetadata:
+      title: Image metadata
+      type: object
+      properties:
+        item_type:
+          type: string
+        images:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ImageDetails'
+    VideoMetadata:
+      title: Video metadata
+      type: object
+      properties:
+        item_type:
+          type: string
+        cover_image_url:
+          type: string
+        duration:
+          type: number
+          description: Duration (in milliseconds)
+        height:
+          type: integer
+          description: Height (in pixels)
+        width:
+          type: integer
+          description: Width (in pixels)
     PinPromotionSummaryStatus:
       type: string
       description: Summary status for pin promotions
@@ -10956,6 +12177,13 @@ components:
           nullable: true
           title: slideshow_collections_description
           type: string
+        is_mdl:
+          description: If set to true products promoted in this product group will
+            use the Mobile Deep Link specified in your catalog
+          example: true
+          nullable: true
+          title: is_mdl
+          type: boolean
       title: ProductGroupPromotionCommon
       type: object
     ProductGroupPromotionCreateRequest:
@@ -10968,6 +12196,7 @@ components:
           collections_hero_destination_url: http://www.pinterest.com
           tracking_url: https://www.pinterest.com
           slideshow_collections_title: Title
+          is_mdl: true
           status: ACTIVE
         - slideshow_collections_description: Description
           creative_type: REGULAR
@@ -10976,6 +12205,7 @@ components:
           collections_hero_destination_url: http://www.pinterest.com
           tracking_url: https://www.pinterest.com
           slideshow_collections_title: Title
+          is_mdl: true
           status: ACTIVE
         ad_group_id: '2680059592705'
       properties:
@@ -12003,6 +13233,7 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+        maxLength: 18
     path_ad_account_id:
       name: ad_account_id
       description: Unique identifier of an ad account.
@@ -12011,7 +13242,7 @@ components:
       schema:
         type: string
         pattern: ^\d+$
-        maxLength: 19
+        maxLength: 18
     path_ad_group_id:
       name: ad_group_id
       description: Unique identifier of an ad group.
@@ -12020,6 +13251,7 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+        maxLength: 18
     path_audience_id:
       name: audience_id
       description: Unique identifier of an audience
@@ -12028,6 +13260,7 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+        maxLength: 18
     path_customer_list_id:
       name: customer_list_id
       description: Unique identifier of a customer list
@@ -12036,6 +13269,7 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+        maxLength: 18
     path_interest_id:
       name: interest_id
       description: Unique identifier of an interest.
@@ -12044,6 +13278,7 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+        maxLength: 18
     path_targeting_type:
       name: targeting_type
       description: Public targeting type.
@@ -12082,6 +13317,13 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+    path_bulk_request_id:
+      name: bulk_request_id
+      description: Unique identifier of a bulk upsert request.
+      in: path
+      required: true
+      schema:
+        type: string
     path_campaign_id:
       name: campaign_id
       description: Campaign ID, must be associated with the ad account ID provided
@@ -12091,6 +13333,7 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+        maxLength: 18
     path_catalogs_feed_id:
       description: Unique identifier of a feed
       in: path
@@ -12147,6 +13390,7 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+        maxLength: 18
     query_ad_account_id:
       name: ad_account_id
       description: Unique identifier of an ad account.
@@ -12154,6 +13398,7 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+        maxLength: 18
     query_ad_group_id:
       description: Ad group Id.
       in: query
@@ -12162,6 +13407,8 @@ components:
       required: false
       schema:
         type: string
+        pattern: ^\d+$
+        maxLength: 18
     query_ad_group_ids:
       description: List of Ad group Ids to use to filter the results.
       in: query
@@ -12184,6 +13431,7 @@ components:
         items:
           type: string
           pattern: ^\d+$
+          maxLength: 18
         minItems: 1
         maxItems: 100
     query_ad_ids:
@@ -12269,6 +13517,7 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+        maxLength: 18
     query_campaign_ids:
       description: List of Campaign Ids to use to filter the results.
       in: query
@@ -12279,6 +13528,7 @@ components:
         items:
           type: string
           pattern: ^\d+$
+          maxLength: 18
         minItems: 1
         maxItems: 100
     query_campaign_ids_required:
@@ -12291,6 +13541,7 @@ components:
         items:
           type: string
           pattern: ^\d+$
+          maxLength: 18
         minItems: 1
         maxItems: 100
     query_client_id:
@@ -12301,6 +13552,7 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+        maxLength: 18
         example: '1094834'
       style: form
     query_catalogs_feed_id:
@@ -12585,6 +13837,16 @@ components:
           - ACTIVE
           - PAUSED
           - ARCHIVED
+    query_comment_feed_type:
+      name: feed_type
+      description: Comment feed type.
+      in: query
+      schema:
+        type: string
+        enum:
+        - ranked
+        - recent
+        default: recent
     query_flatten_rule:
       description: Uniform the format of Audiences rules for presentation on Web UI.
       in: query
@@ -12614,6 +13876,19 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/Granularity'
+    query_keywords:
+      name: keywords
+      description: Comma-separated keywords
+      in: query
+      required: true
+      explode: false
+      schema:
+        items:
+          type: string
+        maxItems: 2000
+        minItems: 1
+        type: array
+      style: form
     query_oauth_signature:
       name: oauth_signature
       description: Oauth signature
@@ -12675,7 +13950,7 @@ components:
       schema:
         type: string
     query_start_index:
-      description: he starting index for returned list.
+      description: The starting index for returned list.
       in: query
       name: start_index
       required: false
@@ -12851,7 +14126,7 @@ components:
       schema:
         type: integer
         minimum: 1
-        maximum: 100
+        maximum: 250
         default: 25
     query_pin_format:
       description: Pin formats to get data for, default is all.
@@ -12951,3 +14226,34 @@ components:
         minimum: 1
         maximum: 10
         default: 4
+    query_report_type:
+      name: report_type
+      description: Report type.
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+        - SYNC
+        - ASYNC
+    query_targeting_types:
+      name: targeting_types
+      description: Targeting type breakdowns for the report. The reporting per targeting
+        type <br> is independent from each other.
+      required: true
+      explode: false
+      in: query
+      schema:
+        items:
+          $ref: '#/components/schemas/AdsAnalyticsTargetingType'
+        maxItems: 15
+        minItems: 1
+        type: array
+    query_attribution_types:
+      name: attribution_types
+      description: List of types of attribution for the conversion report
+      required: false
+      explode: false
+      in: query
+      schema:
+        $ref: '#/components/schemas/ConversionReportAttributionType'
