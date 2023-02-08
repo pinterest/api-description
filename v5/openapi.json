@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "5.6.0",
+    "version": "5.8.0",
     "title": "Pinterest REST API",
     "description": "Pinterest's REST API",
     "contact": {
@@ -34,12 +34,12 @@
       "description": "View, create or update ads."
     },
     {
-      "name": "audiences",
-      "description": "View, create, or update audiences."
-    },
-    {
       "name": "audience_insights",
       "description": "View audience insights."
+    },
+    {
+      "name": "audiences",
+      "description": "View, create, or update audiences."
     },
     {
       "name": "boards",
@@ -70,6 +70,14 @@
       "description": "View, create, or update customer lists."
     },
     {
+      "name": "integrations",
+      "description": "integrations"
+    },
+    {
+      "name": "interests",
+      "description": "View interests."
+    },
+    {
       "name": "keywords",
       "description": "View, create or update keywords."
     },
@@ -79,7 +87,7 @@
     },
     {
       "name": "oauth",
-      "description": "Generating and refreshing OAuth access tokens."
+      "description": "Generate and refresh OAuth access tokens."
     },
     {
       "name": "order_lines",
@@ -91,30 +99,38 @@
     },
     {
       "name": "product_group_promotions",
-      "description": "Product Group Promotion"
+      "description": "View, create, update, or delete information about promoted product groups."
+    },
+    {
+      "name": "product_groups",
+      "description": "View, create, update, or delete information about product groups."
     },
     {
       "name": "resources",
-      "description": "View, create or update resources."
+      "description": "View metadata about available metrics and targeting options in the Pinterest API."
+    },
+    {
+      "name": "search",
+      "description": "Search for Pins and boards owned by the current user."
     },
     {
       "name": "terms",
-      "description": "Get related and suggested terms."
+      "description": "View related and suggested terms for ads targeting."
     },
     {
       "name": "terms_of_service",
-      "description": "Get Terms Of Service"
+      "description": "View Advertising Terms Of Service."
     },
     {
       "name": "user_account",
-      "description": "Read-only information about user accounts associated with a given access token."
+      "description": "View user accounts associated with a given access token."
     }
   ],
   "paths": {
     "/oauth/token": {
       "post": {
         "summary": "Generate OAuth access token",
-        "description": "Generate an OAuth access token by using an authorization code or a refresh token.\n\nSee <a href='/docs/getting-started/authentication/'>Authentication</a> for more.",
+        "description": "Generate an OAuth access token by using an authorization code or a refresh token.\n\nIMPORTANT: You need to start the OAuth flow via www.pinterest.com/oauth before calling this endpoint (or have an existing refresh token).\n\nSee <a href='/docs/getting-started/authentication/'>Authentication</a> for more.",
         "tags": [
           "oauth"
         ],
@@ -492,7 +508,497 @@
         }
       }
     },
+    "/user_account/following/boards": {
+      "get": {
+        "summary": "List following boards",
+        "description": "Get a list of the boards a user follows. The request returns a board summary object array.",
+        "operationId": "boards_user_follows/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "user_accounts:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "org_read",
+        "x-sandbox": "enabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          },
+          {
+            "$ref": "#/components/parameters/query_explicit_following"
+          },
+          {
+            "$ref": "#/components/parameters/query_ad_account_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/BoardInfo"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid user id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 400,
+                  "message": "Invalid user id"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "user_account"
+        ]
+      }
+    },
+    "/user_account/businesses": {
+      "get": {
+        "summary": "List linked businesses",
+        "description": "Get a list of your linked business accounts.",
+        "operationId": "linked_business_accounts/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "user_accounts:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "org_read",
+        "x-sandbox": "enabled",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LinkedBusiness"
+                  }
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "user_account"
+        ]
+      }
+    },
+    "/user_account/followers": {
+      "get": {
+        "summary": "List followers",
+        "description": "Get a list of your followers, or a specific user's followers.",
+        "operationId": "followers/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "user_accounts:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": "enabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/UserSummary"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid user id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 400,
+                  "message": "Invalid user id"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "user_account"
+        ]
+      }
+    },
+    "/user_account/following/{username}": {
+      "post": {
+        "summary": "Follow user",
+        "description": "<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>\n\nUse this request, as a signed-in user, to follow another user.",
+        "tags": [
+          "user_account"
+        ],
+        "operationId": "follow_user/update",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "user_accounts:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "org_write",
+        "x-sandbox": "enabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_username"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FollowUserRequest"
+              }
+            }
+          },
+          "description": "Follow a user.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSummary"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "UserNotFound": {
+                    "value": {
+                      "code": 30,
+                      "message": "User not found."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/user_account/following": {
+      "get": {
+        "summary": "List following",
+        "description": "Get a list of who a certain user follows.",
+        "operationId": "user_following/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "user_accounts:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "org_read",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          },
+          {
+            "$ref": "#/components/parameters/query_user_following_feed_type"
+          },
+          {
+            "$ref": "#/components/parameters/query_explicit_following"
+          },
+          {
+            "$ref": "#/components/parameters/query_ad_account_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "description": "Users",
+                          "items": {
+                            "$ref": "#/components/schemas/UserSummary"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "user_account"
+        ]
+      }
+    },
+    "/search/boards": {
+      "get": {
+        "summary": "Search user's boards",
+        "description": "Search for a given query within the boards of a specific user.",
+        "operationId": "search_user_boards/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "user_accounts:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "org_read",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_username"
+          },
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          },
+          {
+            "$ref": "#/components/parameters/query_query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "description": "items",
+                          "items": {
+                            "$ref": "#/components/schemas/BoardInfo"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "search"
+        ]
+      }
+    },
     "/pins": {
+      "get": {
+        "summary": "List Pins",
+        "description": "Get a list of a user's Pins.",
+        "operationId": "pins/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "boards:read",
+              "pins:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "org_read",
+        "x-sandbox": "enabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          },
+          {
+            "$ref": "#/components/parameters/query_pin_filter"
+          },
+          {
+            "$ref": "#/components/parameters/query_include_protected_pins"
+          },
+          {
+            "$ref": "#/components/parameters/query_pin_type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Pin"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid pin filter value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 400,
+                  "message": "Invalid pin filter value"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pins"
+        ]
+      },
       "post": {
         "summary": "Create Pin",
         "description": "Create a Pin on a board or board section owned by the \"operation user_account\".\n\nNote: If the current \"operation user_account\" (defined by the access token) has access to another user's Ad Accounts via Pinterest Business Access, you can modify your request to make use of the current operation_user_account's permissions to those Ad Accounts by including the ad_account_id in the path parameters for the request (e.g. .../?ad_account_id=12345&...).\n\n- This function is intended solely for publishing new content created by the user. If you are interested in saving content created by others to your Pinterest boards, sometimes called 'curated content', please use our <a href='/docs/add-ons/save-button'>Save button</a> instead. For more tips on creating fresh content for Pinterest, review our <a href='/docs/solutions/content-apps'>Content App Solutions Guide</a>.\n\n<strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.",
@@ -518,7 +1024,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Pin"
+                "$ref": "#/components/schemas/PinCreate"
               }
             }
           }
@@ -771,12 +1277,111 @@
             }
           }
         }
+      },
+      "patch": {
+        "summary": "Update Pin",
+        "description": "Update a pin owned by the \"operating user_account\".\n\n<strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>",
+        "tags": [
+          "pins"
+        ],
+        "operationId": "pins/update",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "boards:read",
+              "boards:write",
+              "pins:read",
+              "pins:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "org_write",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_pin_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PinUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pin"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to update Pin.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 29,
+                  "message": "Not authorized to update Pin."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pin not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 50,
+                  "message": "Pin not found."
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "This request exceeded a rate limit. This can happen if the client exceeds one\nof the published rate limits or if multiple write operations are applied to\nan object within a short time window.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 8,
+                  "message": "This request exceeded a rate limit. This can happen if the client exceeds one\nof the published rate limits or if multiple write operations are applied to\nan object within a short time window."
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/pins/{pin_id}/save": {
       "post": {
-        "summary": "Save pin",
-        "description": "Save a pin on a board or board section owned by the \"operation user_account\".\n- By default, the \"operation user_account\" is the token user_account.",
+        "summary": "Save Pin",
+        "description": "Save a Pin on a board or board section owned by the \"operation user_account\".\n- By default, the \"operation user_account\" is the token user_account.\n- Any Pin type can be saved: image Pin, video Pin, Idea Pin, product Pin, etc.\n- Any public Pin can be saved given a pin ID.",
         "tags": [
           "pins"
         ],
@@ -1964,7 +2569,7 @@
           }
         ],
         "x-ratelimit-category": "org_read",
-        "x-sandbox": "disabled",
+        "x-sandbox": "enabled",
         "parameters": [
           {
             "$ref": "#/components/parameters/query_bookmark"
@@ -2026,7 +2631,7 @@
           }
         ],
         "x-ratelimit-category": "org_write",
-        "x-sandbox": "disabled",
+        "x-sandbox": "enabled",
         "requestBody": {
           "description": "Create a media upload request",
           "required": true,
@@ -2078,7 +2683,7 @@
           }
         ],
         "x-ratelimit-category": "org_read",
-        "x-sandbox": "disabled",
+        "x-sandbox": "enabled",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_media_id"
@@ -2287,7 +2892,7 @@
     "/ad_accounts/{ad_account_id}/analytics": {
       "get": {
         "summary": "Get ad account analytics",
-        "description": "Get analytics for the specified <code>ad_account_id</code>, filtered by the specified options.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.",
+        "description": "Get analytics for the specified <code>ad_account_id</code>, filtered by the specified options.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.\n- If granularity is not HOUR, the furthest back you can are allowed to pull data is 914 days before the current date in UTC time.\n- If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time.",
         "operationId": "ad_account/analytics",
         "security": [
           {
@@ -2371,7 +2976,7 @@
     "/ad_accounts/{ad_account_id}/ads/targeting_analytics": {
       "get": {
         "summary": "Get targeting analytics for ads",
-        "description": "Get targeting analytics for one or more ads. For the requested ad(s) and metrics,\nthe response will include the requested metric information (e.g. SPEND_IN_DOLLAR) for the requested target type\n(e.g. \"age_bucket\") for applicable values (e.g. \"45-49\"). <p/>\n- The token's user_account must either be the Owner of the specified ad account, or have one\nof the necessary roles granted to them via\n<a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.",
+        "description": "Get targeting analytics for one or more ads. For the requested ad(s) and metrics,\nthe response will include the requested metric information (e.g. SPEND_IN_DOLLAR) for the requested target type\n(e.g. \"age_bucket\") for applicable values (e.g. \"45-49\"). <p/>\n- The token's user_account must either be the Owner of the specified ad account, or have one\nof the necessary roles granted to them via\n<a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.\n- If granularity is not HOUR, the furthest back you can are allowed to pull data is 914 days before the current date in UTC time and the max time range supported is 186 days.\n- If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.",
         "operationId": "ad_targeting_analytics/get",
         "security": [
           {
@@ -2704,7 +3309,7 @@
     "/ad_accounts/{ad_account_id}/campaigns/analytics": {
       "get": {
         "summary": "Get campaign analytics",
-        "description": "Get analytics for the specified campaigns in the specified <code>ad_account_id</code>, filtered by the specified options.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.",
+        "description": "Get analytics for the specified campaigns in the specified <code>ad_account_id</code>, filtered by the specified options.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.\n- If granularity is not HOUR, the furthest back you can are allowed to pull data is 914 days before the current date in UTC time and the max time range supported is 186 days.\n- If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.",
         "operationId": "campaigns/analytics",
         "security": [
           {
@@ -2791,7 +3396,7 @@
     "/ad_accounts/{ad_account_id}/campaigns/targeting_analytics": {
       "get": {
         "summary": "Get targeting analytics for campaigns",
-        "description": "Get targeting analytics for one or more campaigns.\nFor the requested account and metrics, the response will include the requested metric information\n(e.g. SPEND_IN_DOLLAR) for the requested target type (e.g. \"age_bucket\") for applicable values (e.g. \"45-49\"). <p/>\n- The token's user_account must either be the Owner of the specified ad account, or have one\nof the necessary roles granted to them via\n<a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.",
+        "description": "Get targeting analytics for one or more campaigns.\nFor the requested account and metrics, the response will include the requested metric information\n(e.g. SPEND_IN_DOLLAR) for the requested target type (e.g. \"age_bucket\") for applicable values (e.g. \"45-49\"). <p/>\n- The token's user_account must either be the Owner of the specified ad account, or have one\nof the necessary roles granted to them via\n<a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.\n- If granularity is not HOUR, the furthest back you can are allowed to pull data is 914 days before the current date in UTC time and the max time range supported is 186 days.\n- If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.",
         "operationId": "campaign_targeting_analytics/get",
         "security": [
           {
@@ -2870,7 +3475,7 @@
     "/ad_accounts/{ad_account_id}/ad_groups/targeting_analytics": {
       "get": {
         "summary": "Get targeting analytics for ad groups",
-        "description": "Get targeting analytics for one or more ad groups.\nFor the requested ad group(s) and metrics, the response will include the requested metric information\n(e.g. SPEND_IN_DOLLAR) for the requested target type (e.g. \"age_bucket\") for applicable values (e.g. \"45-49\"). <p/>\n- The token's user_account must either be the Owner of the specified ad account, or have one\nof the necessary roles granted to them via\n<a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.",
+        "description": "Get targeting analytics for one or more ad groups.\nFor the requested ad group(s) and metrics, the response will include the requested metric information\n(e.g. SPEND_IN_DOLLAR) for the requested target type (e.g. \"age_bucket\") for applicable values (e.g. \"45-49\"). <p/>\n- The token's user_account must either be the Owner of the specified ad account, or have one\nof the necessary roles granted to them via\n<a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.\n- If granularity is not HOUR, the furthest back you can are allowed to pull data is 914 days before the current date in UTC time and the max time range supported is 186 days.\n- If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.",
         "operationId": "ad_groups_targeting_analytics/get",
         "security": [
           {
@@ -3213,7 +3818,7 @@
     "/ad_accounts/{ad_account_id}/ad_groups/analytics": {
       "get": {
         "summary": "Get ad group analytics",
-        "description": "Get analytics for the specified ad groups in the specified <code>ad_account_id</code>, filtered by the specified options.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.",
+        "description": "Get analytics for the specified ad groups in the specified <code>ad_account_id</code>, filtered by the specified options.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.\n- If granularity is not HOUR, the furthest back you can are allowed to pull data is 914 days before the current date in UTC time and the max time range supported is 186 days.\n- If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.",
         "operationId": "ad_groups/analytics",
         "security": [
           {
@@ -3564,7 +4169,7 @@
     "/ad_accounts/{ad_account_id}/ads/analytics": {
       "get": {
         "summary": "Get ad analytics",
-        "description": "Get analytics for the specified ads in the specified <code>ad_account_id</code>, filtered by the specified options.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.",
+        "description": "Get analytics for the specified ads in the specified <code>ad_account_id</code>, filtered by the specified options.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.\n- If granularity is not HOUR, the furthest back you can are allowed to pull data is 914 days before the current date in UTC time and the max time range supported is 186 days.\n- If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.",
         "operationId": "ads/analytics",
         "security": [
           {
@@ -3875,7 +4480,7 @@
     "/ad_accounts/{ad_account_id}/product_groups/analytics": {
       "get": {
         "summary": "Get product group analytics",
-        "description": "Get analytics for the specified product groups in the specified <code>ad_account_id</code>, filtered by the specified options.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.",
+        "description": "Get analytics for the specified product groups in the specified <code>ad_account_id</code>, filtered by the specified options.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.\n- If granularity is not HOUR, the furthest back you can are allowed to pull data is 914 days before the current date in UTC time and the max time range supported is 186 days.\n- If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.",
         "operationId": "product_groups/analytics",
         "security": [
           {
@@ -3959,6 +4564,103 @@
         ]
       }
     },
+    "/ad_accounts/{ad_account_id}/product_groups/catalogs": {
+      "get": {
+        "description": "Get a list of catalog product groups used by the feed profile ID.",
+        "operationId": "ad_accounts_catalogs_product_groups/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_feed_profile_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CatalogProductGroup"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid ad account ads parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 400,
+                  "message": "Invalid ad account ads parameters."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Access Denied. This can happen if account is not yet approved to operate as Merchant on Pinterest.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Merchant data not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get catalog product groups",
+        "tags": [
+          "product_groups"
+        ]
+      }
+    },
     "/ad_accounts/{ad_account_id}/reports": {
       "get": {
         "summary": "Get the account analytics report created by the async call",
@@ -4023,7 +4725,7 @@
       },
       "post": {
         "summary": "Create async request for an account analytics report",
-        "description": "This returns a token that you can use to download the report when it is ready. Note that this endpoint requires the parameters to be passed as JSON-formatted in the request body. This endpoint does not support URL query parameters.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.",
+        "description": "This returns a token that you can use to download the report when it is ready. Note that this endpoint requires the parameters to be passed as JSON-formatted in the request body. This endpoint does not support URL query parameters.\n- The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.\n- If granularity is not HOUR, the furthest back you can are allowed to pull data is 914 days before the current date in UTC time and the max time range supported is 186 days.\n- If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.\n- If level is PRODUCT_ITEM, the furthest back you can are allowed to pull data is 92 days before the current date in UTC time and the max time range supported is 31 days.",
         "operationId": "analytics/create_report",
         "security": [
           {
@@ -4110,9 +4812,6 @@
           },
           {
             "$ref": "#/components/parameters/query_bookmark"
-          },
-          {
-            "$ref": "#/components/parameters/query_entity_statuses"
           },
           {
             "$ref": "#/components/parameters/query_order"
@@ -4342,6 +5041,216 @@
             "description": "Unexpected error"
           }
         },
+        "tags": [
+          "audiences"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/audiences/custom": {
+      "post": {
+        "summary": "Create custom audience",
+        "description": "Create a custom audience and find the audiences you want your ads to reach.",
+        "operationId": "audiences/create_custom",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          }
+        ],
+        "requestBody": {
+          "description": "Custom audience to create.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudienceCreateCustomRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Audience"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "audiences"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/audience_insights": {
+      "get": {
+        "summary": "Get audience insights",
+        "description": "Get Audience Insights for an ad account. The response will return insights for 3 types of audiences: the\nad account's engaged audience on Pinterest, the ad account's total audience on Pinterest and Pinterest's\ntotal audience.<p/>\n<a href=\"https://help.pinterest.com/en/business/article/audience-insights\" target=\"_blank\">Learn more about Audience Insights</a>.",
+        "operationId": "audience_insights/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_audience_insight_type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudienceInsightsResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "audience_insights"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/insights/audiences": {
+      "get": {
+        "summary": "Get audience insights scope and type",
+        "description": "Get the scope and type of available audiences, which along with a date, is an audience that has recently had an interaction (referred to here as a type) on pins. Interacted pins can belong to at least the most common **partner** or **Pinterest** scopes. This means that user interactions made on advertiser or partner pins will have the **partner** scope. You can also have user interactions performed in general on Pinterest with the **Pinterest** scope. In that case, you can then use the returned type and scope values together on requests to other endpoints to retrieve insight metrics for a desired audience.",
+        "operationId": "audience_insights_scope_and_type/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudienceDefinitionResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "audience_insights"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/insights/audiences/{scope}/{type}/{category_id}": {
+      "get": {
+        "description": "Get information about a category's sub-level interests. For a list of interests, their IDs, and hierarchy, \nsee the [list of interests](https://docs.google.com/spreadsheets/d/1HxL-0Z3p2fgxis9YBP2HWC3tvPrs1hAuHDRtH-NJTIM/edit#gid=118370875). \nAlso, a category is a level-one (L1) interest. For example, in the interest hierarchy see **Animals** > **Mammals** > **Dogs**, **Animals** \nis the category.",
+        "operationId": "audiences/insights_category/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/path_scope"
+          },
+          {
+            "$ref": "#/components/parameters/path_type"
+          },
+          {
+            "$ref": "#/components/parameters/path_category_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_sort"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudienceInsightCategoryArrayResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "summary": "Get category sub-interest",
         "tags": [
           "audiences"
         ]
@@ -4580,7 +5489,7 @@
     "/ad_accounts/{ad_account_id}/keywords": {
       "get": {
         "summary": "Get keywords",
-        "description": "<p>Get a list of keywords based on the filters provided.</p><p>For more information, see <a target=\"_blank\" href=\"https://help.pinterest.com/en/business/article/keyword-targeting\">Keyword targeting</a>.</p>\n<p><b>Notes:</b></p> <ul style=\"list-style-type: square;\"> <li>Advertisers and campaigns can only be assigned keywords with excluding ('_NEGATIVE').</li> <li>All keyword match types are available for ad groups.</li> </ul> <p>For more information on match types, see <a href=\"/docs/redoc/#section/Match-type-(keyword)\">match type enums</a>.</p>\n<p><b>Returns:</b></p> <ul style=\"list-style-type: square;\"> <li><p>A successful call returns an object containing an array of new keyword objects and an empty &quot;errors&quot; object array.</p></li> <li><p>An unsuccessful call returns an empty keywords array, and, instead, inserts the entire object with nulled/negated properties into the &quot;errors&quot; object array:</p> <pre class=\"last literal-block\"> { \"keywords\": [], \"errors\": [ { \"data\": { \"archived\": null, \"match_type\": \"EXACT\", \"parent_type\": null, \"value\": \"foobar\", \"parent_id\": null, \"type\": \"keyword\", \"id\": null }, \"error_messages\": [ \"Advertisers and Campaigns only accept excluded targeting attributes.\" ] } } </pre></li> </ul>\n<p><b>Rate limit</b>: <a href=\"/docs/redoc/#tag/Rate-Limits\">WRITE</a>.</p>",
+        "description": "<p>Get a list of keywords based on the filters provided.</p><p>For more information, see <a target=\"_blank\" href=\"https://help.pinterest.com/en/business/article/keyword-targeting\">Keyword targeting</a>.</p>\n<p><b>Notes:</b></p> <ul style=\"list-style-type: square;\"> <li>Advertisers and campaigns can only be assigned keywords with excluding ('_NEGATIVE').</li> <li>All keyword match types are available for ad groups.</li> </ul> <p>For more information on match types, see <a href=\"/docs/redoc/#section/Match-type-(keyword)\">match type enums</a>.</p>\n<p><b>Returns:</b></p> <ul style=\"list-style-type: square;\"> <li><p>A successful call returns an object containing an array of new keyword objects and an empty &quot;errors&quot; object array.</p></li> <li><p>An unsuccessful call returns an empty keywords array, and, instead, inserts the entire object with nulled/negated properties into the &quot;errors&quot; object array:</p> <pre class=\"last literal-block\"> { \"keywords\": [], \"errors\": [ { \"data\": { \"archived\": null, \"match_type\": \"EXACT\", \"parent_type\": null, \"value\": \"foobar\", \"parent_id\": null, \"type\": \"keyword\", \"id\": null }, \"error_messages\": [ \"Advertisers and Campaigns only accept excluded targeting attributes.\" ] } } </pre></li> </ul>",
         "operationId": "keywords/get",
         "security": [
           {
@@ -4590,7 +5499,7 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
-        "x-sandbox": "disabled",
+        "x-sandbox": "enabled",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4663,7 +5572,7 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
-        "x-sandbox": "disabled",
+        "x-sandbox": "enabled",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4717,7 +5626,7 @@
           }
         ],
         "x-ratelimit-category": "ads_write",
-        "x-sandbox": "disabled",
+        "x-sandbox": "enabled",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4773,7 +5682,7 @@
           }
         ],
         "x-ratelimit-category": "ads_read",
-        "x-sandbox": "disabled",
+        "x-sandbox": "enabled",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4846,7 +5755,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProductGroupPromotionArrayResponse"
+                  "$ref": "#/components/schemas/ProductGroupPromotionResponse"
                 }
               }
             },
@@ -4901,10 +5810,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ProductGroupPromotionUpdateResponseItem"
-                  }
+                  "$ref": "#/components/schemas/ProductGroupPromotionResponse"
                 }
               }
             },
@@ -4925,12 +5831,88 @@
         "tags": [
           "product_group_promotions"
         ]
+      },
+      "get": {
+        "description": "List existing product group promotions associated with an ad account.",
+        "operationId": "product_group_promotions/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_product_group_promotion_ids"
+          },
+          {
+            "$ref": "#/components/parameters/query_entity_statuses"
+          },
+          {
+            "$ref": "#/components/parameters/query_ad_group_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_page_size"
+          },
+          {
+            "$ref": "#/components/parameters/query_order"
+          },
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ProductGroupPromotionResponseItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "summary": "Get product group promotions",
+        "tags": [
+          "product_group_promotions"
+        ]
       }
     },
     "/ad_accounts/{ad_account_id}/product_group_promotions/{product_group_promotion_id}": {
       "get": {
         "description": "Get a product group promotion by id",
-        "operationId": "product_group_promotion/get",
+        "operationId": "product_group_promotions/get",
         "security": [
           {
             "pinterest_oauth2": [
@@ -4953,7 +5935,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProductGroupPromotion"
+                  "$ref": "#/components/schemas/ProductGroupPromotionResponse"
                 }
               }
             },
@@ -4979,7 +5961,7 @@
     "/ad_accounts/{ad_account_id}/targeting_analytics": {
       "get": {
         "summary": "Get targeting analytics for an ad account",
-        "description": "Get targeting analytics for an ad account.\nFor the requested account and metrics, the response will include the requested metric information\n(e.g. SPEND_IN_DOLLAR) for the requested target type (e.g. \"age_bucket\") for applicable values (e.g. \"45-49\"). <p/>\n- The token's user_account must either be the Owner of the specified ad account, or have one\nof the necessary roles granted to them via\n<a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.",
+        "description": "Get targeting analytics for an ad account.\nFor the requested account and metrics, the response will include the requested metric information\n(e.g. SPEND_IN_DOLLAR) for the requested target type (e.g. \"age_bucket\") for applicable values (e.g. \"45-49\"). <p/>\n- The token's user_account must either be the Owner of the specified ad account, or have one\nof the necessary roles granted to them via\n<a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>: Admin, Analyst, Campaign Manager.\n- If granularity is not HOUR, the furthest back you can are allowed to pull data is 914 days before the current date in UTC time and the max time range supported is 186 days.\n- If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.",
         "operationId": "ad_account_targeting_analytics/get",
         "security": [
           {
@@ -5434,7 +6416,7 @@
       "post": {
         "x-ratelimit-category": "catalogs_write",
         "summary": "Create feed",
-        "description": "Create a new feed owned by the \"operation user_account\".\n- By default, the \"operation user_account\" is the token user_account.\n\nOptional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the \"operation user_account\". In order to do this, the token user_account must have one of the following <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.\n\n<a href='/docs/shopping/catalog/'>Learn more</a>",
+        "description": "Create a new feed owned by the \"operation user_account\".\n- By default, the \"operation user_account\" is the token user_account.\n\nPlease, be aware that \"default_country\"\nand \"default_locale\" are not required in the spec for forward compatibility\nbut for now the API will not accept requests without those fields.\n\nOptional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the \"operation user_account\". In order to do this, the token user_account must have one of the following <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.\n\n<a href='/docs/shopping/catalog/'>Learn more</a>",
         "operationId": "feeds/create",
         "security": [
           {
@@ -5568,6 +6550,24 @@
                     "value": {
                       "code": 4170,
                       "message": "The feed name already exists."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not implemented (absent \"default_country\" or \"default_locale\").",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "NotImplemented": {
+                    "value": {
+                      "code": 4181,
+                      "message": "Not implemented at the moment. Please, see documentation"
                     }
                   }
                 }
@@ -7622,6 +8622,456 @@
         ]
       }
     },
+    "/ad_accounts/{ad_account_id}/order_lines": {
+      "get": {
+        "summary": "Get Order Lines",
+        "description": "List existing order lines associated with an ad account.",
+        "operationId": "order_lines/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": "enabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_page_size"
+          },
+          {
+            "$ref": "#/components/parameters/query_order"
+          },
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/OrderLine"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "order_lines"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/order_lines/{order_line_id}": {
+      "get": {
+        "summary": "Get order line",
+        "description": "Get a specific existing order line associated with an ad account.",
+        "operationId": "order_lines/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": "enabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/path_order_line_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderLine"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "order_lines"
+        ]
+      }
+    },
+    "/integrations/commerce": {
+      "post": {
+        "summary": "Create commerce integration",
+        "description": "Create commerce integration metadata to link an external business ID with a Pinterest merchant & ad account.",
+        "operationId": "integrations_commerce/post",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "x-sandbox": "disabled",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationRequest"
+              }
+            }
+          },
+          "description": "Parameters to get create/update the Integration Metadata"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationMetadata"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "404": {
+            "description": "Integration not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "IntegrationNotFound": {
+                    "value": {
+                      "code": 4180,
+                      "message": "Sorry! We could not find your integration."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Can't access this integration metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "NotIntegrationOwner": {
+                    "value": {
+                      "code": 4182,
+                      "message": "Can't access this integration metadata."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "integrations"
+        ]
+      }
+    },
+    "/integrations/commerce/{external_business_id}": {
+      "get": {
+        "summary": "Get commerce integration",
+        "description": "Get commerce integration metadata associated with the given external business ID",
+        "operationId": "integrations_commerce/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_external_business_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationMetadata"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "404": {
+            "description": "Integration not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "IntegrationNotFound": {
+                    "value": {
+                      "code": 4180,
+                      "message": "Sorry! We could not find your integration."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Can't access this integration metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "NotIntegrationOwner": {
+                    "value": {
+                      "code": 4182,
+                      "message": "Can't access this integration metadata."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "integrations"
+        ]
+      },
+      "patch": {
+        "summary": "Update commerce integration",
+        "description": "Update commerce integration metadata for the given external business ID",
+        "operationId": "integrations_commerce/patch",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_external_business_id"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationRequestPatch"
+              }
+            }
+          },
+          "description": "Parameters to get create/update the Integration Metadata"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationMetadata"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "404": {
+            "description": "Integration not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "IntegrationNotFound": {
+                    "value": {
+                      "code": 4180,
+                      "message": "Sorry! We could not find your integration."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Can't access this integration metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "NotIntegrationOwner": {
+                    "value": {
+                      "code": 4182,
+                      "message": "Can't access this integration metadata."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "integrations"
+        ]
+      },
+      "delete": {
+        "summary": "Delete commerce integration",
+        "description": "Delete commerce integration metadata for the given external business ID.",
+        "operationId": "integrations_commerce/del",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_external_business_id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Commerce Integration deleted successfully"
+          },
+          "404": {
+            "description": "Integration not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "IntegrationNotFound": {
+                    "value": {
+                      "code": 4180,
+                      "message": "Sorry! We could not find your integration."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Can't access this integration metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "NotIntegrationOwner": {
+                    "value": {
+                      "code": 4182,
+                      "message": "Can't access this integration metadata."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "integrations"
+        ]
+      }
+    },
     "/resources/ad_account_countries": {
       "get": {
         "summary": "Get ad accounts countries",
@@ -7665,8 +9115,8 @@
     },
     "/resources/delivery_metrics": {
       "get": {
-        "summary": "Get available delivery metrics' definitions",
-        "description": "Get the definitions for the delivery metrics available for synchronous or asynchronous reports.",
+        "summary": "Get available metrics' definitions",
+        "description": "Get the definitions for ads and organic metrics available across both synchronous and asynchronous report endpoints.\nThe `display_name` attribute will match how the metric is named in our native tools like Ads Manager.\nSee <a href='/docs/content/analytics/'>Organic Analytics</a> and <a href='/docs/ads/ad-analytics-reporting/'>Ads Analytics</a> for more information.",
         "operationId": "delivery_metrics/get",
         "security": [
           {
@@ -7867,6 +9317,99 @@
         ]
       }
     },
+    "/search/pins": {
+      "get": {
+        "description": "Request to get a list of user pins matching your search query.",
+        "operationId": "search_user_pins/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "user_accounts:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "org_read",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_query"
+          },
+          {
+            "$ref": "#/components/parameters/query_board"
+          },
+          {
+            "$ref": "#/components/parameters/query_topic_based"
+          },
+          {
+            "$ref": "#/components/parameters/query_richtype"
+          },
+          {
+            "$ref": "#/components/parameters/query_rs"
+          },
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Pin"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "UserNotFound": {
+                    "value": {
+                      "code": 30,
+                      "message": "User not found."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "summary": "Search user's Pins",
+        "tags": [
+          "search"
+        ]
+      }
+    },
     "/terms/related": {
       "get": {
         "summary": "List related terms",
@@ -7925,6 +9468,431 @@
             }
           }
         }
+      }
+    },
+    "/ad_accounts/{ad_account_id}/conversion_tags": {
+      "get": {
+        "summary": "Get conversion tags",
+        "description": "List conversion tags associated with an ad account.",
+        "operationId": "conversion_tags/list",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_filter_deleted"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversionTagListResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "conversion_tags"
+        ],
+        "x-sandbox": "disabled"
+      },
+      "post": {
+        "x-sandbox": "disabled",
+        "summary": "Create conversion tag",
+        "description": "Create a conversion tag, also known as <a href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\" target=\"_blank\">Pinterest tag</a>, with the option to enable enhanced match.<p/>\nThe Pinterest Tag tracks actions people take on the ad account’s website after they view the ad account's ad on Pinterest. The advertiser needs to customize this tag to track conversions.<p/>\nFor more information, see:<p/>\n<a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\">Set up the Pinterest tag</a><p/>\n<a class=\"reference external\" href=\"https://developers.pinterest.com/docs/conversions/pinterest-tag/\">Pinterest Tag</a><p/>\n<a class=\"reference external\" href=\"https://developers.pinterest.com/docs/conversions/enhanced-match/\">Enhanced match</a>",
+        "operationId": "conversion_tags/create",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversionTagCreate"
+              }
+            }
+          },
+          "description": "Conversion Tag to create",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversionTagResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "conversion_tags"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/conversion_tags/page_visit": {
+      "get": {
+        "summary": "Get page visit conversion tags",
+        "description": "Get all page visit conversion tag events for an ad account.",
+        "operationId": "page_visit_conversion_tags/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "x-sandbox": "disabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/query_page_size"
+          },
+          {
+            "$ref": "#/components/parameters/query_order"
+          },
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ConversionEventResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "conversion_tags"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/conversion_tags/{conversion_tag_id}": {
+      "get": {
+        "x-sandbox": "disabled",
+        "summary": "Get conversion tag",
+        "description": "Get information about an existing conversion tag.",
+        "operationId": "conversion_tags/get",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/path_conversion_tag_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversionTagResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "tags": [
+          "conversion_tags"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/conversion_tags/ocpm_eligible": {
+      "get": {
+        "summary": "Get Ocpm eligible conversion tags",
+        "description": "Get Ocpm eligible conversion tag events for an ad account.",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_read",
+        "operationId": "ocpm_eligible_conversion_tags/get",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          }
+        ],
+        "x-sandbox": "disabled",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversionTagsOcpmEligibleResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "conversion_tags"
+        ]
+      }
+    },
+    "/ad_accounts/{ad_account_id}/sandbox": {
+      "delete": {
+        "summary": "Delete ads data for ad account in API Sandbox",
+        "description": "Delete an ad account and all the ads data associated with that account. \nA string message is returned indicating the status of the delete operation.\n\nNote: This endpoint is only allowed in the Pinterest API Sandbox (https://api-sandbox.pinterest.com/v5). \nGo to https://developers.pinterest.com/docs/dev-tools/sandbox/ for more information.",
+        "operationId": "sandbox/delete",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "ads_write",
+        "x-sandbox": "enabled",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_ad_account_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Delete Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ad account id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": 400,
+                  "message": "Invalid ad account id"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ad_accounts"
+        ]
+      }
+    },
+    "/users/{username}/interests/follow": {
+      "get": {
+        "summary": "List following interests",
+        "description": "Get a list of a user's following interests in one place.",
+        "tags": [
+          "interests"
+        ],
+        "operationId": "interests/followed_interests",
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "user_accounts:read"
+            ]
+          }
+        ],
+        "x-ratelimit-category": "org_read",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_username"
+          },
+          {
+            "$ref": "#/components/parameters/query_bookmark"
+          },
+          {
+            "$ref": "#/components/parameters/query_page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Paginated"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Interest"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-sandbox": "enabled"
       }
     }
   },
@@ -8095,12 +10063,6 @@
             "type": "string",
             "nullable": true
           },
-          "pin_id": {
-            "description": "Pin ID.",
-            "example": "394205773611545468",
-            "type": "string",
-            "pattern": "^\\d+$"
-          },
           "status": {
             "$ref": "#/components/schemas/EntityStatus"
           },
@@ -8126,6 +10088,9 @@
             "$ref": "#/components/schemas/AdCommon"
           },
           {
+            "$ref": "#/components/schemas/AdPinId"
+          },
+          {
             "type": "object",
             "title": "Request schema for creating ads",
             "required": [
@@ -8135,6 +10100,17 @@
             ]
           }
         ]
+      },
+      "AdPinId": {
+        "type": "object",
+        "properties": {
+          "pin_id": {
+            "description": "Pin ID.",
+            "example": "394205773611545468",
+            "type": "string",
+            "pattern": "^\\d+$"
+          }
+        }
       },
       "AnalyticsResponse": {
         "type": "object",
@@ -8172,15 +10148,17 @@
               "type": "number"
             },
             "example": {
-              "ENGAGEMENT": 100,
-              "CLICKTHROUGH_RATE": 0.2,
-              "CLICKTHROUGH": 200,
-              "CLOSEUP": 37,
-              "CLOSEUP_RATE": 0.5,
-              "ENGAGEMENT_RATE": 0.2,
               "SAVE": 20,
               "SAVE_RATE": 0.18,
-              "IMPRESSION": 240
+              "IMPRESSION": 240,
+              "OUTBOUND_CLICK": 200,
+              "PIN_CLICK": 37,
+              "VIDEO_10S_VIEW": 2,
+              "VIDEO_V50_WATCH_TIME": 10031,
+              "QUARTILE_95_PERCENT_VIEW": 8,
+              "VIDEO_AVG_WATCH_TIME": 2507.75,
+              "VIDEO_START": 2,
+              "VIDEO_MRC_VIEW": 2
             }
           }
         }
@@ -8203,6 +10181,9 @@
         "allOf": [
           {
             "$ref": "#/components/schemas/AdCommon"
+          },
+          {
+            "$ref": "#/components/schemas/AdPinId"
           },
           {
             "type": "object",
@@ -8441,7 +10422,6 @@
           "TARGETED_INTEREST",
           "PINNER_INTEREST",
           "AUDIENCE_INCLUDE",
-          "AUDIENCE_EXCLUDE",
           "GEO",
           "AGE_BUCKET",
           "REGION"
@@ -8487,13 +10467,15 @@
             "example": 5000000,
             "nullable": true
           },
-          "bid_strategy_type": {
-            "type": "string",
-            "enum": [
-              "AUTOMATIC_BID",
-              "MAX_BID",
-              "TARGET_AVG"
-            ]
+          "optimization_goal_metadata": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OptimizationGoalMetadata"
+              }
+            ],
+            "description": "Optimization goals for objective-based performance campaigns.",
+            "nullable": true
           },
           "budget_type": {
             "$ref": "#/components/schemas/BudgetType"
@@ -8567,6 +10549,19 @@
           },
           "billable_event": {
             "$ref": "#/components/schemas/ActionType"
+          },
+          "bid_strategy_type": {
+            "nullable": true,
+            "description": "Bid strategy type",
+            "enum": [
+              "AUTOMATIC_BID",
+              "MAX_BID",
+              "TARGET_AVG",
+              null
+            ],
+            "example": "MAX_BID",
+            "title": "BidStrategyType",
+            "type": "string"
           }
         }
       },
@@ -8868,6 +10863,20 @@
               "type": "string",
               "nullable": true
             }
+          },
+          "created_time": {
+            "description": "Creation time. Unix timestamp in seconds.",
+            "example": 1451431341,
+            "nullable": true,
+            "title": "created_time",
+            "type": "integer"
+          },
+          "updated_time": {
+            "description": "Last update time. Unix timestamp in seconds.",
+            "example": 1451431341,
+            "nullable": true,
+            "title": "updated_time",
+            "type": "integer"
           }
         }
       },
@@ -8931,7 +10940,12 @@
         "type": "object",
         "properties": {
           "report_status": {
-            "type": "string"
+            "type": "string",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BulkReportingJobStatus"
+              }
+            ]
           },
           "url": {
             "type": "string",
@@ -9267,7 +11281,12 @@
         "type": "object",
         "properties": {
           "report_status": {
-            "type": "string"
+            "type": "string",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BulkReportingJobStatus"
+              }
+            ]
           },
           "token": {
             "type": "string"
@@ -9301,6 +11320,16 @@
           }
         ]
       },
+      "AudienceInsightType": {
+        "default": "YOUR_TOTAL_AUDIENCE",
+        "type": "string",
+        "example": "YOUR_TOTAL_AUDIENCE",
+        "enum": [
+          "YOUR_TOTAL_AUDIENCE",
+          "YOUR_ENGAGED_AUDIENCE",
+          "PINTEREST_TOTAL_AUDIENCE"
+        ]
+      },
       "Audience": {
         "properties": {
           "ad_account_id": {
@@ -9325,7 +11354,7 @@
           },
           "audience_type": {
             "type": "string",
-            "description": "<a href=\"/docs/redoc/#section/Pinner-(audience)-list-type\">Audience type</a>",
+            "description": "<a href=\"/docs/reference/glossary/#Audience Types\">Audience types</a>: ACTALIKE, ENGAGEMENT, CUSTOMER_LIST and VISITOR",
             "title": "audience_type"
           },
           "description": {
@@ -9347,7 +11376,7 @@
           },
           "status": {
             "type": "string",
-            "description": "Audience status. TOO_SMALL - Each audience list needs to have at least 100 people with Pinterest accounts before you can start using it.",
+            "description": "Audience status. READY, INITIALIZING, TOO_SMALL - Each audience list needs to have at least 100 people with Pinterest accounts before you can start using it.",
             "title": "status"
           },
           "type": {
@@ -9373,6 +11402,42 @@
         },
         "title": "Audience",
         "type": "object"
+      },
+      "AudienceCategory": {
+        "title": "AudienceCategory",
+        "type": "object",
+        "properties": {
+          "key": {
+            "title": "key",
+            "description": "Interest unique key (same as ID).",
+            "type": "string",
+            "example": "1234567"
+          },
+          "name": {
+            "title": "name",
+            "description": "Interest name.",
+            "type": "string",
+            "example": "travel"
+          },
+          "ratio": {
+            "title": "ratio",
+            "description": "Interest's percent of category's total audience.",
+            "type": "number",
+            "example": 0.551
+          },
+          "index": {
+            "title": "index",
+            "description": "Interest affinity index.",
+            "type": "number",
+            "example": 1.2
+          },
+          "id": {
+            "title": "id",
+            "description": "Interest ID.",
+            "type": "string",
+            "example": "1234567"
+          }
+        }
       },
       "AudienceCommon": {
         "title": "AudienceCommon",
@@ -9421,12 +11486,49 @@
                   },
                   {
                     "title": "audience_type",
-                    "description": "<a href=\"/docs/redoc/#section/Pinner-(audience)-list-type\">Audience type</a>. Values are case-sensitive."
+                    "description": "<a href=\"/docs/reference/glossary/#Audience Types\">Audience types</a>: ACTALIKE, ENGAGEMENT, CUSTOMER_LIST and VISITOR. Values are case-sensitive."
                   }
                 ]
               }
             }
           }
+        ]
+      },
+      "AudienceCreateCustomRequest": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AudienceCommon"
+          },
+          {
+            "title": "AudienceCreateCustomRequest",
+            "required": [
+              "sharing_type",
+              "name",
+              "rule",
+              "data_party"
+            ],
+            "properties": {
+              "sharing_type": {
+                "$ref": "#/components/schemas/AudienceSharingType"
+              },
+              "data_party": {
+                "$ref": "#/components/schemas/AudienceDataParty"
+              },
+              "category": {
+                "type": "string",
+                "example": "DLX Demographics"
+              }
+            }
+          }
+        ]
+      },
+      "AudienceDataParty": {
+        "description": "Whether the data is owned by the partner (1p) or by the data provider (3p)",
+        "type": "string",
+        "enum": [
+          "1p",
+          "3p"
         ]
       },
       "AudienceDescription": {
@@ -9460,6 +11562,17 @@
           }
         }
       },
+      "AudienceInsightCategoryArrayResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudienceInsightCategoryCommon"
+            }
+          }
+        }
+      },
       "AudienceDefinitionScope": {
         "description": "Generated audience scope to request.",
         "type": "string",
@@ -9481,6 +11594,160 @@
               "IMPRESSION_PLUS_ENGAGEMENT",
               "ENGAGEMENT"
             ]
+          }
+        }
+      },
+      "AudienceDemographics": {
+        "title": "AudienceDemographics",
+        "description": "Audience demographics",
+        "type": "object",
+        "properties": {
+          "ages": {
+            "title": "ages",
+            "description": "Ages distribution.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudienceDemographicValue"
+            }
+          },
+          "genders": {
+            "title": "genders",
+            "description": "Gender distribution.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudienceDemographicValue"
+            }
+          },
+          "devices": {
+            "title": "devices",
+            "description": "Device usage distribution.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudienceDemographicValue"
+            }
+          },
+          "metros": {
+            "title": "metros",
+            "description": "Geographic metro area distribution.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudienceDemographicValue"
+            }
+          },
+          "countries": {
+            "title": "countries",
+            "description": "Country area distribution.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudienceDemographicValue"
+            }
+          }
+        }
+      },
+      "AudienceDemographicValue": {
+        "title": "AudienceDemographicValue",
+        "description": "Demographic detail for a single audience demographic",
+        "type": "object",
+        "properties": {
+          "key": {
+            "title": "key",
+            "description": "Unique key for demographic item",
+            "type": "string",
+            "example": "us"
+          },
+          "name": {
+            "title": "name",
+            "description": "Display name for demographic",
+            "type": "string",
+            "example": "United States"
+          },
+          "ratio": {
+            "title": "ratio",
+            "description": "Value of demographic item as a percent of total audience",
+            "type": "number",
+            "example": 0.551
+          }
+        },
+        "example": {
+          "name": "United States",
+          "key": "us",
+          "ratio": 0.551
+        }
+      },
+      "AudienceDefinition": {
+        "title": "AudienceDefinition",
+        "description": "Queryable audience representation.",
+        "type": "object",
+        "properties": {
+          "date": {
+            "title": "date",
+            "description": "Generation date",
+            "type": "string",
+            "nullable": true,
+            "example": "2022-10-09"
+          },
+          "type": {
+            "$ref": "#/components/schemas/AudienceDefinitionType"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/AudienceDefinitionScope"
+          }
+        },
+        "example": {
+          "date": "2022-10-09",
+          "scope": "PARTNER",
+          "type": "IMPRESSION_PLUS_ENGAGEMENT"
+        }
+      },
+      "AudienceDefinitionResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudienceDefinition"
+            }
+          }
+        }
+      },
+      "AudienceInsightsResponse": {
+        "title": "AudienceInsightsResponse",
+        "description": "Audience interests and demographics.",
+        "type": "object",
+        "properties": {
+          "categories": {
+            "title": "categories",
+            "description": "Category interest distribution",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AudienceCategory"
+            }
+          },
+          "demographics": {
+            "$ref": "#/components/schemas/AudienceDemographics"
+          },
+          "type": {
+            "$ref": "#/components/schemas/AudienceInsightType"
+          },
+          "date": {
+            "title": "date",
+            "description": "Generation date",
+            "type": "string",
+            "nullable": true,
+            "example": "2022-10-09",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "size": {
+            "title": "size",
+            "description": "Population count.",
+            "type": "integer",
+            "example": 10000
+          },
+          "size_is_upper_bound": {
+            "title": "size_is_upper_bound",
+            "description": "Indicates whether the audience size has been rounded up to the next highest upper boundary.",
+            "type": "boolean",
+            "example": true
           }
         }
       },
@@ -9772,6 +12039,14 @@
         "title": "Rule",
         "type": "object"
       },
+      "AudienceSharingType": {
+        "description": "Audience sharing type: [\"CUSTOM\", \"SYNDICATED\"]",
+        "type": "string",
+        "enum": [
+          "CUSTOM",
+          "SYNDICATED"
+        ]
+      },
       "AudienceType": {
         "description": "Audience type",
         "enum": [
@@ -9937,14 +12212,14 @@
                     "click_window_days": 0,
                     "engagement_window_days": 6
                   },
-                  "conversion_tag_id": "conversion_tag_id",
+                  "conversion_tag_id": "123456789",
                   "learning_mode_type": "ACTIVE",
                   "conversion_event": "PAGE_VISIT",
                   "is_roas_optimized": true,
-                  "cpa_goal_value_in_micro_currency": "cpa_goal_value_in_micro_currency"
+                  "cpa_goal_value_in_micro_currency": "123456789"
                 },
                 "scrollup_goal_metadata": {
-                  "scrollup_goal_value_in_micro_currency": "scrollup_goal_value_in_micro_currency"
+                  "scrollup_goal_value_in_micro_currency": "123456789"
                 }
               }
             },
@@ -9967,14 +12242,14 @@
                     "click_window_days": 0,
                     "engagement_window_days": 6
                   },
-                  "conversion_tag_id": "conversion_tag_id",
+                  "conversion_tag_id": "123456789",
                   "learning_mode_type": "ACTIVE",
                   "conversion_event": "PAGE_VISIT",
                   "is_roas_optimized": true,
-                  "cpa_goal_value_in_micro_currency": "cpa_goal_value_in_micro_currency"
+                  "cpa_goal_value_in_micro_currency": "123456789"
                 },
                 "scrollup_goal_metadata": {
-                  "scrollup_goal_value_in_micro_currency": "scrollup_goal_value_in_micro_currency"
+                  "scrollup_goal_value_in_micro_currency": "123456789"
                 }
               }
             }
@@ -10002,14 +12277,14 @@
                       "click_window_days": 0,
                       "engagement_window_days": 6
                     },
-                    "conversion_tag_id": "conversion_tag_id",
+                    "conversion_tag_id": "123456789",
                     "learning_mode_type": "ACTIVE",
                     "conversion_event": "PAGE_VISIT",
                     "is_roas_optimized": true,
-                    "cpa_goal_value_in_micro_currency": "cpa_goal_value_in_micro_currency"
+                    "cpa_goal_value_in_micro_currency": "123456789"
                   },
                   "scrollup_goal_metadata": {
-                    "scrollup_goal_value_in_micro_currency": "scrollup_goal_value_in_micro_currency"
+                    "scrollup_goal_value_in_micro_currency": "123456789"
                   }
                 }
               },
@@ -10306,6 +12581,146 @@
           "name"
         ]
       },
+      "BoardInfo": {
+        "description": "Represents a summary/info of a Board.",
+        "properties": {
+          "board_order_modified_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-01-01T20:10:40-00:00"
+          },
+          "category": {
+            "$ref": "#/components/schemas/BoardCategoriesEnum",
+            "type": "string"
+          },
+          "collaborated_by_me": {
+            "nullable": false,
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-01-01T20:10:40-00:00"
+          },
+          "followed_by_me": {
+            "nullable": false,
+            "type": "boolean"
+          },
+          "id": {
+            "nullable": false,
+            "type": "string"
+          },
+          "image_thumbnail_url": {
+            "type": "string"
+          },
+          "is_collaborative": {
+            "nullable": false,
+            "type": "boolean"
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "class_community",
+              "default",
+              "places",
+              "quick_creates",
+              "quick_saves",
+              "screenshot",
+              "shuffles",
+              "taking_classes",
+              "taught_classes",
+              "travel"
+            ]
+          },
+          "name": {
+            "nullable": false,
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "board"
+            ],
+            "nullable": false,
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "nullable": false
+          }
+        },
+        "title": "Board summary/info",
+        "type": "object"
+      },
+      "BoardCategoriesEnum": {
+        "type": "string",
+        "description": "Board category.",
+        "example": "animals",
+        "enum": [
+          "animals",
+          "apparel",
+          "architecture",
+          "art",
+          "art_arch",
+          "cars_motorcycles",
+          "celebrities",
+          "celebrities_publi",
+          "commerce",
+          "corgis",
+          "culture",
+          "design",
+          "diy_crafts",
+          "education",
+          "everything",
+          "fashion",
+          "featured",
+          "film_music_books",
+          "fitness",
+          "food_drink",
+          "for_dad",
+          "fresh",
+          "gardening",
+          "geek",
+          "gift_guides",
+          "gifts",
+          "hair_beauty",
+          "health_fitness",
+          "history",
+          "holidays",
+          "holidays_events",
+          "home",
+          "home_decor",
+          "home_improvement",
+          "humor",
+          "illustrations_pos",
+          "kids",
+          "men_apparel",
+          "mens_fashion",
+          "mylife",
+          "other",
+          "outdoors",
+          "people",
+          "pets",
+          "photography",
+          "popular",
+          "prints_posters",
+          "products",
+          "quotes",
+          "science",
+          "science_nature",
+          "shop",
+          "shop_space",
+          "sports",
+          "tattoos",
+          "technology",
+          "travel",
+          "travel_places",
+          "videos",
+          "wedding_events",
+          "weddings",
+          "women_apparel",
+          "womens_fashion"
+        ]
+      },
       "BoardOwner": {
         "title": "Board owner",
         "type": "object",
@@ -10387,8 +12802,8 @@
         "type": "string"
       },
       "BulkUpsertRequest": {
-        "description": "Two set of objects to be managed asyncronusly by bulk. One for creations, one for modifications.",
         "type": "object",
+        "description": "Two set of objects to be managed asyncronusly by bulk. One for creations, one for modifications.",
         "properties": {
           "create": {
             "$ref": "#/components/schemas/BulkUpsertRequestCreate"
@@ -10399,8 +12814,8 @@
         }
       },
       "BulkUpsertRequestCreate": {
-        "description": "Request for creation of entities in bulk.",
         "type": "object",
+        "description": "Request for creation of entities in bulk.",
         "properties": {
           "campaigns": {
             "type": "array",
@@ -10435,8 +12850,8 @@
         }
       },
       "BulkUpsertRequestUpdate": {
-        "description": "Request for creation of entities in bulk.",
         "type": "object",
+        "description": "Request for creation of entities in bulk.",
         "properties": {
           "campaigns": {
             "type": "array",
@@ -10677,6 +13092,19 @@
             "description": "Campaign end time. Unix timestamp in seconds. Only used for Campaign Budget Optimization (CBO) campaigns.",
             "example": 1644023526,
             "nullable": true
+          },
+          "summary_status": {
+            "type": "string",
+            "description": "Summary status for campaigns",
+            "example": "RUNNING",
+            "enum": [
+              "RUNNING",
+              "PAUSED",
+              "NOT_STARTED",
+              "COMPLETED",
+              "ADVERTISER_DISABLED",
+              "ARCHIVED"
+            ]
           }
         }
       },
@@ -10976,6 +13404,88 @@
             ]
           }
         ]
+      },
+      "CatalogProductGroup": {
+        "description": "non-promoted catalog product group entity",
+        "properties": {
+          "id": {
+            "description": "ID of the catalog product group.",
+            "example": "2680059592705",
+            "title": "id",
+            "type": "string"
+          },
+          "merchant_id": {
+            "description": "Merchant ID pertaining to the owner of the catalog product group.",
+            "example": "2680059592705",
+            "pattern": "^\\d+$",
+            "title": "merchant_id",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of catalog product group",
+            "example": "Most Popular",
+            "title": "name",
+            "type": "string"
+          },
+          "filters": {
+            "description": "Object holding a list of filters",
+            "example": {
+              "1": [
+                "123chars_title"
+              ]
+            },
+            "title": "filters",
+            "type": "object"
+          },
+          "filter_v2": {
+            "description": "Object holding a list of filters",
+            "example": {
+              "1": [
+                "123chars_title"
+              ]
+            },
+            "title": "filters",
+            "type": "object"
+          },
+          "type": {
+            "$ref": "#/components/schemas/Board"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EntityStatus"
+          },
+          "feed_profile_id": {
+            "description": "id of the feed profile belonging to this catalog product group",
+            "pattern": "^\\d+$",
+            "title": "feed_profile_id",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "Unix timestamp in seconds of when catalog product group was created.",
+            "example": 1621350033000,
+            "title": "created_at",
+            "type": "integer"
+          },
+          "last_update": {
+            "description": "Unix timestamp in seconds of last time catalog product group was updated.",
+            "example": 1622742155000,
+            "title": "last_update",
+            "type": "integer"
+          },
+          "product_count": {
+            "description": "Amount of products in the catalog product group",
+            "example": 6,
+            "title": "product_count",
+            "type": "integer"
+          },
+          "featured_position": {
+            "description": "index of the featured position of the catalog product group",
+            "example": 2,
+            "title": "featured_position",
+            "type": "integer"
+          }
+        },
+        "title": "CatalogProductGroup",
+        "type": "object"
       },
       "CatalogsDbItem": {
         "type": "object",
@@ -11755,6 +14265,14 @@
       "CatalogsFeedValidationWarnings": {
         "type": "object",
         "properties": {
+          "AD_LINK_FORMAT_WARNING": {
+            "type": "integer",
+            "description": "Some items have ad links that are formatted incorrectly."
+          },
+          "AD_LINK_SAME_AS_LINK": {
+            "type": "integer",
+            "description": "Some items have ad link URLs that are duplicates of the link URLs for those items."
+          },
           "TITLE_LENGTH_TOO_LONG": {
             "type": "integer",
             "description": "The title for some items were truncated because they contain too many characters."
@@ -11795,6 +14313,10 @@
             "type": "integer",
             "description": "Some items only have 1 or 2 levels of google_product_category values, which may limit visibility in recommendations, search results and shopping experiences."
           },
+          "ADWORDS_FORMAT_WARNING": {
+            "type": "integer",
+            "description": "Some items have adwords_redirect links that are formatted incorrectly."
+          },
           "ADWORDS_SAME_AS_LINK": {
             "type": "integer",
             "description": "Some items have adwords_redirect URLs that are duplicates of the link URLs for those items."
@@ -11809,10 +14331,6 @@
             "enum": [
               1
             ]
-          },
-          "ADWORDS_FORMAT_WARNING": {
-            "type": "integer",
-            "description": "Some items have adwords_redirect links that are formatted incorrectly."
           },
           "ADDITIONAL_IMAGE_LINK_LENGTH_TOO_LONG": {
             "type": "integer",
@@ -12256,6 +14774,8 @@
       "CatalogsItemValidationIssue": {
         "type": "string",
         "enum": [
+          "AD_LINK_FORMAT_WARNING",
+          "AD_LINK_SAME_AS_LINK",
           "ADDITIONAL_IMAGE_LINK_LENGTH_TOO_LONG",
           "ADDITIONAL_IMAGE_LINK_WARNING",
           "ADULT_INVALID",
@@ -12470,6 +14990,14 @@
       "CatalogsItemValidationWarnings": {
         "type": "object",
         "properties": {
+          "AD_LINK_FORMAT_WARNING": {
+            "$ref": "#/components/schemas/CatalogsItemValidationDetails",
+            "description": "Item has an ad link that is formatted incorrectly."
+          },
+          "AD_LINK_SAME_AS_LINK": {
+            "$ref": "#/components/schemas/CatalogsItemValidationDetails",
+            "description": "Item has an ad link URL that is duplicate of the link URL."
+          },
           "ADDITIONAL_IMAGE_LINK_LENGTH_TOO_LONG": {
             "$ref": "#/components/schemas/CatalogsItemValidationDetails",
             "description": "Item has an additional_image_link URL that contains too many characters, so the item will not be published."
@@ -13208,6 +15736,54 @@
           "pin"
         ]
       },
+      "ConversionTagsOcpmEligibleResponse": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ConversionEventResponse"
+          }
+        },
+        "example": {
+          "12345": [
+            {
+              "conversion_event": "PAGE_LOAD",
+              "created_time": 1564768710,
+              "conversion_tag_id": "2614324385652",
+              "ad_account_id": "549757463328"
+            },
+            {
+              "conversion_event": "CHECKOUT",
+              "created_time": 1564710210,
+              "conversion_tag_id": "2614324315793",
+              "ad_account_id": "549757463328"
+            }
+          ]
+        }
+      },
+      "ConversionTagType": {
+        "title": "ConversionTagType",
+        "description": "conversion tag type",
+        "type": "string",
+        "enum": [
+          "PAGE_LOAD",
+          "UNKNOWN",
+          "INITIALIZED",
+          "PAGE_VISIT",
+          "SIGNUP",
+          "CHECKOUT",
+          "CUSTOM",
+          "VIEW_CATEGORY",
+          "SEARCH",
+          "ADD_TO_CART",
+          "WATCH_VIDEO",
+          "LEAD",
+          "APP_INSTALL",
+          "WEB_SESSION",
+          "EXTERNAL_MEASUREMENT"
+        ],
+        "example": "PAGE_LOAD"
+      },
       "CustomerList": {
         "properties": {
           "ad_account_id": {
@@ -13729,6 +16305,19 @@
           60
         ]
       },
+      "BulkReportingJobStatus": {
+        "type": "string",
+        "description": "Possible status for a bulk reporting job",
+        "example": "FINISHED",
+        "enum": [
+          "DOES_NOT_EXIST",
+          "FINISHED",
+          "IN_PROGRESS",
+          "EXPIRED",
+          "FAILED",
+          "CANCELLED"
+        ]
+      },
       "ConversionEvents": {
         "description": "A list of events (one or more) encapsulated by a data object.",
         "type": "object",
@@ -13860,7 +16449,7 @@
                     },
                     "opt_out_type": {
                       "description": "Flags for different privacy rights laws to opt out users of sharing personal information. Values should be comma separated.",
-                      "example": "CPRA,GPC",
+                      "example": "LDP",
                       "type": "string",
                       "nullable": true
                     },
@@ -13949,6 +16538,23 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "hashed_maids": {
+                "description": "Sha256 hashes of user's \"Google Advertising IDs\" (GAIDs) or \"Apple's Identifier for Advertisers\" (IDFAs). Used for matching.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "client_ip_address": {
+                "description": "The user's IP address, which can be either in IPv4 or IPv6 format. Used for matching.",
+                "type": "string",
+                "example": "216.3.128.12"
+              },
+              "client_user_agent": {
+                "description": "The user agent string of the user's web browser.",
+                "type": "string",
+                "example": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36"
               }
             },
             "required": [
@@ -13957,12 +16563,29 @@
           },
           {
             "properties": {
+              "em": {
+                "description": "Sha256 hashes of lowercase version of user's email addresses. Used for matching.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
               "hashed_maids": {
                 "description": "Sha256 hashes of user's \"Google Advertising IDs\" (GAIDs) or \"Apple's Identifier for Advertisers\" (IDFAs). Used for matching.",
                 "type": "array",
                 "items": {
                   "type": "string"
                 }
+              },
+              "client_ip_address": {
+                "description": "The user's IP address, which can be either in IPv4 or IPv6 format. Used for matching.",
+                "type": "string",
+                "example": "216.3.128.12"
+              },
+              "client_user_agent": {
+                "description": "The user agent string of the user's web browser.",
+                "type": "string",
+                "example": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36"
               }
             },
             "required": [
@@ -13971,6 +16594,20 @@
           },
           {
             "properties": {
+              "em": {
+                "description": "Sha256 hashes of lowercase version of user's email addresses. Used for matching.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "hashed_maids": {
+                "description": "Sha256 hashes of user's \"Google Advertising IDs\" (GAIDs) or \"Apple's Identifier for Advertisers\" (IDFAs). Used for matching.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
               "client_ip_address": {
                 "description": "The user's IP address, which can be either in IPv4 or IPv6 format. Used for matching.",
                 "type": "string",
@@ -14058,6 +16695,12 @@
             "items": {
               "type": "string"
             }
+          },
+          "click_id": {
+            "description": "The value stored in _epik cookie on your domain or &epik= query parameter in the URL. It's recommended to send this unique identifier, when available.",
+            "type": "string",
+            "example": "dj0yJnU9b2JDcFFHekV4SHJNcmVrbFBkUEdqakh0akdUT1VjVVUmcD0yJm49cnNBQ3F2Q2dOVDBXWWhkWklrUGxBUSZ0PUFBQUFBR1BaY3Bv",
+            "nullable": true
           }
         }
       },
@@ -14482,7 +17125,7 @@
                 },
                 "display_name": {
                   "type": "string",
-                  "description": "Display name, when available. If unavaible it will not be returned.",
+                  "description": "Display name, when available. If unavaible it will not be returned. Matches how the metric is named in our native tools like Pinterest Ads Manager.",
                   "example": "Ad group ID"
                 }
               }
@@ -14499,6 +17142,19 @@
           "PAUSED",
           "ARCHIVED"
         ]
+      },
+      "FollowUserRequest": {
+        "title": "FollowUserRequest",
+        "type": "object",
+        "properties": {
+          "auto_follow": {
+            "title": "auto_follow",
+            "type": "boolean",
+            "description": "Whether this request comes as result of auto-follow after clicking on a link. Follow links can be used by partners on their site or in emails. Only selected partners can be followed this way. We verify that partner can be auto-followed.",
+            "default": false,
+            "example": false
+          }
+        }
       },
       "Granularity": {
         "type": "string",
@@ -14825,6 +17481,28 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "Interest": {
+        "title": "Interest",
+        "type": "object",
+        "properties": {
+          "canonical_url": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "example": "903972677830"
+          },
+          "key": {
+            "type": "string",
+            "example": "man cave"
+          },
+          "name": {
+            "type": "string",
+            "example": "Man cave"
           }
         }
       },
@@ -15170,6 +17848,7 @@
         }
       },
       "KeywordsResponse": {
+        "type": "object",
         "properties": {
           "errors": {
             "type": "array",
@@ -15252,6 +17931,42 @@
           "XX",
           "ZH"
         ]
+      },
+      "LinkedBusiness": {
+        "title": "LinkedBusiness",
+        "type": "object",
+        "properties": {
+          "username": {
+            "title": "username",
+            "type": "string",
+            "description": "Username",
+            "example": "username"
+          },
+          "image_small_url": {
+            "title": "image_small_url",
+            "type": "string",
+            "description": "image_small_url",
+            "example": "https://www.example.com/dj23454f53dfk2324.jpg"
+          },
+          "image_medium_url": {
+            "title": "image_medium_url",
+            "type": "string",
+            "description": "image_medium_url",
+            "example": "https://www.example.com/dj23454f53dfk2324.jpg"
+          },
+          "image_large_url": {
+            "title": "image_large_url",
+            "type": "string",
+            "description": "image_large_url",
+            "example": "https://www.example.com/dj23454f53dfk2324.jpg"
+          },
+          "image_xlarge_url": {
+            "title": "image_xlarge_url",
+            "type": "string",
+            "description": "image_xlarge_url",
+            "example": "https://www.example.com/dj23454f53dfk2324.jpg"
+          }
+        }
       },
       "MatchType": {
         "type": "string",
@@ -15435,23 +18150,118 @@
           "type": "number"
         },
         "example": {
-          "ENGAGEMENT": 100,
-          "CLICKTHROUGH_RATE": 0.2,
-          "CLICKTHROUGH": 200,
-          "CLOSEUP": 37,
-          "CLOSEUP_RATE": 0.5,
-          "ENGAGEMENT_RATE": 0.2,
           "SAVE": 20,
           "SAVE_RATE": 0.18,
-          "IMPRESSION": 240
+          "IMPRESSION": 240,
+          "OUTBOUND_CLICK": 200,
+          "PIN_CLICK": 37,
+          "VIDEO_10S_VIEW": 2,
+          "VIDEO_V50_WATCH_TIME": 10031,
+          "QUARTILE_95_PERCENT_VIEW": 8,
+          "VIDEO_AVG_WATCH_TIME": 2507.75,
+          "VIDEO_START": 2,
+          "VIDEO_MRC_VIEW": 2
         }
       },
       "MetricsResponse": {
         "properties": {
           "data": {
             "items": {
-              "type": "object",
-              "example": {
+              "type": "object"
+            },
+            "type": "array",
+            "example": [
+              {
+                "targeting_type": "KEYWORD",
+                "targeting_value": "christmas decor ideas",
+                "metrics": {
+                  "AD_GROUP_ID": 2680067996745,
+                  "DATE": "2022-04-26",
+                  "SPEND_IN_DOLLAR": 240
+                }
+              },
+              {
+                "targeting_type": "APPTYPE",
+                "targeting_value": "iphone",
+                "metrics": {
+                  "AD_GROUP_ID": 2680067996745,
+                  "DATE": "2022-04-26",
+                  "SPEND_IN_DOLLAR": 240
+                }
+              },
+              {
+                "targeting_type": "GENDER",
+                "targeting_value": "female",
+                "metrics": {
+                  "AD_GROUP_ID": 2680067996745,
+                  "DATE": "2022-04-26",
+                  "SPEND_IN_DOLLAR": 240
+                }
+              },
+              {
+                "targeting_type": "LOCATION",
+                "targeting_value": 500,
+                "metrics": {
+                  "AD_GROUP_ID": 2680067996745,
+                  "DATE": "2022-04-26",
+                  "SPEND_IN_DOLLAR": 240
+                }
+              },
+              {
+                "targeting_type": "PLACEMENT",
+                "targeting_value": "SEARCH",
+                "metrics": {
+                  "AD_GROUP_ID": 2680067996745,
+                  "DATE": "2022-04-26",
+                  "SPEND_IN_DOLLAR": 240
+                }
+              },
+              {
+                "targeting_type": "COUNTRY",
+                "targeting_value": "US",
+                "metrics": {
+                  "AD_GROUP_ID": 2680067996745,
+                  "DATE": "2022-04-26",
+                  "SPEND_IN_DOLLAR": 240
+                }
+              },
+              {
+                "targeting_type": "TARGETED_INTEREST",
+                "targeting_value": "Food and Drinks",
+                "metrics": {
+                  "AD_GROUP_ID": 2680067996745,
+                  "DATE": "2022-04-26",
+                  "SPEND_IN_DOLLAR": 240
+                }
+              },
+              {
+                "targeting_type": "PINNER_INTEREST",
+                "targeting_value": "Chocolate Cookies",
+                "metrics": {
+                  "AD_GROUP_ID": 2680067996745,
+                  "DATE": "2022-04-26",
+                  "SPEND_IN_DOLLAR": 240
+                }
+              },
+              {
+                "targeting_type": "AUDIENCE_INCLUDE",
+                "targeting_value": 254261234567,
+                "metrics": {
+                  "AD_GROUP_ID": 2680067996745,
+                  "DATE": "2022-04-26",
+                  "SPEND_IN_DOLLAR": 240
+                }
+              },
+              {
+                "targeting_type": "GEO",
+                "targeting_value": "US:94102",
+                "metrics": {
+                  "AD_GROUP_ID": 2680067996745,
+                  "DATE": "2022-04-26",
+                  "SPEND_IN_DOLLAR": 240
+                }
+              },
+              {
                 "targeting_type": "AGE_BUCKET",
                 "targeting_value": "45-49",
                 "metrics": {
@@ -15459,9 +18269,17 @@
                   "DATE": "2022-04-26",
                   "SPEND_IN_DOLLAR": 240
                 }
+              },
+              {
+                "targeting_type": "REGION",
+                "targeting_value": "US-CA",
+                "metrics": {
+                  "AD_GROUP_ID": 2680067996745,
+                  "DATE": "2022-04-26",
+                  "SPEND_IN_DOLLAR": 240
+                }
               }
-            },
-            "type": "array"
+            ]
           }
         },
         "type": "object"
@@ -16051,7 +18869,301 @@
         ]
       },
       "OptimizationGoalMetadata": {
+        "type": "object",
+        "properties": {
+          "conversion_tag_v3_goal_metadata": {
+            "properties": {
+              "attribution_windows": {
+                "properties": {
+                  "click_window_days": {
+                    "type": "integer"
+                  },
+                  "engagement_window_days": {
+                    "type": "integer"
+                  },
+                  "view_window_days": {
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              },
+              "conversion_event": {
+                "type": "string",
+                "enum": [
+                  "PAGE_VISIT",
+                  "SIGNUP",
+                  "CHECKOUT",
+                  "CUSTOM",
+                  "VIEW_CATEGORY",
+                  "SEARCH",
+                  "ADD_TO_CART",
+                  "WATCH_VIDEO",
+                  "LEAD",
+                  "APP_INSTALL"
+                ]
+              },
+              "conversion_tag_id": {
+                "type": "string",
+                "pattern": "^[0-9]+$"
+              },
+              "cpa_goal_value_in_micro_currency": {
+                "type": "string",
+                "pattern": "^[0-9]+$"
+              },
+              "is_roas_optimized": {
+                "description": "Ad group is ROAS optimized",
+                "nullable": true,
+                "title": "is_roas_optimized",
+                "type": "boolean"
+              },
+              "learning_mode_type": {
+                "description": "Conversion learning model type",
+                "enum": [
+                  "NOT_ACTIVE",
+                  "ACTIVE",
+                  null
+                ],
+                "example": "ACTIVE",
+                "nullable": true,
+                "title": "ConversionLearningModeType",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "frequency_goal_metadata": {
+            "properties": {
+              "frequency": {
+                "type": "integer"
+              },
+              "timerange": {
+                "type": "string",
+                "description": "User entity counts time range",
+                "example": "DAY",
+                "enum": [
+                  "THIRTY_DAY",
+                  "DAY",
+                  "SEVEN_DAY",
+                  "TWENTY_MINUTE",
+                  "TEN_MINUTE"
+                ]
+              }
+            },
+            "type": "object"
+          },
+          "scrollup_goal_metadata": {
+            "properties": {
+              "scrollup_goal_value_in_micro_currency": {
+                "pattern": "^[0-9]+$",
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "type": "object"
+          }
+        }
+      },
+      "OrderLineStatus": {
+        "description": "Order Line Status",
+        "enum": [
+          "ACTIVE",
+          "PAUSED",
+          "DELETED"
+        ],
+        "example": "ACTIVE",
+        "title": "OrderLineStatus",
+        "type": "string"
+      },
+      "OrderLinePaidType": {
+        "description": "Order Line Paid Type",
+        "enum": [
+          "PAID",
+          "BONUS",
+          "MAKE_GOOD",
+          "TEST"
+        ],
+        "example": "PAID",
+        "title": "OrderLinePaidType",
+        "type": "string"
+      },
+      "OrderLineSingleResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/OrderLineResponse",
+            "type": "object"
+          }
+        },
+        "title": "OrderLineSingleResponse"
+      },
+      "OrderLinesArrayResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderLines"
+            }
+          }
+        },
+        "title": "OrderLinesArrayResponse"
+      },
+      "OrderLineResponse": {
+        "properties": {
+          "errors": {
+            "description": "Error list if update(s) fail.",
+            "items": {
+              "$ref": "#/components/schemas/OrderLineError",
+              "type": "object"
+            },
+            "title": "errors",
+            "type": "array"
+          },
+          "order_line": {
+            "description": "Order Line object array.",
+            "items": {
+              "$ref": "#/components/schemas/OrderLine",
+              "type": "object"
+            },
+            "title": "order_line",
+            "type": "array"
+          }
+        },
+        "title": "OrderLineResponse",
         "type": "object"
+      },
+      "OrderLineError": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/OrderLine",
+            "type": "object"
+          },
+          "error_messages": {
+            "items": {
+              "type": "string"
+            },
+            "title": "error_messages",
+            "type": "array"
+          }
+        },
+        "title": "OrderLineError",
+        "type": "object"
+      },
+      "OrderLine": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OrderLines"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "campaign_ids": {
+                "description": "Associated List of campaign IDs.",
+                "example": [
+                  "626735565838"
+                ],
+                "items": {
+                  "type": "string"
+                },
+                "title": "campaign_ids",
+                "type": "array"
+              }
+            },
+            "required": [
+              "campaign_ids"
+            ]
+          }
+        ],
+        "title": "OrderLine"
+      },
+      "OrderLines": {
+        "type": "object",
+        "title": "OrderLines",
+        "description": "Order Line",
+        "properties": {
+          "id": {
+            "description": "Order line ID.",
+            "example": "2680059592705",
+            "pattern": "^\\d+$",
+            "title": "id",
+            "type": "string"
+          },
+          "type": {
+            "description": "Always \"orderline\".",
+            "example": "orderline",
+            "title": "type",
+            "type": "string"
+          },
+          "ad_account_id": {
+            "description": "Ad account ID.",
+            "example": "549755885175",
+            "title": "ad_account_id",
+            "type": "string"
+          },
+          "purchase_order_id": {
+            "description": "Purchase order ID.",
+            "example": "PO12345",
+            "title": "purchase_order_id",
+            "type": "string"
+          },
+          "start_time": {
+            "description": "Start time. Unix timestamp.",
+            "example": 1452208622,
+            "title": "start_time",
+            "type": "number"
+          },
+          "end_time": {
+            "description": "End time. Unix timestamp.",
+            "example": 1461269616,
+            "title": "end_time",
+            "type": "number",
+            "nullable": true
+          },
+          "budget": {
+            "description": "Order line budget in micro currency.",
+            "example": 5000000,
+            "title": "budget",
+            "type": "number",
+            "nullable": true
+          },
+          "paid_budget": {
+            "description": "Order line paid budget in micro currency.",
+            "example": 5000000,
+            "title": "paid_budget",
+            "type": "number",
+            "nullable": true
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrderLineStatus"
+              }
+            ],
+            "description": "Order line status.",
+            "example": "ACTIVE",
+            "type": "string",
+            "title": "status"
+          },
+          "name": {
+            "description": "Order line name.",
+            "example": "Order Line Name 1",
+            "title": "name",
+            "type": "string",
+            "nullable": true
+          },
+          "paid_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrderLinePaidType"
+              }
+            ],
+            "type": "string",
+            "description": "Order line paid type.",
+            "example": "PAID",
+            "title": "paid_type"
+          }
+        }
       },
       "PacingDeliveryType": {
         "type": "string",
@@ -16082,7 +19194,97 @@
           "id": {
             "type": "string",
             "readOnly": true,
-            "example": "813744226420795884"
+            "example": "813744226420795884",
+            "pattern": "^\\d+$"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "example": "2020-01-01T20:10:40-00:00"
+          },
+          "link": {
+            "type": "string",
+            "nullable": true,
+            "example": "https://www.pinterest.com/",
+            "maxLength": 2048
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "dominant_color": {
+            "type": "string",
+            "nullable": true,
+            "description": "Dominant pin color. Hex number, e.g. \\\"#6E7874\\\".",
+            "example": "#6E7874"
+          },
+          "alt_text": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "board_id": {
+            "description": "The board to which this Pin belongs.",
+            "type": "string",
+            "pattern": "^\\d+$"
+          },
+          "board_section_id": {
+            "description": "The board section to which this Pin belongs.",
+            "type": "string",
+            "pattern": "^\\d+$",
+            "nullable": true
+          },
+          "board_owner": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BoardOwner"
+              }
+            ],
+            "type": "object",
+            "readOnly": true
+          },
+          "media": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PinMedia"
+              }
+            ],
+            "type": "object",
+            "readOnly": true
+          },
+          "media_source": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PinMediaSource"
+              }
+            ],
+            "type": "object",
+            "writeOnly": true
+          },
+          "parent_pin_id": {
+            "description": "The source pin id if this pin was saved from another pin. <a href=\"https://help.pinterest.com/article/save-pins-on-pinterest\">Learn more</a>.",
+            "type": "string",
+            "pattern": "^\\d+$",
+            "nullable": true
+          }
+        }
+      },
+      "PinCreate": {
+        "title": "PinCreate",
+        "description": "Pin",
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true,
+            "example": "813744226420795884",
+            "pattern": "^\\d+$"
           },
           "created_at": {
             "type": "string",
@@ -16163,8 +19365,54 @@
           }
         }
       },
+      "PinUpdate": {
+        "title": "PinUpdate",
+        "description": "Pin fields for updates",
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "alt_text": {
+            "type": "string",
+            "nullable": true,
+            "description": "Pin's alternative text.",
+            "maxLength": 500
+          },
+          "board_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "The id of the board to move the Pin onto.",
+            "pattern": "^\\d+$"
+          },
+          "board_section_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "<a href=\"https://help.pinterest.com/en/article/create-a-board-section\">Board section</a> ID.",
+            "pattern": "^\\d+$"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Pin description - 500 characters maximum.",
+            "maxLength": 500
+          },
+          "link": {
+            "type": "string",
+            "nullable": true,
+            "description": "URL viewer is taken to when they click pin.",
+            "example": "https://www.pinterest.com/",
+            "maxLength": 2048
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "description": "The native pin title that creators explicitly prefer to display.",
+            "maxLength": 100
+          }
+        }
+      },
       "PinMedia": {
         "title": "Pin media",
+        "type": "object",
         "description": "Pin media objects.",
         "discriminator": {
           "propertyName": "media_type",
@@ -16364,16 +19612,82 @@
           },
           {
             "$ref": "#/components/schemas/PinMediaSourceVideoID"
+          },
+          {
+            "$ref": "#/components/schemas/PinMediaSourceImagesBase64"
+          },
+          {
+            "$ref": "#/components/schemas/PinMediaSourceImagesURL"
           }
         ],
         "discriminator": {
           "propertyName": "source_type",
           "mapping": {
+            "multiple_image_base64": "#/components/schemas/PinMediaSourceImagesBase64",
             "image_base64": "#/components/schemas/PinMediaSourceImageBase64",
+            "multiple_image_urls": "#/components/schemas/PinMediaSourceImagesURL",
             "image_url": "#/components/schemas/PinMediaSourceImageURL",
             "video_id": "#/components/schemas/PinMediaSourceVideoID"
           }
         }
+      },
+      "PinMediaSourceImagesBase64": {
+        "title": "Images Base64",
+        "description": "Multiple Base64-encoded images media source",
+        "additionalProperties": false,
+        "properties": {
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "multiple_image_base64"
+            ]
+          },
+          "items": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "link": {
+                  "type": "string",
+                  "description": "Destination link for the image."
+                },
+                "content_type": {
+                  "type": "string",
+                  "enum": [
+                    "image/jpeg",
+                    "image/png"
+                  ]
+                },
+                "data": {
+                  "type": "string",
+                  "description": "Image to upload as base64 string.",
+                  "pattern": "[a-zA-Z0-9+\\/=]+"
+                }
+              },
+              "required": [
+                "data",
+                "content_type"
+              ],
+              "type": "object"
+            },
+            "minItems": 2,
+            "maxItems": 5,
+            "description": "Array with image objects.",
+            "type": "array"
+          },
+          "index": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
       },
       "PinMediaSourceImageBase64": {
         "title": "Image Base64",
@@ -16403,6 +19717,55 @@
           "content_type",
           "data"
         ]
+      },
+      "PinMediaSourceImagesURL": {
+        "title": "Images urls",
+        "description": "Multiple images urls-based media source",
+        "additionalProperties": false,
+        "properties": {
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "multiple_image_urls"
+            ]
+          },
+          "items": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "link": {
+                  "type": "string",
+                  "description": "Destination link for the image."
+                },
+                "url": {
+                  "description": "URL of image to upload.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url"
+              ],
+              "type": "object"
+            },
+            "minItems": 2,
+            "maxItems": 5,
+            "description": "Array with image objects.",
+            "type": "array"
+          },
+          "index": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
       },
       "PinMediaSourceImageURL": {
         "title": "Image URL",
@@ -16544,6 +19907,92 @@
         "example": "REGULAR",
         "title": "CreativeType"
       },
+      "IntegrationMetadata": {
+        "title": "integration",
+        "description": "Integration metadata",
+        "type": "object",
+        "properties": {
+          "external_business_id": {
+            "type": "string"
+          },
+          "connected_merchant_id": {
+            "type": "string"
+          },
+          "connected_user_id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "connected_advertiser_id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "connected_lba_id": {
+            "type": "string"
+          },
+          "connected_tag_id": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "external_business_id": "1238401984",
+          "connected_merchant_id": "1445572885401",
+          "connected_user_id": "871939315263957401",
+          "connected_advertiser_id": "549764738871",
+          "connected_lba_id": "871939315263957402",
+          "connected_tag_id": "2412141155151"
+        }
+      },
+      "IntegrationRequest": {
+        "type": "object",
+        "description": "Schema used for creating the integration metadata.",
+        "properties": {
+          "external_business_id": {
+            "type": "string"
+          },
+          "connected_merchant_id": {
+            "type": "string"
+          },
+          "connected_advertiser_id": {
+            "type": "string"
+          },
+          "connected_lba_id": {
+            "type": "string"
+          },
+          "connected_tag_id": {
+            "type": "string"
+          },
+          "partner_access_token": {
+            "type": "string"
+          },
+          "partner_primary_email": {
+            "type": "string"
+          }
+        }
+      },
+      "IntegrationRequestPatch": {
+        "type": "object",
+        "description": "Schema used for updating the integration metadata.",
+        "properties": {
+          "connected_merchant_id": {
+            "type": "string"
+          },
+          "connected_advertiser_id": {
+            "type": "string"
+          },
+          "connected_lba_id": {
+            "type": "string"
+          },
+          "connected_tag_id": {
+            "type": "string"
+          },
+          "partner_access_token": {
+            "type": "string"
+          },
+          "partner_primary_email": {
+            "type": "string"
+          }
+        }
+      },
       "ProductAvailabilityType": {
         "nullable": true,
         "description": "Default availability for products in a feed.",
@@ -16595,11 +20044,6 @@
         ]
       },
       "ProductGroupPromotion": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ProductGroupPromotionCommon"
-          }
-        ],
         "properties": {
           "id": {
             "description": "ID of the product group promotion.",
@@ -16615,18 +20059,12 @@
             "title": "ad_group_id",
             "type": "string"
           },
-          "type": {
-            "description": "Product group promotion",
-            "example": "productgroup",
-            "title": "type",
-            "type": "string",
-            "nullable": true
-          },
           "bid_in_micro_currency": {
             "description": "The bid in micro currency.",
             "example": 14000000,
             "title": "bid_in_micro_currency",
-            "type": "integer"
+            "type": "integer",
+            "nullable": true
           },
           "included": {
             "description": "True if the group is BIDDABLE, false if it should be EXCLUDED from serving ads.",
@@ -16670,13 +20108,14 @@
             "nullable": true,
             "title": "slideshow_collections_description",
             "type": "string"
-          }
-        },
-        "type": "object",
-        "title": "ProductGroupPromotion"
-      },
-      "ProductGroupPromotionCommon": {
-        "properties": {
+          },
+          "is_mdl": {
+            "description": "If set to true products promoted in this product group will use the Mobile Deep Link specified in your catalog",
+            "example": true,
+            "nullable": true,
+            "title": "is_mdl",
+            "type": "boolean"
+          },
           "status": {
             "$ref": "#/components/schemas/EntityStatus"
           },
@@ -16687,18 +20126,20 @@
             "title": "tracking_url",
             "type": "string"
           },
-          "catalogs_product_group_id": {
+          "catalog_product_group_id": {
             "description": "ID of the catalogs product group that this product group promotion references",
             "example": "1231235",
-            "title": "catalogs_product_group_id",
+            "title": "catalog_product_group_id",
             "type": "string",
-            "pattern": "^\\d+$"
+            "pattern": "^\\d+$",
+            "nullable": true
           },
-          "catalogs_product_group_name": {
-            "description": "Catalogs product group",
+          "catalog_product_group_name": {
+            "description": "Catalogs product group name",
             "example": "catalogProductGroupName",
             "title": "product_group_promotion_name",
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "creative_type": {
             "$ref": "#/components/schemas/CreativeType"
@@ -16717,31 +20158,10 @@
             "nullable": true,
             "title": "collections_hero_destination_url",
             "type": "string"
-          },
-          "slideshow_collections_title": {
-            "description": "Slideshow Collections Title",
-            "example": "Title",
-            "nullable": true,
-            "title": "slideshow_collections_title",
-            "type": "string"
-          },
-          "slideshow_collections_description": {
-            "description": "Slideshow Collections Description",
-            "example": "Description",
-            "nullable": true,
-            "title": "slideshow_collections_description",
-            "type": "string"
-          },
-          "is_mdl": {
-            "description": "If set to true products promoted in this product group will use the Mobile Deep Link specified in your catalog",
-            "example": true,
-            "nullable": true,
-            "title": "is_mdl",
-            "type": "boolean"
           }
         },
-        "title": "ProductGroupPromotionCommon",
-        "type": "object"
+        "type": "object",
+        "title": "ProductGroupPromotion"
       },
       "ProductGroupPromotionCreateRequest": {
         "example": {
@@ -16750,7 +20170,7 @@
               "slideshow_collections_description": "Description",
               "creative_type": "REGULAR",
               "collections_hero_pin_id": "123123",
-              "product_group_promotion_name": "catalogProductGroupName",
+              "catalog_product_group_name": "catalogProductGroupName",
               "collections_hero_destination_url": "http://www.pinterest.com",
               "tracking_url": "https://www.pinterest.com",
               "slideshow_collections_title": "Title",
@@ -16761,7 +20181,7 @@
               "slideshow_collections_description": "Description",
               "creative_type": "REGULAR",
               "collections_hero_pin_id": "123123",
-              "product_group_promotion_name": "catalogProductGroupName",
+              "catalog_product_group_name": "catalogProductGroupName",
               "collections_hero_destination_url": "http://www.pinterest.com",
               "tracking_url": "https://www.pinterest.com",
               "slideshow_collections_title": "Title",
@@ -16781,7 +20201,7 @@
           },
           "product_group_promotion": {
             "items": {
-              "$ref": "#/components/schemas/ProductGroupPromotionCommon"
+              "$ref": "#/components/schemas/ProductGroupPromotion"
             },
             "title": "product_group_promotion",
             "type": "array"
@@ -16794,58 +20214,43 @@
         "title": "ProductGroupPromotionCreateRequest",
         "type": "object"
       },
-      "ProductGroupPromotionArrayResponse": {
-        "description": "Product group promotions array.",
-        "items": {
-          "$ref": "#/components/schemas/ProductGroupPromotionArrayElement"
-        },
-        "title": "ProductGroupPromotionArrayResponse",
-        "type": "array"
-      },
-      "ProductGroupPromotionArrayElement": {
+      "ProductGroupPromotionResponseItem": {
+        "type": "object",
+        "title": "ProductGroupPromotionResponseItem",
         "properties": {
           "data": {
             "$ref": "#/components/schemas/ProductGroupPromotion"
           },
           "exceptions": {
-            "$ref": "#/components/schemas/Exception"
+            "nullable": true,
+            "items": {
+              "nullable": true,
+              "$ref": "#/components/schemas/Exception"
+            }
           }
-        },
-        "title": "ProductGroupPromotionArrayElement",
-        "type": "object"
+        }
       },
-      "ProductGroupPromotionUpdateItem": {
+      "ProductGroupPromotionResponse": {
+        "type": "object",
+        "title": "ProductGroupPromotionResponse",
         "properties": {
-          "id": {
-            "description": "ID of the product group.",
-            "example": "2680059592705",
-            "title": "id",
-            "type": "string"
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductGroupPromotionResponseItem"
+            }
           }
-        },
-        "title": "ProductGroupPromotionUpdateItem"
-      },
-      "ProductGroupPromotionUpdateResponseItem": {
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/ProductGroupPromotion"
-          },
-          "exceptions": {
-            "$ref": "#/components/schemas/Exception"
-          }
-        },
-        "title": "ProductGroupPromotionUpdateResponseItem",
-        "type": "object"
+        }
       },
       "ProductGroupPromotionUpdateRequest": {
         "example": {
           "product_group_promotion": [
             {
-              "catalogs_product_group_id": "1234123",
+              "catalog_product_group_id": "1234123",
               "slideshow_collections_description": "Description",
               "creative_type": "REGULAR",
               "collections_hero_pin_id": "123123",
-              "product_group_promotion_name": "ProductGroupName",
+              "catalog_product_group_name": "ProductGroupName",
               "collections_hero_destination_url": "http://www.pinterest.com",
               "tracking_url": "https://www.pinterest.com",
               "slideshow_collections_title": "Title",
@@ -16853,11 +20258,11 @@
               "id": "2680059592705"
             },
             {
-              "catalogs_product_group_id": "1231231",
+              "catalog_product_group_id": "1231231",
               "slideshow_collections_description": "Other description",
               "creative_type": "REGULAR",
               "collections_hero_pin_id": "123124",
-              "product_group_promotion_name": "ProductGroupName",
+              "catalog_product_group_name": "ProductGroupName",
               "collections_hero_destination_url": "http://www.pinterest.com",
               "tracking_url": "https://www.pinterest.com",
               "slideshow_collections_title": "Title",
@@ -16877,7 +20282,7 @@
           },
           "product_group_promotion": {
             "items": {
-              "$ref": "#/components/schemas/ProductGroupPromotionUpdateItem"
+              "$ref": "#/components/schemas/ProductGroupPromotion"
             },
             "title": "product_group_promotion",
             "type": "array"
@@ -17680,7 +21085,7 @@
         }
       },
       "TrackingUrls": {
-        "description": "Third-party tracking URLs. Up to three tracking URLs are supported for each event type. Tracking URLs set at the ad group or ad level can override those set at the campaign level. For more information, see <a href=\"https://help.pinterest.com/en/business/article/third-party-and-dynamic-tracking\" target=\"_blank\">Third-party and dynamic tracking</a>.",
+        "description": "Third-party tracking URLs. Up to three tracking URLs - with a max length of 2,000 - are supported for each event type. Tracking URLs set at the ad group or ad level can override those set at the campaign level. For more information, see <a href=\"https://help.pinterest.com/en/business/article/third-party-and-dynamic-tracking\" target=\"_blank\">Third-party and dynamic tracking</a>.",
         "example": {
           "impression": [
             "URL1",
@@ -17709,42 +21114,32 @@
           "impression": {
             "type": "array",
             "items": {
-              "type": "string",
-              "maxLength": 2000
-            },
-            "maxItems": 3
+              "type": "string"
+            }
           },
           "click": {
             "type": "array",
             "items": {
-              "type": "string",
-              "maxLength": 2000
-            },
-            "maxItems": 3
+              "type": "string"
+            }
           },
           "engagement": {
             "type": "array",
             "items": {
-              "type": "string",
-              "maxLength": 2000
-            },
-            "maxItems": 3
+              "type": "string"
+            }
           },
           "buyable_button": {
             "type": "array",
             "items": {
-              "type": "string",
-              "maxLength": 2000
-            },
-            "maxItems": 3
+              "type": "string"
+            }
           },
           "audience_verification": {
             "type": "array",
             "items": {
-              "type": "string",
-              "maxLength": 2000
-            },
-            "maxItems": 3
+              "type": "string"
+            }
           }
         }
       },
@@ -17923,6 +21318,303 @@
         "example": "REMOVE",
         "title": "UserListOperationType",
         "type": "string"
+      },
+      "UserSummary": {
+        "title": "UserSummary",
+        "type": "object",
+        "properties": {
+          "username": {
+            "title": "username",
+            "type": "string",
+            "description": "Username",
+            "example": "username"
+          },
+          "type": {
+            "title": "type",
+            "type": "string",
+            "description": "Always \"user\"",
+            "example": "user"
+          }
+        }
+      },
+      "UserFollowingFeedType": {
+        "description": "Specifies the type of followees to be kept when filtering them.",
+        "enum": [
+          "ALL",
+          "RANKED",
+          "CREATOR_ONLY",
+          "RANKED_CREATOR_ONLY"
+        ],
+        "example": "CREATOR_ONLY",
+        "title": "UserFollowingFeedType",
+        "type": "string",
+        "default": "ALL"
+      },
+      "UserWebsiteSummary": {
+        "title": "UserWebsiteSummary",
+        "type": "object",
+        "properties": {
+          "website": {
+            "title": "website",
+            "type": "string",
+            "description": "Website with path or domain only",
+            "example": "mysite.test"
+          },
+          "status": {
+            "title": "status",
+            "type": "string",
+            "description": "Status of the verification process",
+            "example": "success"
+          },
+          "verified_at": {
+            "title": "verified_at",
+            "type": "string",
+            "description": "UTC timestamp when the verification happened - sometimes missing",
+            "example": "2022-12-14T21:03:01.602000"
+          }
+        }
+      },
+      "UserWebsiteVerificationCode": {
+        "title": "UserWebsiteVerificationCode",
+        "type": "object",
+        "properties": {
+          "verification_code": {
+            "title": "verification_code",
+            "type": "string",
+            "description": "Code to check against the user claiming the website",
+            "example": "e1edcc1a43976c646367e9c6c9a9b7b6"
+          },
+          "dns_txt_record": {
+            "title": "dns_txt_record",
+            "type": "string",
+            "description": "DNS TXT record to check against for the website to be claimed",
+            "example": "pinterest-site-verification=e1edcc1a43976c646367e9c6c9a9b7b6"
+          },
+          "metatag": {
+            "title": "metatag",
+            "type": "string",
+            "description": "Metatag the verification process searchs for the website to be claimed",
+            "example": "<meta name=\"p:domain_verify\" content=\"e1edcc1a43976c646367e9c6c9a9b7b6\"/>"
+          },
+          "filename": {
+            "title": "filename",
+            "type": "string",
+            "description": "File expected to find on the website being claimed",
+            "example": "pinterest-e1edc.html"
+          },
+          "file_content": {
+            "title": "file_content",
+            "type": "string",
+            "description": "A full html file to upload to the website in order for it to be claimed"
+          }
+        }
+      },
+      "UserWebsiteVerifyRequest": {
+        "title": "User website verification request",
+        "description": "User website verification request",
+        "type": "object",
+        "properties": {
+          "website": {
+            "type": "string",
+            "example": "pintest-website-12345678.test/test_1"
+          },
+          "verification_method": {
+            "type": "string",
+            "default": "METATAG",
+            "enum": [
+              "FILENAME",
+              "METATAG",
+              "DNSTXT"
+            ]
+          }
+        }
+      },
+      "ConversionTagListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversionTagResponse"
+            }
+          }
+        }
+      },
+      "ConversionTagResponse": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConversionTagCommon"
+          }
+        ],
+        "title": "ConversionTagResponse"
+      },
+      "ConversionTagCommon": {
+        "type": "object",
+        "properties": {
+          "ad_account_id": {
+            "description": "Ad account ID.",
+            "example": "549755885175",
+            "title": "ad_account_id",
+            "type": "string"
+          },
+          "code_snippet": {
+            "description": "Tag code snippet.",
+            "example": "<script type=text/javascript> [...]",
+            "title": "code_snippet",
+            "type": "string"
+          },
+          "enhanced_match_status": {
+            "$ref": "#/components/schemas/EnhancedMatchStatusType"
+          },
+          "id": {
+            "description": "Tag ID.",
+            "example": "2617998078212",
+            "title": "id",
+            "type": "string"
+          },
+          "last_fired_time_ms": {
+            "description": "Time for the last event fired.",
+            "example": 1599030000000,
+            "nullable": true,
+            "title": "last_fired_time_ms",
+            "type": "number"
+          },
+          "name": {
+            "description": "Conversion tag name.",
+            "example": "ACME Checkout Test Tag",
+            "title": "name",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EntityStatus"
+          },
+          "version": {
+            "description": "Version number.",
+            "example": "3",
+            "title": "version",
+            "type": "string"
+          },
+          "configs": {
+            "$ref": "#/components/schemas/ConversionTagConfigs"
+          }
+        },
+        "title": "ConversionTagCommon"
+      },
+      "ConversionTagConfigs": {
+        "type": "object",
+        "properties": {
+          "aem_enabled": {
+            "description": "Whether Automatic Enhanced Match email is enabled. See <a href=\"https://help.pinterest.com/en/business/article/enhanced-match\" target=\"_blank\">Enhanced match</a> for more information.",
+            "example": true,
+            "title": "aem_enabled",
+            "type": "boolean"
+          },
+          "md_frequency": {
+            "description": "Metadata ingestion frequency.",
+            "example": 0.6,
+            "title": "md_frequency",
+            "type": "number"
+          },
+          "aem_fnln_enabled": {
+            "description": "Whether Automatic Enhanced Match name is enabled. See <a href=\"https://help.pinterest.com/en/business/article/enhanced-match\" target=\"_blank\">Enhanced match</a> for more information.",
+            "example": true,
+            "title": "aem_fnln_enabled",
+            "type": "boolean"
+          },
+          "aem_ph_enabled": {
+            "description": "Whether Automatic Enhanced Match phone is enabled. See <a href=\"https://help.pinterest.com/en/business/article/enhanced-match\" target=\"_blank\">Enhanced match</a> for more information.",
+            "example": true,
+            "title": "aem_ph_enabled",
+            "type": "boolean"
+          },
+          "aem_ge_enabled": {
+            "description": "Whether Automatic Enhanced Match gender is enabled. See <a href=\"https://help.pinterest.com/en/business/article/enhanced-match\" target=\"_blank\">Enhanced match</a> for more information.",
+            "example": true,
+            "title": "aem_ge_enabled",
+            "type": "boolean"
+          },
+          "aem_db_enabled": {
+            "description": "Whether Automatic Enhanced Match birthdate is enabled. See <a href=\"https://help.pinterest.com/en/business/article/enhanced-match\" target=\"_blank\">Enhanced match</a> for more information.",
+            "example": true,
+            "title": "aem_db_enabled",
+            "type": "boolean"
+          },
+          "aem_loc_enabled": {
+            "description": "Whether Automatic Enhanced Match location is enabled. See <a href=\"https://help.pinterest.com/en/business/article/enhanced-match\" target=\"_blank\">Enhanced match</a> for more information.",
+            "example": true,
+            "title": "aem_loc_enabled",
+            "type": "boolean"
+          }
+        },
+        "title": "ConversionTagConfigs"
+      },
+      "ConversionTagCreate": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ConversionTagConfigs"
+          }
+        ],
+        "example": {
+          "name": "ACME Tools Tag"
+        },
+        "properties": {
+          "name": {
+            "description": "Conversion tag name.",
+            "example": "ACME Tools Tag",
+            "title": "name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "ConversionTagCreate"
+      },
+      "ConversionEventResponse": {
+        "title": "ConversionEventResponse",
+        "type": "object",
+        "properties": {
+          "conversion_event": {
+            "type": "string",
+            "$ref": "#/components/schemas/ConversionTagType"
+          },
+          "conversion_tag_id": {
+            "title": "conversion_tag_id",
+            "description": "Id of the tag.",
+            "type": "string",
+            "pattern": "^\\d+$",
+            "example": "2614324385652"
+          },
+          "ad_account_id": {
+            "title": "ad_account_id",
+            "description": "Id of the ad account.",
+            "type": "string",
+            "pattern": "^\\d+$",
+            "example": "549757463328"
+          },
+          "created_time": {
+            "title": "created_time",
+            "description": "Creation date in epoch format.",
+            "type": "integer",
+            "example": 1564768710
+          }
+        }
+      },
+      "EnhancedMatchStatusType": {
+        "description": "The enhanced match status of the tag",
+        "enum": [
+          "UNKNOWN",
+          "NOT_VALIDATED",
+          "VALIDATING_IN_PROGRESS",
+          "VALIDATION_COMPLETE",
+          null
+        ],
+        "example": "VALIDATION_COMPLETE",
+        "nullable": true,
+        "title": "EnhancedMatchStatusType",
+        "type": "string"
       }
     },
     "parameters": {
@@ -18098,6 +21790,15 @@
           "pattern": "^\\d+$"
         }
       },
+      "path_external_business_id": {
+        "name": "external_business_id",
+        "description": "External business ID for the integration.",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
       "path_media_id": {
         "name": "media_id",
         "description": "Media identifier",
@@ -18126,6 +21827,95 @@
           "type": "string",
           "pattern": "^\\d+$",
           "maxLength": 18
+        }
+      },
+      "path_order_line_id": {
+        "name": "order_line_id",
+        "description": "Unique identifier of an order line.",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$",
+          "maxLength": 18
+        }
+      },
+      "path_scope": {
+        "name": "scope",
+        "description": "Generated audience scope to request.",
+        "in": "path",
+        "required": true,
+        "style": "simple",
+        "schema": {
+          "$ref": "#/components/schemas/AudienceDefinitionScope"
+        }
+      },
+      "path_type": {
+        "name": "type",
+        "description": "Generated audience type to request.",
+        "in": "path",
+        "required": true,
+        "style": "simple",
+        "schema": {
+          "$ref": "#/components/schemas/AudienceDefinitionType"
+        }
+      },
+      "path_username": {
+        "name": "username",
+        "description": "A valid username",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "(?!^\\d+$)^.+$",
+          "example": "username"
+        }
+      },
+      "path_category_id": {
+        "name": "category_id",
+        "description": "Category (L1 interest) numeric ID.",
+        "in": "path",
+        "required": true,
+        "style": "simple",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$",
+          "maxLength": 18
+        }
+      },
+      "path_conversion_tag_id": {
+        "description": "Id of the conversion tag.",
+        "in": "path",
+        "example": "2617998078212",
+        "explode": false,
+        "name": "conversion_tag_id",
+        "required": true,
+        "schema": {
+          "pattern": "^\\d+$",
+          "maxLength": 18,
+          "type": "string"
+        },
+        "style": "simple"
+      },
+      "query_username": {
+        "name": "username",
+        "description": "Name of the user to be looked up.",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "(?!^\\d+$)^.+$",
+          "default": "me"
+        }
+      },
+      "path_aggregated_pin_data": {
+        "name": "aggregated_pin_data",
+        "description": "Id of aggregated pin data",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
         }
       },
       "query_ad_account_id": {
@@ -18628,7 +22418,43 @@
               "PAUSED",
               "ARCHIVED"
             ]
-          }
+          },
+          "default": [
+            "ACTIVE",
+            "PAUSED"
+          ]
+        }
+      },
+      "query_explicit_following": {
+        "description": "Whether or not to include implicit user follows, which means followees with board follows. When explicit_following is True, it means we only want explicit user follows.",
+        "in": "query",
+        "name": "explicit_following",
+        "required": false,
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "query_feed_profile_id": {
+        "in": "query",
+        "name": "feed_profile_id",
+        "description": "The feed profile id whose catalog product groups we want to return.",
+        "required": false,
+        "schema": {
+          "pattern": "^\\d+$",
+          "maxLength": 18,
+          "type": "string"
+        }
+      },
+      "query_filter_deleted": {
+        "name": "filter_deleted",
+        "description": "Filter out deleted tags.",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "boolean",
+          "example": true,
+          "default": false
         }
       },
       "query_comment_feed_type": {
@@ -18676,6 +22502,16 @@
         "required": true,
         "schema": {
           "$ref": "#/components/schemas/Granularity"
+        }
+      },
+      "query_include_protected_pins": {
+        "name": "include_protected_pins",
+        "description": "Specify if return pins from protected boards",
+        "required": false,
+        "in": "query",
+        "schema": {
+          "type": "boolean",
+          "default": false
         }
       },
       "query_keywords": {
@@ -18758,6 +22594,31 @@
         },
         "style": "form"
       },
+      "query_pin_filter": {
+        "name": "pin_filter",
+        "description": "Pin filter.",
+        "required": false,
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "exclude_native",
+            "exclude_repins"
+          ]
+        }
+      },
+      "query_pin_type": {
+        "name": "pin_type",
+        "description": "The type of pins to return, currently only enabled for private pins",
+        "required": false,
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "PRIVATE"
+          ]
+        }
+      },
       "query_search_query": {
         "description": "String keywords to search for audiences by.",
         "in": "query",
@@ -18809,20 +22670,37 @@
         "name": "metric_types",
         "required": true,
         "schema": {
+          "type": "array",
           "items": {
-            "enum": [
-              "IMPRESSION",
-              "SAVE",
-              "PIN_CLICK",
-              "OUTBOUND_CLICK",
-              "VIDEO_MRC_VIEW",
-              "VIDEO_AVG_WATCH_TIME",
-              "VIDEO_V50_WATCH_TIME",
-              "QUARTILE_95_PERCENT_VIEW"
-            ],
-            "type": "string"
-          },
-          "type": "array"
+            "oneOf": [
+              {
+                "description": "Standard Pin metric types",
+                "type": "string",
+                "enum": [
+                  "OUTBOUND_CLICK",
+                  "PIN_CLICK",
+                  "IMPRESSION",
+                  "SAVE",
+                  "SAVE_RATE"
+                ]
+              },
+              {
+                "description": "Video Pin metric types",
+                "type": "string",
+                "enum": [
+                  "OUTBOUND_CLICK",
+                  "IMPRESSION",
+                  "SAVE",
+                  "QUARTILE_95_PERCENT_VIEW",
+                  "VIDEO_10S_VIEW",
+                  "VIDEO_AVG_WATCH_TIME",
+                  "VIDEO_MRC_VIEW",
+                  "VIDEO_START",
+                  "VIDEO_V50_WATCH_TIME"
+                ]
+              }
+            ]
+          }
         },
         "style": "form"
       },
@@ -19111,6 +22989,21 @@
           ]
         }
       },
+      "query_sort": {
+        "description": "Sort method. Only RATIO is supported.",
+        "explode": false,
+        "in": "query",
+        "name": "sort",
+        "required": false,
+        "schema": {
+          "default": "RATIO",
+          "type": "string",
+          "example": "RATIO",
+          "enum": [
+            "RATIO"
+          ]
+        }
+      },
       "query_targeting_types": {
         "name": "targeting_types",
         "description": "Targeting type breakdowns for the report. The reporting per targeting type <br> is independent from each other.",
@@ -19134,6 +23027,87 @@
         "in": "query",
         "schema": {
           "$ref": "#/components/schemas/ConversionReportAttributionType"
+        }
+      },
+      "query_query": {
+        "description": "Search query. Can contain pin description keywords or comma-separated pin IDs.",
+        "in": "query",
+        "name": "query",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "query_board": {
+        "description": "Board ID.",
+        "in": "query",
+        "example": "2617998078212",
+        "name": "board",
+        "schema": {
+          "pattern": "^\\d+$",
+          "type": "string"
+        }
+      },
+      "query_topic_based": {
+        "description": "Use topic-based search? If true, pass topic as 'query' param.",
+        "in": "query",
+        "name": "topic_based",
+        "required": false,
+        "schema": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "query_richtype": {
+        "in": "query",
+        "name": "richtype",
+        "required": false,
+        "description": "Rich type filter.",
+        "schema": {
+          "type": "string",
+          "example": "movie",
+          "enum": [
+            "app",
+            "article",
+            "instant_content",
+            "movie",
+            "place",
+            "product",
+            "recipe",
+            "tutorial",
+            "tv_series"
+          ]
+        }
+      },
+      "query_rs": {
+        "description": "Referring source.",
+        "in": "query",
+        "example": "Unknown",
+        "name": "rs",
+        "schema": {
+          "pattern": "(?!^\\d+$)^.+$",
+          "type": "string"
+        }
+      },
+      "query_audience_insight_type": {
+        "description": "Type of audience insights.",
+        "explode": false,
+        "in": "query",
+        "name": "audience_insight_type",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/AudienceInsightType"
+        }
+      },
+      "query_user_following_feed_type": {
+        "description": "Thrift param specifying what type of followees will be kept. Default to include all followees.",
+        "in": "query",
+        "name": "feed_type",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "$ref": "#/components/schemas/UserFollowingFeedType",
+          "default": "ALL"
         }
       }
     }
