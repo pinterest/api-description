@@ -543,6 +543,147 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - search
+  /user_account/websites:
+    post:
+      summary: Verify website
+      description: Verify a website as a signed-in user.
+      tags:
+      - user_account
+      operationId: verify_website/update
+      security:
+      - pinterest_oauth2:
+        - user_accounts:write
+      x-ratelimit-category: org_write
+      x-sandbox: disabled
+      requestBody:
+        description: Verify a website.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserWebsiteVerifyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWebsiteSummary'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+    get:
+      summary: Get user websites
+      description: Get user websites, claimed or not
+      tags:
+      - user_account
+      operationId: user_websites/get
+      security:
+      - pinterest_oauth2:
+        - user_accounts:read
+      parameters:
+      - $ref: '#/components/parameters/query_bookmark'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Paginated'
+                - properties:
+                    items:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/UserWebsiteSummary'
+        '403':
+          description: Not authorized to access the user website list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 403
+                message: Not authorized to access the user website list.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-ratelimit-category: org_read
+      x-sandbox: disabled
+    delete:
+      summary: Unverify website
+      description: Unverifu a website verified by the signed-in user.
+      tags:
+      - user_account
+      operationId: unverify_website/delete
+      security:
+      - pinterest_oauth2:
+        - user_accounts:write
+      x-ratelimit-category: org_write
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/query_website'
+      responses:
+        '204':
+          description: Successfully unverified website
+        '404':
+          description: Website not in user list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 404
+                message: Website not in user list.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /user_account/websites/verification:
+    get:
+      summary: Get user verification code for website claiming
+      description: Get verification code for user to install on the website to claim
+        it.
+      tags:
+      - user_account
+      operationId: website_verification/get
+      security:
+      - pinterest_oauth2:
+        - user_accounts:read
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWebsiteVerificationCode'
+          description: Success
+        '403':
+          description: Not authorized to access the user verification code for website
+            claiming.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 403
+                message: Not authorized to access the user verification code for website
+                  claiming.
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      x-ratelimit-category: org_read
+      x-sandbox: disabled
   /pins:
     get:
       summary: List Pins
@@ -11331,7 +11472,9 @@ components:
             additionalProperties: false
             properties:
               event_name:
-                description: The type of the user event.
+                description: "The type of the user event. Please use the right event_name\
+                  \ otherwise the event won\u2019t be accepted and show up correctly\
+                  \ in reports."
                 type: string
                 enum:
                 - add_to_cart
@@ -11361,7 +11504,8 @@ components:
               event_id:
                 description: A unique id string that identifies this event and can
                   be used for deduping between events ingested via both the conversion
-                  API and Pinterest tracking.
+                  API and Pinterest tracking. Without this, event's data is likely
+                  to be double counted and will cause report metric inflation.
                 type: string
                 example: eventId0001
               event_source_url:
@@ -11378,11 +11522,11 @@ components:
                 type: boolean
                 example: false
               partner_name:
-                description: The third party partner name responsible to send the
-                  event to Conversions API on behalf of the advertiser. Only send
-                  this field if Pinterest has worked directly with you to define a
-                  value for partner_name.
+                description: "The third party partner name responsible to send the\
+                  \ event to Conversions API on behalf of the advertiser. The naming\
+                  \ convention is \"ss-companyname\" lowercase. E.g \u2018ss-shopify\u2019"
                 type: string
+                example: ss-companyname
                 nullable: true
               user_data:
                 $ref: '#/components/schemas/ConversionEventsUserData'
@@ -11394,6 +11538,7 @@ components:
                   currency:
                     description: The ISO-4217 currency code. If not provided, we will
                       default to the advertiser's currency set during account creation.
+                      Your campaign performance needs this field to report right ROAS/CPA.
                     example: USD
                     type: string
                     nullable: true
@@ -11401,18 +11546,25 @@ components:
                     description: Total value of the event. Accepted as a string in
                       the request; it will be parsed into a double. For example, if
                       there are two items in a checkout event, the value should be
-                      the total price
+                      the total price. We recommend to use pre-tax, pre-shipping final
+                      value.
                     example: '425325.89'
                     type: string
                     nullable: true
                   content_ids:
-                    description: List of products IDs
+                    description: List of products IDs. We recommend using this if
+                      you are a merchant for PageVisit, AddToCart and Checkouts. For
+                      detail, please check <a href="https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs"
+                      target="_blank">here</a> (Install the Pinterest tag section).
                     type: array
                     items:
                       type: string
                   contents:
                     description: A list of objects containing information about products,
-                      such as price and quantity.
+                      such as price and quantity. We recommend using this if you are
+                      a merchant for PageVisit, AddToCart and Checkouts. For detail,
+                      please check <a href="https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs"
+                      target="_blank">here</a> (Install the Pinterest tag section).
                     type: array
                     items:
                       type: object
@@ -11422,20 +11574,32 @@ components:
                           description: The price of a product. Accepted as a string
                             in the request; it will be parsed into a double. For example,
                             if there are two products in a checkout event, the value
-                            should be the total price
+                            should be the total price. This is the original item value
+                            before any discount. We recommend using this if you are
+                            a merchant for PageVisit, AddToCart and Checkouts. For
+                            detail, please check <a href="https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs"
+                            target="_blank">here</a> (Install the Pinterest tag section).
                           example: '1325.12'
                           type: string
                         quantity:
-                          description: The amount of a product.
+                          description: The amount of a product. We recommend using
+                            this if you are a merchant for AddToCart and Checkouts.
+                            For detail, please check <a href="https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs"
+                            target="_blank">here</a> (Install the Pinterest tag section).
                           type: integer
                           format: int64
                   num_items:
                     description: Total number of products of the event. For example,
-                      the total number of items purchased in a checkout event.
+                      the total number of items purchased in a checkout event. We
+                      recommend using this if you are a merchant for AddToCart and
+                      Checkouts. For detail, please check <a href="https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs"
+                      target="_blank">here</a> (Install the Pinterest tag section).
                     type: integer
                     format: int64
                   order_id:
-                    description: The order ID
+                    description: The order ID. We recommend sending order_id to help
+                      us deduplicate events when necessary. This also helps to run
+                      other measurement products at Pinterest.
                     type: string
                     nullable: true
                   search_string:
@@ -11446,13 +11610,16 @@ components:
                   opt_out_type:
                     description: Flags for different privacy rights laws to opt out
                       users of sharing personal information. Values should be comma
-                      separated.
+                      separated. Please follow the <a href="https://help.pinterest.com/en/business/article/limited-data-processing"
+                      target="_blank">Help Center</a> and <a href="https://developers.pinterest.com/docs/conversions/conversion-management/#Understanding%20Limited%20Data%20Processing"
+                      target="_blank">dev site</a> for specific opt_out_type set up.
                     example: LDP
                     type: string
                     nullable: true
                   np:
                     description: Named partner. Not required, this is for Pinterest
-                      internal use only.
+                      internal use only. Please do not use this unless specifically
+                      guided.
                     type: string
                     nullable: true
               app_id:
@@ -11514,23 +11681,29 @@ components:
       - properties:
           em:
             description: Sha256 hashes of lowercase version of user's email addresses.
-              Used for matching.
+              Used for matching. We highly recommend this on checkout events at least.
+              It may improve reporting performance such as ROAS/CPA.
             type: array
             items:
               type: string
           hashed_maids:
             description: Sha256 hashes of user's "Google Advertising IDs" (GAIDs)
               or "Apple's Identifier for Advertisers" (IDFAs). Used for matching.
+              We highly recommend this on checkout events at least. It may improve
+              reporting performance such as ROAS/CPA.
             type: array
             items:
               type: string
           client_ip_address:
             description: The user's IP address, which can be either in IPv4 or IPv6
-              format. Used for matching.
+              format. Used for matching. We highly recommend this for all events.
+              It may improve reporting performance such as ROAS/CPA.
             type: string
             example: 216.3.128.12
           client_user_agent:
-            description: The user agent string of the user's web browser.
+            description: The user agent string of the user's web browser. We highly
+              recommend this for all events. It may improve reporting performance
+              such as ROAS/CPA.
             type: string
             example: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36
               (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36
@@ -11539,23 +11712,29 @@ components:
       - properties:
           em:
             description: Sha256 hashes of lowercase version of user's email addresses.
-              Used for matching.
+              Used for matching. We highly recommend this on checkout events at least.
+              It may improve reporting performance such as ROAS/CPA.
             type: array
             items:
               type: string
           hashed_maids:
             description: Sha256 hashes of user's "Google Advertising IDs" (GAIDs)
               or "Apple's Identifier for Advertisers" (IDFAs). Used for matching.
+              We highly recommend this on checkout events at least. It may improve
+              reporting performance such as ROAS/CPA.
             type: array
             items:
               type: string
           client_ip_address:
             description: The user's IP address, which can be either in IPv4 or IPv6
-              format. Used for matching.
+              format. Used for matching. We highly recommend this for all events.
+              It may improve reporting performance such as ROAS/CPA.
             type: string
             example: 216.3.128.12
           client_user_agent:
-            description: The user agent string of the user's web browser.
+            description: The user agent string of the user's web browser. We highly
+              recommend this for all events. It may improve reporting performance
+              such as ROAS/CPA.
             type: string
             example: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36
               (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36
@@ -11564,23 +11743,29 @@ components:
       - properties:
           em:
             description: Sha256 hashes of lowercase version of user's email addresses.
-              Used for matching.
+              Used for matching. We highly recommend this on checkout events at least.
+              It may improve reporting performance such as ROAS/CPA.
             type: array
             items:
               type: string
           hashed_maids:
             description: Sha256 hashes of user's "Google Advertising IDs" (GAIDs)
               or "Apple's Identifier for Advertisers" (IDFAs). Used for matching.
+              We highly recommend this on checkout events at least. It may improve
+              reporting performance such as ROAS/CPA.
             type: array
             items:
               type: string
           client_ip_address:
             description: The user's IP address, which can be either in IPv4 or IPv6
-              format. Used for matching.
+              format. Used for matching. We highly recommend this for all events.
+              It may improve reporting performance such as ROAS/CPA.
             type: string
             example: 216.3.128.12
           client_user_agent:
-            description: The user agent string of the user's web browser.
+            description: The user agent string of the user's web browser. We highly
+              recommend this for all events. It may improve reporting performance
+              such as ROAS/CPA.
             type: string
             example: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36
               (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36
@@ -11591,7 +11776,8 @@ components:
         ph:
           description: Sha256 hashes of user's phone numbers, only digits with country
             code, area code, and number. Remove any symbols, letters, spaces and leading
-            zeros.
+            zeros. We highly recommend this on checkout events at least. It may improve
+            reporting performance such as ROAS/CPA.
           type: array
           items:
             type: string
@@ -11608,29 +11794,34 @@ components:
           items:
             type: string
         ln:
-          description: Sha256 hashes of user's last name, in lowercase.
+          description: Sha256 hashes of user's last name, in lowercase. We highly
+            recommend this on checkout events at least. It may improve reporting performance
+            such as ROAS/CPA.
           type: array
           items:
             type: string
         fn:
-          description: Sha256 hashes of user's first name, in lowercase.
+          description: Sha256 hashes of user's first name, in lowercase. We highly
+            recommend this on checkout events at least. It may improve reporting performance
+            such as ROAS/CPA.
           type: array
           items:
             type: string
         ct:
           description: Sha256 hashes of user's city, in lowercase, and without spaces
-            or punctuation.
+            or punctuation. User residency city (mostly billing).
           type: array
           items:
             type: string
         st:
           description: Sha256 hashes of user's state, given as a two-letter code in
-            lowercase.
+            lowercase. User residency state (mostly billing).
           type: array
           items:
             type: string
         zp:
-          description: Sha256 hashes of user's zipcode, only digits.
+          description: Sha256 hashes of user's zipcode, only digits. User residency
+            zipcode (mostly billing).
           type: array
           items:
             type: string
@@ -11642,14 +11833,15 @@ components:
             type: string
         external_id:
           description: Sha256 hashes of the unique id from the advertiser that identifies
-            a user in their space, e.g. user id, loyalty id, etc.
+            a user in their space, e.g. user id, loyalty id, etc. We highly recommend
+            this on all events. It may improve reporting performance such as ROAS/CPA.
           type: array
           items:
             type: string
         click_id:
-          description: The value stored in _epik cookie on your domain or &epik= query
-            parameter in the URL. It's recommended to send this unique identifier,
-            when available.
+          description: The unique identifier stored in _epik cookie on your domain
+            or &epik= query parameter in the URL. We highly recommend this on checkout
+            events at least. It may improve reporting performance such as ROAS/CPA.
           type: string
           example: dj0yJnU9b2JDcFFHekV4SHJNcmVrbFBkUEdqakh0akdUT1VjVVUmcD0yJm49cnNBQ3F2Q2dOVDBXWWhkWklrUGxBUSZ0PUFBQUFBR1BaY3Bv
           nullable: true
@@ -17021,3 +17213,11 @@ components:
         type: string
         $ref: '#/components/schemas/UserFollowingFeedType'
         default: ALL
+    query_website:
+      description: Website with path or domain only
+      in: query
+      name: website
+      required: true
+      schema:
+        type: string
+        example: mysite.test
