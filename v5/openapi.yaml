@@ -11953,6 +11953,7 @@ components:
       - CK
       - CL
       - CM
+      - CN
       - CO
       - CR
       - CU
@@ -13708,6 +13709,7 @@ components:
         mapping:
           authorization_code: '#/components/schemas/OauthAccessTokenResponseCode'
           refresh_token: '#/components/schemas/OauthAccessTokenResponseRefresh'
+          integration_refresh: '#/components/schemas/OauthAccessTokenResponseIntegrationRefresh'
       required:
       - access_token
       - token_type
@@ -13736,6 +13738,22 @@ components:
       type: object
       allOf:
       - $ref: '#/components/schemas/OauthAccessTokenResponse'
+    OauthAccessTokenResponseIntegrationRefresh:
+      title: OAuth access token response
+      description: A successful OAuth access token response for the refresh token
+        flow, with an added refresh token.
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/OauthAccessTokenResponse'
+      - type: object
+        properties:
+          refresh_token:
+            type: string
+          refresh_token_expires_in:
+            type: integer
+        required:
+        - refresh_token
+        - refresh_token_expires_in
     OptimizationGoalMetadata:
       type: object
       properties:
@@ -14322,7 +14340,8 @@ components:
           description: Array with image objects.
           type: array
         index:
-          type: number
+          type: integer
+          minimum: 0
       required:
       - items
       type: object
@@ -14378,7 +14397,8 @@ components:
           description: Array with image objects.
           type: array
         index:
-          type: number
+          type: integer
+          minimum: 0
       required:
       - items
       type: object
