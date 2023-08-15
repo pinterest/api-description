@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 5.10.0
+  version: 5.11.0
   title: Pinterest REST API
   description: Pinterest's REST API
   contact:
@@ -1902,51 +1902,13 @@ paths:
           description: Unexpected error
       tags:
       - audience_insights
-  /ad_accounts/{ad_account_id}/insights/audiences/{scope}/{type}/{category_id}:
-    get:
-      deprecated: true
-      description: |-
-        Get information about a category's sub-level interests. For a list of interests, their IDs, and hierarchy,
-        see the [list of interests](https://docs.google.com/spreadsheets/d/1HxL-0Z3p2fgxis9YBP2HWC3tvPrs1hAuHDRtH-NJTIM/edit#gid=118370875).
-        Also, a category is a level-one (L1) interest. For example, in the interest hierarchy see **Animals** > **Mammals** > **Dogs**, **Animals**
-        is the category.
-
-        This endpoint has been deprecated.
-      operationId: audiences_insights/category/list
-      security:
-      - pinterest_oauth2:
-        - ads:read
-      x-ratelimit-category: ads_read
-      x-sandbox: disabled
-      parameters:
-      - $ref: '#/components/parameters/path_ad_account_id'
-      - $ref: '#/components/parameters/path_scope'
-      - $ref: '#/components/parameters/path_type'
-      - $ref: '#/components/parameters/path_category_id'
-      - $ref: '#/components/parameters/query_sort'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AudienceInsightCategoryArrayResponse'
-          description: Success
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Unexpected error
-      summary: Get category sub-interest (DEPRECATED)
-      tags:
-      - audience_insights
   /ad_accounts/{ad_account_id}/keywords:
     get:
       summary: Get keywords
       description: |-
         <p>Get a list of keywords based on the filters provided. If no filter is provided, it will default to the ad_account_id filter, which means it will only return keywords that specifically have parent_id set to the ad_account_id. Note: Keywords can have ad_account_ids, campaign_ids, and ad_group_ids set as their parent_ids. Keywords created through Ads Manager will have their parent_id set to an ad_group_id, not ad_account_id.</p>
         <p>For more information, see <a target="_blank" href="https://help.pinterest.com/en/business/article/keyword-targeting">Keyword targeting</a>.</p>
-        <p><b>Notes:</b></p> <ul style="list-style-type: square;"> <li>Advertisers and campaigns can only be assigned keywords with excluding ('_NEGATIVE').</li> <li>All keyword match types are available for ad groups.</li> </ul> <p>For more information on match types, see <a href="/docs/redoc/#section/Match-type-(keyword)">match type enums</a>.</p>
+        <p><b>Notes:</b></p> <ul style="list-style-type: square;"> <li>Advertisers and campaigns can only be assigned keywords with excluding ('_NEGATIVE').</li> <li>All keyword match types are available for ad groups.</li> </ul> <p>For more information on match types, see <a target="_blank" href="/docs/ads/targeting/#Match%20type%20and%20targeting%20level">match type enums</a>.</p>
         <p><b>Returns:</b></p> <ul style="list-style-type: square;"> <li><p>A successful call returns an object containing an array of new keyword objects and an empty &quot;errors&quot; object array.</p></li> <li><p>An unsuccessful call returns an empty keywords array, and, instead, inserts the entire object with nulled/negated properties into the &quot;errors&quot; object array:</p> <pre class="last literal-block"> { "keywords": [], "errors": [ { "data": { "archived": null, "match_type": "EXACT", "parent_type": null, "value": "foobar", "parent_id": null, "type": "keyword", "id": null }, "error_messages": [ "Advertisers and Campaigns only accept excluded targeting attributes." ] } } </pre></li> </ul>
       operationId: keywords/get
       security:
@@ -1986,7 +1948,7 @@ paths:
       summary: Create keywords
       description: |-
         <p>Create keywords for following entity types(advertiser, campaign, ad group or ad).</p> <p>For more information, see <a target="_blank" href="https://help.pinterest.com/en/business/article/keyword-targeting">Keyword targeting</a>.</p>
-        <p><b>Notes:</b></p> <ul style="list-style-type: square;"> <li>Advertisers and campaigns can only be assigned keywords with excluding ('_NEGATIVE').</li> <li>All keyword match types are available for ad groups.</li> </ul> <p>For more information on match types, see <a href="/docs/redoc/#section/Match-type-(keyword)">match type enums</a>.</p>
+        <p><b>Notes:</b></p> <ul style="list-style-type: square;"> <li>Advertisers and campaigns can only be assigned keywords with excluding ('_NEGATIVE').</li> <li>All keyword match types are available for ad groups.</li> </ul> <p>For more information on match types, see <a  target="_blank" href="/docs/ads/targeting/#Match%20type%20and%20targeting%20level">match type enums</a>.</p>
         <p><b>Returns:</b></p> <ul style="list-style-type: square;"> <li><p>A successful call returns an object containing an array of new keyword objects and an empty &quot;errors&quot; object array.</p></li> <li><p>An unsuccessful call returns an empty keywords array, and, instead, inserts the entire object with nulled/negated properties into the &quot;errors&quot; object array:</p> <pre class="last literal-block"> { "keywords": [], "errors": [ { "data": { "archived": null, "match_type": "EXACT", "parent_type": null, "value": "foobar", "parent_id": null, "type": "keyword", "id": null }, "error_messages": [ "Advertisers and Campaigns only accept excluded targeting attributes." ] } } </pre></li> </ul>
         <p><b>Rate limit</b>: <a href="/docs/redoc/#tag/Rate-Limits">WRITE</a>.</p>
       operationId: keywords/create
@@ -2494,7 +2456,7 @@ paths:
     get:
       summary: Get the account analytics report created by the async call
       description: |-
-        This returns a URL to an analytics report given a token returned from the post request report creation call. You can use the URL to download the report and it's valid for an hour.
+        This returns a URL to an analytics report given a token returned from the post request report creation call. You can use the URL to download the report. The link is valid for five minutes and the report is valid for one hour.
         - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
       operationId: analytics/get_report
       security:
@@ -2608,6 +2570,265 @@ paths:
               example:
                 code: 400
                 message: Invalid ad account id
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_accounts
+  /ad_accounts/{ad_account_id}/ssio/accounts:
+    get:
+      summary: Get Salesforce account details including bill-to information.
+      description: |-
+        Get Salesforce account details including bill-to information to be used in insertion orders process for <code>ad_account_id</code>.
+        - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Finance, Campaign.
+      operationId: ssio_accounts/get
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: enabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSIOAccountResponse'
+          description: Success
+        '400':
+          description: Invalid request parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid request parameter.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_accounts
+  /ad_accounts/{ad_account_id}/ssio/insertion_orders:
+    post:
+      summary: Create insertion order through SSIO.
+      description: |-
+        Create insertion order through SSIO for <code>ad_account_id</code>.
+        - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Finance, Campaign.
+      operationId: ssio_insertion_order/create
+      security:
+      - pinterest_oauth2:
+        - ads:write
+      x-ratelimit-category: ads_write
+      x-sandbox: enabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SSIOCreateInsertionOrderRequest'
+        description: Order line to create.
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSIOCreateInsertionOrderResponse'
+          description: Success
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid request.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_accounts
+    patch:
+      summary: Edit insertion order through SSIO.
+      description: |-
+        Edit insertion order through SSIO for <code>ad_account_id</code>.
+        - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Finance, Campaign.
+      operationId: ssio_insertion_order/edit
+      security:
+      - pinterest_oauth2:
+        - ads:write
+      x-ratelimit-category: ads_write
+      x-sandbox: enabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SSIOEditInsertionOrderRequest'
+        description: Order line to create.
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSIOEditInsertionOrderResponse'
+          description: Success
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid request.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_accounts
+  /ad_accounts/{ad_account_id}/ssio/insertion_orders/status:
+    get:
+      summary: Get insertion order status by ad account id.
+      description: |-
+        Get insertion order status for account id <code>ad_account_id</code>.
+        - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Finance, Campaign.
+      operationId: ssio_insertion_orders_status/get_by_ad_account
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: enabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Paginated'
+                - properties:
+                    items:
+                      description: Insertion orders status by ad acount id
+                      items:
+                        $ref: '#/components/schemas/SSIOInsertionOrderStatus'
+          description: Success
+        '400':
+          description: Invalid request parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid request parameter.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_accounts
+  /ad_accounts/{ad_account_id}/ssio/insertion_orders/{pin_order_id}/status:
+    get:
+      summary: Get insertion order status by pin order id.
+      description: |-
+        Get insertion order status for pin order id <code>pin_order_id</code>.
+        - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Finance, Campaign.
+      operationId: ssio_insertion_orders_status/get_by_pin_order_id
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: enabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/path_pin_order_id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSIOInsertionOrderStatusResponse'
+          description: Success
+        '400':
+          description: Invalid request parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid request parameter.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_accounts
+  /ad_accounts/{ad_account_id}/ssio/order_lines:
+    get:
+      summary: Get Salesforce order lines by ad account id.
+      description: |-
+        Get Salesforce order lines for account id <code>ad_account_id</code>.
+        - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Finance, Campaign.
+      operationId: ssio_order_lines/get_by_ad_account
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: enabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
+      - $ref: '#/components/parameters/query_pin_order_id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Paginated'
+                - properties:
+                    items:
+                      description: SSIO order lines by ad acount id
+                      items:
+                        $ref: '#/components/schemas/SSIOOrderLine'
+          description: Success
+        '400':
+          description: Invalid request parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid request parameter.
         default:
           description: Unexpected error
           content:
@@ -3576,7 +3797,7 @@ paths:
 
         Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
 
-        <a href='/docs/shopping/catalog/'>Learn more</a>
+        <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Learn more</a>
       operationId: feeds/list
       security:
       - pinterest_oauth2:
@@ -3585,6 +3806,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
+      - $ref: '#/components/parameters/query_catalogs_catalog_id'
       - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '200':
@@ -3642,7 +3864,7 @@ paths:
 
         Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
 
-        <a href='/docs/shopping/catalog/'>Learn more</a>
+        <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Learn more</a>
       operationId: feeds/create
       security:
       - pinterest_oauth2:
@@ -3657,7 +3879,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CatalogsFeedsCreateRequest'
+              oneOf:
+              - $ref: '#/components/schemas/CatalogsVerticalFeedsCreateRequest'
+              - $ref: '#/components/schemas/CatalogsFeedsCreateRequest'
       responses:
         '201':
           content:
@@ -3757,7 +3981,7 @@ paths:
 
         Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
 
-        <a href='/docs/shopping/catalog/'>Learn more</a>
+        <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Learn more</a>
       operationId: feeds/get
       security:
       - pinterest_oauth2:
@@ -3824,7 +4048,7 @@ paths:
 
         Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
 
-        <a href='/docs/shopping/catalog/'>Learn more</a>
+        <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Learn more</a>
       operationId: feeds/update
       security:
       - pinterest_oauth2:
@@ -3840,7 +4064,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CatalogsFeedsUpdateRequest'
+              oneOf:
+              - $ref: '#/components/schemas/CatalogsVerticalFeedsUpdateRequest'
+              - $ref: '#/components/schemas/CatalogsFeedsUpdateRequest'
       responses:
         '200':
           content:
@@ -3903,7 +4129,7 @@ paths:
 
         Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
 
-        <a href='/docs/shopping/catalog/'>Learn more</a>
+        <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Learn more</a>
       operationId: feeds/delete
       security:
       - pinterest_oauth2:
@@ -4064,10 +4290,12 @@ paths:
       x-ratelimit-category: catalogs_read
       x-sandbox: disabled
       parameters:
-      - $ref: '#/components/parameters/query_catalogs_items_country'
-      - $ref: '#/components/parameters/query_catalogs_items'
-      - $ref: '#/components/parameters/query_catalogs_items_language'
       - $ref: '#/components/parameters/query_ad_account_id'
+      - $ref: '#/components/parameters/query_catalogs_items_country'
+      - $ref: '#/components/parameters/query_catalogs_items_language'
+      - $ref: '#/components/parameters/query_catalogs_id'
+      - $ref: '#/components/parameters/query_catalogs_items'
+      - $ref: '#/components/parameters/query_catalogs_hotels'
       responses:
         '200':
           description: Response containing the requested catalogs items
@@ -4134,7 +4362,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CatalogsItemsBatchRequest'
+              oneOf:
+              - $ref: '#/components/schemas/CatalogsVerticalBatchRequest'
+              - $ref: '#/components/schemas/CatalogsItemsBatchRequest'
       responses:
         '200':
           description: Response containing the requested catalogs items batch
@@ -5452,7 +5682,7 @@ paths:
       description: |-
         List media uploads filtered by given parameters.
 
-        <strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.
+        <strong><a href='/docs/content/content-creation/#Creating%20video%20Pins'>Learn more</a></strong> about video Pin creation.
       tags:
       - media
       operationId: media/list
@@ -5497,7 +5727,7 @@ paths:
         parameter and also include all of the parameters from
         <tt>upload_parameters</tt>.
 
-        <strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.
+        <strong><a href='/docs/content/content-creation/#Creating%20video%20Pins'>Learn more</a></strong> about video Pin creation.
       tags:
       - media
       operationId: media/create
@@ -5533,7 +5763,7 @@ paths:
       description: |-
         Get details for a registered media upload, including its current status.
 
-        <strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.
+        <strong><a href='/docs/content/content-creation/#Creating%20video%20Pins'>Learn more</a></strong> about video Pin creation.
       tags:
       - media
       operationId: media/get
@@ -5632,6 +5862,7 @@ paths:
           --header 'Content-Type: application/json'
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
       - $ref: '#/components/parameters/query_pin_filter'
       - $ref: '#/components/parameters/query_include_protected_pins'
       - $ref: '#/components/parameters/query_pin_type'
@@ -5674,9 +5905,9 @@ paths:
 
         Note: If the current "operation user_account" (defined by the access token) has access to another user's Ad Accounts via Pinterest Business Access, you can modify your request to make use of the current operation_user_account's permissions to those Ad Accounts by including the ad_account_id in the path parameters for the request (e.g. .../?ad_account_id=12345&...).
 
-        - This function is intended solely for publishing new content created by the user. If you are interested in saving content created by others to your Pinterest boards, sometimes called 'curated content', please use our <a href='/docs/add-ons/save-button'>Save button</a> instead. For more tips on creating fresh content for Pinterest, review our <a href='/docs/solutions/content-apps'>Content App Solutions Guide</a>.
+        - This function is intended solely for publishing new content created by the user. If you are interested in saving content created by others to your Pinterest boards, sometimes called 'curated content', please use our <a href='/docs/add-ons/save-button'>Save button</a> instead. For more tips on creating fresh content for Pinterest, review our <a href='/docs/content/content-creation/'>Content App Solutions Guide</a>.
 
-        <strong><a href='/docs/solutions/content-apps/#creatingvideopins'>Learn more</a></strong> about video Pin creation.
+        <strong><a href='/docs/content/content-creation/#Creating%20video%20Pins'>Learn more</a></strong> about video Pin creation.
       tags:
       - pins
       operationId: pins/create
@@ -6251,6 +6482,7 @@ paths:
                     be saved.
                   type: string
                   pattern: ^\d+$
+                  nullable: true
                 board_section_id:
                   description: Unique identifier of the board section to which the
                     pin will be saved.
@@ -7273,6 +7505,8 @@ components:
             ads:read: See all of your advertising data, including ads, ad groups,
               campaigns etc.
             ads:write: Create, update, or delete ads, ad groups, campaigns etc.
+            biz_access:read: See business access data
+            biz_access:write: Create, update, or delete business access data
             boards:read: See your public boards, including group boards you join
             boards:read_secret: See your secret boards
             boards:write: Create, update, or delete your public boards
@@ -7389,8 +7623,26 @@ components:
           title: permissions
           type: array
           items:
-            type: string
             nullable: true
+            type: string
+            description: Permission role for business access.
+            example: ADMIN
+            enum:
+            - OWNER
+            - ADMIN
+            - ANALYST
+            - SOS_READER
+            - FINANCE_MANAGER
+            - AUDIENCE_MANAGER
+            - CAMPAIGN_MANAGER
+            - CATALOGS_MANAGER
+            - RESTRICTED_OWNER
+            - PROFILE_MANAGER
+            - PROFILE_PUBLISHER
+            - RESOURCE_PINNER_LIST_OWNER
+            - RESOURCE_PINNER_LIST_READER
+            - BIZ_PINNER_LIST_SHARER
+            - RESOURCE_CONVERSION_TAGS_READER
         created_time:
           description: Creation time. Unix timestamp in seconds.
           example: 1451431341
@@ -7556,6 +7808,11 @@ components:
         view_tracking_url:
           description: Tracking URL for ad impressions.
           type: string
+          nullable: true
+        lead_form_id:
+          description: Lead form ID for lead ad generation.
+          type: string
+          pattern: ^(AG)?\d+$
           nullable: true
     AdCreateRequest:
       allOf:
@@ -8214,7 +8471,9 @@ components:
             - $ref: '#/components/schemas/MetricsReportingLevel'
             example: CAMPAIGN
           report_format:
-            description: Specification for formatting report data
+            description: Specification for formatting the report data. Reports in
+              JSON will not zero-fill metrics, whereas reports in CSV will. Both report
+              formats will omit rows where all the columns are equal to 0.
             type: string
             allOf:
             - $ref: '#/components/schemas/DataOutputFormat'
@@ -8465,6 +8724,39 @@ components:
           description: Interest ID.
           type: string
           example: '1234567'
+        subcategories:
+          title: subcategories
+          description: Subcategory interest distribution
+          type: array
+          items:
+            title: AudienceSubcategory
+            type: object
+            properties:
+              key:
+                title: key
+                description: Interest unique key (same as ID).
+                type: string
+                example: '958862518888'
+              name:
+                title: name
+                description: Subinterest name.
+                type: string
+                example: travel destinations
+              ratio:
+                title: ratio
+                description: Subinterest's percent of category's total audience.
+                type: number
+                example: 0.482
+              index:
+                title: index
+                description: Subinterest affinity index.
+                type: number
+                example: 1.2
+              id:
+                title: id
+                description: Subinterest ID.
+                type: string
+                example: '958862518888'
     AudienceCommon:
       title: AudienceCommon
       type: object
@@ -8995,6 +9287,7 @@ components:
       - VISITOR
       - ENGAGEMENT
       - ACTALIKE
+      - PERSONA
       example: ACTALIKE
       title: AudienceType
       type: string
@@ -9033,6 +9326,7 @@ components:
       type: string
       enum:
       - UPDATE
+      - UPSERT
       - CREATE
       - DELETE_DISCONTINUED
       - DELETE
@@ -9873,21 +10167,36 @@ components:
           type: string
           format: date-time
           example: '2022-03-14T15:16:34Z'
+    CatalogsHotelBatchItem:
+      description: Hotel batch item
+      type: object
+      anyOf:
+      - $ref: '#/components/schemas/CatalogsUpdateHotelItem'
+      discriminator:
+        propertyName: operation
+        mapping:
+          UPDATE: '#/components/schemas/CatalogsUpdateHotelItem'
     CatalogsFeed:
       type: object
       title: catalogs_feed
       description: Catalogs Feed object
+      oneOf:
+      - $ref: '#/components/schemas/CatalogsRetailFeed'
+      - $ref: '#/components/schemas/CatalogsHotelFeed'
+      discriminator:
+        propertyName: catalog_type
+        mapping:
+          RETAIL: '#/components/schemas/CatalogsRetailFeed'
+          HOTEL: '#/components/schemas/CatalogsHotelFeed'
+    CatalogsHotelFeed:
+      type: object
+      title: catalogs_hotel_feed
+      description: Catalogs Hotel Feed object
       allOf:
       - $ref: '#/components/schemas/CatalogsDbItem'
       - type: object
         title: feed_fields
         properties:
-          default_country:
-            $ref: '#/components/schemas/Country'
-          default_availability:
-            $ref: '#/components/schemas/ProductAvailabilityType'
-          default_currency:
-            $ref: '#/components/schemas/NullableCurrency'
           name:
             description: A human-friendly name associated to a given feed. This value
               is currently nullable due to historical reasons. It is expected to become
@@ -9896,10 +10205,6 @@ components:
             type: string
           format:
             $ref: '#/components/schemas/CatalogsFormat'
-          default_locale:
-            description: The locale used within a feed for product descriptions.
-            example: en-US
-            type: string
           credentials:
             $ref: '#/components/schemas/CatalogsFeedCredentials'
           location:
@@ -9910,6 +10215,66 @@ components:
             $ref: '#/components/schemas/CatalogsFeedProcessingSchedule'
           status:
             $ref: '#/components/schemas/CatalogsStatus'
+          default_currency:
+            $ref: '#/components/schemas/NullableCurrency'
+          default_locale:
+            description: The locale used within a feed for product descriptions.
+            example: en-US
+            type: string
+          catalog_id:
+            description: Catalog id pertaining to the feed. If not provided, feed
+              will use a default catalog based on type.
+            nullable: true
+            type: string
+            pattern: ^\d+$
+        required:
+        - credentials
+        - format
+        - location
+        - name
+        - preferred_processing_schedule
+        - status
+        - catalog_type
+        - default_locale
+        - default_currency
+        - catalog_id
+    CatalogsRetailFeed:
+      type: object
+      title: catalogs_retail_feed
+      description: Catalogs Retail Feed object
+      allOf:
+      - $ref: '#/components/schemas/CatalogsDbItem'
+      - type: object
+        title: feed_fields
+        properties:
+          name:
+            description: A human-friendly name associated to a given feed. This value
+              is currently nullable due to historical reasons. It is expected to become
+              non-nullable in the future.
+            nullable: true
+            type: string
+          format:
+            $ref: '#/components/schemas/CatalogsFormat'
+          credentials:
+            $ref: '#/components/schemas/CatalogsFeedCredentials'
+          location:
+            description: The URL where a feed is available for download. This URL
+              is what Pinterest will use to download a feed for processing.
+            type: string
+          preferred_processing_schedule:
+            $ref: '#/components/schemas/CatalogsFeedProcessingSchedule'
+          status:
+            $ref: '#/components/schemas/CatalogsStatus'
+          default_currency:
+            $ref: '#/components/schemas/NullableCurrency'
+          default_locale:
+            description: The locale used within a feed for product descriptions.
+            example: en-US
+            type: string
+          default_country:
+            $ref: '#/components/schemas/Country'
+          default_availability:
+            $ref: '#/components/schemas/ProductAvailabilityType'
         required:
         - credentials
         - default_availability
@@ -9921,6 +10286,7 @@ components:
         - name
         - preferred_processing_schedule
         - status
+        - catalog_type
     CatalogsFeedCredentials:
       type: object
       nullable: true
@@ -10719,26 +11085,6 @@ components:
         ANDROID_DEEP_LINK_INVALID:
           type: integer
           description: Some items include invalid android_deep_link.
-        AVAILABILITY_NORMALIZED:
-          type: integer
-          description: Some items include availability values that are formatted incorrectly
-            and have been automatically corrected.
-        CONDITION_NORMALIZED:
-          type: integer
-          description: Some items include condition values that are formatted incorrectly
-            and have been automatically corrected.
-        GENDER_NORMALIZED:
-          type: integer
-          description: Some items include gender values that are formatted incorrectly
-            and have been automatically corrected.
-        SIZE_TYPE_NORMALIZED:
-          type: integer
-          description: Some items include size_type values that are formatted incorrectly
-            and have been automatically corrected.
-        AGE_GROUP_NORMALIZED:
-          type: integer
-          description: Some items include age_group values that are formatted incorrectly
-            and have been automatically corrected.
         UTM_SOURCE_AUTO_CORRECTED:
           type: integer
           description: Some items include utm_source values that are formatted incorrectly
@@ -10775,15 +11121,12 @@ components:
           description: Some items include incorrectly formatted MPNs.
     CatalogsFeedsCreateRequest:
       type: object
-      title: feeds_create_request
+      title: legacy_retail_only
       description: Request object for creating a feed. Please, be aware that "default_country"
         and "default_locale" are not required in the spec for forward compatibility
         but for now the API will not accept requests without those fields.
+      additionalProperties: false
       properties:
-        default_country:
-          $ref: '#/components/schemas/Country'
-        default_availability:
-          $ref: '#/components/schemas/ProductAvailabilityType'
         default_currency:
           $ref: '#/components/schemas/NullableCurrency'
         name:
@@ -10811,14 +11154,191 @@ components:
           type: string
         preferred_processing_schedule:
           $ref: '#/components/schemas/CatalogsFeedProcessingSchedule'
+        default_country:
+          $ref: '#/components/schemas/Country'
+        default_availability:
+          $ref: '#/components/schemas/ProductAvailabilityType'
       required:
       - format
       - location
       - name
-    CatalogsFeedsUpdateRequest:
+    CatalogsHotelAttributes:
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/CatalogsUpdatableHotelAttributes'
+    CatalogsRetailFeedsCreateRequest:
+      type: object
+      title: feeds_retail_create_request
+      description: Request object for creating a retail feed.
+      additionalProperties: false
+      properties:
+        default_currency:
+          $ref: '#/components/schemas/NullableCurrency'
+        name:
+          description: A human-friendly name associated to a given feed.
+          type: string
+        format:
+          $ref: '#/components/schemas/CatalogsFormat'
+        default_locale:
+          description: The locale used within a feed for product descriptions.
+          example: en-US
+          anyOf:
+          - description: The locale used within a feed for product descriptions.
+            $ref: '#/components/schemas/CatalogsLocale'
+          - description: The locale used within a feed for product descriptions. This
+              free text string version is deprecated in favor of official list of
+              supported locales defined by CatalogsLocale.
+            type: string
+            deprecated: true
+        credentials:
+          $ref: '#/components/schemas/CatalogsFeedCredentials'
+        location:
+          description: The URL where a feed is available for download. This URL is
+            what Pinterest will use to download a feed for processing.
+          pattern: ^(http|https|ftp|sftp)://
+          type: string
+        preferred_processing_schedule:
+          $ref: '#/components/schemas/CatalogsFeedProcessingSchedule'
+        default_country:
+          $ref: '#/components/schemas/Country'
+        default_availability:
+          $ref: '#/components/schemas/ProductAvailabilityType'
+      required:
+      - format
+      - location
+      - name
+      - catalog_type
+      - default_country
+      - default_locale
+    CatalogsHotelFeedsCreateRequest:
+      type: object
+      title: feeds_hotel_create_request
+      description: Request object for creating a feed. Please, be aware that "default_country"
+        and "default_locale" are not required in the spec for forward compatibility
+        but for now the API will not accept requests without those fields.
+      additionalProperties: false
+      properties:
+        default_currency:
+          $ref: '#/components/schemas/NullableCurrency'
+        name:
+          description: A human-friendly name associated to a given feed.
+          type: string
+        format:
+          $ref: '#/components/schemas/CatalogsFormat'
+        default_locale:
+          description: The locale used within a feed for product descriptions.
+          example: en-US
+          anyOf:
+          - description: The locale used within a feed for product descriptions.
+            $ref: '#/components/schemas/CatalogsLocale'
+          - description: The locale used within a feed for product descriptions. This
+              free text string version is deprecated in favor of official list of
+              supported locales defined by CatalogsLocale.
+            type: string
+            deprecated: true
+        credentials:
+          $ref: '#/components/schemas/CatalogsFeedCredentials'
+        location:
+          description: The URL where a feed is available for download. This URL is
+            what Pinterest will use to download a feed for processing.
+          pattern: ^(http|https|ftp|sftp)://
+          type: string
+        preferred_processing_schedule:
+          $ref: '#/components/schemas/CatalogsFeedProcessingSchedule'
+        catalog_id:
+          description: Catalog id pertaining to the feed. If not provided, feed will
+            use a default catalog based on type.
+          nullable: true
+          type: string
+          pattern: ^\d+$
+      required:
+      - format
+      - location
+      - name
+      - catalog_type
+    CatalogsVerticalFeedsCreateRequest:
+      type: object
+      title: feeds_create_request
+      description: Request object for creating a feed.
+      oneOf:
+      - $ref: '#/components/schemas/CatalogsRetailFeedsCreateRequest'
+      - $ref: '#/components/schemas/CatalogsHotelFeedsCreateRequest'
+      discriminator:
+        propertyName: catalog_type
+        mapping:
+          RETAIL: '#/components/schemas/CatalogsRetailFeedsCreateRequest'
+          HOTEL: '#/components/schemas/CatalogsHotelFeedsCreateRequest'
+    CatalogsRetailFeedsUpdateRequest:
       type: object
       title: catalogs_feeds_update_request
       description: Request object for updating a feed.
+      additionalProperties: false
+      properties:
+        default_currency:
+          $ref: '#/components/schemas/NullableCurrency'
+        name:
+          description: A human-friendly name associated to a given feed.
+          type: string
+        format:
+          $ref: '#/components/schemas/CatalogsFormat'
+        credentials:
+          $ref: '#/components/schemas/CatalogsFeedCredentials'
+        location:
+          type: string
+          pattern: ^(http|https|ftp|sftp)://
+          description: The URL where a feed is available for download. This URL is
+            what Pinterest will use to download a feed for processing.
+        preferred_processing_schedule:
+          $ref: '#/components/schemas/CatalogsFeedProcessingSchedule'
+        status:
+          $ref: '#/components/schemas/CatalogsStatus'
+        default_availability:
+          $ref: '#/components/schemas/ProductAvailabilityType'
+      required:
+      - catalog_type
+    CatalogsHotelFeedsUpdateRequest:
+      type: object
+      title: catalogs_feeds_update_request
+      description: Request object for updating a feed.
+      additionalProperties: false
+      properties:
+        default_currency:
+          $ref: '#/components/schemas/NullableCurrency'
+        name:
+          description: A human-friendly name associated to a given feed.
+          type: string
+        format:
+          $ref: '#/components/schemas/CatalogsFormat'
+        credentials:
+          $ref: '#/components/schemas/CatalogsFeedCredentials'
+        location:
+          type: string
+          pattern: ^(http|https|ftp|sftp)://
+          description: The URL where a feed is available for download. This URL is
+            what Pinterest will use to download a feed for processing.
+        preferred_processing_schedule:
+          $ref: '#/components/schemas/CatalogsFeedProcessingSchedule'
+        status:
+          $ref: '#/components/schemas/CatalogsStatus'
+      required:
+      - catalog_type
+    CatalogsVerticalFeedsUpdateRequest:
+      type: object
+      title: feeds_update_request
+      description: Request object for updating a feed.
+      oneOf:
+      - $ref: '#/components/schemas/CatalogsRetailFeedsUpdateRequest'
+      - $ref: '#/components/schemas/CatalogsHotelFeedsUpdateRequest'
+      discriminator:
+        propertyName: catalog_type
+        mapping:
+          RETAIL: '#/components/schemas/CatalogsRetailFeedsUpdateRequest'
+          HOTEL: '#/components/schemas/CatalogsHotelFeedsUpdateRequest'
+    CatalogsFeedsUpdateRequest:
+      type: object
+      title: legacy_retail_only
+      description: Request object for updating a feed.
+      additionalProperties: false
       properties:
         default_availability:
           $ref: '#/components/schemas/ProductAvailabilityType'
@@ -10960,13 +11480,10 @@ components:
       - ADWORDS_FORMAT_WARNING
       - ADWORDS_SAME_AS_LINK
       - AGE_GROUP_INVALID
-      - AGE_GROUP_NORMALIZED
       - ANDROID_DEEP_LINK_INVALID
       - AVAILABILITY_DATE_INVALID
       - AVAILABILITY_INVALID
-      - AVAILABILITY_NORMALIZED
       - BLOCKLISTED_IMAGE_SIGNATURE
-      - CONDITION_NORMALIZED
       - COUNTRY_DOES_NOT_MAP_TO_CURRENCY
       - CUSTOM_LABEL_LENGTH_TOO_LONG
       - DESCRIPTION_LENGTH_TOO_LONG
@@ -10974,7 +11491,6 @@ components:
       - DUPLICATE_PRODUCTS
       - EXPIRATION_DATE_INVALID
       - GENDER_INVALID
-      - GENDER_NORMALIZED
       - GTIN_INVALID
       - IMAGE_LINK_INVALID
       - IMAGE_LINK_LENGTH_TOO_LONG
@@ -11016,7 +11532,6 @@ components:
       - SHIPPING_WIDTH_INVALID
       - SIZE_SYSTEM_INVALID
       - SIZE_TYPE_INVALID
-      - SIZE_TYPE_NORMALIZED
       - TAX_INVALID
       - TITLE_LENGTH_TOO_LONG
       - TITLE_MISSING
@@ -11079,10 +11594,6 @@ components:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Some items have size system values which are not one of the
             supported size systems.
-        AGE_GROUP_NORMALIZED:
-          $ref: '#/components/schemas/CatalogsItemValidationDetails'
-          description: Item includes an age_group value that is formatted incorrectly
-            and has been automatically corrected.
         ANDROID_DEEP_LINK_INVALID:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item includes an invalid android_deep_link.
@@ -11090,14 +11601,6 @@ components:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item has an availability_date value that is formatted incorrectly,
             this item will be published without an availability date.
-        AVAILABILITY_NORMALIZED:
-          $ref: '#/components/schemas/CatalogsItemValidationDetails'
-          description: Item includes an availability value that is formatted incorrectly
-            and has been automatically corrected.
-        CONDITION_NORMALIZED:
-          $ref: '#/components/schemas/CatalogsItemValidationDetails'
-          description: Item includes a condition value that is formatted incorrectly
-            and has been automatically corrected.
         COUNTRY_DOES_NOT_MAP_TO_CURRENCY:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item includes a currency that doesn't match the usual currency
@@ -11118,10 +11621,6 @@ components:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item has a gender value that is formatted incorrectly, which
             may limit visibility in recommendations, search results and shopping experiences.
-        GENDER_NORMALIZED:
-          $ref: '#/components/schemas/CatalogsItemValidationDetails'
-          description: Item includes a gender value that is formatted incorrectly
-            and has been automatically corrected.
         GTIN_INVALID:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item has a GTIN value that is formatted incorrectly.
@@ -11210,10 +11709,6 @@ components:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item has a size type value that is formatted incorrectly, which
             may limit visibility in recommendations, search results and shopping experiences.
-        SIZE_TYPE_NORMALIZED:
-          $ref: '#/components/schemas/CatalogsItemValidationDetails'
-          description: Item includes a size_type value that is formatted incorrectly
-            and has been automatically corrected.
         TAX_INVALID:
           $ref: '#/components/schemas/CatalogsItemValidationDetails'
           description: Item has a tax value that is formatted incorrectly.
@@ -11246,13 +11741,20 @@ components:
     CatalogsItemsBatch:
       type: object
       description: Object describing the catalogs items batch
+      required:
+      - catalog_type
+      oneOf:
+      - $ref: '#/components/schemas/CatalogsRetailItemsBatch'
+      - $ref: '#/components/schemas/CatalogsHotelItemsBatch'
+      discriminator:
+        propertyName: catalog_type
+        mapping:
+          RETAIL: '#/components/schemas/CatalogsRetailItemsBatch'
+          HOTEL: '#/components/schemas/CatalogsHotelItemsBatch'
+    CatalogsHotelItemsBatch:
+      type: object
+      description: Object describing the catalogs hotel items batch
       properties:
-        items:
-          description: Array with the catalogs items processing records part of the
-            catalogs items batch
-          items:
-            $ref: '#/components/schemas/ItemProcessingRecord'
-          type: array
         batch_id:
           description: Id of the catalogs items batch
           example: 595953100599279259-66753b9bb65c46c49bd8503b27fecf9e
@@ -11272,11 +11774,52 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/BatchOperationStatus'
+        items:
+          description: Array with the catalogs items processing records part of the
+            catalogs items batch
+          items:
+            $ref: '#/components/schemas/HotelProcessingRecord'
+          type: array
+      required:
+      - catalog_type
+    CatalogsRetailItemsBatch:
+      type: object
+      description: Object describing the catalogs retail items batch
+      properties:
+        batch_id:
+          description: Id of the catalogs items batch
+          example: 595953100599279259-66753b9bb65c46c49bd8503b27fecf9e
+          type: string
+        created_time:
+          description: 'Time of the batch creation: YYYY-MM-DD''T''hh:mm:ssTZD'
+          example: '2020-01-01T20:10:40-00:00'
+          type: string
+          format: date-time
+          readOnly: true
+        completed_time:
+          description: 'Time of the batch completion: YYYY-MM-DD''T''hh:mm:ssTZD'
+          example: '2022-03-10T15:37:10-00:00'
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        status:
+          $ref: '#/components/schemas/BatchOperationStatus'
+        items:
+          description: Array with the catalogs items processing records part of the
+            catalogs items batch
+          items:
+            $ref: '#/components/schemas/ItemProcessingRecord'
+          type: array
+      required:
+      - catalog_type
     CatalogsItemsBatchRequest:
       type: object
+      title: legacy_retail_only
       description: Request object of catalogs items batch
       oneOf:
       - $ref: '#/components/schemas/CatalogsItemsUpdateBatchRequest'
+      - $ref: '#/components/schemas/CatalogsItemsUpsertBatchRequest'
       - $ref: '#/components/schemas/CatalogsItemsCreateBatchRequest'
       - $ref: '#/components/schemas/CatalogsItemsDeleteDiscontinuedBatchRequest'
       - $ref: '#/components/schemas/CatalogsItemsDeleteBatchRequest'
@@ -11284,12 +11827,14 @@ components:
         propertyName: operation
         mapping:
           UPDATE: '#/components/schemas/CatalogsItemsUpdateBatchRequest'
+          UPSERT: '#/components/schemas/CatalogsItemsUpsertBatchRequest'
           CREATE: '#/components/schemas/CatalogsItemsCreateBatchRequest'
           DELETE_DISCONTINUED: '#/components/schemas/CatalogsItemsDeleteDiscontinuedBatchRequest'
           DELETE: '#/components/schemas/CatalogsItemsDeleteBatchRequest'
     CatalogsItemsCreateBatchRequest:
       description: Request object to create catalogs items
       type: object
+      additionalProperties: false
       properties:
         country:
           $ref: '#/components/schemas/Country'
@@ -11312,6 +11857,7 @@ components:
     CatalogsItemsDeleteBatchRequest:
       description: Request object to delete catalogs items
       type: object
+      additionalProperties: false
       properties:
         country:
           $ref: '#/components/schemas/Country'
@@ -11332,6 +11878,7 @@ components:
     CatalogsItemsDeleteDiscontinuedBatchRequest:
       description: Request object to discontinue catalogs items
       type: object
+      additionalProperties: false
       properties:
         country:
           $ref: '#/components/schemas/Country'
@@ -11352,6 +11899,7 @@ components:
     CatalogsItemsUpdateBatchRequest:
       description: Request object to update catalogs items
       type: object
+      additionalProperties: false
       properties:
         country:
           $ref: '#/components/schemas/Country'
@@ -11364,6 +11912,28 @@ components:
           description: Array with catalogs items
           items:
             $ref: '#/components/schemas/ItemUpdateBatchRecord'
+          minItems: 1
+          maxItems: 1000
+      required:
+      - country
+      - language
+      - operation
+      - items
+    CatalogsItemsUpsertBatchRequest:
+      description: Request object to upsert catalogs items
+      type: object
+      properties:
+        country:
+          $ref: '#/components/schemas/Country'
+        language:
+          $ref: '#/components/schemas/Language'
+        operation:
+          $ref: '#/components/schemas/BatchOperation'
+        items:
+          type: array
+          description: Array with catalogs items
+          items:
+            $ref: '#/components/schemas/ItemUpsertBatchRecord'
           minItems: 1
           maxItems: 1000
       required:
@@ -11844,6 +12414,315 @@ components:
       enum:
       - ACTIVE
       - INACTIVE
+    CatalogsVerticalBatchRequest:
+      type: object
+      title: operate on item batch
+      description: A request object that can have multiple operations on a single
+        batch
+      oneOf:
+      - $ref: '#/components/schemas/CatalogsRetailBatchRequest'
+      - $ref: '#/components/schemas/CatalogsHotelBatchRequest'
+      discriminator:
+        propertyName: catalog_type
+        mapping:
+          RETAIL: '#/components/schemas/CatalogsRetailBatchRequest'
+          HOTEL: '#/components/schemas/CatalogsHotelBatchRequest'
+    CatalogsHotelGuestRatings:
+      type: object
+      description: If specified, you must provide all properties
+      properties:
+        score:
+          description: Your hotel's rating.
+          type: number
+        number_of_reviewers:
+          description: Total number of people who have rated this hotel.
+          type: integer
+        max_score:
+          description: Max value for the hotel rating score.
+          type: number
+        rating_system:
+          description: System you use for guest reviews.
+          type: string
+    CatalogsHotelItemErrorResponse:
+      type: object
+      description: Object describing a hotel item error
+      properties:
+        hotel_id:
+          description: The catalog hotel id in the merchant namespace
+          example: DS0294-M
+          type: string
+        errors:
+          description: Array with the errors for the item id requested
+          items:
+            $ref: '#/components/schemas/ItemValidationEvent'
+          type: array
+      required:
+      - catalog_type
+    CatalogsHotelItemResponse:
+      type: object
+      description: Object describing a hotel record
+      properties:
+        hotel_id:
+          description: The catalog hotel id in the merchant namespace
+          example: DS0294-M
+          type: string
+        pins:
+          description: The pins mapped to the item
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Pin'
+          maxItems: 11
+        attributes:
+          $ref: '#/components/schemas/CatalogsHotelAttributes'
+      required:
+      - catalog_type
+    CatalogsRetailBatchRequest:
+      type: object
+      description: A request object that can have multiple operations on a single
+        retail batch
+      additionalProperties: false
+      properties:
+        country:
+          $ref: '#/components/schemas/Country'
+        language:
+          $ref: '#/components/schemas/Language'
+        items:
+          minItems: 1
+          maxItems: 1000
+          type: array
+          description: Array with catalogs item operations
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/CatalogsCreateRetailItem'
+            - $ref: '#/components/schemas/CatalogsUpdateRetailItem'
+            - $ref: '#/components/schemas/CatalogsDeleteRetailItem'
+            discriminator:
+              propertyName: operation
+              mapping:
+                CREATE: '#/components/schemas/CatalogsCreateRetailItem'
+                UPDATE: '#/components/schemas/CatalogsUpdateRetailItem'
+                DELETE: '#/components/schemas/CatalogsDeleteRetailItem'
+      required:
+      - catalog_type
+      - country
+      - language
+      - items
+    CatalogsRetailItemErrorResponse:
+      type: object
+      description: Object describing a retail item error
+      properties:
+        item_id:
+          description: The catalog item id in the merchant namespace
+          example: DS0294-M
+          type: string
+        errors:
+          description: Array with the errors for the item id requested
+          items:
+            $ref: '#/components/schemas/ItemValidationEvent'
+          type: array
+      required:
+      - catalog_type
+    CatalogsRetailItemResponse:
+      type: object
+      description: Object describing a retail item record
+      properties:
+        item_id:
+          description: The catalog retail item id in the merchant namespace
+          example: DS0294-M
+          type: string
+        pins:
+          description: The pins mapped to the item
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Pin'
+          maxItems: 11
+        attributes:
+          $ref: '#/components/schemas/ItemAttributes'
+      required:
+      - catalog_type
+    CatalogsCreateRetailItem:
+      type: object
+      description: An item to be created
+      properties:
+        item_id:
+          description: The catalog item id in the merchant namespace
+          example: DS0294-M
+          type: string
+        operation:
+          type: string
+          enum:
+          - CREATE
+          - UPDATE
+          - DELETE
+        attributes:
+          $ref: '#/components/schemas/ItemAttributes'
+      required:
+      - item_id
+      - operation
+      - attributes
+    CatalogsUpdateRetailItem:
+      type: object
+      description: An item to be updated
+      properties:
+        item_id:
+          description: The catalog item id in the merchant namespace
+          example: DS0294-M
+          type: string
+        operation:
+          type: string
+          enum:
+          - CREATE
+          - UPDATE
+          - DELETE
+        attributes:
+          $ref: '#/components/schemas/UpdatableItemAttributes'
+      required:
+      - item_id
+      - operation
+      - attributes
+    CatalogsDeleteRetailItem:
+      type: object
+      description: An item to be deleted
+      properties:
+        item_id:
+          description: The catalog item id in the merchant namespace
+          example: DS0294-M
+          type: string
+        operation:
+          type: string
+          enum:
+          - CREATE
+          - UPDATE
+          - DELETE
+      required:
+      - item_id
+      - operation
+    CatalogsHotelBatchRequest:
+      description: Request object to update catalogs hotel items
+      type: object
+      additionalProperties: false
+      properties:
+        country:
+          $ref: '#/components/schemas/Country'
+        language:
+          $ref: '#/components/schemas/Language'
+        items:
+          minItems: 1
+          maxItems: 1000
+          type: array
+          description: Array with catalogs item operations
+          items:
+            $ref: '#/components/schemas/CatalogsHotelBatchItem'
+        catalog_id:
+          description: Catalog id pertaining to the hotel item. If not provided, default
+            to oldest hotel catalog
+          example: '2680059592705'
+          type: string
+          pattern: ^\d+$
+      required:
+      - catalog_type
+      - country
+      - language
+      - items
+    CatalogsUpdateHotelItem:
+      type: object
+      description: Object describing an hotel item batch record
+      properties:
+        hotel_id:
+          description: The catalog hotel item id in the merchant namespace
+          example: DS0294-M
+          type: string
+        operation:
+          type: string
+          enum:
+          - UPDATE
+        attributes:
+          $ref: '#/components/schemas/CatalogsUpdatableHotelAttributes'
+      required:
+      - hotel_id
+      - operation
+      - attributes
+    CatalogsHotelAddress:
+      type: object
+      properties:
+        addr1:
+          description: Primary street address of hotel.
+          type: string
+        city:
+          description: City where the hotel is located.
+          type: string
+        region:
+          description: State, county, province, where the hotel is located.
+          type: string
+        country:
+          description: Country where the hotel is located.
+          type: string
+        postal_code:
+          description: Required for countries with a postal code system. Postal or
+            zip code of the hotel.
+          type: string
+    CatalogsUpdatableHotelAttributes:
+      type: object
+      properties:
+        name:
+          description: The hotel's name.
+          type: string
+          nullable: true
+        link:
+          description: Link to the product page
+          type: string
+          nullable: true
+        description:
+          description: Brief description of the hotel.
+          type: string
+          nullable: true
+        brand:
+          description: The brand to which this hotel belongs to.
+          type: string
+          nullable: true
+        latitude:
+          description: Latitude of the hotel.
+          type: number
+        longitude:
+          description: Longitude of the hotel.
+          type: number
+          nullable: true
+        neighborhood:
+          description: A list of neighborhoods where the hotel is located
+          type: array
+          nullable: true
+          items:
+            type: string
+        address:
+          description: Hotel address
+          $ref: '#/components/schemas/CatalogsHotelAddress'
+        custom_label:
+          description: A list of custom labels
+          nullable: true
+          items:
+            type: string
+        category:
+          description: The type of property. The category can be any type of internal
+            description desired.
+          type: string
+          nullable: true
+        base_price:
+          description: Base price of the hotel room per night followed by the ISO
+            currency code
+          type: string
+          nullable: true
+          example: 100 USD
+        sale_price:
+          description: Sale price of a hotel room per night. Used to advertise discounts
+            off the regular price of the hotel.
+          type: string
+          nullable: true
+          example: 90 USD
+        guest_ratings:
+          description: If specified, you must provide all properties
+          $ref: '#/components/schemas/CatalogsHotelGuestRatings'
     ConditionFilter:
       type: object
       additionalProperties: false
@@ -13465,6 +14344,29 @@ components:
       - HOUR
       - WEEK
       - MONTH
+    HotelProcessingRecord:
+      type: object
+      description: Object describing an item processing record
+      properties:
+        hotel_id:
+          description: The catalog hotel id in the merchant namespace
+          example: DS0294-M
+          type: string
+        errors:
+          description: |-
+            Array with the validation errors for the item processing record.
+            A non empty errors list causes the item processing to fail.
+          items:
+            $ref: '#/components/schemas/ItemValidationEvent'
+          type: array
+        warnings:
+          description: Array with the validation warnings for the item processing
+            record
+          items:
+            $ref: '#/components/schemas/ItemValidationEvent'
+          type: array
+        status:
+          $ref: '#/components/schemas/ItemProcessingStatus'
     ImageDetails:
       title: ImageDetails
       type: object
@@ -13503,8 +14405,19 @@ components:
           nullable: true
         images:
           type: object
-          additionalProperties:
-            $ref: '#/components/schemas/ImageDetails'
+          properties:
+            150x150:
+              type: object
+              $ref: '#/components/schemas/ImageDetails'
+            400x300:
+              type: object
+              $ref: '#/components/schemas/ImageDetails'
+            600x:
+              type: object
+              $ref: '#/components/schemas/ImageDetails'
+            1200x:
+              type: object
+              $ref: '#/components/schemas/ImageDetails'
     IntegrationMetadata:
       title: integration
       description: Integration metadata
@@ -13579,9 +14492,9 @@ components:
         partner_primary_email:
           type: string
         partner_access_token_expiry:
-          type: number
+          type: integer
         partner_refresh_token_expiry:
-          type: number
+          type: integer
         scopes:
           type: string
         additional_id_1:
@@ -13745,6 +14658,7 @@ components:
       - $ref: '#/components/schemas/ItemCreateBatchRecord'
       - $ref: '#/components/schemas/ItemDeleteDiscontinuedBatchRecord'
       - $ref: '#/components/schemas/ItemUpdateBatchRecord'
+      - $ref: '#/components/schemas/ItemUpsertBatchRecord'
       - $ref: '#/components/schemas/ItemDeleteBatchRecord'
     ItemCreateBatchRecord:
       type: object
@@ -13826,33 +14740,27 @@ components:
       description: Object describing an item record
       anyOf:
       - type: object
-        properties:
-          item_id:
-            description: The catalog item id in the merchant namespace
-            example: DS0294-M
-            type: string
-          pins:
-            description: |-
-              <p><= 2000 characters</p>
-              <p>The pins mapped to the item</p>
-            type: array
-            nullable: true
-            items:
-              $ref: '#/components/schemas/Pin'
-            maxItems: 11
-          attributes:
-            $ref: '#/components/schemas/ItemAttributes'
+        required:
+        - catalog_type
+        oneOf:
+        - $ref: '#/components/schemas/CatalogsRetailItemResponse'
+        - $ref: '#/components/schemas/CatalogsHotelItemResponse'
+        discriminator:
+          propertyName: catalog_type
+          mapping:
+            RETAIL: '#/components/schemas/CatalogsRetailItemResponse'
+            HOTEL: '#/components/schemas/CatalogsHotelItemResponse'
       - type: object
-        properties:
-          item_id:
-            description: The catalog item id in the merchant namespace
-            example: DS0294-M
-            type: string
-          errors:
-            description: Array with the errors for the item id requested
-            items:
-              $ref: '#/components/schemas/ItemValidationEvent'
-            type: array
+        required:
+        - catalog_type
+        oneOf:
+        - $ref: '#/components/schemas/CatalogsRetailItemErrorResponse'
+        - $ref: '#/components/schemas/CatalogsHotelItemErrorResponse'
+        discriminator:
+          propertyName: catalog_type
+          mapping:
+            RETAIL: '#/components/schemas/CatalogsRetailItemErrorResponse'
+            HOTEL: '#/components/schemas/CatalogsHotelItemErrorResponse'
     ItemUpdateBatchRecord:
       type: object
       description: Object describing an item batch record to update items
@@ -13961,6 +14869,16 @@ components:
             - title
             - variant_names
             - variant_values
+    ItemUpsertBatchRecord:
+      type: object
+      description: Object describing an item batch record to upsert items
+      properties:
+        item_id:
+          description: The catalog item id in the merchant namespace
+          example: DS0294-M
+          type: string
+        attributes:
+          $ref: '#/components/schemas/ItemAttributes'
     ItemValidationEvent:
       type: object
       description: Object describing an item validation event
@@ -14580,6 +15498,36 @@ components:
               SPEND_IN_DOLLAR: 240
           - targeting_type: APPTYPE
             targeting_value: iphone
+            metrics:
+              AD_GROUP_ID: 2680067996745
+              DATE: '2022-04-26'
+              SPEND_IN_DOLLAR: 240
+          - targeting_type: APPTYPE
+            targeting_value: ipad
+            metrics:
+              AD_GROUP_ID: 2680067996745
+              DATE: '2022-04-26'
+              SPEND_IN_DOLLAR: 240
+          - targeting_type: APPTYPE
+            targeting_value: web
+            metrics:
+              AD_GROUP_ID: 2680067996745
+              DATE: '2022-04-26'
+              SPEND_IN_DOLLAR: 240
+          - targeting_type: APPTYPE
+            targeting_value: web_mobile
+            metrics:
+              AD_GROUP_ID: 2680067996745
+              DATE: '2022-04-26'
+              SPEND_IN_DOLLAR: 240
+          - targeting_type: APPTYPE
+            targeting_value: android_mobile
+            metrics:
+              AD_GROUP_ID: 2680067996745
+              DATE: '2022-04-26'
+              SPEND_IN_DOLLAR: 240
+          - targeting_type: APPTYPE
+            targeting_value: android_tablet
             metrics:
               AD_GROUP_ID: 2680067996745
               DATE: '2022-04-26'
@@ -15251,6 +16199,7 @@ components:
               - SEVEN_DAY
               - TWENTY_MINUTE
               - TEN_MINUTE
+              - TWENTY_FOUR_HOUR
           type: object
         scrollup_goal_metadata:
           properties:
@@ -15814,6 +16763,11 @@ components:
           type: string
           enum:
           - pin_url
+        is_affiliate_link:
+          type: boolean
+          description: This is an affiliate link or sponsored product. The FTC requires
+            disclosure for paid partnerships and affiliate products.
+          default: false
       required:
       - source_type
     PinMediaSourceVideoID:
@@ -15857,12 +16811,27 @@ components:
         properties:
           images:
             type: object
-            additionalProperties:
-              $ref: '#/components/schemas/ImageDetails'
+            properties:
+              150x150:
+                type: object
+                $ref: '#/components/schemas/ImageDetails'
+              400x300:
+                type: object
+                $ref: '#/components/schemas/ImageDetails'
+              600x:
+                type: object
+                $ref: '#/components/schemas/ImageDetails'
+              1200x:
+                type: object
+                $ref: '#/components/schemas/ImageDetails'
       - $ref: '#/components/schemas/PinMedia'
       example:
         media_type: image
         images:
+          150x150:
+            width: 150
+            height: 150
+            url: https://i.pinimg.com/150x150/0d/f6/f1/0df6f1f0bfe7aaca849c1bbc3607a34b.jpg
           400x300:
             width: 400
             height: 300
@@ -15871,10 +16840,10 @@ components:
             width: 600
             height: 600
             url: https://i.pinimg.com/600x/0d/f6/f1/0df6f1f0bfe7aaca849c1bbc3607a34b.jpg
-          orig:
-            width: 560
-            height: 560
-            url: https://i.pinimg.com/originals/0d/f6/f1/0df6f1f0bfe7aaca849c1bbc3607a34b.jpg
+          1200x:
+            width: 1200
+            height: 1200
+            url: https://i.pinimg.com/1200x/0d/f6/f1/0df6f1f0bfe7aaca849c1bbc3607a34b.jpg
     PinMediaWithImageAndVideo:
       title: Video and image
       description: Pin with a mix of images and videos.
@@ -15905,10 +16874,26 @@ components:
         properties:
           images:
             type: object
-            additionalProperties:
-              $ref: '#/components/schemas/ImageDetails'
+            properties:
+              150x150:
+                type: object
+                $ref: '#/components/schemas/ImageDetails'
+              400x300:
+                type: object
+                $ref: '#/components/schemas/ImageDetails'
+              600x:
+                type: object
+                $ref: '#/components/schemas/ImageDetails'
+              1200x:
+                type: object
+                $ref: '#/components/schemas/ImageDetails'
           cover_image_url:
             type: string
+          video_url:
+            type: string
+            nullable: true
+            description: Video url (720p). </p><strong>Note:</strong> This field is
+              in beta and not available to all apps.
           duration:
             type: number
             description: Duration (in milliseconds)
@@ -16907,6 +17892,381 @@ components:
       - TOTAL_WATCH_VIDEO_CONVERSION_RATE
       - TOTAL_UNKNOWN_CONVERSION_RATE
       - TOTAL_CUSTOM_CONVERSION_RATE
+      - STANDARD_AD_FEED_ITEM_ID
+    SSIOAccountAddress:
+      type: object
+      properties:
+        display:
+          description: Address display
+          example: 475 Brannan Street, San Francisco, CA 94103
+          type: string
+        purpose:
+          description: Purpose for which the address is used, usually Billing or Businness
+          example: Billing
+          type: string
+        address_id:
+          description: Salesforce id for address
+          example: a1C1N000004MUrLUAW
+          type: string
+        order_legal_entity:
+          description: Legal entity for this insertion order
+          example: PIN US OU
+          type: string
+    SSIOAccountItem:
+      type: object
+      properties:
+        id:
+          description: Salesforce id for billto_info
+          example: 0011N00001LW8kAQAT
+          type: string
+        io_terms_id:
+          description: Salesforce id for IO Terms and Conditions
+          example: a2S1N000000bKHgUAM
+          type: string
+        io_terms:
+          description: Salesforce text for IO Terms and Conditions
+          example: The IO is governed by the terms available at https://business.pinterest.com/en/pinterest-advertising-services-agreement/.
+            If a budget is listed on this IO, the parties agree that Advertiser (or
+            if applicable, its Agency) may apply any of the budget to any auction
+            bid type or ad product. Price will be determined by auction closing price,
+            plus any applicable non-auction fees. The terms of the Agreement supersede
+            any terms on this IO. ANY ADDITIONAL TERMS AND CONDITIONS ON THIS IO ARE
+            NULL AND VOID.
+          type: string
+        us_terms_id:
+          description: Salesforce id for US Terms and Conditions
+          example: a2S1N000000bKIOUA2
+          type: string
+        us_terms:
+          description: Salesforce text for US Terms and Conditions
+          example: This Insertion Order ("IO") is subject to the Pinterest Addendum
+            To IAB Standard Terms and Conditions for Internet Advertising For Media
+            Buys One Year or Less (Version 3.0), as executed by Pinterest, Inc. and
+            GroupM Worldwide LLC on May 7, 2014 and Amendment No. 1 to Pinterest Addendum
+            to IAB Standard Terms and Conditions for Internet Advertising For Media
+            Buys One Year or Less (Version 3.0) as executed by Pinterest, Inc. and
+            GroupM Worldwide LLC on August 20, 2015. The parties agree that Agency
+            may apply any of the budget listed on this IO to any auction bid type
+            or ad product. Price will be determined by auction closing price, plus
+            any applicable non-auction fees.The terms of the Addendum supersede any
+            terms on this IO. ANY ADDITIONAL TERMS AND CONDITIONS ON THIS IO ARE NULL
+            AND VOID.
+          type: string
+        row_terms_id:
+          description: Salesforce id for Rest of the World Terms and Conditions
+          example: a2S1N000000bKHhUAM
+          type: string
+        row_terms:
+          description: Salesforce text for Rest of the World Terms and Conditions
+          example: "The IO is governed by the terms available at\r\nhttps://business.pinterest.com/en-gb/pinterest-advertising-services-agreement"
+          type: string
+        io_type:
+          description: Insertion Order Type - Pinterest Paper or Agency Paper
+          example: Pinterest Paper
+          type: string
+        addresses:
+          description: Address information that is associated with this account.
+          type: array
+          items:
+            $ref: '#/components/schemas/SSIOAccountAddress'
+    SSIOAccountPMPName:
+      type: object
+      properties:
+        name:
+          description: Display name
+          example: Bidalgo
+          type: string
+        id:
+          description: Salesforce id for PMP
+          example: 0011N00001LW2aSQAT
+          type: string
+    SSIOAccountResponse:
+      type: object
+      properties:
+        eligible:
+          description: Advertiser eligible to create order lines
+          example: true
+          type: boolean
+        can_edit:
+          description: Advertiser eligible to update order lines
+          example: true
+          type: boolean
+        billto_infos:
+          type: array
+          description: An array of Salesforce account information that includes address,
+            io terms, etc.
+          items:
+            $ref: '#/components/schemas/SSIOAccountItem'
+        currency:
+          type: string
+          example: USD
+        pmp_names:
+          type: array
+          items:
+            $ref: '#/components/schemas/SSIOAccountPMPName'
+        error:
+          description: Error indicator from Salesforce which could be "No Error"
+          example: No Error
+          type: string
+    SSIOCreateInsertionOrderRequest:
+      allOf:
+      - $ref: '#/components/schemas/SSIOInsertionOrderCommon'
+      - type: object
+        required:
+        - order_line_type
+        - start_date
+        - po_number
+        - pmp_id
+        - order_name
+        - media_contact_firstname
+        - media_contact_lastname
+        - media_contact_email
+        - currency_info
+        - billto_company_id
+        - billto_business_address_id
+        - billto_billing_address_id
+        - billing_contact_firstname
+        - billing_contact_lastname
+        - billing_contact_email
+        - accepted_terms_id
+        properties:
+          accepted_terms_time:
+            description: The UTC timestamp (to the nearest sec) of when terms were
+              accepted
+            type: integer
+          pmp_id:
+            description: The pmp id
+            type: string
+          order_name:
+            description: The order name
+            type: string
+          order_line_type:
+            type: string
+            description: Type can be Budget or Perpetual
+            enum:
+            - BUDGET
+            - PERPETUALS
+          accepted_terms_id:
+            description: The SFDC id for the terms
+            type: string
+          billto_company_id:
+            description: The bill-to company id
+            type: string
+          billto_business_address_id:
+            description: The bill-to business address id
+            type: string
+          billto_billing_address_id:
+            description: The bill-to billing address id
+            type: string
+          estimated_monthly_spend:
+            description: If Ongoing (perpetual) order line, the estimated monthly
+              spend
+            type: number
+          currency_info:
+            $ref: '#/components/schemas/Currency'
+    SSIOCreateInsertionOrderResponse:
+      type: object
+      properties:
+        pin_order_id:
+          description: Salesforce order id
+          type: string
+    SSIOEditInsertionOrderRequest:
+      allOf:
+      - $ref: '#/components/schemas/SSIOInsertionOrderCommon'
+      - type: object
+        properties:
+          oracle_line_id:
+            description: LineId in the Oracle DB
+            type: string
+          salesforce_order_id:
+            description: OrderId in SFDC
+            type: string
+          salesforce_order_line_id:
+            description: OrderLineId in SFDC
+            type: string
+          ads_manager_order_line_id:
+            description: Ads manager OrderLineId
+            type: string
+    SSIOEditInsertionOrderResponse:
+      type: object
+      properties:
+        pin_order_id:
+          description: Salesforce order id
+          type: string
+    SSIOInsertionOrderCommon:
+      type: object
+      properties:
+        start_date:
+          description: 'Starting date of time period. Format: YYYY-MM-DD'
+          type: string
+          pattern: ^(\d{4})-(\d{2})-(\d{2})$
+          example: '2020-12-20'
+        end_date:
+          description: 'End date of time period. Format: YYYY-MM-DD'
+          type: string
+          pattern: ^(\d{4})-(\d{2})-(\d{2})$
+          example: '2020-12-20'
+        po_number:
+          description: The po number
+          type: string
+        budget_amount:
+          type: number
+          description: If Budget order line, the budget amount.
+          example: 5000000
+        billing_contact_firstname:
+          description: The billing contact first name
+          type: string
+        billing_contact_lastname:
+          description: The billing contact last name
+          type: string
+        billing_contact_email:
+          description: The billing contact email
+          example: test@example
+          type: string
+        media_contact_firstname:
+          description: The media contact first name
+          type: string
+        media_contact_lastname:
+          description: The media contact last name
+          type: string
+        media_contact_email:
+          description: The media contact email
+          example: test@example
+          type: string
+        agency_link:
+          description: URL link for agency
+          type: string
+        user_email:
+          description: The email of user submitting the insertion order
+          example: test@example
+          type: string
+    SSIOInsertionOrderStatus:
+      type: object
+      properties:
+        pin_order_id:
+          description: Salesforce order id
+          example: 0Q01N0000015hekSAB
+          type: string
+        status:
+          description: Salesforce insertion order status
+          example: Approved
+          type: string
+        creation_time:
+          description: Salesforce insertion order creation time
+          example: '2017-06-21T23:11:11.000Z'
+          type: string
+          nullable: true
+    SSIOInsertionOrderStatusResponse:
+      allOf:
+      - $ref: '#/components/schemas/SSIOInsertionOrderStatus'
+      - type: object
+    SSIOOrderLine:
+      type: object
+      properties:
+        salesforce_order_line_id:
+          description: OrderLineId in SFDC
+          type: string
+          nullable: true
+        ads_manager_order_line_id:
+          description: Ads manager OrderLineId
+          type: string
+          nullable: true
+        pin_order_id:
+          description: The pin order id associated with the order line in SFDC
+          type: string
+          nullable: true
+        last_modified_date_time:
+          description: Last modified date.
+          example: '2020-10-06T13:07:04.000Z'
+          type: string
+          pattern: ^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}).(\d{3})Z$
+          nullable: true
+        start_date:
+          description: Start date of the order line.
+          example: '2018-03-01'
+          type: string
+          format: date
+          nullable: true
+        end_date:
+          description: End date of the order line.
+          example: '2020-10-05'
+          type: string
+          format: date
+          nullable: true
+        bill_to_company_name:
+          description: Bill To Company name
+          example: Home Depot Inc.
+          type: string
+          nullable: true
+        billing_contact_firstname:
+          description: Billing contact first name
+          example: Mary
+          type: string
+          nullable: true
+        billing_contact_lastname:
+          description: Billing contact last name
+          example: Smith
+          type: string
+          nullable: true
+        billing_contact_email:
+          description: Billing contact email
+          example: mail@test.com
+          type: string
+          nullable: true
+        media_contact_email:
+          description: Billing media email
+          example: mail@test.com
+          type: string
+          nullable: true
+        media_contact_firstname:
+          description: Billing contact first name
+          example: John
+          type: string
+          nullable: true
+        media_contact_lastname:
+          description: Billing contact first name
+          example: Doe
+          type: string
+          nullable: true
+        currency_info:
+          $ref: '#/components/schemas/Currency'
+          nullable: true
+        agency_link:
+          description: Agency link
+          example: ''
+          type: string
+          nullable: true
+        po_number:
+          description: The po number
+          type: string
+          nullable: true
+        order_name:
+          description: The order name
+          type: string
+          nullable: true
+        pmp_name:
+          description: The Pinterest marketing partner name
+          type: string
+          nullable: true
+        accepted_terms_id:
+          description: The SFDC id for the terms
+          type: string
+          nullable: true
+        accepted_terms_time:
+          description: The UTC timestamp (to the nearest sec) of when terms were accepted
+          example: '2020-10-06T13:07:04.000Z'
+          type: string
+          pattern: ^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}).(\d{3})Z$
+          nullable: true
+        budget_amount:
+          type: number
+          description: If Budget order line, the budget amount.
+          example: 5000000
+          nullable: true
+        estimated_monthly_spend:
+          description: If Ongoing (perpetual) order line, the estimated monthly spend
+          type: number
+          nullable: true
     SingleInterestTargetingOptionResponse:
       title: SingleInterestTargetingOptionData
       type: object
@@ -17337,6 +18697,7 @@ components:
             - INTERNAL_PRODUCT_ITEM_ID
             - ORDER_LINE_ID
             - ORDER_LINE_NAME
+            - ORDER_LINE_PIN_REV_SHARE
             - CLICKTHROUGH_1
             - REPIN_1
             - IMPRESSION_1
@@ -18571,6 +19932,13 @@ components:
             - TOTAL_WATCH_VIDEO_CONVERSION_RATE
             - TOTAL_UNKNOWN_CONVERSION_RATE
             - TOTAL_CUSTOM_CONVERSION_RATE
+            - STANDARD_AD_FEED_ITEM_ID
+            - IS_STANDARD_FEED_AD
+            - TARGETING_GENDER
+            - TARGETING_CREATIVE_TYPE
+            - TARGETING_COUNTRY
+            - TARGETING_LOCATION
+            - TARGETING_APPTYPE
           type: array
         granularity:
           $ref: '#/components/schemas/Granularity'
@@ -18971,13 +20339,11 @@ components:
           type: string
           nullable: true
         checkout_enabled:
-          description: Set this attribute to FALSE to indicate items that should be
-            excluded from the Pinterest Checkout program. Note, this product is currently
-            being tested and your account must be enrolled. Please contact your Account
-            Manager or contact us for more information.
+          description: This attribute is not supported anymore.
           example: false
           type: boolean
           nullable: true
+          deprecated: true
         color:
           description: The primary color of the product.
           example: blue
@@ -19234,6 +20600,48 @@ components:
           nullable: true
           items:
             type: string
+    UpdateInvitesResultsResponseArray:
+      description: Response to the send Members or Partners Invite or Request
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              invite:
+                type: object
+                nullable: true
+                properties:
+                  invite_data:
+                    type: object
+                    properties:
+                      invite_expiration:
+                        type: integer
+                      last_updated_time:
+                        type: integer
+                      sent_at:
+                        type: integer
+                  is_received_invite:
+                    type: boolean
+                  user:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                        nullable: true
+                      email:
+                        type: string
+                      id:
+                        type: string
+              exception:
+                type: object
+                nullable: true
+                properties:
+                  message:
+                    type: string
+                  code:
+                    type: integer
     UserFollowingFeedType:
       description: Specifies the type of followees to be kept when filtering them.
       enum:
@@ -19351,6 +20759,11 @@ components:
           type: string
         cover_image_url:
           type: string
+        video_url:
+          type: string
+          nullable: true
+          description: Video url (720p). </p><strong>Note:</strong> This field is
+            in beta and not available to all apps.
         duration:
           type: number
           description: Duration (in milliseconds)
@@ -19551,6 +20964,14 @@ components:
       required: true
       schema:
         type: string
+    path_pin_order_id:
+      description: The pin order id associated with the ssio insertion order
+      in: path
+      name: pin_order_id
+      required: true
+      schema:
+        type: string
+        example: 0Q01N0000015hekSVDFDC
     path_product_group_promotion_id:
       name: product_group_promotion_id
       description: Unique identifier of a product group promotion
@@ -19836,6 +21257,24 @@ components:
           maxLength: 18
         minItems: 1
         maxItems: 100
+    query_catalogs_catalog_id:
+      description: Filter feeds for a given catalog_id. If not given, feeds from all
+        catalogs are returned
+      in: query
+      required: false
+      name: catalog_id
+      schema:
+        type: string
+        pattern: ^\d+$
+    query_catalogs_id:
+      description: Unique identifier of a catalog. If not given, oldest catalog will
+        be used
+      in: query
+      required: false
+      name: catalog_id
+      schema:
+        type: string
+        pattern: ^\d+$
     query_catalogs_feed_id:
       description: Unique identifier of a feed
       in: query
@@ -19873,7 +21312,18 @@ components:
       description: Catalogs Item ids
       example:
       - CR123
-      required: true
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+    query_catalogs_hotels:
+      name: hotel_ids
+      in: query
+      description: Catalogs Hotel ids
+      example:
+      - ht123
+      required: false
       schema:
         type: array
         items:
@@ -20410,7 +21860,7 @@ components:
           example: workout
     query_match_types:
       explode: true
-      description: Keyword <a href="/docs/redoc/#section/Match-type-(keyword).">match
+      description: Keyword <a target="_blank" href="/docs/ads/targeting/#Match%20type%20and%20targeting%20level">match
         type</a>
       in: query
       name: match_types
@@ -20570,6 +22020,14 @@ components:
         - REGULAR
         - VIDEO
         type: string
+    query_pin_order_id:
+      description: The pin order id associated with the ssio insertino order
+      in: query
+      name: pin_order_id
+      required: false
+      schema:
+        type: string
+        example: 0Q01N0000015hekSVDFDC
     query_pin_type:
       name: pin_type
       description: The type of pins to return, currently only enabled for private
