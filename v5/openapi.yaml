@@ -241,7 +241,7 @@ paths:
         \ is used to track very small transactions, based on the currency set in the\
         \ advertiser\u2019s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the\
         \ standard unit of currency selected in the advertiser\u2019s profile.</p>\n\
-        \ <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
+        <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001\
         \ </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>,\
         \ using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars\
@@ -1030,13 +1030,13 @@ paths:
         \ <p/>\n<p>Microcurrency is used to track very small transactions, based on\
         \ the currency set in the advertiser\u2019s profile.</p>\n<p>A microcurrency\
         \ unit is 10^(-6) of the standard unit of currency selected in the advertiser\u2019\
-        \ s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars\
-        \ as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
+        s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as\
+        \ an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
         \  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between\
         \ currency and microcurrency</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n\
         \  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n\
-        \ </ul>\nFor more on bid floors see <a class=\"reference external\" href=\"\
+        </ul>\nFor more on bid floors see <a class=\"reference external\" href=\"\
         https://help.pinterest.com/en/business/article/set-your-bid\"> Set your bid</a>."
       operationId: ad_groups_bid_floor/get
       security:
@@ -1233,7 +1233,7 @@ paths:
         <p>Microcurrency is used to track very small transactions, based on the currency\
         \ set in the advertiser\u2019s profile.</p>\n<p>A microcurrency unit is 10^(-6)\
         \ of the standard unit of currency selected in the advertiser\u2019s profile.</p>\n\
-        \ <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
+        <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001\
         \ </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>,\
         \ using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars\
@@ -1276,13 +1276,13 @@ paths:
     patch:
       summary: Update campaigns
       description: "Update multiple ad campaigns based on campaign_ids. <p/>\n<strong>Note:</strong><p/>\n\
-        \ - <p>The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency\
+        - <p>The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency\
         \ amounts based on the currency field set in the advertiser's profile. (e.g.\
         \ USD) <p/>\n<p>Microcurrency is used to track very small transactions, based\
         \ on the currency set in the advertiser\u2019s profile.</p>\n<p>A microcurrency\
         \ unit is 10^(-6) of the standard unit of currency selected in the advertiser\u2019\
-        \ s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars\
-        \ as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
+        s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as\
+        \ an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
         \  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between\
         \ currency and microcurrency</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n\
@@ -1479,7 +1479,7 @@ paths:
       description: "Create a conversion tag, also known as <a href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\"\
         \ target=\"_blank\">Pinterest tag</a>, with the option to enable enhanced\
         \ match.<p/>\nThe Pinterest Tag tracks actions people take on the ad account\u2019\
-        \ s website after they view the ad account's ad on Pinterest. The advertiser\
+        s website after they view the ad account's ad on Pinterest. The advertiser\
         \ needs to customize this tag to track conversions.<p/>\nFor more information,\
         \ see:<p/>\n<a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\"\
         >Set up the Pinterest tag</a><p/>\n<a class=\"reference external\" href=\"\
@@ -1614,7 +1614,7 @@ paths:
         https://help.pinterest.com/en/business/article/audience-targeting\" target=\"\
         _blank\">Audience targeting</a>\nor the <a href=\"/docs/ads/targeting/#Audiences\"\
         \ target=\"_blank\">Audiences</a> section of the ads management guide.<p/>\n\
-        \ <p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\"\
+        <p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\"\
         \ target=\"_blank\">requirements</a></u> for what type of information is allowed\
         \ when uploading a customer list.</b></p>\n<p>When you create a customer list,\
         \ the system scans the list for existing Pinterest accounts;\nthe list must\
@@ -1623,7 +1623,7 @@ paths:
         \ only the Pinterest accounts that were included in your starting\nlist \u2013\
         \ is what will be used to create the audience.</p>\n<p>Note that once you\
         \ have created your customer list, you must convert it into an audience (of\
-        \ the \u201C CUSTOMER_LIST\u201D type)\nusing the <a href=\"#operation/create_audience_handler\"\
+        \ the \u201CCUSTOMER_LIST\u201D type)\nusing the <a href=\"#operation/create_audience_handler\"\
         >create audience endpoint</a> before it can be used.</p>"
       operationId: customer_lists/create
       security:
@@ -1730,7 +1730,7 @@ paths:
         <p>When you add records to an existing customer list, the system scans the\
         \ additions for existing Pinterest\naccounts; those are the records that will\
         \ be added to your \u201CCUSTOMER_LIST\u201D audience. Your original list\
-        \ of records\n to add will be deleted when the matching process is complete.</p>\n\
+        \ of records\nto add will be deleted when the matching process is complete.</p>\n\
         <p>For more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\"\
         \ target=\"_blank\">Audience targeting</a>\nor the <a href=\"/docs/ads/targeting/#Audiences\"\
         \ target=\"_blank\">Audiences</a>\nsection of the ads management guide.</p>"
@@ -3787,6 +3787,69 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /catalogs:
+    get:
+      x-ratelimit-category: catalogs_read
+      summary: List catalogs
+      description: |-
+        Fetch catalogs owned by the "operation user_account".
+        - By default, the "operation user_account" is the token user_account.
+
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+
+        <a href='/docs/shopping/catalog/'>Learn more</a>
+      operationId: catalogs/list
+      security:
+      - pinterest_oauth2:
+        - catalogs:read
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
+      - $ref: '#/components/parameters/query_ad_account_id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Paginated'
+                - properties:
+                    items:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Catalog'
+          description: Success
+        '400':
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InvalidRequest:
+                  value:
+                    code: 1
+                    message: Parameter 'page_size' was not numeric (was 3e)"
+        '401':
+          description: Unauthorized access.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedAccess:
+                  value:
+                    code: 29
+                    message: You are not permitted to access that resource.
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - catalogs
   /catalogs/feeds:
     get:
       x-ratelimit-category: catalogs_read
@@ -9046,7 +9109,7 @@ components:
             \ you can use event data to capture event details from your website. This\
             \ object lists all the available predefined event data fields in the Pinterest\
             \ tag. You can include these event data fields as part of a VISITOR audience\u2019\
-            \ s `rule`; however, you **must** specify an `event` for the `event_data`\
+            s `rule`; however, you **must** specify an `event` for the `event_data`\
             \ fields to be evaluated. Besides what\u2019s listed, you can also create\
             \ your own set of `event_data` fields and define their usages or purposes\
             \ according to your website needs. However, the benefit of using the predefined\
@@ -9063,7 +9126,7 @@ components:
             USD\", \"line_items\": [ { \"product_name\": \"Red leather boots\", \"\
             product_id\": \"3486\", \"product_category\": \"shoe\", \"product_variant_id\"\
             : \"JB11103000\", \"product_price\": 499, \"product_quantity\": \"1\"\
-            \ , \"product_brand\": \"My brand\" }]}<br>`watchvideo`<br>\"event_data\"\
+            , \"product_brand\": \"My brand\" }]}<br>`watchvideo`<br>\"event_data\"\
             : { \"video_title\": \"My Product Video 01\" }<br>`lead`<br>\"event_data\"\
             : { \"lead_type\": \"Newsletter\" }"
           properties:
@@ -10086,6 +10149,29 @@ components:
           CAMPAIGN_ID: '547602124502'
           SPEND_IN_DOLLAR: 30
           TOTAL_CLICKTHROUGH: 216
+    Catalog:
+      type: object
+      title: catalog
+      description: Catalog entity
+      allOf:
+      - $ref: '#/components/schemas/CatalogsDbItem'
+      - type: object
+        properties:
+          id:
+            description: ID of the catalog entity.
+            example: '864344156814050986'
+            type: string
+            pattern: ^\d+$
+          name:
+            description: A human-friendly name associated to a catalog entity.
+            nullable: true
+            type: string
+          catalog_type:
+            $ref: '#/components/schemas/CatalogsType'
+        required:
+        - id
+        - name
+        - catalog_type
     CatalogProductGroup:
       description: non-promoted catalog product group entity
       properties:
@@ -10205,6 +10291,8 @@ components:
             type: string
           format:
             $ref: '#/components/schemas/CatalogsFormat'
+          catalog_type:
+            $ref: '#/components/schemas/CatalogsType'
           credentials:
             $ref: '#/components/schemas/CatalogsFeedCredentials'
           location:
@@ -10255,6 +10343,8 @@ components:
             type: string
           format:
             $ref: '#/components/schemas/CatalogsFormat'
+          catalog_type:
+            $ref: '#/components/schemas/CatalogsType'
           credentials:
             $ref: '#/components/schemas/CatalogsFeedCredentials'
           location:
@@ -11199,6 +11289,8 @@ components:
           type: string
         preferred_processing_schedule:
           $ref: '#/components/schemas/CatalogsFeedProcessingSchedule'
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
         default_country:
           $ref: '#/components/schemas/Country'
         default_availability:
@@ -11245,6 +11337,8 @@ components:
           type: string
         preferred_processing_schedule:
           $ref: '#/components/schemas/CatalogsFeedProcessingSchedule'
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
         catalog_id:
           description: Catalog id pertaining to the feed. If not provided, feed will
             use a default catalog based on type.
@@ -11292,6 +11386,8 @@ components:
           $ref: '#/components/schemas/CatalogsFeedProcessingSchedule'
         status:
           $ref: '#/components/schemas/CatalogsStatus'
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
         default_availability:
           $ref: '#/components/schemas/ProductAvailabilityType'
       required:
@@ -11320,6 +11416,8 @@ components:
           $ref: '#/components/schemas/CatalogsFeedProcessingSchedule'
         status:
           $ref: '#/components/schemas/CatalogsStatus'
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
       required:
       - catalog_type
     CatalogsVerticalFeedsUpdateRequest:
@@ -11741,6 +11839,9 @@ components:
     CatalogsItemsBatch:
       type: object
       description: Object describing the catalogs items batch
+      properties:
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
       required:
       - catalog_type
       oneOf:
@@ -11774,6 +11875,8 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/BatchOperationStatus'
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
         items:
           description: Array with the catalogs items processing records part of the
             catalogs items batch
@@ -11805,6 +11908,8 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/BatchOperationStatus'
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
         items:
           description: Array with the catalogs items processing records part of the
             catalogs items batch
@@ -12414,6 +12519,12 @@ components:
       enum:
       - ACTIVE
       - INACTIVE
+    CatalogsType:
+      description: Type of the catalog entity.
+      type: string
+      enum:
+      - RETAIL
+      - HOTEL
     CatalogsVerticalBatchRequest:
       type: object
       title: operate on item batch
@@ -12447,6 +12558,8 @@ components:
       type: object
       description: Object describing a hotel item error
       properties:
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
         hotel_id:
           description: The catalog hotel id in the merchant namespace
           example: DS0294-M
@@ -12462,6 +12575,8 @@ components:
       type: object
       description: Object describing a hotel record
       properties:
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
         hotel_id:
           description: The catalog hotel id in the merchant namespace
           example: DS0294-M
@@ -12483,6 +12598,8 @@ components:
         retail batch
       additionalProperties: false
       properties:
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
         country:
           $ref: '#/components/schemas/Country'
         language:
@@ -12512,6 +12629,8 @@ components:
       type: object
       description: Object describing a retail item error
       properties:
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
         item_id:
           description: The catalog item id in the merchant namespace
           example: DS0294-M
@@ -12527,6 +12646,8 @@ components:
       type: object
       description: Object describing a retail item record
       properties:
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
         item_id:
           description: The catalog retail item id in the merchant namespace
           example: DS0294-M
@@ -12604,6 +12725,8 @@ components:
       type: object
       additionalProperties: false
       properties:
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
         country:
           $ref: '#/components/schemas/Country'
         language:
@@ -14740,6 +14863,9 @@ components:
       description: Object describing an item record
       anyOf:
       - type: object
+        properties:
+          catalog_type:
+            $ref: '#/components/schemas/CatalogsType'
         required:
         - catalog_type
         oneOf:
@@ -14751,6 +14877,9 @@ components:
             RETAIL: '#/components/schemas/CatalogsRetailItemResponse'
             HOTEL: '#/components/schemas/CatalogsHotelItemResponse'
       - type: object
+        properties:
+          catalog_type:
+            $ref: '#/components/schemas/CatalogsType'
         required:
         - catalog_type
         oneOf:
@@ -16893,7 +17022,7 @@ components:
             type: string
             nullable: true
             description: Video url (720p). </p><strong>Note:</strong> This field is
-              in beta and not available to all apps.
+              limited and not available to all apps.
           duration:
             type: number
             description: Duration (in milliseconds)
@@ -20317,7 +20446,7 @@ components:
         age_group:
           description: "The age group to apply a demographic range to the product.\
             \ Must be one of the following values (upper or lowercased): \u2018newborn\u2019\
-            \ , \u2018infant\u2019, \u2018toddler\u2019, \u2018kids\u2019, or \u2018\
+            , \u2018infant\u2019, \u2018toddler\u2019, \u2018kids\u2019, or \u2018\
             adult\u2019."
           example: newborn
           type: string
@@ -20325,7 +20454,7 @@ components:
         availability:
           description: "The availability of the product. Must be one of the following\
             \ values (upper or lowercased): \u2018in stock\u2019, \u2018out of stock\u2019\
-            \ , \u2018preorder\u2019."
+            , \u2018preorder\u2019."
           example: in stock
           type: string
         average_review_rating:
@@ -20411,7 +20540,7 @@ components:
         gender:
           description: "The gender associated with the product. Must be one of the\
             \ following values (upper or lowercased): \u2018male\u2019, \u2018female\u2019\
-            \ , or \u2018unisex\u2019."
+            , or \u2018unisex\u2019."
           example: unisex
           type: string
           nullable: true
@@ -20551,15 +20680,15 @@ components:
           description: "Indicates the country\u2019s sizing system in which you are\
             \ submitting your product. Must be one of the following values (upper\
             \ or lowercased): \u2018US\u2019, \u2018UK\u2019, \u2018EU\u2019, \u2018\
-            DE\u2019 , \u2018FR\u2019, \u2018JP\u2019, \u2018CN\u2019, \u2018IT\u2019\
-            , \u2018 BR\u2019, \u2018MEX\u2019, or \u2018AU\u2019."
+            DE\u2019, \u2018FR\u2019, \u2018JP\u2019, \u2018CN\u2019, \u2018IT\u2019\
+            , \u2018BR\u2019, \u2018MEX\u2019, or \u2018AU\u2019."
           example: US
           type: string
           nullable: true
         size_type:
           description: "Additional description for the size. Must be one of the following\
             \ values (upper or lowercased): \u2018regular\u2019, \u2018petite\u2019\
-            \ , \u2018plus\u2019, \u2018big_and_tall\u2019, or \u2018maternity\u2019\
+            , \u2018plus\u2019, \u2018big_and_tall\u2019, or \u2018maternity\u2019\
             ."
           example: regular
           type: string
@@ -20763,7 +20892,7 @@ components:
           type: string
           nullable: true
           description: Video url (720p). </p><strong>Note:</strong> This field is
-            in beta and not available to all apps.
+            limited and not available to all apps.
         duration:
           type: number
           description: Duration (in milliseconds)
