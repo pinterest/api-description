@@ -388,7 +388,7 @@
       },
       "post": {
         "summary": "Create ad groups",
-        "description": "Create multiple new ad groups. All ads in a given ad group will have the same budget, bid, run dates, targeting, and placement (search, browse, other). For more information, <a href=\"https://help.pinterest.com/en/business/article/campaign-structure\" target=\"_blank\"> click here</a>.</p>\n<strong>Note:</strong>\n- 'bid_in_micro_currency' and 'budget_in_micro_currency' should be expressed in microcurrency amounts based on the currency field set in the advertiser's profile.<p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>\n- Ad groups belong to ad campaigns. Some types of campaigns (e.g. budget optimization) have limits on the number of ad groups they can hold. If you exceed those limits, you will get an error message.\n- Start and end time cannot be set for ad groups that belong to CBO campaigns. Currently, campaigns with the following objective types: TRAFFIC, AWARENESS, WEB_CONVERSIONS, and CATALOG_SALES will default to CBO.",
+        "description": "Create multiple new ad groups. All ads in a given ad group will have the same budget, bid, run dates, targeting, and placement (search, browse, other). For more information, <a href=\"https://help.pinterest.com/en/business/article/campaign-structure\" target=\"_blank\"> click here</a>.</p>\n<strong>Note:</strong>\n- 'bid_in_micro_currency' and 'budget_in_micro_currency' should be expressed in microcurrency amounts based on the currency field set in the advertiser's profile.<p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>\n- Ad groups belong to ad campaigns. Some types of campaigns (e.g. budget optimization) have limits on the number of ad groups they can hold. If you exceed those limits, you will get an error message.\n- Start and end time cannot be set for ad groups that belong to CBO campaigns. Currently, campaigns with the following objective types: TRAFFIC, AWARENESS, WEB_CONVERSIONS, and CATALOG_SALES will default to CBO.",
         "operationId": "ad_groups/create",
         "security": [
           {
@@ -1673,7 +1673,7 @@
     },
     "/ad_accounts/{ad_account_id}/bid_floor": {
       "post": {
-        "description": "List bid floors for your campaign configuration. Bid floors are given in microcurrency values based on the currency in the bid floor specification. <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>\nFor more on bid floors see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-your-bid\"> Set your bid</a>.",
+        "description": "List bid floors for your campaign configuration. Bid floors are given in microcurrency values based on the currency in the bid floor specification. <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’ s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n </ul>\nFor more on bid floors see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-your-bid\"> Set your bid</a>.",
         "operationId": "ad_groups_bid_floor/get",
         "security": [
           {
@@ -1981,7 +1981,7 @@
       },
       "post": {
         "summary": "Create campaigns",
-        "description": "Create multiple new campaigns. Every campaign has its own campaign_id and houses one or more ad groups, which contain one or more ads.\nFor more, see <a href=\"https://help.pinterest.com/en/business/article/set-up-your-campaign/\">Set up your campaign</a>. <p/>\n<strong>Note:</strong>\n- The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>",
+        "description": "Create multiple new campaigns. Every campaign has its own campaign_id and houses one or more ad groups, which contain one or more ads.\nFor more, see <a href=\"https://help.pinterest.com/en/business/article/set-up-your-campaign/\">Set up your campaign</a>. <p/>\n<strong>Note:</strong>\n- The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>",
         "tags": [
           "campaigns"
         ],
@@ -2041,7 +2041,7 @@
       },
       "patch": {
         "summary": "Update campaigns",
-        "description": "Update multiple ad campaigns based on campaign_ids. <p/>\n<strong>Note:</strong><p/>\n- <p>The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>",
+        "description": "Update multiple ad campaigns based on campaign_ids. <p/>\n<strong>Note:</strong><p/>\n - <p>The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’ s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>",
         "tags": [
           "campaigns"
         ],
@@ -2366,7 +2366,7 @@
       "post": {
         "x-sandbox": "disabled",
         "summary": "Create conversion tag",
-        "description": "Create a conversion tag, also known as <a href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\" target=\"_blank\">Pinterest tag</a>, with the option to enable enhanced match.<p/>\nThe Pinterest Tag tracks actions people take on the ad account’s website after they view the ad account's ad on Pinterest. The advertiser needs to customize this tag to track conversions.<p/>\nFor more information, see:<p/>\n<a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\">Set up the Pinterest tag</a><p/>\n<a class=\"reference external\" href=\"https://developers.pinterest.com/docs/conversions/pinterest-tag/\">Pinterest Tag</a><p/>\n<a class=\"reference external\" href=\"https://developers.pinterest.com/docs/conversions/enhanced-match/\">Enhanced match</a>",
+        "description": "Create a conversion tag, also known as <a href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\" target=\"_blank\">Pinterest tag</a>, with the option to enable enhanced match.<p/>\nThe Pinterest Tag tracks actions people take on the ad account’ s website after they view the ad account's ad on Pinterest. The advertiser needs to customize this tag to track conversions.<p/>\nFor more information, see:<p/>\n<a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\">Set up the Pinterest tag</a><p/>\n<a class=\"reference external\" href=\"https://developers.pinterest.com/docs/conversions/pinterest-tag/\">Pinterest Tag</a><p/>\n<a class=\"reference external\" href=\"https://developers.pinterest.com/docs/conversions/enhanced-match/\">Enhanced match</a>",
         "operationId": "conversion_tags/create",
         "security": [
           {
@@ -2585,7 +2585,7 @@
     },
     "/ad_accounts/{ad_account_id}/customer_lists": {
       "post": {
-        "description": "<p>Create a customer list from your records(hashed or plain-text email addresses, or hashed MAIDs or IDFAs).</p>\n<p>A customer list is one of the four types of Pinterest audiences: for more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>\nor the <a href=\"/docs/ads/targeting/#Audiences\" target=\"_blank\">Audiences</a> section of the ads management guide.<p/>\n<p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\" target=\"_blank\">requirements</a></u> for what type of information is allowed when uploading a customer list.</b></p>\n<p>When you create a customer list, the system scans the list for existing Pinterest accounts;\nthe list must include at least 100 Pinterest accounts. Your original list will be deleted when the matching process\nis complete. The filtered list – containing only the Pinterest accounts that were included in your starting\nlist – is what will be used to create the audience.</p>\n<p>Note that once you have created your customer list, you must convert it into an audience (of the “CUSTOMER_LIST” type)\nusing the <a href=\"#operation/create_audience_handler\">create audience endpoint</a> before it can be used.</p>",
+        "description": "<p>Create a customer list from your records(hashed or plain-text email addresses, or hashed MAIDs or IDFAs).</p>\n<p>A customer list is one of the four types of Pinterest audiences: for more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>\nor the <a href=\"/docs/ads/targeting/#Audiences\" target=\"_blank\">Audiences</a> section of the ads management guide.<p/>\n <p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\" target=\"_blank\">requirements</a></u> for what type of information is allowed when uploading a customer list.</b></p>\n<p>When you create a customer list, the system scans the list for existing Pinterest accounts;\nthe list must include at least 100 Pinterest accounts. Your original list will be deleted when the matching process\nis complete. The filtered list – containing only the Pinterest accounts that were included in your starting\nlist – is what will be used to create the audience.</p>\n<p>Note that once you have created your customer list, you must convert it into an audience (of the “ CUSTOMER_LIST” type)\nusing the <a href=\"#operation/create_audience_handler\">create audience endpoint</a> before it can be used.</p>",
         "operationId": "customer_lists/create",
         "security": [
           {
@@ -2756,7 +2756,7 @@
         ]
       },
       "patch": {
-        "description": "<p>Append or remove records to/from an existing customer list. (A customer list is one of the four types of Pinterest audiences.)</p>\n<p>When you add records to an existing customer list, the system scans the additions for existing Pinterest\naccounts; those are the records that will be added to your “CUSTOMER_LIST” audience. Your original list of records\nto add will be deleted when the matching process is complete.</p>\n<p>For more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>\nor the <a href=\"/docs/ads/targeting/#Audiences\" target=\"_blank\">Audiences</a>\nsection of the ads management guide.</p>",
+        "description": "<p>Append or remove records to/from an existing customer list. (A customer list is one of the four types of Pinterest audiences.)</p>\n<p>When you add records to an existing customer list, the system scans the additions for existing Pinterest\naccounts; those are the records that will be added to your “CUSTOMER_LIST” audience. Your original list of records\n to add will be deleted when the matching process is complete.</p>\n<p>For more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>\nor the <a href=\"/docs/ads/targeting/#Audiences\" target=\"_blank\">Audiences</a>\nsection of the ads management guide.</p>",
         "operationId": "customer_lists/update",
         "security": [
           {
@@ -13640,7 +13640,7 @@
             "type": "string"
           },
           "event_data": {
-            "description": "Optional for VISITOR `audience_type`. With the Pinterest tag, you can use event data to capture event details from your website. This object lists all the available predefined event data fields in the Pinterest tag. You can include these event data fields as part of a VISITOR audience’s `rule`; however, you **must** specify an `event` for the `event_data` fields to be evaluated. Besides what’s listed, you can also create your own set of `event_data` fields and define their usages or purposes according to your website needs. However, the benefit of using the predefined event data fields is that we can provide various metrics based on those fields' data.<br>Examples per `event` type:<br>`pagevisit`<br>\"event_data\": { \"page_name\": \"My online store 123 | view items | shoe\" }<br>`signup`<br>\"event_data\": { \"lead_type\": \"New release promotion\" }<br>`checkout`<br>\"event_data\": { \"value\": 116, \"order_quantity\": 2, \"currency\": \"USD\", \"line_items\": [ { \"product_name\": \"Pillows (Set of 2)\", \"product_id\": \"11\", \"product_price\": 48, \"product_quantity\": 1 }, { \"product_name\": \"Pillows, Large (Set of 2)\", \"product_id\": \"15\", \"product_price\": 68, \"product_quantity\": 1 } ] }<br>`addtocart`<br>\"event_data\": { \"value\": 499, \"order_quantity\": 1, \"currency\": \"USD\", \"line_items\": [ { \"product_name\": \"Red leather boots\", \"product_id\": \"3486\", \"product_category\": \"shoe\", \"product_variant_id\": \"JB11103000\", \"product_price\": 499, \"product_quantity\": \"1\", \"product_brand\": \"My brand\" }]}<br>`watchvideo`<br>\"event_data\": { \"video_title\": \"My Product Video 01\" }<br>`lead`<br>\"event_data\": { \"lead_type\": \"Newsletter\" }",
+            "description": "Optional for VISITOR `audience_type`. With the Pinterest tag, you can use event data to capture event details from your website. This object lists all the available predefined event data fields in the Pinterest tag. You can include these event data fields as part of a VISITOR audience’ s `rule`; however, you **must** specify an `event` for the `event_data` fields to be evaluated. Besides what’s listed, you can also create your own set of `event_data` fields and define their usages or purposes according to your website needs. However, the benefit of using the predefined event data fields is that we can provide various metrics based on those fields' data.<br>Examples per `event` type:<br>`pagevisit`<br>\"event_data\": { \"page_name\": \"My online store 123 | view items | shoe\" }<br>`signup`<br>\"event_data\": { \"lead_type\": \"New release promotion\" }<br>`checkout`<br>\"event_data\": { \"value\": 116, \"order_quantity\": 2, \"currency\": \"USD\", \"line_items\": [ { \"product_name\": \"Pillows (Set of 2)\", \"product_id\": \"11\", \"product_price\": 48, \"product_quantity\": 1 }, { \"product_name\": \"Pillows, Large (Set of 2)\", \"product_id\": \"15\", \"product_price\": 68, \"product_quantity\": 1 } ] }<br>`addtocart`<br>\"event_data\": { \"value\": 499, \"order_quantity\": 1, \"currency\": \"USD\", \"line_items\": [ { \"product_name\": \"Red leather boots\", \"product_id\": \"3486\", \"product_category\": \"shoe\", \"product_variant_id\": \"JB11103000\", \"product_price\": 499, \"product_quantity\": \"1\" , \"product_brand\": \"My brand\" }]}<br>`watchvideo`<br>\"event_data\": { \"video_title\": \"My Product Video 01\" }<br>`lead`<br>\"event_data\": { \"lead_type\": \"Newsletter\" }",
             "properties": {
               "currency": {
                 "$ref": "#/components/schemas/Currency"
@@ -16400,7 +16400,8 @@
           "format",
           "location",
           "name",
-          "catalog_type"
+          "catalog_type",
+          "default_locale"
         ]
       },
       "CatalogsVerticalFeedsCreateRequest": {
@@ -27268,13 +27269,13 @@
             "nullable": true
           },
           "age_group": {
-            "description": "The age group to apply a demographic range to the product. Must be one of the following values (upper or lowercased): ‘newborn’, ‘infant’, ‘toddler’, ‘kids’, or ‘adult’.",
+            "description": "The age group to apply a demographic range to the product. Must be one of the following values (upper or lowercased): ‘newborn’ , ‘infant’, ‘toddler’, ‘kids’, or ‘adult’.",
             "example": "newborn",
             "type": "string",
             "nullable": true
           },
           "availability": {
-            "description": "The availability of the product. Must be one of the following values (upper or lowercased): ‘in stock’, ‘out of stock’, ‘preorder’.",
+            "description": "The availability of the product. Must be one of the following values (upper or lowercased): ‘in stock’, ‘out of stock’ , ‘preorder’.",
             "example": "in stock",
             "type": "string"
           },
@@ -27357,7 +27358,7 @@
             "nullable": true
           },
           "gender": {
-            "description": "The gender associated with the product. Must be one of the following values (upper or lowercased): ‘male’, ‘female’, or ‘unisex’.",
+            "description": "The gender associated with the product. Must be one of the following values (upper or lowercased): ‘male’, ‘female’ , or ‘unisex’.",
             "example": "unisex",
             "type": "string",
             "nullable": true
@@ -27488,13 +27489,13 @@
             "nullable": true
           },
           "size_system": {
-            "description": "Indicates the country’s sizing system in which you are submitting your product. Must be one of the following values (upper or lowercased): ‘US’, ‘UK’, ‘EU’, ‘DE’, ‘FR’, ‘JP’, ‘CN’, ‘IT’, ‘BR’, ‘MEX’, or ‘AU’.",
+            "description": "Indicates the country’s sizing system in which you are submitting your product. Must be one of the following values (upper or lowercased): ‘US’, ‘UK’, ‘EU’, ‘DE’ , ‘FR’, ‘JP’, ‘CN’, ‘IT’, ‘ BR’, ‘MEX’, or ‘AU’.",
             "example": "US",
             "type": "string",
             "nullable": true
           },
           "size_type": {
-            "description": "Additional description for the size. Must be one of the following values (upper or lowercased): ‘regular’, ‘petite’, ‘plus’, ‘big_and_tall’, or ‘maternity’.",
+            "description": "Additional description for the size. Must be one of the following values (upper or lowercased): ‘regular’, ‘petite’ , ‘plus’, ‘big_and_tall’, or ‘maternity’.",
             "example": "regular",
             "type": "string",
             "nullable": true
