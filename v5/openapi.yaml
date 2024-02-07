@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 5.11.0
+  version: 5.12.0
   title: Pinterest REST API
   description: Pinterest's REST API
   contact:
@@ -32,6 +32,8 @@ tags:
   description: View audience insights.
 - name: audiences
   description: View, create, or update audiences.
+- name: billing
+  description: View, create, or update information related to billing.
 - name: boards
   description: View, create, update, or delete information about boards.
 - name: bulk
@@ -47,11 +49,11 @@ tags:
 - name: customer_lists
   description: View, create, or update customer lists.
 - name: integrations
-  description: integrations
-- name: interests
-  description: View interests.
+  description: View, create, or update commerce integrations.
 - name: keywords
   description: View, create or update keywords.
+- name: lead_ads
+  description: View, create, or update lead ads.
 - name: lead_forms
   description: View lead forms.
 - name: media
@@ -241,7 +243,7 @@ paths:
         \ is used to track very small transactions, based on the currency set in the\
         \ advertiser\u2019s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the\
         \ standard unit of currency selected in the advertiser\u2019s profile.</p>\n\
-        \ <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
+        <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001\
         \ </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>,\
         \ using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars\
@@ -417,6 +419,62 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      tags:
+      - ad_groups
+  /ad_accounts/{ad_account_id}/ad_groups/audience_sizing:
+    get:
+      summary: Get audience sizing
+      description: "Get potential audience size for an ad group with given targeting\
+        \ criteria. \nPotential audience size estimates the number of people you may\
+        \ be able to reach per month with your campaign. \nIt is based on historical\
+        \ advertising data and the targeting criteria you select.\nIt does not guarantee\
+        \ results or take into account factors such as bid, budget, schedule, seasonality\
+        \ or product experiments."
+      operationId: ad_groups/audience_sizing
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: enabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdGroupAudienceSizingRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdGroupAudienceSizingResponse'
+          description: Success
+        '400':
+          description: Invalid ad group audience sizing parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid ad group audience sizing parameters.
+        '403':
+          description: No access to requested audience list or product group.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 403
+                message: You don't have access to the requested audience list or product
+                  group.
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
       tags:
       - ad_groups
   /ad_accounts/{ad_account_id}/ad_groups/{ad_group_id}:
@@ -681,6 +739,94 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - ads
+  /ad_accounts/{ad_account_id}/ads_credit/discounts:
+    get:
+      summary: Get ads credit discounts
+      description: |-
+        Returns the list of discounts applied to the account.
+
+        <strong>This endpoint might not be available to all apps. <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>
+      operationId: ads_credits_discounts/get
+      security:
+      - pinterest_oauth2:
+        - ads:read
+        - billing:read
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+      tags:
+      - billing
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Paginated'
+                - properties:
+                    items:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/AdsCreditDiscountsResponse'
+          description: Success
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /ad_accounts/{ad_account_id}/ads_credit/redeem:
+    post:
+      summary: Redeem ad credits
+      description: |-
+        Redeem ads credit on behalf of the ad account id and apply it towards billing.
+
+        <strong>This endpoint might not be available to all apps. <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>
+      tags:
+      - billing
+      operationId: ads_credit/redeem
+      security:
+      - pinterest_oauth2:
+        - ads:write
+        - billing:write
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      requestBody:
+        description: Redeem ad credits request.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdsCreditRedeemRequest'
+      responses:
+        '200':
+          description: Successfully redeemed ad credits.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdsCreditRedeemResponse'
+        '400':
+          description: Error thrown when unable to redeem offer code.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ValidationError:
+                  value:
+                    code: 15
+                    message: Unable to redeem offer code. Try again later.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /ad_accounts/{ad_account_id}/ads/targeting_analytics:
     get:
       summary: Get targeting analytics for ads
@@ -852,8 +998,33 @@ paths:
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/query_bookmark'
-      - $ref: '#/components/parameters/query_order'
+      - description: "The order in which to sort the items returned: \u201CASCENDING\u201D\
+          \ or \u201CDESCENDING\u201D by ID.\nFor received audiences, it is sorted\
+          \ by sharing event time.\nNote that higher-value IDs are associated with\
+          \ more-recently added items."
+        in: query
+        name: order
+        required: false
+        schema:
+          type: string
+          example: ASCENDING
+          enum:
+          - ASCENDING
+          - DESCENDING
       - $ref: '#/components/parameters/query_page_size'
+      - description: |-
+          <strong>This feature is currently in beta and not available to all apps.</strong>
+          Filter audiences by ownership type.
+        in: query
+        name: ownership_type
+        required: false
+        example: OWNED
+        schema:
+          type: string
+          default: OWNED
+          enum:
+          - OWNED
+          - RECEIVED
       responses:
         '200':
           content:
@@ -1030,13 +1201,13 @@ paths:
         \ <p/>\n<p>Microcurrency is used to track very small transactions, based on\
         \ the currency set in the advertiser\u2019s profile.</p>\n<p>A microcurrency\
         \ unit is 10^(-6) of the standard unit of currency selected in the advertiser\u2019\
-        \ s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars\
-        \ as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
+        s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as\
+        \ an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
         \  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between\
         \ currency and microcurrency</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n\
         \  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n\
-        \ </ul>\nFor more on bid floors see <a class=\"reference external\" href=\"\
+        </ul>\nFor more on bid floors see <a class=\"reference external\" href=\"\
         https://help.pinterest.com/en/business/article/set-your-bid\"> Set your bid</a>."
       operationId: ad_groups_bid_floor/get
       security:
@@ -1069,6 +1240,51 @@ paths:
       summary: Get bid floors
       tags:
       - ad_groups
+  /ad_accounts/{ad_account_id}/billing_profiles:
+    get:
+      summary: Get billing profiles
+      description: |-
+        Get billing profiles in the advertiser account.
+
+        <strong>This endpoint might not be available to all apps. <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>
+      operationId: billing_profiles/get
+      security:
+      - pinterest_oauth2:
+        - ads:read
+        - billing:read
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+      tags:
+      - billing
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - description: Return active billing profiles, if false return all billing profiles.
+        in: query
+        name: is_active
+        required: true
+        schema:
+          type: boolean
+      - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Paginated'
+                - properties:
+                    items:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/BillingProfilesResponse'
+          description: Success
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /ad_accounts/{ad_account_id}/bulk/download:
     post:
       summary: Get advertiser entities in bulk
@@ -1157,6 +1373,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/path_ad_account_id'
       - $ref: '#/components/parameters/path_bulk_request_id'
+      - $ref: '#/components/parameters/include_details'
       responses:
         '200':
           content:
@@ -1233,7 +1450,7 @@ paths:
         <p>Microcurrency is used to track very small transactions, based on the currency\
         \ set in the advertiser\u2019s profile.</p>\n<p>A microcurrency unit is 10^(-6)\
         \ of the standard unit of currency selected in the advertiser\u2019s profile.</p>\n\
-        \ <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
+        <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001\
         \ </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>,\
         \ using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars\
@@ -1276,13 +1493,13 @@ paths:
     patch:
       summary: Update campaigns
       description: "Update multiple ad campaigns based on campaign_ids. <p/>\n<strong>Note:</strong><p/>\n\
-        \ - <p>The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency\
+        - <p>The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency\
         \ amounts based on the currency field set in the advertiser's profile. (e.g.\
         \ USD) <p/>\n<p>Microcurrency is used to track very small transactions, based\
         \ on the currency set in the advertiser\u2019s profile.</p>\n<p>A microcurrency\
         \ unit is 10^(-6) of the standard unit of currency selected in the advertiser\u2019\
-        \ s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars\
-        \ as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
+        s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as\
+        \ an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
         \  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between\
         \ currency and microcurrency</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n\
@@ -1479,7 +1696,7 @@ paths:
       description: "Create a conversion tag, also known as <a href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\"\
         \ target=\"_blank\">Pinterest tag</a>, with the option to enable enhanced\
         \ match.<p/>\nThe Pinterest Tag tracks actions people take on the ad account\u2019\
-        \ s website after they view the ad account's ad on Pinterest. The advertiser\
+        s website after they view the ad account's ad on Pinterest. The advertiser\
         \ needs to customize this tag to track conversions.<p/>\nFor more information,\
         \ see:<p/>\n<a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\"\
         >Set up the Pinterest tag</a><p/>\n<a class=\"reference external\" href=\"\
@@ -1614,7 +1831,7 @@ paths:
         https://help.pinterest.com/en/business/article/audience-targeting\" target=\"\
         _blank\">Audience targeting</a>\nor the <a href=\"/docs/ads/targeting/#Audiences\"\
         \ target=\"_blank\">Audiences</a> section of the ads management guide.<p/>\n\
-        \ <p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\"\
+        <p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\"\
         \ target=\"_blank\">requirements</a></u> for what type of information is allowed\
         \ when uploading a customer list.</b></p>\n<p>When you create a customer list,\
         \ the system scans the list for existing Pinterest accounts;\nthe list must\
@@ -1623,7 +1840,7 @@ paths:
         \ only the Pinterest accounts that were included in your starting\nlist \u2013\
         \ is what will be used to create the audience.</p>\n<p>Note that once you\
         \ have created your customer list, you must convert it into an audience (of\
-        \ the \u201C CUSTOMER_LIST\u201D type)\nusing the <a href=\"#operation/create_audience_handler\"\
+        \ the \u201CCUSTOMER_LIST\u201D type)\nusing the <a href=\"#operation/create_audience_handler\"\
         >create audience endpoint</a> before it can be used.</p>"
       operationId: customer_lists/create
       security:
@@ -1730,7 +1947,7 @@ paths:
         <p>When you add records to an existing customer list, the system scans the\
         \ additions for existing Pinterest\naccounts; those are the records that will\
         \ be added to your \u201CCUSTOMER_LIST\u201D audience. Your original list\
-        \ of records\n to add will be deleted when the matching process is complete.</p>\n\
+        \ of records\nto add will be deleted when the matching process is complete.</p>\n\
         <p>For more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\"\
         \ target=\"_blank\">Audience targeting</a>\nor the <a href=\"/docs/ads/targeting/#Audiences\"\
         \ target=\"_blank\">Audiences</a>\nsection of the ads management guide.</p>"
@@ -1767,7 +1984,7 @@ paths:
       - customer_lists
   /ad_accounts/{ad_account_id}/events:
     post:
-      summary: Send conversion events to the Pinterest API for Conversions
+      summary: Send conversions
       description: |-
         The Pinterest API offers advertisers a way to send Pinterest their conversion information (including web conversions, in-app conversions, or even offline conversions) based on their <code>ad_account_id</code>. The request body should be a JSON object.
         - This endpoint requires an <code>access_token</code> be generated through Ads Manager. Review the <a href="/docs/conversions/conversions/">Conversions Guide</a> for more details.
@@ -1838,6 +2055,12 @@ paths:
                   value:
                     code: 29
                     message: You are not permitted to access that resource.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedError'
+          description: Not all events were successfully processed.
         '429':
           description: |-
             This request exceeded a rate limit. This can happen if the client exceeds one
@@ -2141,6 +2364,374 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - lead_forms
+  /ad_accounts/{ad_account_id}/lead_forms/{lead_form_id}/test:
+    post:
+      summary: Create lead form test data
+      description: |-
+        Create lead form test data based on the list of answers provided as part of the body.
+        - List of answers should follow the questions creation order.
+
+        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>
+      operationId: lead_form_test/create
+      security:
+      - pinterest_oauth2:
+        - ads:write
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/path_lead_form_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadFormTestRequest'
+        description: Subscription to create.
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadFormTestResponse'
+          description: Success
+        '400':
+          description: Invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 1
+                message: Invalid parameters.
+        '404':
+          description: Lead not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 4842
+                message: Lead not found.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - lead_forms
+  /ad_accounts/{ad_account_id}/leads/subscriptions:
+    post:
+      summary: Create lead ads subscription
+      description: |-
+        Create a lead ads webhook subscription.
+        - Only requests for the OWNER or ADMIN of the ad_account will be allowed.
+        - Advertisers can set up multiple integrations using ad_account_id + lead_form_id but only one integration per unique records.
+
+        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>
+      tags:
+      - lead_ads
+      operationId: ad_accounts_subscriptions/post
+      security:
+      - pinterest_oauth2:
+        - ads:write
+      x-ratelimit-category: ads_write
+      x-sandbox: enabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdAccountCreateSubscriptionRequest'
+        description: Subscription to create.
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdAccountCreateSubscriptionResponse'
+          description: Success
+        '400':
+          description: Invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 1
+                message: Advertiser ID must be numeric.
+        '403':
+          description: Can't access this subscription.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotIntegrationOwner:
+                  value:
+                    code: 4182
+                    message: Can't access this subscription.
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Get lead ads subscriptions
+      description: |-
+        Get the advertiser's list of lead ads subscriptions.
+        - Only requests for the OWNER or ADMIN of the ad_account will be allowed.
+
+        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>
+      operationId: ad_accounts_subscriptions/get_list
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/query_page_size'
+      - $ref: '#/components/parameters/query_bookmark'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Paginated'
+                - properties:
+                    items:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/AdAccountGetSubscriptionResponse'
+          description: Success
+        '403':
+          description: Can't access this subscription.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotIntegrationOwner:
+                  value:
+                    code: 29
+                    message: You are not permitted to access that resource.
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - lead_ads
+  /ad_accounts/{ad_account_id}/leads/subscriptions/{subscription_id}:
+    get:
+      summary: Get lead ads subscription
+      description: |-
+        Get a specific lead ads subscription record.
+        - Only requests for the OWNER or ADMIN of the ad_account will be allowed.
+
+        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>
+      operationId: ad_accounts_subscriptions/get_by_id
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/path_subscription_id'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdAccountGetSubscriptionResponse'
+          description: Success
+        '400':
+          description: Invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 1
+                message: Advertiser ID must be numeric.
+        '403':
+          description: Can't access this subscription.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotIntegrationOwner:
+                  value:
+                    code: 29
+                    message: You are not permitted to access that resource.
+        '404':
+          description: Subscription not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                CommerceIntegrationNotFound:
+                  value:
+                    code: 4517
+                    message: Subscription for given ids not found.
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - lead_ads
+    delete:
+      summary: Delete lead ads subscription
+      description: |-
+        Delete an existing lead ads webhook subscription by ID.
+        - Only requests for the OWNER or ADMIN of the ad_account will be allowed.
+
+        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>
+      operationId: ad_accounts_subscriptions/del_by_id
+      security:
+      - pinterest_oauth2:
+        - ads:write
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/path_subscription_id'
+      responses:
+        '204':
+          description: Subscription deleted successfully
+        '400':
+          description: Invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 1
+                message: Advertiser ID must be numeric.
+        '403':
+          description: You are not authorized to delete this subscription.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                NotIntegrationOwner:
+                  value:
+                    code: 29
+                    message: You are not permitted to access that resource.
+        '404':
+          description: Subscription not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                CommerceIntegrationNotFound:
+                  value:
+                    code: 4517
+                    message: Subscription for given ids not found.
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - lead_ads
+  /ad_accounts/{ad_account_id}/mmm_reports:
+    get:
+      summary: Get advertiser Marketing Mix Modeling (MMM) report.
+      description: |-
+        Get an mmm report for an ad account. This returns a URL to an mmm metrics report given a token returned from the
+        create mmm report endpoint.
+      operationId: analytics/get_mmm_report
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/query_token_required'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMMMReportResponse'
+          description: Success
+        '400':
+          description: Invalid ad account ads analytics parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid ad account ads analytics parameters.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_accounts
+    post:
+      summary: Create a request for a Marketing Mix Modeling (MMM) report
+      description: |-
+        This creates an asynchronous mmm report based on the given request. It returns a token that you can use to download
+        the report when it is ready. NOTE: An additional limit of 5 queries per minute per advertiser applies to this endpoint while it's in beta release.
+      operationId: analytics/create_mmm_report
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_analytics
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMMMReportRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateMMMReportResponse'
+          description: Success
+        '400':
+          description: Invalid ad account ads analytics mmm parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid ad account ads analytics mmm parameters
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_accounts
   /ad_accounts/{ad_account_id}/order_lines:
     get:
       summary: Get order lines
@@ -2499,6 +3090,7 @@ paths:
         - If granularity is not HOUR, the furthest back you can are allowed to pull data is 914 days before the current date in UTC time and the max time range supported is 186 days.
         - If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.
         - If level is PRODUCT_ITEM, the furthest back you can are allowed to pull data is 92 days before the current date in UTC time and the max time range supported is 31 days.
+        - If level is PRODUCT_ITEM, ad_ids and ad_statuses parameters are not allowed. Any columns related to pin promotion and ad is not allowed either.
       operationId: analytics/create_report
       security:
       - pinterest_oauth2:
@@ -2615,7 +3207,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       tags:
-      - ad_accounts
+      - billing
   /ad_accounts/{ad_account_id}/ssio/insertion_orders:
     post:
       summary: Create insertion order through SSIO.
@@ -2660,7 +3252,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       tags:
-      - ad_accounts
+      - billing
     patch:
       summary: Edit insertion order through SSIO.
       description: |-
@@ -2704,7 +3296,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       tags:
-      - ad_accounts
+      - billing
   /ad_accounts/{ad_account_id}/ssio/insertion_orders/status:
     get:
       summary: Get insertion order status by ad account id.
@@ -2750,7 +3342,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       tags:
-      - ad_accounts
+      - billing
   /ad_accounts/{ad_account_id}/ssio/insertion_orders/{pin_order_id}/status:
     get:
       summary: Get insertion order status by pin order id.
@@ -2789,7 +3381,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       tags:
-      - ad_accounts
+      - billing
   /ad_accounts/{ad_account_id}/ssio/order_lines:
     get:
       summary: Get Salesforce order lines by ad account id.
@@ -2836,7 +3428,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       tags:
-      - ad_accounts
+      - billing
   /ad_accounts/{ad_account_id}/targeting_analytics:
     get:
       summary: Get targeting analytics for an ad account
@@ -3039,9 +3631,11 @@ paths:
         schema:
           type: string
           enum:
-          - PUBLIC
+          - ALL
           - PROTECTED
+          - PUBLIC
           - SECRET
+          - PUBLIC_AND_SECRET
       responses:
         '200':
           description: response
@@ -3454,6 +4048,7 @@ paths:
       - $ref: '#/components/parameters/query_page_size'
       - $ref: '#/components/parameters/query_creative_types'
       - $ref: '#/components/parameters/query_ad_account_id'
+      - $ref: '#/components/parameters/query_pin_metrics'
       responses:
         '200':
           description: response
@@ -3802,7 +4397,7 @@ paths:
       security:
       - pinterest_oauth2:
         - catalogs:read
-      x-sandbox: disabled
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -3860,7 +4455,7 @@ paths:
 
         Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
 
-        <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Learn more</a>
+        For Retail partners, refer to <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Before you get started with Catalogs</a>. For Hotel parterns, refer to <a href='/docs/shopping/catalog/'>Pinterest API for shopping</a>.
       operationId: feeds/list
       security:
       - pinterest_oauth2:
@@ -3927,7 +4522,7 @@ paths:
 
         Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
 
-        <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Learn more</a>
+        For Retail partners, refer to <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Before you get started with Catalogs</a>. For Hotel parterns, refer to <a href='/docs/shopping/catalog/'>Pinterest API for shopping</a>.
       operationId: feeds/create
       security:
       - pinterest_oauth2:
@@ -4044,7 +4639,7 @@ paths:
 
         Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
 
-        <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Learn more</a>
+        For Retail partners, refer to <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Before you get started with Catalogs</a>. For Hotel parterns, refer to <a href='/docs/shopping/catalog/'>Pinterest API for shopping</a>.
       operationId: feeds/get
       security:
       - pinterest_oauth2:
@@ -4111,7 +4706,7 @@ paths:
 
         Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
 
-        <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Learn more</a>
+        For Retail partners, refer to <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Before you get started with Catalogs</a>. For Hotel parterns, refer to <a href='/docs/shopping/catalog/'>Pinterest API for shopping</a>.
       operationId: feeds/update
       security:
       - pinterest_oauth2:
@@ -4192,7 +4787,7 @@ paths:
 
         Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
 
-        <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Learn more</a>
+        For Retail partners, refer to <a href='https://help.pinterest.com/en/business/article/before-you-get-started-with-catalogs'>Before you get started with Catalogs</a>. For Hotel parterns, refer to <a href='/docs/shopping/catalog/'>Pinterest API for shopping</a>.
       operationId: feeds/delete
       security:
       - pinterest_oauth2:
@@ -4338,224 +4933,12 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - catalogs
-  /catalogs/items:
-    get:
-      summary: Get catalogs items
-      description: |-
-        Get the items of the catalog owned by the "operation user_account". <a href="/docs/shopping/catalog/#Update%20items%20in%20batch" target="_blank">See detailed documentation here.</a>
-        - By default, the "operation user_account" is the token user_account.
-
-        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
-      operationId: items/get
-      security:
-      - pinterest_oauth2:
-        - catalogs:read
-      x-ratelimit-category: catalogs_read
-      x-sandbox: disabled
-      parameters:
-      - $ref: '#/components/parameters/query_ad_account_id'
-      - $ref: '#/components/parameters/query_catalogs_items_country'
-      - $ref: '#/components/parameters/query_catalogs_items_language'
-      - $ref: '#/components/parameters/query_catalogs_id'
-      - $ref: '#/components/parameters/query_catalogs_items'
-      - $ref: '#/components/parameters/query_catalogs_hotels'
-      responses:
-        '200':
-          description: Response containing the requested catalogs items
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CatalogsItems'
-        '400':
-          description: Invalid request parameters.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                InvalidRequest:
-                  value:
-                    code: 1
-                    message: Parameter 'item_ids' is required.
-        '401':
-          description: Not authorized to access catalogs items
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                UnauthorizedAccess:
-                  value:
-                    code: 2
-                    message: Authentication failed.
-        '403':
-          description: Not authorized to access catalogs items
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      tags:
-      - catalogs
-  /catalogs/items/batch:
-    post:
-      summary: Operate on item batch
-      description: |-
-        This endpoint supports multiple operations on a set of one or more catalog items owned by the "operation user_account". <a href="/docs/shopping/catalog/#Update%20items%20in%20batch" target="_blank">See detailed documentation here.</a>
-        - By default, the "operation user_account" is the token user_account.
-
-        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
-      operationId: items_batch/post
-      x-ratelimit-category: catalogs_write
-      x-sandbox: disabled
-      security:
-      - pinterest_oauth2:
-        - catalogs:read
-        - catalogs:write
-      parameters:
-      - $ref: '#/components/parameters/query_ad_account_id'
-      requestBody:
-        description: Request object used to create catalogs items in a batch
-        required: true
-        content:
-          application/json:
-            schema:
-              oneOf:
-              - $ref: '#/components/schemas/CatalogsVerticalBatchRequest'
-              - $ref: '#/components/schemas/CatalogsItemsBatchRequest'
-      responses:
-        '200':
-          description: Response containing the requested catalogs items batch
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CatalogsItemsBatch'
-        '400':
-          description: Invalid request parameters.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                InvalidRequest:
-                  value:
-                    code: 1
-                    message: 'Invalid request: {''country'': ''US'', ''language'':
-                      ''EN'', ''operation'': ''CREATE'', ''items'': [{''item_id'':
-                      ''RAY_01_'', ''attributes'': {''image_link'': ''https://www.example.com/'',
-                      ''title'': ''My Product''}}]} (''https://www.example.com/''
-                      is not of type array)'
-        '401':
-          description: Not authenticated to post catalogs items
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                UnauthenticatedAccess:
-                  value:
-                    code: 2
-                    message: Authentication failed.
-        '403':
-          description: Not authorized to post catalogs items
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      tags:
-      - catalogs
-  /catalogs/items/batch/{batch_id}:
-    get:
-      summary: Get catalogs items batch
-      description: |-
-        Get a single catalogs items batch owned by the "operating user_account". <a href="/docs/shopping/catalog/#Update%20items%20in%20batch" target="_blank">See detailed documentation here.</a>
-        - By default, the "operation user_account" is the token user_account.
-
-        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
-      operationId: items_batch/get
-      security:
-      - pinterest_oauth2:
-        - catalogs:read
-      x-ratelimit-category: catalogs_read
-      x-sandbox: disabled
-      parameters:
-      - $ref: '#/components/parameters/path_catalogs_items_batch_id'
-      - $ref: '#/components/parameters/query_ad_account_id'
-      responses:
-        '200':
-          description: Response containing the requested catalogs items batch
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CatalogsItemsBatch'
-        '401':
-          description: Not authenticated to access catalogs items batch
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                UnauthenticatedAccess:
-                  value:
-                    code: 2
-                    message: Authentication failed.
-        '403':
-          description: Not authorized to access catalogs items batch
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Catalogs items batch not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                CannotFindBatch:
-                  value:
-                    code: 4331
-                    message: Sorry! We could not find your batch ID.
-        '405':
-          description: Method Not Allowed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                MethodNotAllowed:
-                  value:
-                    status: failure
-                    code: 5
-                    data: '405 Method Not Allowed: The method is not allowed for the
-                      requested URL.'
-                    message: Method not allowed
-                    endpoint_name: null
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      tags:
-      - catalogs
   /catalogs/processing_results/{processing_result_id}/item_issues:
     get:
       x-ratelimit-category: catalogs_read
       summary: List item issues for a given processing result
       description: |-
-        List item validation issues for a given feed processing result owned by the "operation user_account". Please note that for now query parameters 'item_numbers' and 'item_validation_issue' cannot be used simultaneously until it is implemented in some release in the future.
+        List item validation issues for a given feed processing result owned by the "operation user_account". Up to 20 random samples of affected items are returned for each error and warning code. Please note that for now query parameters 'item_numbers' and 'item_validation_issue' cannot be used simultaneously until it is implemented in some release in the future.
         - By default, the "operation user_account" is the token user_account.
 
         Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
@@ -4627,6 +5010,217 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - catalogs
+  /catalogs/items:
+    get:
+      summary: Get catalogs items
+      description: |-
+        Get the items of the catalog owned by the "operation user_account". <a href="/docs/shopping/catalog/#Update%20items%20in%20batch" target="_blank">See detailed documentation here.</a>
+        - By default, the "operation user_account" is the token user_account.
+
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+      operationId: items/get
+      security:
+      - pinterest_oauth2:
+        - catalogs:read
+      x-ratelimit-category: catalogs_read
+      x-sandbox: enabled
+      parameters:
+      - $ref: '#/components/parameters/query_ad_account_id'
+      - $ref: '#/components/parameters/query_catalogs_items_country'
+      - $ref: '#/components/parameters/query_catalogs_items_language'
+      - $ref: '#/components/parameters/query_catalogs_items'
+      - $ref: '#/components/parameters/query_catalogs_items_filters'
+      responses:
+        '200':
+          description: Response containing the requested catalogs items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogsItems'
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InvalidRequest:
+                  value:
+                    code: 1
+                    message: Parameter 'item_ids' is required.
+        '401':
+          description: Not authorized to access catalogs items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthorizedAccess:
+                  value:
+                    code: 2
+                    message: Authentication failed.
+        '403':
+          description: Not authorized to access catalogs items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - catalogs
+  /catalogs/items/batch:
+    post:
+      summary: Operate on item batch
+      description: |-
+        This endpoint supports multiple operations on a set of one or more catalog items owned by the "operation user_account". <a href="/docs/shopping/catalog/#Update%20items%20in%20batch" target="_blank">See detailed documentation here.</a>
+        - By default, the "operation user_account" is the token user_account.
+
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+      operationId: items_batch/post
+      x-ratelimit-category: catalogs_write
+      x-sandbox: enabled
+      security:
+      - pinterest_oauth2:
+        - catalogs:read
+        - catalogs:write
+      parameters:
+      - $ref: '#/components/parameters/query_ad_account_id'
+      requestBody:
+        description: Request object used to create catalogs items in a batch
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/CatalogsVerticalBatchRequest'
+              - $ref: '#/components/schemas/CatalogsItemsBatchRequest'
+      responses:
+        '200':
+          description: Response containing the requested catalogs items batch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogsItemsBatch'
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InvalidRequest:
+                  value:
+                    code: 1
+                    message: 'Invalid request: {''country'': ''US'', ''language'':
+                      ''EN'', ''operation'': ''CREATE'', ''items'': [{''item_id'':
+                      ''RAY_01_'', ''attributes'': {''image_link'': ''https://www.example.com/'',
+                      ''title'': ''My Product''}}]} (''https://www.example.com/''
+                      is not of type array)'
+        '401':
+          description: Not authenticated to post catalogs items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthenticatedAccess:
+                  value:
+                    code: 2
+                    message: Authentication failed.
+        '403':
+          description: Not authorized to post catalogs items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - catalogs
+  /catalogs/items/batch/{batch_id}:
+    get:
+      summary: Get catalogs item batch status
+      description: |-
+        Get a single catalogs items batch owned by the "operating user_account". <a href="/docs/shopping/catalog/#Update%20items%20in%20batch" target="_blank">See detailed documentation here.</a>
+        - By default, the "operation user_account" is the token user_account.
+
+        Optional: Business Access: Specify an <code>ad_account_id</code> (obtained via <a href='/docs/api/v5/#operation/ad_accounts/list'>List ad accounts</a>) to use the owner of that ad_account as the "operation user_account". In order to do this, the token user_account must have one of the following <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a> roles on the ad_account: Owner, Admin, Catalogs Manager.
+      operationId: items_batch/get
+      security:
+      - pinterest_oauth2:
+        - catalogs:read
+      x-ratelimit-category: catalogs_read
+      x-sandbox: enabled
+      parameters:
+      - $ref: '#/components/parameters/path_catalogs_items_batch_id'
+      - $ref: '#/components/parameters/query_ad_account_id'
+      responses:
+        '200':
+          description: Response containing the requested catalogs items batch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogsItemsBatch'
+        '401':
+          description: Not authenticated to access catalogs items batch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                UnauthenticatedAccess:
+                  value:
+                    code: 2
+                    message: Authentication failed.
+        '403':
+          description: Not authorized to access catalogs items batch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Catalogs items batch not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                CannotFindBatch:
+                  value:
+                    code: 4331
+                    message: Sorry! We could not find your batch ID.
+        '405':
+          description: Method Not Allowed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                MethodNotAllowed:
+                  value:
+                    status: failure
+                    code: 5
+                    data: '405 Method Not Allowed: The method is not allowed for the
+                      requested URL.'
+                    message: Method not allowed
+                    endpoint_name: null
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - catalogs
   /catalogs/product_groups:
     get:
       x-ratelimit-category: catalogs_read
@@ -4642,9 +5236,10 @@ paths:
       security:
       - pinterest_oauth2:
         - catalogs:read
-      x-sandbox: disabled
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/query_catalogs_feed_id'
+      - $ref: '#/components/parameters/query_catalogs_catalog_id'
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
       - $ref: '#/components/parameters/query_ad_account_id'
@@ -4659,7 +5254,9 @@ paths:
                     items:
                       type: array
                       items:
-                        $ref: '#/components/schemas/CatalogsProductGroup'
+                        anyOf:
+                        - $ref: '#/components/schemas/CatalogsProductGroup'
+                        - $ref: '#/components/schemas/CatalogsVerticalProductGroup'
           description: Success
         '400':
           description: Invalid feed parameters.
@@ -4746,7 +5343,7 @@ paths:
       security:
       - pinterest_oauth2:
         - catalogs:write
-      x-sandbox: disabled
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/query_ad_account_id'
       requestBody:
@@ -4755,10 +5352,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CatalogsProductGroupCreateRequest'
+              oneOf:
+              - $ref: '#/components/schemas/CatalogsProductGroupCreateRequest'
+              - $ref: '#/components/schemas/CatalogsVerticalProductGroupCreateRequest'
             examples:
-              FewFiltersUsingAllOf:
-                summary: A simple example that applies "all of the following filters".
+              RetailFewFiltersUsingAllOf:
+                summary: A simple retail example that applies "all of the following
+                  filters".
                 description: |
                   The use of "all_of" creates a Product Group where all of the individual filters
                   must be satisfied by a product to be included in the Product Group.
@@ -4776,8 +5376,8 @@ paths:
                     - CUSTOM_LABEL_0:
                         values:
                         - Luxury Items
-              ManyFiltersUsingAnyOf:
-                summary: A more complete example that applies "any of the following
+              RetailManyFiltersUsingAnyOf:
+                summary: A more complete retail example that applies "any of the following
                   filters".
                 description: |
                   The use of "any_of" creates a Product Group where any of the individual filters
@@ -4867,12 +5467,34 @@ paths:
                           - air mattresses
                         - - table linens
                         negated: false
+              HotelFewFiltersUsingAllOf:
+                summary: A simple hotel example that applies "all of the following
+                  filters".
+                description: |
+                  The use of "all_of" creates a Product Group where all of the individual filters
+                  must be satisfied by a hotel to be included in the Product Group.
+                value:
+                  catalog_type: HOTEL
+                  name: Few Filters using "all_of"
+                  catalog_id: '4866935934774'
+                  filters:
+                    all_of:
+                    - HOTEL_ID:
+                        values:
+                        - hotel1
+                        - hotel2
+                    - CUSTOM_LABEL_1:
+                        values:
+                        - big_hotels
+                        negated: false
       responses:
         '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CatalogsProductGroup'
+                oneOf:
+                - $ref: '#/components/schemas/CatalogsProductGroup'
+                - $ref: '#/components/schemas/CatalogsVerticalProductGroup'
           description: Success
         '400':
           description: Invalid body.
@@ -4961,7 +5583,7 @@ paths:
 
         <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: catalogs_product_groups/get
-      x-sandbox: disabled
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
       - $ref: '#/components/parameters/query_ad_account_id'
@@ -4973,7 +5595,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CatalogsProductGroup'
+                oneOf:
+                - $ref: '#/components/schemas/CatalogsProductGroup'
+                - $ref: '#/components/schemas/CatalogsVerticalProductGroup'
           description: Success
         '400':
           description: Invalid catalogs product group id parameters.
@@ -5057,7 +5681,7 @@ paths:
 
         <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: catalogs_product_groups/delete
-      x-sandbox: disabled
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
       - $ref: '#/components/parameters/query_ad_account_id'
@@ -5157,7 +5781,7 @@ paths:
 
         <a href='/docs/shopping/catalog/'>Learn more</a>
       operationId: catalogs_product_groups/update
-      x-sandbox: disabled
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
       - $ref: '#/components/parameters/query_ad_account_id'
@@ -5170,13 +5794,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CatalogsProductGroupUpdateRequest'
+              oneOf:
+              - $ref: '#/components/schemas/CatalogsProductGroupUpdateRequest'
+              - $ref: '#/components/schemas/CatalogsVerticalProductGroupUpdateRequest'
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CatalogsProductGroup'
+                oneOf:
+                - $ref: '#/components/schemas/CatalogsProductGroup'
+                - $ref: '#/components/schemas/CatalogsVerticalProductGroup'
           description: Success
         '400':
           description: Invalid parameters.
@@ -5283,7 +5911,7 @@ paths:
       security:
       - pinterest_oauth2:
         - catalogs:read
-      x-sandbox: disabled
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_catalogs_product_group_id'
       - $ref: '#/components/parameters/query_ad_account_id'
@@ -5341,7 +5969,7 @@ paths:
         - boards:read
         - catalogs:read
         - pins:read
-      x-sandbox: disabled
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -5420,7 +6048,7 @@ paths:
         - boards:read
         - catalogs:read
         - pins:read
-      x-sandbox: disabled
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
       - $ref: '#/components/parameters/query_page_size'
@@ -5483,8 +6111,9 @@ paths:
   /integrations/commerce:
     post:
       summary: Create commerce integration
-      description: Create commerce integration metadata to link an external business
-        ID with a Pinterest merchant & ad account.
+      description: |-
+        Create commerce integration metadata to link an external business ID with a Pinterest merchant & ad account.
+        Note: If you're interested in joining the beta, please reach out to your Pinterest account manager.
       operationId: integrations_commerce/post
       security:
       - pinterest_oauth2:
@@ -5537,8 +6166,9 @@ paths:
   /integrations/commerce/{external_business_id}:
     get:
       summary: Get commerce integration
-      description: Get commerce integration metadata associated with the given external
-        business ID
+      description: |-
+        Get commerce integration metadata associated with the given external business ID.
+        Note: If you're interested in joining the beta, please reach out to your Pinterest account manager.
       operationId: integrations_commerce/get
       security:
       - pinterest_oauth2:
@@ -5586,8 +6216,9 @@ paths:
       - integrations
     patch:
       summary: Update commerce integration
-      description: Update commerce integration metadata for the given external business
-        ID
+      description: |-
+        Update commerce integration metadata for the given external business ID.
+        Note: If you're interested in joining the beta, please reach out to your Pinterest account manager.
       operationId: integrations_commerce/patch
       security:
       - pinterest_oauth2:
@@ -5641,8 +6272,9 @@ paths:
       - integrations
     delete:
       summary: Delete commerce integration
-      description: Delete commerce integration metadata for the given external business
-        ID.
+      description: |-
+        Delete commerce integration metadata for the given external business ID.
+        Note: If you're interested in joining the beta, please reach out to your Pinterest account manager.
       operationId: integrations_commerce/del
       security:
       - pinterest_oauth2:
@@ -5662,10 +6294,52 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - integrations
+  /integrations/logs:
+    post:
+      summary: Receives batched logs from integration applications.
+      description: |-
+        This endpoint receives batched logs from integration applications on partner platforms.
+        Note: If you're interested in joining the beta, please reach out to your Pinterest account manager.
+      tags:
+      - integrations
+      operationId: integrations_logs/post
+      x-ratelimit-category: ads_write
+      security:
+      - pinterest_oauth2:
+        - ads:write
+      x-sandbox: enabled
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationLogsRequest'
+        description: Ingest log information from external integration application.
+        required: true
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationLogsSuccessResponse'
+        '400':
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /integrations:
     get:
       summary: Get integration metadata list
-      description: Get integration metadata list.
+      description: |-
+        Get integration metadata list.
+        Note: If you're interested in joining the beta, please reach out to your Pinterest account manager.
       operationId: integrations/get_list
       security:
       - pinterest_oauth2:
@@ -5699,7 +6373,9 @@ paths:
   /integrations/{id}:
     get:
       summary: Get integration metadata
-      description: Get integration metadata by ID.
+      description: |-
+        Get integration metadata by ID.
+        Note: If you're interested in joining the beta, please reach out to your Pinterest account manager.
       operationId: integrations/get_by_id
       security:
       - pinterest_oauth2:
@@ -5868,6 +6544,8 @@ paths:
         IMPORTANT: You need to start the OAuth flow via www.pinterest.com/oauth before calling this endpoint (or have an existing refresh token).
 
         See <a href='/docs/getting-started/authentication/'>Authentication</a> for more.
+
+        <strong>Parameter <i>refresh_on</i> and its corresponding response type <i>everlasting_refresh</i> are now available to all apps! Later this year, continuous refresh will become the default behavior (ie you will no longer need to send this parameter). <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>
       tags:
       - oauth
       operationId: oauth/token
@@ -5931,6 +6609,7 @@ paths:
       - $ref: '#/components/parameters/query_pin_type'
       - $ref: '#/components/parameters/query_creative_types'
       - $ref: '#/components/parameters/query_ad_account_id'
+      - $ref: '#/components/parameters/query_pin_metrics'
       responses:
         '200':
           content:
@@ -6175,6 +6854,7 @@ paths:
           --header 'Content-Type: application/json'
       parameters:
       - $ref: '#/components/parameters/path_pin_id'
+      - $ref: '#/components/parameters/query_pin_metrics'
       - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '200':
@@ -6404,6 +7084,8 @@ paths:
 
         - For Pins on public or protected boards: Admin, Analyst.
         - For Pins on secret boards: Admin.
+
+        If Pin was created before <code>2023-03-20</code> lifetime metrics will only be available for Video and Idea Pin formats. Lifetime metrics are available for all Pin formats since then.
       tags:
       - pins
       operationId: pins/analytics
@@ -6650,6 +7332,30 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
       - resources
+  /resources/lead_form_questions:
+    get:
+      summary: Get lead form questions
+      description: |-
+        Get a list of all lead form question type names. Some questions might not be used.
+
+        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>
+      operationId: lead_form_questions/get
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: enabled
+      responses:
+        '200':
+          description: Success
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - resources
   /resources/metrics_ready_state:
     get:
       summary: Get metrics ready state
@@ -6765,6 +7471,7 @@ paths:
       parameters:
       - $ref: '#/components/parameters/query_ad_account_id'
       - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
       - $ref: '#/components/parameters/query_query'
       responses:
         '200':
@@ -6838,6 +7545,73 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
       summary: Search user's Pins
+      tags:
+      - search
+  /search/partner/pins:
+    get:
+      summary: Search pins by a given search term
+      description: |-
+        <strong>This endpoint is currently in beta and not available to all apps. <a href='/docs/new/about-beta-access/'>Learn more</a>.</strong>
+
+        Get the top 10 Pins by a given search term.
+      operationId: search_partner_pins
+      security:
+      - pinterest_oauth2:
+        - boards:read
+        - pins:read
+      x-ratelimit-category: org_read
+      x-sandbox: disabled
+      x-codeSamples:
+      - lang: cURL
+        label: curl
+        source: |
+          curl --location --request GET 'https://api.pinterest.com/v5/search/partner/pins' \
+          --header 'Authorization: Bearer <Add your token here>' \
+          --header 'Content-Type: application/json'
+      parameters:
+      - description: Search term to look up pins.
+        in: query
+        name: term
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/query_country_code'
+      - $ref: '#/components/parameters/query_bookmark'
+      - description: Search locale.
+        in: query
+        name: locale
+        required: false
+        schema:
+          type: string
+      - $ref: '#/components/parameters/result_limit'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Paginated'
+                - properties:
+                    items:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/SummaryPin'
+          description: Success
+        '400':
+          description: Invalid pins
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid pin filter value
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
       - search
   /terms/related:
@@ -6921,16 +7695,16 @@ paths:
     get:
       summary: List trending keywords
       description: |-
-        <p>Get the top trending search keywords among the Pinterest user audience. This is an alpha endpoint only available to select participants.</p>
+        <p>Get the top trending search keywords among the Pinterest user audience.</p>
         <p>Trending keywords can be used to inform ad targeting, budget strategy, and creative decisions about which products and Pins will resonate with your audience.</p>
         <p>Geographic, demographic and interest-based filters are available to narrow down to the top trends among a specific audience. Multiple trend types are supported that can be used to identify newly-popular, evergreen or seasonal keywords.</p>
         <p>For an interactive way to explore this data, please visit <a href="https://trends.pinterest.com">trends.pinterest.com</a>.
       operationId: trending_keywords/list
       security:
       - pinterest_oauth2:
-        - ads:read
+        - user_accounts:read
       x-ratelimit-category: trends_read
-      x-sandbox: disabled
+      x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/path_trend_region'
       - $ref: '#/components/parameters/path_trend_type'
@@ -7025,6 +7799,7 @@ paths:
       - $ref: '#/components/parameters/query_from_claimed_content'
       - $ref: '#/components/parameters/query_pin_format'
       - $ref: '#/components/parameters/query_app_types'
+      - $ref: '#/components/parameters/query_content_type'
       - $ref: '#/components/parameters/query_source'
       - $ref: '#/components/parameters/query_metric_types'
       - $ref: '#/components/parameters/query_split_field_user_account'
@@ -7194,7 +7969,7 @@ paths:
   /user_account/followers:
     get:
       summary: List followers
-      description: Get a list of your followers, or a specific user's followers.
+      description: Get a list of your followers.
       operationId: followers/list
       security:
       - pinterest_oauth2:
@@ -7203,6 +7978,7 @@ paths:
       x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
       responses:
         '200':
           content:
@@ -7245,6 +8021,7 @@ paths:
       x-sandbox: disabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
       - $ref: '#/components/parameters/query_user_following_feed_type'
       - $ref: '#/components/parameters/query_explicit_following'
       - $ref: '#/components/parameters/query_ad_account_id'
@@ -7282,6 +8059,7 @@ paths:
       x-sandbox: enabled
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
       - $ref: '#/components/parameters/query_explicit_following'
       - $ref: '#/components/parameters/query_ad_account_id'
       responses:
@@ -7405,6 +8183,7 @@ paths:
         - user_accounts:read
       parameters:
       - $ref: '#/components/parameters/query_bookmark'
+      - $ref: '#/components/parameters/query_page_size'
       responses:
         '200':
           description: Success
@@ -7508,8 +8287,8 @@ paths:
       summary: List following interests
       description: Get a list of a user's following interests in one place.
       tags:
-      - interests
-      operationId: interests/followed_interests
+      - user_account
+      operationId: user_account/followed_interests
       security:
       - pinterest_oauth2:
         - user_accounts:read
@@ -7568,6 +8347,9 @@ components:
             ads:read: See all of your advertising data, including ads, ad groups,
               campaigns etc.
             ads:write: Create, update, or delete ads, ad groups, campaigns etc.
+            billing:read: See all of your billing data, billing profile, etc.
+            billing:write: Create, update, or delete billing data, billing profiles,
+              etc.
             biz_access:read: See business access data
             biz_access:write: Create, update, or delete business access data
             boards:read: See your public boards, including group boards you join
@@ -7654,7 +8436,8 @@ components:
           description: User account monthly views.
     ActionType:
       type: string
-      description: Ad group billable event type.
+      description: Ad group billable event type. For update, only draft ad groups
+        may update billable event.
       example: CLICKTHROUGH
       enum:
       - CLICKTHROUGH
@@ -7686,26 +8469,8 @@ components:
           title: permissions
           type: array
           items:
+            $ref: '#/components/schemas/BusinessAccessRole'
             nullable: true
-            type: string
-            description: Permission role for business access.
-            example: ADMIN
-            enum:
-            - OWNER
-            - ADMIN
-            - ANALYST
-            - SOS_READER
-            - FINANCE_MANAGER
-            - AUDIENCE_MANAGER
-            - CAMPAIGN_MANAGER
-            - CATALOGS_MANAGER
-            - RESTRICTED_OWNER
-            - PROFILE_MANAGER
-            - PROFILE_PUBLISHER
-            - RESOURCE_PINNER_LIST_OWNER
-            - RESOURCE_PINNER_LIST_READER
-            - BIZ_PINNER_LIST_SHARER
-            - RESOURCE_CONVERSION_TAGS_READER
         created_time:
           description: Creation time. Unix timestamp in seconds.
           example: 1451431341
@@ -7762,6 +8527,105 @@ components:
           pattern: ^\d+$
           title: owner_user_id
           type: string
+    AdAccountCreateSubscriptionRequest:
+      title: AdAccountCreateSubscriptionRequest
+      type: object
+      example:
+        webhook_url: https://webhook.example.com/xyz
+        lead_form_id: '383791336903426390'
+      properties:
+        webhook_url:
+          description: Standard HTTPS webhook URL.
+          example: https://webhook.example.com/xyz
+          title: webhook_url
+          type: string
+        lead_form_id:
+          description: Lead form ID.
+          example: '383791336903426390'
+          title: Lead form ID
+          type: string
+          pattern: ^\d+$
+        partner_access_token:
+          description: Partner access token. Only for clients that requires authentication.
+            We recommend to avoid this param.
+          type: string
+        partner_refresh_token:
+          description: Partner refresh token. Only for clients that requires authentication.
+            We recommend to avoid this param.
+          type: string
+      required:
+      - webhook_url
+    AdAccountCreateSubscriptionResponse:
+      title: AdAccountCreateSubscriptionResponse
+      type: object
+      properties:
+        id:
+          description: Subscription ID.
+          example: '8078432025948590686'
+          type: string
+          pattern: ^\d+$
+        cryptographic_key:
+          description: Base64 encoded key for client to decrypt lead data.
+          example: ucvxbV2Tdss0vNeYsdh4Qfa/1Khm2b0PqXvXeTTZh54
+          type: string
+        cryptographic_algorithm:
+          description: Lead data encryption algorithm.
+          example: AES-256-GCM
+          type: string
+        created_time:
+          description: Subscription creation time. Unix timestamp in milliseconds.
+          example: 1699209842000
+          type: integer
+    AdAccountGetSubscriptionResponse:
+      title: AdAccountGetSubscriptionsResponse
+      type: object
+      allOf:
+      - type: object
+        description: Lead ads subscription response common fields.
+        properties:
+          lead_form_id:
+            description: Lead form ID.
+            example: '383791336903426390'
+            type: string
+            pattern: ^\d+$
+            nullable: true
+          webhook_url:
+            description: Standard HTTPS webhook URL.
+            example: https://webhook.example.com/xyz
+            type: string
+      - type: object
+        properties:
+          id:
+            description: Subscription ID.
+            example: '8078432025948590686'
+            type: string
+            pattern: ^\d+$
+          user_account_id:
+            description: User account used to subscribe lead data.
+            example: '549755885175'
+            type: string
+            pattern: ^\d+$
+          ad_account_id:
+            description: The Ad Account ID that this lead form belongs to.
+            example: '549755885176'
+            type: string
+            pattern: ^\d+$
+          api_version:
+            description: API version.
+            example: v5
+            type: string
+          cryptographic_key:
+            description: Base64 encoded key for client to decrypt lead data.
+            example: ucvxbV2Tdss0vNeYsdh4Qfa/1Khm2b0PqXvXeTTZh54
+            type: string
+          cryptographic_algorithm:
+            description: Lead data encryption algorithm.
+            example: AES-256-GCM
+            type: string
+          created_time:
+            description: Lead form creation time. Unix timestamp in milliseconds.
+            example: 1699209842000
+            type: integer
     AdAccountsCountryResponse:
       type: object
       properties:
@@ -7773,7 +8637,7 @@ components:
       type: object
       properties:
         code:
-          $ref: '#/components/schemas/Country'
+          $ref: '#/components/schemas/AdCountry'
           type: string
         currency:
           description: Country currency.
@@ -7877,6 +8741,298 @@ components:
           type: string
           pattern: ^(AG)?\d+$
           nullable: true
+        grid_click_type:
+          $ref: '#/components/schemas/GridClickType'
+        customizable_cta_type:
+          type: string
+          description: Select a call to action (CTA) to display below your ad. Available
+            only for ads with direct links enabled. CTA options for consideration
+            and conversion campaigns are LEARN_MORE, SHOP_NOW, BOOK_NOW, SIGN_UP,
+            VISIT_WEBSITE, BUY_NOW, GET_OFFER, ORDER_NOW, ADD_TO_CART (for conversion
+            campaigns with add to cart conversion events only)
+          example: LEARN_MORE
+          nullable: true
+          enum:
+          - GET_OFFER
+          - LEARN_MORE
+          - ORDER_NOW
+          - SHOP_NOW
+          - SIGN_UP
+          - SUBSCRIBE
+          - BUY_NOW
+          - CONTACT_US
+          - GET_QUOTE
+          - VISIT_WEBSITE
+          - APPLY_NOW
+          - BOOK_NOW
+          - REQUEST_DEMO
+          - REGISTER_NOW
+          - FIND_A_DEALER
+          - ADD_TO_CART
+          - WATCH_NOW
+          - READ_MORE
+          - null
+        quiz_pin_data:
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/QuizPinData'
+          description: Before creating a quiz ad, you must create an organic Pin using
+            POST/Create Pin for each result in the quiz. Quiz ads cannot be saved
+            by a Pinner. Quiz ad results can be saved.
+          nullable: true
+    AdCountry:
+      type: string
+      description: Country ID from ISO 3166-1 alpha-2.
+      example: US
+      enum:
+      - AD
+      - AE
+      - AF
+      - AG
+      - AI
+      - AL
+      - AM
+      - AO
+      - AQ
+      - AR
+      - AS
+      - AT
+      - AU
+      - AW
+      - AX
+      - AZ
+      - BA
+      - BB
+      - BD
+      - BE
+      - BF
+      - BG
+      - BH
+      - BI
+      - BJ
+      - BL
+      - BM
+      - BN
+      - BO
+      - BQ
+      - BR
+      - BS
+      - BT
+      - BV
+      - BW
+      - BY
+      - BZ
+      - CA
+      - CC
+      - CD
+      - CF
+      - CG
+      - CH
+      - CI
+      - CK
+      - CL
+      - CM
+      - CN
+      - CO
+      - CR
+      - CU
+      - CV
+      - CW
+      - CX
+      - CY
+      - CZ
+      - DE
+      - DJ
+      - DK
+      - DM
+      - DO
+      - DZ
+      - EC
+      - EE
+      - EG
+      - EH
+      - ER
+      - ES
+      - ET
+      - FI
+      - FJ
+      - FK
+      - FM
+      - FO
+      - FR
+      - GA
+      - GB
+      - GD
+      - GE
+      - GF
+      - GG
+      - GH
+      - GI
+      - GL
+      - GM
+      - GN
+      - GP
+      - GQ
+      - GR
+      - GS
+      - GT
+      - GU
+      - GW
+      - GY
+      - HK
+      - HM
+      - HN
+      - HR
+      - HT
+      - HU
+      - ID
+      - IE
+      - IL
+      - IM
+      - IN
+      - IO
+      - IQ
+      - IR
+      - IS
+      - IT
+      - JE
+      - JM
+      - JO
+      - JP
+      - KE
+      - KG
+      - KH
+      - KI
+      - KM
+      - KN
+      - KR
+      - KW
+      - KY
+      - KZ
+      - LA
+      - LB
+      - LC
+      - LI
+      - LK
+      - LR
+      - LS
+      - LT
+      - LU
+      - LV
+      - LY
+      - MA
+      - MC
+      - MD
+      - ME
+      - MF
+      - MG
+      - MH
+      - MK
+      - ML
+      - MM
+      - MN
+      - MO
+      - MP
+      - MQ
+      - MR
+      - MS
+      - MT
+      - MU
+      - MV
+      - MW
+      - MX
+      - MY
+      - MZ
+      - NA
+      - NC
+      - NE
+      - NF
+      - NG
+      - NI
+      - NL
+      - 'NO'
+      - NP
+      - NR
+      - NU
+      - NZ
+      - OM
+      - PA
+      - PE
+      - PF
+      - PG
+      - PH
+      - PK
+      - PL
+      - PM
+      - PN
+      - PR
+      - PS
+      - PT
+      - PW
+      - PY
+      - QA
+      - RE
+      - RO
+      - RS
+      - RU
+      - RW
+      - SA
+      - SB
+      - SC
+      - SD
+      - SE
+      - SG
+      - SH
+      - SI
+      - SJ
+      - SK
+      - SL
+      - SM
+      - SN
+      - SO
+      - SR
+      - SS
+      - ST
+      - SV
+      - SX
+      - SY
+      - SZ
+      - TC
+      - TD
+      - TF
+      - TG
+      - TH
+      - TJ
+      - TK
+      - TL
+      - TM
+      - TN
+      - TO
+      - TR
+      - TT
+      - TV
+      - TW
+      - TZ
+      - UA
+      - UG
+      - UM
+      - US
+      - UY
+      - UZ
+      - VA
+      - VC
+      - VE
+      - VG
+      - VI
+      - VN
+      - VU
+      - WF
+      - WS
+      - YE
+      - YT
+      - ZA
+      - ZM
+      - ZW
     AdCreateRequest:
       allOf:
       - $ref: '#/components/schemas/AdCommon'
@@ -8024,10 +9180,10 @@ components:
             type: boolean
             allOf:
             - type: boolean
-              description: Enable auto-targeting for ad group. Also known as <a href="https://help.pinterest.com/en/business/article/expanded-targeting"
+              description: Enable auto-targeting for ad group.Default value is True.
+                Also known as <a href="https://help.pinterest.com/en/business/article/expanded-targeting"
                 target="_blank">"expanded targeting"</a>.
               example: true
-            default: true
           budget_type:
             type: string
             allOf:
@@ -8099,6 +9255,8 @@ components:
       - COMPLETED
       - ADVERTISER_DISABLED
       - ARCHIVED
+      - DRAFT
+      - DELETED_DRAFT
     AdGroupUpdateRequest:
       allOf:
       - $ref: '#/components/schemas/AdGroupCommon'
@@ -8133,6 +9291,89 @@ components:
           AD_GROUP_ID: '547602124502'
           SPEND_IN_DOLLAR: 30
           TOTAL_CLICKTHROUGH: 216
+    AdGroupAudienceSizingRequest:
+      type: object
+      properties:
+        auto_targeting_enabled:
+          type: boolean
+          description: Enable auto-targeting for ad group. Also known as <a href="https://help.pinterest.com/en/business/article/expanded-targeting"
+            target="_blank">"expanded targeting"</a>.
+          example: true
+          default: true
+        placement_group:
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/PlacementGroupType'
+          default: ALL
+          description: <a href="/docs/redoc/#section/Placement-group">Placement group</a>.
+        creative_types:
+          description: Pin creative types filter. </p><strong>Note:</strong> SHOP_THE_PIN
+            has been deprecated. Please use COLLECTION instead.
+          type: array
+          items:
+            type: string
+            example: REGULAR
+            enum:
+            - REGULAR
+            - VIDEO
+            - SHOPPING
+            - CAROUSEL
+            - MAX_VIDEO
+            - SHOP_THE_PIN
+            - COLLECTION
+            - IDEA
+          nullable: true
+        targeting_spec:
+          $ref: '#/components/schemas/TargetingSpec'
+        product_group_ids:
+          type: array
+          items:
+            type: string
+            pattern: ^\d+$
+            example: '23423422123'
+          description: Targeted product group IDs. </p><strong>Note:</strong> This
+            can only be combined with shopping/catalog sales campaigns. For more information,
+            <a href="https://help.pinterest.com/en/business/article/shopping-ads#section-14571"
+            target="_blank">click here</a>. SHOPPING_RETARGETING must be included
+            in targeting_spec object or this field will be ignored.
+          nullable: true
+        keywords:
+          type: array
+          description: Array of keyword objects. If the keywords field is missing,
+            all keywords will be targeted.
+          items:
+            type: object
+            properties:
+              match_type:
+                $ref: '#/components/schemas/MatchTypeResponse'
+              value:
+                type: string
+                description: Keyword value (120 chars max).
+            required:
+            - match_type
+            - value
+          nullable: true
+    AdGroupAudienceSizingResponse:
+      type: object
+      properties:
+        audience_size_lower_bound:
+          description: The lower confidence bound of the estimated potential audience
+            size. "Potential audience size" estimates the number of people you may
+            be able to reach per month with your campaign. It is based on historical
+            advertising data and the targeting criteria you select. It does not guarantee
+            results or take into account factors such as bid, budget, schedule, seasonality
+            or product experiments.
+          type: number
+          example: 100000
+        audience_size_upper_bound:
+          description: The upper confidence bound of the estimated potential audience
+            size. "Potential audience size" estimates the number of people you may
+            be able to reach per month with your campaign. It is based on historical
+            advertising data and the targeting criteria you select. It does not guarantee
+            results or take into account factors such as bid, budget, schedule, seasonality
+            or product experiments.
+          type: number
+          example: 150000
     AdPinId:
       type: object
       properties:
@@ -8180,7 +9421,7 @@ components:
       properties:
         url:
           description: |-
-            'Preview URL, expires in 24 hours. Can be used in an iframe.
+            'Preview URL, expires in 7 days. Can be used in an iframe.
             For example: https://ads.pinterest.com/ad-preview/74667c814dd2b19/
             The preview object ID/key is the last param - 74667c814dd2b19'
           example: https://ads.pinterest.com/ad-preview/58f1a0e9ab0bd0f99462a0e4c5dd7e8297888c8a36331e88f757abe8f0295d31/
@@ -8315,6 +9556,12 @@ components:
             pattern: ^\d+$
             description: The ID of this ad.
             title: id
+          pin_id:
+            type: string
+            description: Pin ID. This field may only be updated for draft ads.
+            example: '394205773611545468'
+            pattern: ^\d+$
+            nullable: true
         required:
         - id
     AdsAnalyticsCreateAsyncRequest:
@@ -8452,7 +9699,8 @@ components:
           properties:
             ad_ids:
               type: array
-              description: List of ad ids
+              description: List of ad ids [This parameter is no supported for Product
+                Item Level Reports]
               example:
               - '12345678'
               items:
@@ -8464,7 +9712,8 @@ components:
           properties:
             ad_statuses:
               type: array
-              description: List of values for filtering
+              description: List of values for filtering [This parameter is not supported
+                for Product Item Level Reports]
               example:
               - APPROVED
               - PAUSED
@@ -8523,7 +9772,8 @@ components:
         - columns
         properties:
           columns:
-            description: Metric and entity columns
+            description: Metric and entity columns. Pin promotion and ad related columns
+              are not supported for the Product Item level reports.
             type: array
             items:
               $ref: '#/components/schemas/ReportingColumnAsync'
@@ -8636,6 +9886,98 @@ components:
       - GEO
       - AGE_BUCKET
       - REGION
+    AdsCreditDiscountsResponse:
+      type: object
+      properties:
+        active:
+          description: True if the offer code is currently active.
+          type: boolean
+          example: true
+        advertiser_id:
+          description: Advertiser ID the offer was applied to.
+          type: string
+          pattern: ^\d+$
+          example: '12312451231'
+        discountType:
+          description: The type of discount of this credit
+          type: string
+          nullable: true
+          enum:
+          - COUPON
+          - CREDIT
+          - COUPON_APPLIED
+          - CREDIT_APPLIED
+          - MARKETING_OFFER_CREDIT
+          - MARKETING_OFFER_CREDIT_APPLIED
+          - GOODWILL_CREDIT
+          - GOODWILL_CREDIT_APPLIED
+          - INTERNAL_CREDIT
+          - INTERNAL_CREDIT_APPLIED
+          - PREPAID_CREDIT
+          - PREPAID_CREDIT_APPLIED
+          - SALES_INCENTIVE_CREDIT
+          - SALES_INCENTIVE_CREDIT_APPLIED
+          - CREDIT_EXPIRED
+          - FUTURE_CREDIT
+          - REFERRAL_CREDIT
+          - INVOICE_SALES_INCENTIVE_CREDIT
+          - INVOICE_SALES_INCENTIVE_CREDIT_APPLIED
+          - PREPAID_CREDIT_REFUND
+          - null
+        discountInMicroCurrency:
+          description: "The discount applied in the offer\u2019s currency value."
+          type: number
+          nullable: true
+          example: 125000000
+        discountCurrency:
+          type: string
+          nullable: true
+          description: Currency value for the discount.
+          example: USD
+        title:
+          description: Human readable title of the offer code.
+          type: string
+          nullable: true
+          example: Ads Credits
+        remainingDiscountInMicroCurrency:
+          type: number
+          nullable: true
+          description: The credits left to spend.
+          example: 125000000
+    AdsCreditRedeemRequest:
+      type: object
+      required:
+      - offerCodeHash
+      - validateOnly
+      properties:
+        offerCodeHash:
+          description: Takes in a SHA256 hash of the offerCode.
+          example: 138e9e0ff7e38cf511b880975eb574c09aa9d5e1657590ab0431040da68caa67
+          type: string
+          pattern: ^[a-z0-9]*$
+        validateOnly:
+          description: If true, only validate if we can redeem offer code. Otherwise
+            it will actually apply the offer code to the account
+          example: true
+          type: boolean
+    AdsCreditRedeemResponse:
+      type: object
+      properties:
+        success:
+          description: Returns true if the offer code was successfully applied(validateOnly=false)
+            or can be applied(validateOnly=true).
+          type: boolean
+          example: false
+        errorCode:
+          description: Error code type if error occurs
+          type: integer
+          nullable: true
+          example: 2708
+        errorMessage:
+          description: Reason for failure
+          type: string
+          nullable: true
+          example: The offer has already been redeemed by this advertiser
     AgeBucketList:
       title: AgeRange
       type: array
@@ -8666,11 +10008,6 @@ components:
     AnalyticsMetricsResponse:
       type: object
       properties:
-        daily_metrics:
-          description: Array with the requested daily metric records
-          items:
-            $ref: '#/components/schemas/AnalyticsDailyMetrics'
-          type: array
         summary_metrics:
           description: The metric name and value over the requested period for each
             requested metric
@@ -8678,19 +10015,29 @@ components:
           additionalProperties:
             type: number
           example:
+            CLOSEUP: 1
+            CLOSEUP_RATE: 0
+            ENGAGEMENT: 1
+            ENGAGEMENT_RATE: 0
             IMPRESSION: 240
             OUTBOUND_CLICK: 20
+            OUTBOUND_CLICK_RATE: 0.08
             PIN_CLICK: 37
+            PIN_CLICK_RATE: 0.15
             PROFILE_VISIT: 0
             QUARTILE_95_PERCENT_VIEW: 8
             SAVE: 20
             SAVE_RATE: 0.18
-            USER_FOLLOW: 0
             VIDEO_10S_VIEW: 2
             VIDEO_AVG_WATCH_TIME: 2507.75
             VIDEO_MRC_VIEW: 20
             VIDEO_START: 29
             VIDEO_V50_WATCH_TIME: 10031
+        daily_metrics:
+          description: Array with the requested daily metric records
+          items:
+            $ref: '#/components/schemas/AnalyticsDailyMetrics'
+          type: array
     AnalyticsResponse:
       type: object
       additionalProperties:
@@ -9109,7 +10456,7 @@ components:
             \ you can use event data to capture event details from your website. This\
             \ object lists all the available predefined event data fields in the Pinterest\
             \ tag. You can include these event data fields as part of a VISITOR audience\u2019\
-            \ s `rule`; however, you **must** specify an `event` for the `event_data`\
+            s `rule`; however, you **must** specify an `event` for the `event_data`\
             \ fields to be evaluated. Besides what\u2019s listed, you can also create\
             \ your own set of `event_data` fields and define their usages or purposes\
             \ according to your website needs. However, the benefit of using the predefined\
@@ -9126,7 +10473,7 @@ components:
             USD\", \"line_items\": [ { \"product_name\": \"Red leather boots\", \"\
             product_id\": \"3486\", \"product_category\": \"shoe\", \"product_variant_id\"\
             : \"JB11103000\", \"product_price\": 499, \"product_quantity\": \"1\"\
-            \ , \"product_brand\": \"My brand\" }]}<br>`watchvideo`<br>\"event_data\"\
+            , \"product_brand\": \"My brand\" }]}<br>`watchvideo`<br>\"event_data\"\
             : { \"video_title\": \"My Product Video 01\" }<br>`lead`<br>\"event_data\"\
             : { \"lead_type\": \"Newsletter\" }"
           properties:
@@ -9226,7 +10573,7 @@ components:
         percentage:
           description: Percentage should be 1-10. The targeted audience should be
             this % size across Pinterest.
-          example: 30
+          example: 3
           title: percentage
           type: integer
         pin_id:
@@ -9559,6 +10906,56 @@ components:
       - bid_floor_specs
       title: BidFloorBody
       type: object
+    BillingProfilesResponse:
+      type: object
+      properties:
+        id:
+          description: Billing ID.
+          type: string
+          pattern: ^\d+$
+          example: '12312451231'
+        card_type:
+          description: Type of the card.
+          type: string
+          enum:
+          - UNKNOWN
+          - VISA
+          - MASTERCARD
+          - AMERICAN_EXPRESS
+          - DISCOVER
+          - ELO
+          example: VISA
+        status:
+          description: Status of the billing.
+          type: string
+          enum:
+          - UNSPECIFIED
+          - VALID
+          - INVALID
+          - PENDING
+          - DELETED
+          - SECONDARY
+          - PENDING_SECONDARY
+          example: INVALID
+        advertiser_id:
+          description: Advertiser ID of the billing.
+          type: string
+          pattern: ^\d+$
+          example: '12312451231'
+        payment_method_brand:
+          description: Brand of the payment method.
+          type: string
+          enum:
+          - UNKNOWN
+          - VISA
+          - MASTERCARD
+          - AMERICAN_EXPRESS
+          - DISCOVER
+          - SOFORT
+          - DINERS_CLUB
+          - ELO
+          - CARTE_BANCAIRE
+          example: VISA
     Board:
       title: Board
       description: Board
@@ -9663,6 +11060,8 @@ components:
           example: Salads
           minLength: 1
           maxLength: 180
+      required:
+      - name
     BoardUpdate:
       title: BoardUpdate
       description: Board fields for updates
@@ -9711,7 +11110,7 @@ components:
         and `end_time` range. A CBO campaign automatically generates ad group budgets
         from its campaign budget to maximize campaign outcome. For CBO campaigns,
         only "CBO_ADGROUP" is allowed. For WEB_SESSIONS campaigns, only "LIFETIME"
-        is allowed.
+        is allowed. For update, only draft ad groups may update budget type.
       example: DAILY
       enum:
       - DAILY
@@ -9895,12 +11294,35 @@ components:
         result_url:
           type: string
           example: https://pinterest-waterloo.s3.us-east-1.amazonaws.com/bulk_framework/AD_ENTITY_UPSERT/549763856637-1659122537-0b4d77d3-f620-48ce-bec9-616106afb8d4/(...)
+    BusinessAccessRole:
+      type: string
+      description: Permission role for business access.
+      example: ADMIN
+      enum:
+      - OWNER
+      - ADMIN
+      - ANALYST
+      - SOS_READER
+      - FINANCE_MANAGER
+      - AUDIENCE_MANAGER
+      - CAMPAIGN_MANAGER
+      - CATALOGS_MANAGER
+      - RESTRICTED_OWNER
+      - PROFILE_MANAGER
+      - PROFILE_PUBLISHER
+      - RESOURCE_PINNER_LIST_OWNER
+      - RESOURCE_PINNER_LIST_READER
+      - BIZ_PINNER_LIST_SHARER
+      - RESOURCE_CONVERSION_TAGS_READER
     CampaignCommon:
       type: object
       description: Campaign Data
       properties:
         ad_account_id:
-          description: Campaign's Advertiser ID.
+          description: Campaign's Advertiser ID. If you want to create a campaign
+            in a Business Account shared account you need to specify the Business
+            Access advertiser ID in both the query path param as well as the request
+            body schema.
           example: '549755885175'
           type: string
           pattern: ^\d+$
@@ -9913,12 +11335,16 @@ components:
           allOf:
           - $ref: '#/components/schemas/EntityStatus'
         lifetime_spend_cap:
-          description: Campaign total spending cap.
+          description: Campaign total spending cap. Required for Campaign Budget Optimization
+            (CBO) campaigns. This and "daily_spend_cap" cannot be set at the same
+            time.
           example: 1432744744
           type: integer
           nullable: true
         daily_spend_cap:
-          description: Campaign daily spending cap.
+          description: Campaign daily spending cap. Required for Campaign Budget Optimization
+            (CBO) campaigns. This and "lifetime_spend_cap" cannot be set at the same
+            time.
           example: 1432744744
           type: integer
           nullable: true
@@ -9947,15 +11373,8 @@ components:
           nullable: true
         summary_status:
           type: string
-          description: Summary status for campaigns
-          example: RUNNING
-          enum:
-          - RUNNING
-          - PAUSED
-          - NOT_STARTED
-          - COMPLETED
-          - ADVERTISER_DISABLED
-          - ARCHIVED
+          allOf:
+          - $ref: '#/components/schemas/CampaignSummaryStatus'
     CampaignCreateCommon:
       type: object
       allOf:
@@ -9966,11 +11385,6 @@ components:
             default: ACTIVE
             allOf:
             - $ref: '#/components/schemas/EntityStatus'
-          is_campaign_budget_optimization:
-            type: boolean
-            default: false
-            allOf:
-            - $ref: '#/components/schemas/CampaignIsCampaignBudgetOptimization'
           is_flexible_daily_budgets:
             type: boolean
             default: false
@@ -10094,6 +11508,8 @@ components:
       - COMPLETED
       - ADVERTISER_DISABLED
       - ARCHIVED
+      - DRAFT
+      - DELETED_DRAFT
     CampaignUpdateRequest:
       type: object
       allOf:
@@ -10121,6 +11537,11 @@ components:
             nullable: true
             allOf:
             - $ref: '#/components/schemas/EntityStatus'
+          objective_type:
+            type: string
+            nullable: true
+            allOf:
+            - $ref: '#/components/schemas/ObjectiveType'
         required:
         - id
         - ad_account_id
@@ -10257,11 +11678,17 @@ components:
       description: Hotel batch item
       type: object
       anyOf:
+      - $ref: '#/components/schemas/CatalogsCreateHotelItem'
+      - $ref: '#/components/schemas/CatalogsUpsertHotelItem'
       - $ref: '#/components/schemas/CatalogsUpdateHotelItem'
+      - $ref: '#/components/schemas/CatalogsDeleteHotelItem'
       discriminator:
         propertyName: operation
         mapping:
+          CREATE: '#/components/schemas/CatalogsCreateHotelItem'
+          UPSERT: '#/components/schemas/CatalogsUpsertHotelItem'
           UPDATE: '#/components/schemas/CatalogsUpdateHotelItem'
+          DELETE: '#/components/schemas/CatalogsDeleteHotelItem'
     CatalogsFeed:
       type: object
       title: catalogs_feed
@@ -10380,7 +11807,8 @@ components:
     CatalogsFeedCredentials:
       type: object
       nullable: true
-      description: Use this if your feed file requires username and password.
+      description: This field is **OPTIONAL**. Use this if your feed file requires
+        username and password.
       properties:
         password:
           description: The required password for downloading a feed.
@@ -10399,15 +11827,15 @@ components:
           $ref: '#/components/schemas/CatalogsFeedIngestionErrors'
         info:
           $ref: '#/components/schemas/CatalogsFeedIngestionInfo'
+        warnings:
+          $ref: '#/components/schemas/CatalogsFeedIngestionWarnings'
       required:
       - errors
       - info
+      - warnings
     CatalogsFeedIngestionErrors:
       type: object
       properties:
-        IMAGE_DOWNLOAD_ERROR:
-          type: integer
-          description: Some items include images that can't be found.
         LINE_LEVEL_INTERNAL_ERROR:
           type: integer
           description: We experienced a technical difficulty and were unable to ingest
@@ -10423,6 +11851,23 @@ components:
           description: We detected an issue with your account and are not currently
             ingesting your items. Please review our policies at policy.pinterest.com/community-guidelines#section-spam
             or contact us at help.pinterest.com/contact for more information.
+        IMAGE_LEVEL_INTERNAL_ERROR:
+          type: integer
+          description: We experienced a technical difficulty and were unable to download
+            some images. The next download attempt will happen in 24 hours.
+        IMAGE_FILE_NOT_ACCESSIBLE:
+          type: integer
+          description: Image files are unreadable. Please upload new files to continue.
+        IMAGE_MALFORMED_URL:
+          type: integer
+          description: Image files are unreadable. Please check your link and upload
+            new files to continue.
+        IMAGE_FILE_NOT_FOUND:
+          type: integer
+          description: Image files are unreadable. Please upload new files to continue.
+        IMAGE_INVALID_FILE:
+          type: integer
+          description: Image files are unreadable. Please upload new files to continue.
     CatalogsFeedIngestionInfo:
       type: object
       properties:
@@ -10435,6 +11880,33 @@ components:
         PREORDER:
           type: integer
           description: The number of ingested products that are in preorder.
+    CatalogsFeedIngestionWarnings:
+      type: object
+      properties:
+        ADDITIONAL_IMAGE_LEVEL_INTERNAL_ERROR:
+          type: integer
+          description: We experienced a technical difficulty and were unable to download
+            some additional images. The next download attempt will happen in 24 hours.
+        ADDITIONAL_IMAGE_FILE_NOT_ACCESSIBLE:
+          type: integer
+          description: Additional image files are unreadable. Please upload new files
+            to continue.
+        ADDITIONAL_IMAGE_MALFORMED_URL:
+          type: integer
+          description: Additional image files are unreadable. Please check your link
+            and upload new files to continue.
+        ADDITIONAL_IMAGE_FILE_NOT_FOUND:
+          type: integer
+          description: Additional image files are unreadable. Please upload new files
+            to continue.
+        ADDITIONAL_IMAGE_INVALID_FILE:
+          type: integer
+          description: Additional image files are unreadable. Please upload new files
+            to continue.
+        HOTEL_PRICE_HEADER_IS_PRESENT:
+          type: integer
+          description: price is not a supported column. Use base_price and sale_price
+            instead.
     CatalogsFeedProcessingResult:
       type: object
       allOf:
@@ -10458,8 +11930,8 @@ components:
     CatalogsFeedProcessingSchedule:
       type: object
       title: catalogs_processing_schedule
-      description: Optional daily processing schedule. Use this to configure the preferred
-        time for processing a feed (otherwise random).
+      description: Daily processing schedule. This field is **OPTIONAL**. Use this
+        to configure the preferred time for processing a feed (otherwise random).
       nullable: true
       properties:
         time:
@@ -11255,6 +12727,41 @@ components:
     CatalogsHotelAttributes:
       type: object
       allOf:
+      - properties:
+          main_image:
+            type: object
+            description: The main hotel image
+            properties:
+              link:
+                type: string
+                description: |-
+                  <p><= 2000 characters</p>
+                  <p>The link to the main hotel image. Image should be at least
+                  75x75 pixels to avoid errors. Use the additional_image_link field to add
+                  more images of your hotel. The URL of your main_image.link must be accessible
+                  by the Pinterest user-agent, and send the accurate image. Please make
+                  sure there is no template or placeholder image at the link. Must start
+                  with http:// or https://.</p>
+              tag:
+                type: array
+                nullable: true
+                description: Tag appended to the image that identifies image category
+                  or details. There can be multiple tags associated with an image
+                items:
+                  type: string
+          additional_image_link:
+            type: array
+            nullable: true
+            items:
+              type: string
+            description: |-
+              <p><= 2000 characters</p>
+              <p>The links to additional images for your hotel. Up to ten
+              additional images can be used to show a hotel from different angles.
+              Must begin with http:// or https://.</p>
+            example:
+            - https://scene.example.com/image/image_v2.jpg
+            - https://scene.example.com/image/image_v3.jpg
       - $ref: '#/components/schemas/CatalogsUpdatableHotelAttributes'
     CatalogsRetailFeedsCreateRequest:
       type: object
@@ -11302,6 +12809,27 @@ components:
       - catalog_type
       - default_country
       - default_locale
+    CatalogsRetailItemsFilter:
+      type: object
+      properties:
+        catalog_type:
+          type: string
+          enum:
+          - RETAIL
+        item_ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: string
+        catalog_id:
+          type: string
+          pattern: ^\d+$
+          description: Catalog id pertaining to the retail item. If not provided,
+            default to oldest retail catalog
+      required:
+      - catalog_type
+      - item_ids
     CatalogsHotelFeedsCreateRequest:
       type: object
       title: feeds_hotel_create_request
@@ -11341,7 +12869,8 @@ components:
           $ref: '#/components/schemas/CatalogsType'
         catalog_id:
           description: Catalog id pertaining to the feed. If not provided, feed will
-            use a default catalog based on type.
+            use a default catalog based on type. At the moment a catalog can not have
+            multiple hotel feeds but this will change in the future.
           nullable: true
           type: string
           pattern: ^\d+$
@@ -11351,6 +12880,27 @@ components:
       - name
       - catalog_type
       - default_locale
+    CatalogsHotelItemsFilter:
+      type: object
+      properties:
+        catalog_type:
+          type: string
+          enum:
+          - HOTEL
+        hotel_ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: string
+        catalog_id:
+          type: string
+          pattern: ^\d+$
+          description: Catalog id pertaining to the hotel item. If not provided, default
+            to oldest hotel catalog
+      required:
+      - catalog_type
+      - hotel_ids
     CatalogsVerticalFeedsCreateRequest:
       type: object
       title: feeds_create_request
@@ -11853,6 +13403,21 @@ components:
         mapping:
           RETAIL: '#/components/schemas/CatalogsRetailItemsBatch'
           HOTEL: '#/components/schemas/CatalogsHotelItemsBatch'
+    CatalogsItemsFilters:
+      type: object
+      properties:
+        catalog_type:
+          $ref: '#/components/schemas/CatalogsType'
+      required:
+      - catalog_type
+      oneOf:
+      - $ref: '#/components/schemas/CatalogsRetailItemsFilter'
+      - $ref: '#/components/schemas/CatalogsHotelItemsFilter'
+      discriminator:
+        propertyName: catalog_type
+        mapping:
+          RETAIL: '#/components/schemas/CatalogsRetailItemsFilter'
+          HOTEL: '#/components/schemas/CatalogsHotelItemsFilter'
     CatalogsHotelItemsBatch:
       type: object
       description: Object describing the catalogs hotel items batch
@@ -12127,128 +13692,267 @@ components:
       - pin
     CatalogsProductGroup:
       type: object
-      title: catalogs_product_group
+      title: feed_based_product_group
       description: catalog product group entity
+      properties:
+        id:
+          description: ID of the catalog product group.
+          example: '443727193917'
+          type: string
+          pattern: ^\d+$
+        name:
+          description: Name of catalog product group
+          example: Most Popular
+          type: string
+        description:
+          type: string
+          nullable: true
+        filters:
+          $ref: '#/components/schemas/CatalogsProductGroupFilters'
+        is_featured:
+          description: boolean indicator of whether the product group is being featured
+            or not
+          type: boolean
+        type:
+          $ref: '#/components/schemas/CatalogsProductGroupType'
+        status:
+          $ref: '#/components/schemas/CatalogsProductGroupStatus'
+        created_at:
+          description: Unix timestamp in seconds of when catalog product group was
+            created.
+          example: 1621350033000
+          type: integer
+        updated_at:
+          description: Unix timestamp in seconds of last time catalog product group
+            was updated.
+          example: 1622742155000
+          type: integer
+        feed_id:
+          description: id of the catalogs feed belonging to this catalog product group
+          example: '2680059592705'
+          type: string
+          pattern: ^\d+$
+        catalog_type:
+          type: string
+          enum:
+          - RETAIL
+      required:
+      - filters
+      - id
+      - feed_id
+    CatalogsVerticalProductGroup:
+      type: object
+      title: catalog_based_product_group
       oneOf:
-      - type: object
-        title: catalogs_product_group_feed_based_case
-        properties:
-          id:
-            description: ID of the catalog product group.
-            example: '443727193917'
-            type: string
-            pattern: ^\d+$
-          name:
-            description: Name of catalog product group
-            example: Most Popular
-            type: string
-          description:
-            type: string
-            nullable: true
-          filters:
-            $ref: '#/components/schemas/CatalogsProductGroupFilters'
-          is_featured:
-            description: boolean indicator of whether the product group is being featured
-              or not
-            type: boolean
-          type:
-            $ref: '#/components/schemas/CatalogsProductGroupType'
-          status:
-            $ref: '#/components/schemas/CatalogsProductGroupStatus'
-          created_at:
-            description: Unix timestamp in seconds of when catalog product group was
-              created.
-            example: 1621350033000
-            type: integer
-          updated_at:
-            description: Unix timestamp in seconds of last time catalog product group
-              was updated.
-            example: 1622742155000
-            type: integer
-          feed_id:
-            description: id of the catalogs feed belonging to this catalog product
-              group
-            example: '2680059592705'
-            type: string
-            pattern: ^\d+$
-        required:
-        - filters
-        - id
-        - feed_id
-      - type: object
-        title: catalogs_product_group_merchant_based_case
-        properties:
-          id:
-            description: ID of the catalog product group.
-            example: '443727193917'
-            type: string
-            pattern: ^\d+$
-          name:
-            description: Name of catalog product group
-            example: Most Popular
-            type: string
-          description:
-            type: string
-            nullable: true
-          filters:
-            $ref: '#/components/schemas/CatalogsProductGroupFilters'
-          is_featured:
-            description: boolean indicator of whether the product group is being featured
-              or not
-            type: boolean
-          type:
-            $ref: '#/components/schemas/CatalogsProductGroupType'
-          status:
-            $ref: '#/components/schemas/CatalogsProductGroupStatus'
-          created_at:
-            description: Unix timestamp in seconds of when catalog product group was
-              created.
-            example: 1621350033000
-            type: integer
-          updated_at:
-            description: Unix timestamp in seconds of last time catalog product group
-              was updated.
-            example: 1622742155000
-            type: integer
-          feed_id:
-            example: null
-            type: string
-            nullable: true
-            enum:
-            - null
-        required:
-        - filters
-        - id
-        - feed_id
+      - $ref: '#/components/schemas/CatalogsHotelProductGroup'
+      - $ref: '#/components/schemas/CatalogsRetailProductGroup'
+      discriminator:
+        propertyName: catalog_type
+        mapping:
+          HOTEL: '#/components/schemas/CatalogsHotelProductGroup'
+          RETAIL: '#/components/schemas/CatalogsRetailProductGroup'
+    CatalogsHotelProductGroup:
+      type: object
+      title: catalog_based_product_group
+      properties:
+        catalog_type:
+          type: string
+          enum:
+          - HOTEL
+        id:
+          description: ID of the hotel product group.
+          example: '443727193917'
+          type: string
+          pattern: ^\d+$
+        name:
+          description: Name of hotel product group
+          example: Most Popular
+          type: string
+        description:
+          type: string
+          nullable: true
+        filters:
+          $ref: '#/components/schemas/CatalogsHotelProductGroupFilters'
+        created_at:
+          description: Unix timestamp in seconds of when catalog product group was
+            created.
+          example: 1621350033000
+          type: integer
+        updated_at:
+          description: Unix timestamp in seconds of last time catalog product group
+            was updated.
+          example: 1622742155000
+          type: integer
+        catalog_id:
+          type: string
+          pattern: ^\d+$
+      required:
+      - id
+      - filters
+      - catalog_type
+      - catalog_id
+    CatalogsHotelProductGroupFilterKeys:
+      title: catalogs_product_group_keys
+      anyOf:
+      - $ref: '#/components/schemas/PriceFilter'
+      - $ref: '#/components/schemas/HotelIdFilter'
+      - $ref: '#/components/schemas/BrandFilter'
+      - $ref: '#/components/schemas/CustomLabel0Filter'
+      - $ref: '#/components/schemas/CustomLabel1Filter'
+      - $ref: '#/components/schemas/CustomLabel2Filter'
+      - $ref: '#/components/schemas/CustomLabel3Filter'
+      - $ref: '#/components/schemas/CustomLabel4Filter'
+      - $ref: '#/components/schemas/CountryFilter'
+    CatalogsHotelProductGroupFilters:
+      description: Object holding a group of filters for a hotel product group
+      title: catalogs_product_group_filters
+      type: object
+      anyOf:
+      - $ref: '#/components/schemas/CatalogsHotelProductGroupFiltersAnyOf'
+      - $ref: '#/components/schemas/CatalogsHotelProductGroupFiltersAllOf'
+    CatalogsHotelProductGroupFiltersAllOf:
+      type: object
+      additionalProperties: false
+      properties:
+        all_of:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/CatalogsHotelProductGroupFilterKeys'
+      required:
+      - all_of
+    CatalogsHotelProductGroupFiltersAnyOf:
+      type: object
+      additionalProperties: false
+      properties:
+        any_of:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/CatalogsHotelProductGroupFilterKeys'
+      required:
+      - any_of
+    CatalogsRetailProductGroup:
+      type: object
+      title: catalog_based_product_group
+      properties:
+        catalog_type:
+          type: string
+          enum:
+          - RETAIL
+        id:
+          description: ID of the catalog product group.
+          example: '443727193917'
+          type: string
+          pattern: ^\d+$
+        name:
+          description: Name of catalog product group
+          example: Most Popular
+          type: string
+        description:
+          type: string
+          nullable: true
+        filters:
+          $ref: '#/components/schemas/CatalogsProductGroupFilters'
+        is_featured:
+          description: boolean indicator of whether the product group is being featured
+            or not
+          type: boolean
+        type:
+          $ref: '#/components/schemas/CatalogsProductGroupType'
+        status:
+          $ref: '#/components/schemas/CatalogsProductGroupStatus'
+        created_at:
+          description: Unix timestamp in seconds of when catalog product group was
+            created.
+          example: 1621350033000
+          type: integer
+        updated_at:
+          description: Unix timestamp in seconds of last time catalog product group
+            was updated.
+          example: 1622742155000
+          type: integer
+        feed_id:
+          example: null
+          type: string
+          nullable: true
+          enum:
+          - null
+      required:
+      - filters
+      - id
+      - feed_id
+      - catalog_type
+    CatalogsHotelProductGroupCreateRequest:
+      type: object
+      title: hotel_product_groups_create_request
+      additionalProperties: false
+      description: Request object for creating a hotel product group.
+      properties:
+        catalog_type:
+          type: string
+          enum:
+          - HOTEL
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        filters:
+          $ref: '#/components/schemas/CatalogsHotelProductGroupFilters'
+        catalog_id:
+          description: Catalog id pertaining to the hotel product group.
+          example: '2680059592705'
+          type: string
+          pattern: ^\d+$
+      required:
+      - name
+      - filters
+      - catalog_id
+      - catalog_type
+    CatalogsHotelProductGroupUpdateRequest:
+      type: object
+      title: hotel_product_groups_update_request
+      additionalProperties: false
+      description: Request object for updating a hotel product group.
+      properties:
+        catalog_type:
+          type: string
+          enum:
+          - HOTEL
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        filters:
+          $ref: '#/components/schemas/CatalogsHotelProductGroupFilters'
     CatalogsProductGroupCreateRequest:
       type: object
-      title: product_groups_create_request
+      title: retail
       description: Request object for creating a product group.
-      oneOf:
-      - type: object
-        title: product_groups_create_request_feed_base_case
-        properties:
-          name:
-            type: string
-          description:
-            type: string
-            nullable: true
-          is_featured:
-            description: boolean indicator of whether the product group is being featured
-              or not
-            type: boolean
-            default: false
-          filters:
-            $ref: '#/components/schemas/CatalogsProductGroupFiltersRequest'
-          feed_id:
-            description: Catalog Feed id pertaining to the catalog product group.
-            example: '2680059592705'
-            type: string
-            pattern: ^\d+$
-        required:
-        - name
-        - filters
-        - feed_id
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        is_featured:
+          description: boolean indicator of whether the product group is being featured
+            or not
+          type: boolean
+          default: false
+        filters:
+          $ref: '#/components/schemas/CatalogsProductGroupFiltersRequest'
+        feed_id:
+          description: Catalog Feed id pertaining to the catalog product group.
+          example: '2680059592705'
+          type: string
+          pattern: ^\d+$
+      required:
+      - name
+      - filters
+      - feed_id
     CatalogsProductGroupCurrencyCriteria:
       title: catalogs_product_group_currency_criteria
       type: object
@@ -12352,6 +14056,20 @@ components:
             $ref: '#/components/schemas/CatalogsProductGroupFilterKeys'
       required:
       - any_of
+    CatalogsProductGroupMultipleCountriesCriteria:
+      title: catalogs_product_group_multiple_country_criteria
+      type: object
+      additionalProperties: false
+      properties:
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/Country'
+        negated:
+          type: boolean
+          default: false
+      required:
+      - values
     CatalogsProductGroupMultipleGenderCriteria:
       title: catalogs_product_group_multiple_gender_criteria
       type: object
@@ -12466,7 +14184,7 @@ components:
       example: TOP_SELLERS
     CatalogsProductGroupUpdateRequest:
       type: object
-      title: product_groups_update_request
+      title: retail
       description: Request object for updating a product group.
       properties:
         name:
@@ -12614,12 +14332,14 @@ components:
             anyOf:
             - $ref: '#/components/schemas/CatalogsCreateRetailItem'
             - $ref: '#/components/schemas/CatalogsUpdateRetailItem'
+            - $ref: '#/components/schemas/CatalogsUpsertRetailItem'
             - $ref: '#/components/schemas/CatalogsDeleteRetailItem'
             discriminator:
               propertyName: operation
               mapping:
                 CREATE: '#/components/schemas/CatalogsCreateRetailItem'
                 UPDATE: '#/components/schemas/CatalogsUpdateRetailItem'
+                UPSERT: '#/components/schemas/CatalogsUpsertRetailItem'
                 DELETE: '#/components/schemas/CatalogsDeleteRetailItem'
       required:
       - catalog_type
@@ -12677,6 +14397,7 @@ components:
           enum:
           - CREATE
           - UPDATE
+          - UPSERT
           - DELETE
         attributes:
           $ref: '#/components/schemas/ItemAttributes'
@@ -12697,9 +14418,83 @@ components:
           enum:
           - CREATE
           - UPDATE
+          - UPSERT
           - DELETE
         attributes:
           $ref: '#/components/schemas/UpdatableItemAttributes'
+        update_mask:
+          description: The list of product attributes to be updated. Attributes specified
+            in the update mask without a value specified in the body will be deleted
+            from the product item.
+          example:
+          - ad_link
+          - adult
+          - age_group
+          - availability
+          - average_review_rating
+          - brand
+          - checkout_enabled
+          - color
+          - condition
+          - custom_label_0
+          - custom_label_1
+          - custom_label_2
+          - custom_label_3
+          - custom_label_4
+          - description
+          - free_shipping_label
+          - free_shipping_limit
+          - gender
+          - google_product_category
+          - gtin
+          - item_group_id
+          - last_updated_time
+          - link
+          - material
+          - min_ad_price
+          - mpn
+          - number_of_ratings
+          - number_of_reviews
+          - pattern
+          - price
+          - product_type
+          - sale_price
+          - shipping
+          - shipping_height
+          - shipping_weight
+          - shipping_width
+          - size
+          - size_system
+          - size_type
+          - tax
+          - title
+          - variant_names
+          - variant_values
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/UpdateMaskFieldType'
+      required:
+      - item_id
+      - operation
+      - attributes
+    CatalogsUpsertRetailItem:
+      type: object
+      description: An item to be upserted
+      properties:
+        item_id:
+          description: The catalog item id in the merchant namespace
+          example: DS0294-M
+          type: string
+        operation:
+          type: string
+          enum:
+          - CREATE
+          - UPDATE
+          - UPSERT
+          - DELETE
+        attributes:
+          $ref: '#/components/schemas/ItemAttributes'
       required:
       - item_id
       - operation
@@ -12717,6 +14512,7 @@ components:
           enum:
           - CREATE
           - UPDATE
+          - UPSERT
           - DELETE
       required:
       - item_id
@@ -12750,6 +14546,39 @@ components:
       - country
       - language
       - items
+    CatalogsDeleteHotelItem:
+      type: object
+      description: A hotel item to be deleted
+      properties:
+        hotel_id:
+          description: The catalog hotel id in the merchant namespace
+          example: DS0294-M
+          type: string
+        operation:
+          type: string
+          enum:
+          - DELETE
+      required:
+      - hotel_id
+      - operation
+    CatalogsCreateHotelItem:
+      type: object
+      description: A hotel item to be created.
+      properties:
+        hotel_id:
+          description: The catalog hotel id in the merchant namespace
+          example: DS0294-M
+          type: string
+        operation:
+          type: string
+          enum:
+          - CREATE
+        attributes:
+          $ref: '#/components/schemas/CatalogsHotelAttributes'
+      required:
+      - hotel_id
+      - operation
+      - attributes
     CatalogsUpdateHotelItem:
       type: object
       description: Object describing an hotel item batch record
@@ -12764,6 +14593,24 @@ components:
           - UPDATE
         attributes:
           $ref: '#/components/schemas/CatalogsUpdatableHotelAttributes'
+      required:
+      - hotel_id
+      - operation
+      - attributes
+    CatalogsUpsertHotelItem:
+      type: object
+      description: A hotel item to be upserted.
+      properties:
+        hotel_id:
+          description: The catalog hotel id in the merchant namespace
+          example: DS0294-M
+          type: string
+        operation:
+          type: string
+          enum:
+          - UPSERT
+        attributes:
+          $ref: '#/components/schemas/CatalogsHotelAttributes'
       required:
       - hotel_id
       - operation
@@ -12822,11 +14669,26 @@ components:
         address:
           description: Hotel address
           $ref: '#/components/schemas/CatalogsHotelAddress'
-        custom_label:
-          description: A list of custom labels
+        custom_label_0:
+          description: Custom grouping of hotels
+          type: string
           nullable: true
-          items:
-            type: string
+        custom_label_1:
+          description: Custom grouping of hotels
+          type: string
+          nullable: true
+        custom_label_2:
+          description: Custom grouping of hotels
+          type: string
+          nullable: true
+        custom_label_3:
+          description: Custom grouping of hotels
+          type: string
+          nullable: true
+        custom_label_4:
+          description: Custom grouping of hotels
+          type: string
+          nullable: true
         category:
           description: The type of property. The category can be any type of internal
             description desired.
@@ -12847,6 +14709,26 @@ components:
         guest_ratings:
           description: If specified, you must provide all properties
           $ref: '#/components/schemas/CatalogsHotelGuestRatings'
+    CatalogsVerticalProductGroupCreateRequest:
+      type: object
+      title: hotel
+      description: Request object for creating a hotel product group.
+      oneOf:
+      - $ref: '#/components/schemas/CatalogsHotelProductGroupCreateRequest'
+      discriminator:
+        propertyName: catalog_type
+        mapping:
+          HOTEL: '#/components/schemas/CatalogsHotelProductGroupCreateRequest'
+    CatalogsVerticalProductGroupUpdateRequest:
+      type: object
+      title: hotel
+      description: Request object for updating a hotel product group.
+      oneOf:
+      - $ref: '#/components/schemas/CatalogsHotelProductGroupUpdateRequest'
+      discriminator:
+        propertyName: catalog_type
+        mapping:
+          HOTEL: '#/components/schemas/CatalogsHotelProductGroupUpdateRequest'
     ConditionFilter:
       type: object
       additionalProperties: false
@@ -13079,6 +14961,18 @@ components:
                           type: integer
                           format: int64
                           example: 5
+                        item_name:
+                          description: The name of a product.
+                          example: pinterest-clothing-shirt
+                          type: string
+                        item_category:
+                          description: The category of a product.
+                          example: pinterest-entertainment
+                          type: string
+                        item_brand:
+                          description: The brand of a product.
+                          example: pinterest
+                          type: string
                   num_items:
                     description: Total number of products of the event. For example,
                       the total number of items purchased in a checkout event. We
@@ -13385,6 +15279,12 @@ components:
             events at least. It may improve reporting performance such as ROAS/CPA.
           type: string
           example: dj0yJnU9b2JDcFFHekV4SHJNcmVrbFBkUEdqakh0akdUT1VjVVUmcD0yJm49cnNBQ3F2Q2dOVDBXWWhkWklrUGxBUSZ0PUFBQUFBR1BaY3Bv
+          nullable: true
+        partner_id:
+          description: A unique identifier of visitors' information defined by third
+            party partners. e.g RampID
+          type: string
+          example: BUJrTlRRzGJmWhRXFZdkioV6wKPBve7Lom__GU9J74hq2NIQj4O3nOZJrp3mcUr5MptkXsI14juMOIM9mNZnM4zEUFT2JLVaFhcOfuuWz3IWEDtBf6I0DPc
           nullable: true
     ConversionReportAttributionType:
       type: string
@@ -13820,6 +15720,15 @@ components:
       - ZA
       - ZM
       - ZW
+    CountryFilter:
+      type: object
+      additionalProperties: false
+      properties:
+        COUNTRY:
+          type: object
+          $ref: '#/components/schemas/CatalogsProductGroupMultipleCountriesCriteria'
+      required:
+      - COUNTRY
     CreateMMMReportRequest:
       type: object
       allOf:
@@ -13827,53 +15736,9 @@ components:
         properties:
           countries:
             type: array
-            description: A List of country for filtering
+            description: A List of countries for filtering
             items:
-              type: string
-              description: Advertiser's ISO two character country code.
-              example: US
-              nullable: true
-              enum:
-              - UNKNOWN
-              - US
-              - GB
-              - CA
-              - IE
-              - AU
-              - NZ
-              - FR
-              - SE
-              - IL
-              - DE
-              - AT
-              - IT
-              - ES
-              - NL
-              - BE
-              - PT
-              - CH
-              - HK
-              - JP
-              - KR
-              - SG
-              - 'NO'
-              - DK
-              - FI
-              - CY
-              - LU
-              - MT
-              - PL
-              - RO
-              - HU
-              - CZ
-              - GR
-              - SK
-              - BR
-              - MX
-              - AR
-              - CL
-              - CO
-              - null
+              $ref: '#/components/schemas/TargetingAdvertiserCountry'
       properties:
         report_name:
           description: Name of the Marketing Mix Modeling (MMM) report
@@ -13907,15 +15772,7 @@ components:
           example:
           - GENDER
           items:
-            type: string
-            description: Ad targeting types for MMM report
-            example: APPTYPE
-            enum:
-            - APPTYPE
-            - COUNTRY
-            - CREATIVE_TYPE
-            - GENDER
-            - LOCATION
+            $ref: '#/components/schemas/MMMReportingTargetingType'
           maxItems: 5
           minItems: 1
           title: targeting_types
@@ -13924,34 +15781,7 @@ components:
           description: Metric and entity columns
           type: array
           items:
-            type: string
-            description: Marketing Mix Modeling (MMM) Reporting Columns
-            example: SPEND_IN_DOLLAR
-            enum:
-            - SPEND_IN_DOLLAR
-            - ECPC_IN_DOLLAR
-            - ECTR
-            - CAMPAIGN_NAME
-            - TOTAL_ENGAGEMENT
-            - EENGAGEMENT_RATE
-            - ECPM_IN_DOLLAR
-            - CAMPAIGN_ID
-            - ADVERTISER_ID
-            - AD_GROUP_ID
-            - AD_GROUP_NAME
-            - CLICKTHROUGH_1
-            - IMPRESSION_1
-            - CLICKTHROUGH_2
-            - IMPRESSION_2
-            - TOTAL_CLICKTHROUGH
-            - TOTAL_IMPRESSION
-            - ADVERTISER_NAME
-        custom_column_ids:
-          description: List of custom column ids
-          type: array
-          items:
-            $ref: '#/components/schemas/TemplateResponse/properties/custom_column_ids/items'
-          maxItems: 20
+            $ref: '#/components/schemas/MMMReportingColumn'
       required:
       - report_name
       - start_date
@@ -13984,8 +15814,9 @@ components:
               type: string
     CreativeType:
       type: string
-      description: Ad creative type enum. </p><strong>Note:</strong> SHOP_THE_PIN
-        has been deprecated. Please use COLLECTION instead.
+      description: Ad creative type enum. For update, only draft ads may update creative
+        type. </p><strong>Note:</strong> SHOP_THE_PIN has been deprecated. Please
+        use COLLECTION instead.
       enum:
       - REGULAR
       - VIDEO
@@ -14038,6 +15869,10 @@ components:
           $ref: '#/components/schemas/CatalogsProductGroupCurrencyCriteria'
       required:
       - CURRENCY
+    CustomColumnId:
+      description: Custom Column ID
+      example: '123456789'
+      type: string
     CustomLabel0Filter:
       type: object
       additionalProperties: false
@@ -14270,6 +16105,46 @@ components:
                   be returned. Matches how the metric is named in our native tools
                   like Pinterest Ads Manager.
                 example: Ad group ID
+    DetailedError:
+      title: Detailed Error
+      description: Used for including extra details to a base error
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        details:
+          type: object
+      required:
+      - code
+      - message
+      - details
+    SummaryPin:
+      description: Summarized pin information
+      title: SummaryPin
+      type: object
+      properties:
+        media:
+          allOf:
+          - $ref: '#/components/schemas/PinMedia'
+          type: object
+          readOnly: true
+        alt_text:
+          type: string
+          nullable: true
+          maxLength: 500
+        link:
+          type: string
+          nullable: true
+          example: https://www.pinterest.com/
+          maxLength: 2048
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
     EnhancedMatchStatusType:
       description: The enhanced match status of the tag
       enum:
@@ -14290,6 +16165,8 @@ components:
       - ACTIVE
       - PAUSED
       - ARCHIVED
+      - DRAFT
+      - DELETED_DRAFT
     Error:
       title: Error
       type: object
@@ -14468,6 +16345,23 @@ components:
       - HOUR
       - WEEK
       - MONTH
+    GridClickType:
+      type: string
+      description: Where a user is taken after clicking on an ad in grid.
+      example: CLOSEUP
+      nullable: true
+      enum:
+      - CLOSEUP
+      - DIRECT_TO_DESTINATION
+    HotelIdFilter:
+      type: object
+      additionalProperties: false
+      properties:
+        HOTEL_ID:
+          type: object
+          $ref: '#/components/schemas/CatalogsProductGroupMultipleStringCriteria'
+      required:
+      - HOTEL_ID
     HotelProcessingRecord:
       type: object
       description: Object describing an item processing record
@@ -14542,6 +16436,187 @@ components:
             1200x:
               type: object
               $ref: '#/components/schemas/ImageDetails'
+    IntegrationLog:
+      type: object
+      additionalProperties: false
+      description: Schema for log sent from an integration application.
+      required:
+      - client_timestamp
+      - event_type
+      - log_level
+      properties:
+        client_timestamp:
+          type: integer
+          description: Timestamp in milliseconds of when the log was executed at the
+            client.
+        event_type:
+          type: string
+          enum:
+          - APP
+          - API
+          description: Log event type
+        log_level:
+          type: string
+          enum:
+          - INFO
+          - WARN
+          - ERROR
+          description: Log level type
+        external_business_id:
+          type: string
+          maxLength: 2048
+          nullable: true
+        advertiser_id:
+          type: string
+          maxLength: 128
+          nullable: true
+        merchant_id:
+          type: string
+          maxLength: 128
+          nullable: true
+        tag_id:
+          type: string
+          maxLength: 128
+          nullable: true
+        feed_profile_id:
+          type: string
+          maxLength: 128
+          nullable: true
+        message:
+          type: string
+          description: Explanation of the event that occured.
+          maxLength: 2048
+        app_version_number:
+          type: string
+          description: Version number of the integration application.
+          maxLength: 20
+        platform_version_number:
+          type: string
+          description: Version number of the platform the integration application
+            is running on.
+          maxLength: 20
+        error:
+          $ref: '#/components/schemas/IntegrationLogClientError'
+        request:
+          $ref: '#/components/schemas/IntegrationLogClientRequest'
+    IntegrationLogClientError:
+      type: object
+      additionalProperties: false
+      description: System error details included in the log sent by the client.
+      properties:
+        cause:
+          type: string
+          description: Original cause of the error.
+          maxLength: 512
+        column_number:
+          type: integer
+          description: Column number in the line of the file that raised the error.
+        file_name:
+          type: string
+          description: Filename where the error happened.
+          maxLength: 256
+        line_number:
+          type: integer
+          description: Line number where the error happened.
+        message:
+          type: string
+          description: Human-readable description of the error.
+          maxLength: 512
+        message_detail:
+          type: string
+          description: More detail about the message.
+          maxLength: 1024
+        name:
+          type: string
+          description: Filename where the error happened.
+          maxLength: 256
+        number:
+          type: integer
+          description: Integer that specifies the error code.
+        stack_trace:
+          type: string
+          description: Stack trace of where the error happened.
+    IntegrationLogClientRequest:
+      type: object
+      additionalProperties: false
+      description: HTTP request details included in the log sent by the client.
+      required:
+      - method
+      - host
+      - path
+      properties:
+        method:
+          type: string
+          enum:
+          - GET
+          - HEAD
+          - POST
+          - PUT
+          - DELETE
+          - CONNECT
+          - OPTIONS
+          - TRACE
+          - PATCH
+        host:
+          type: string
+          description: HTTP request host from host header.
+        path:
+          type: string
+          description: HTTP request path.
+        request_headers:
+          type: object
+          description: HTTP request headers as key-value pairs.
+          additionalProperties:
+            type: string
+        response_headers:
+          type: object
+          description: HTTP response headers as key-value pairs.
+          additionalProperties:
+            type: string
+        response_status_code:
+          type: integer
+    IntegrationLogsInvalidLogResponse:
+      description: Schema describing the response when a log has invalid fields.
+      type: object
+      properties:
+        rejected_logs:
+          type: array
+          items:
+            type: object
+            properties:
+              log_index:
+                type: integer
+                description: Index of the log in the batch.
+              field:
+                type: string
+                description: The field name containing an invalid value.
+              value:
+                type: string
+                description: The value that is invalid.
+              reason:
+                type: string
+                description: The reason the value is invalid.
+            required:
+            - field
+            - value
+            - reason
+    IntegrationLogsRequest:
+      type: object
+      additionalProperties: false
+      description: Batch of logs sent from an integration application.
+      required:
+      - logs
+      properties:
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/IntegrationLog'
+    IntegrationLogsSuccessResponse:
+      description: Response when logs are successfully processed.
+      type: object
+      properties:
+        message:
+          type: string
     IntegrationMetadata:
       title: integration
       description: Integration metadata
@@ -14719,13 +16794,13 @@ components:
         partner_access_token: ABCLUOJS5XDMWDE
         partner_refresh_token: ABCLUOJS5XDMWDE
         partner_primary_email: partner@server.com
-        partner_access_token_expiry: 1621350033
-        partner_refresh_token_expiry: 1621350033
+        partner_access_token_expiry: 1621350033000
+        partner_refresh_token_expiry: 1621350033000
         scopes: accounts:read
         partner_metadata: ''
         additional_id_1: '123456'
-        created_time: 1621350033
-        updated_time: 1621350033
+        created_time: 1621350033000
+        updated_time: 1621350033000
     Interest:
       title: Interest
       type: object
@@ -14952,53 +17027,7 @@ components:
           type: array
           nullable: true
           items:
-            description: The field types supported by the update mask
-            example: availability
-            type: string
-            enum:
-            - ad_link
-            - adult
-            - age_group
-            - availability
-            - average_review_rating
-            - brand
-            - checkout_enabled
-            - color
-            - condition
-            - custom_label_0
-            - custom_label_1
-            - custom_label_2
-            - custom_label_3
-            - custom_label_4
-            - description
-            - free_shipping_label
-            - free_shipping_limit
-            - gender
-            - google_product_category
-            - gtin
-            - item_group_id
-            - last_updated_time
-            - link
-            - material
-            - min_ad_price
-            - mpn
-            - number_of_ratings
-            - number_of_reviews
-            - pattern
-            - price
-            - product_type
-            - sale_price
-            - shipping
-            - shipping_height
-            - shipping_weight
-            - shipping_width
-            - size
-            - size_system
-            - size_type
-            - tax
-            - title
-            - variant_names
-            - variant_values
+            $ref: '#/components/schemas/UpdateMaskFieldType'
     ItemUpsertBatchRecord:
       type: object
       description: Object describing an item batch record to upsert items
@@ -15361,7 +17390,6 @@ components:
       - TEXT_AREA
       - RADIO_LIST
       - CHECKBOX
-      - DROPDOWN
       - null
     LeadFormQuestionType:
       type: string
@@ -15381,6 +17409,35 @@ components:
       - COUNTRY
       - PREFERRED_CONTACT_METHOD
       - STATE_PROVINCE
+      - ADDRESS
+      - DATE_OF_BIRTH
+    LeadFormTestRequest:
+      title: LeadFormTestRequest
+      description: Request to create test data for lead data test API.
+      type: object
+      properties:
+        answers:
+          description: Test lead answers. Should follow the creation order.
+          type: array
+          items:
+            type: string
+          example:
+          - John
+          - Doe
+          - abc@email.com
+          - '987654321'
+      required:
+      - answers
+    LeadFormTestResponse:
+      title: LeadFormTestResponse
+      type: object
+      description: Response for lead data test API.
+      properties:
+        subscription_id:
+          description: Subscription ID.
+          example: '8078432025948590686'
+          type: string
+          pattern: ^\d+$
     LeadFormResponse:
       type: object
       allOf:
@@ -15583,14 +17640,18 @@ components:
       additionalProperties:
         type: number
       example:
+        CLOSEUP: 1
+        CLOSEUP_RATE: 0
+        ENGAGEMENT: 1
+        ENGAGEMENT_RATE: 0
         IMPRESSION: 240
         OUTBOUND_CLICK: 20
+        OUTBOUND_CLICK_RATE: 0.08
         PIN_CLICK: 37
-        PROFILE_VISIT: 0
+        PIN_CLICK_RATE: 0.15
         QUARTILE_95_PERCENT_VIEW: 8
         SAVE: 20
         SAVE_RATE: 0.18
-        USER_FOLLOW: 0
         VIDEO_10S_VIEW: 2
         VIDEO_AVG_WATCH_TIME: 2507.75
         VIDEO_MRC_VIEW: 20
@@ -15723,6 +17784,36 @@ components:
               DATE: '2022-04-26'
               SPEND_IN_DOLLAR: 240
       type: object
+    PriceFilter:
+      type: object
+      additionalProperties: false
+      properties:
+        PRICE:
+          type: object
+          additionalProperties: false
+          title: catalogs_product_group_pricing_currency_criteria
+          properties:
+            operator:
+              type: string
+              enum:
+              - GREATER_THAN
+              - GREATER_THAN_OR_EQUALS
+              - LESS_THAN
+              - LESS_THAN_OR_EQUALS
+            value:
+              type: number
+              minimum: 0
+            currency:
+              $ref: '#/components/schemas/NonNullableCatalogsCurrency'
+            negated:
+              type: boolean
+              default: false
+          required:
+          - value
+          - operator
+          - currency
+      required:
+      - PRICE
     MinPriceFilter:
       type: object
       additionalProperties: false
@@ -15732,6 +17823,41 @@ components:
           $ref: '#/components/schemas/CatalogsProductGroupPricingCriteria'
       required:
       - MIN_PRICE
+    MMMReportingColumn:
+      type: string
+      description: Marketing Mix Modeling (MMM) Reporting Columns
+      example: SPEND_IN_DOLLAR
+      enum:
+      - SPEND_IN_DOLLAR
+      - SPEND_IN_MICRO_DOLLAR
+      - ECPC_IN_DOLLAR
+      - ECTR
+      - CAMPAIGN_NAME
+      - TOTAL_ENGAGEMENT
+      - EENGAGEMENT_RATE
+      - ECPM_IN_DOLLAR
+      - CAMPAIGN_ID
+      - ADVERTISER_ID
+      - AD_GROUP_ID
+      - AD_GROUP_NAME
+      - CLICKTHROUGH_1
+      - IMPRESSION_1
+      - CLICKTHROUGH_2
+      - IMPRESSION_2
+      - TOTAL_CLICKTHROUGH
+      - TOTAL_IMPRESSION
+      - ADVERTISER_NAME
+      - SPEND_ORDER_LINE_PAID_TYPE
+    MMMReportingTargetingType:
+      type: string
+      description: Ad targeting types for MMM report
+      example: APPTYPE
+      enum:
+      - APPTYPE
+      - COUNTRY
+      - CREATIVE_TYPE
+      - GENDER
+      - LOCATION
     NonNullableCatalogsCurrency:
       type: string
       description: Currency Codes from ISO 4217.
@@ -16185,6 +18311,12 @@ components:
             type: string
           scope:
             type: string
+          refresh_on:
+            description: Setting this field to <code>true</code> will add a new refresh
+              token to your 200 response, as well as the refresh_token_expires_in
+              and refresh_token_expires_at fields. To see the structure of this payload,
+              set the 200 response_type to "everlasting_refresh".
+            type: boolean
         required:
         - refresh_token
     OauthAccessTokenResponse:
@@ -16212,6 +18344,7 @@ components:
           authorization_code: '#/components/schemas/OauthAccessTokenResponseCode'
           refresh_token: '#/components/schemas/OauthAccessTokenResponseRefresh'
           integration_refresh: '#/components/schemas/OauthAccessTokenResponseIntegrationRefresh'
+          everlasting_refresh: '#/components/schemas/OauthAccessTokenResponseEverlastingRefresh'
       required:
       - access_token
       - token_type
@@ -16233,6 +18366,25 @@ components:
         required:
         - refresh_token
         - refresh_token_expires_in
+    OauthAccessTokenResponseEverlastingRefresh:
+      title: OAuth access token response
+      description: A successful OAuth access token response for the refresh token
+        flow, with an added everlasting refresh token.
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/OauthAccessTokenResponse'
+      - type: object
+        properties:
+          refresh_token:
+            type: string
+          refresh_token_expires_in:
+            type: integer
+          refresh_token_expires_at:
+            type: integer
+        required:
+        - refresh_token
+        - refresh_token_expires_in
+        - refresh_token_expires_at
     OauthAccessTokenResponseIntegrationRefresh:
       title: OAuth access token response
       description: A successful OAuth access token response for the refresh token
@@ -16258,7 +18410,11 @@ components:
       - $ref: '#/components/schemas/OauthAccessTokenResponse'
     ObjectiveType:
       type: string
-      description: Campaign objective type. ["WEB_SESSIONS"] in BETA.
+      description: Campaign objective type. If set as one of ["AWARENESS", "CONSIDERATION",
+        "WEB_CONVERSION", "CATALOG_SALES"] the campaign is considered as a Campaign
+        Budget Optimization (CBO) campaign, meaning budget needs to be set at the
+        campaign level rather than at the ad group level. ["WEB_SESSIONS"] in BETA.
+        For update, only draft campaigns may update objective type.
       enum:
       - AWARENESS
       - CONSIDERATION
@@ -16604,6 +18760,23 @@ components:
             more</a>.
           type: string
           nullable: true
+        pin_metrics:
+          description: Pin metrics with associated time intervals if any.
+          type: object
+          nullable: true
+          example:
+            pin_metrics:
+            - 90d:
+                pin_click: 7
+                impression: 2
+                clickthrough: 3
+              all_time:
+                pin_click: 7
+                impression: 2
+                clickthrough: 3
+                reaction: 10
+                comment: 2
+            - null
     PinAnalyticsMetricsResponse:
       type: object
       properties:
@@ -16618,7 +18791,31 @@ components:
         daily_metrics:
           description: Array with the requested daily metric records
           items:
-            $ref: '#/components/schemas/AnalyticsDailyMetrics'
+            type: object
+            properties:
+              data_status:
+                $ref: '#/components/schemas/DataStatus'
+              date:
+                description: 'Metrics date (UTC): YYYY-MM-DD.'
+                example: '2019-12-01'
+                type: string
+              metrics:
+                description: The metric name and daily value for each requested metric
+                type: object
+                additionalProperties:
+                  type: number
+                example:
+                  IMPRESSION: 240
+                  OUTBOUND_CLICK: 20
+                  PIN_CLICK: 37
+                  QUARTILE_95_PERCENT_VIEW: 8
+                  SAVE: 20
+                  SAVE_RATE: 0.18
+                  VIDEO_10S_VIEW: 2
+                  VIDEO_AVG_WATCH_TIME: 2507.75
+                  VIDEO_MRC_VIEW: 20
+                  VIDEO_START: 29
+                  VIDEO_V50_WATCH_TIME: 10031
           type: array
         summary_metrics:
           description: The metric name and value over the requested period for each
@@ -16630,11 +18827,9 @@ components:
             IMPRESSION: 240
             OUTBOUND_CLICK: 20
             PIN_CLICK: 37
-            PROFILE_VISIT: 0
             QUARTILE_95_PERCENT_VIEW: 8
             SAVE: 20
             SAVE_RATE: 0.18
-            USER_FOLLOW: 0
             VIDEO_10S_VIEW: 2
             VIDEO_AVG_WATCH_TIME: 2507.75
             VIDEO_MRC_VIEW: 20
@@ -16672,7 +18867,7 @@ components:
         description:
           type: string
           nullable: true
-          maxLength: 500
+          maxLength: 800
         dominant_color:
           type: string
           nullable: true
@@ -17075,6 +19270,8 @@ components:
       - REJECTED
       - ADVERTISER_DISABLED
       - ARCHIVED
+      - DRAFT
+      - DELETED_DRAFT
     PinUpdate:
       title: PinUpdate
       description: Pin fields for updates
@@ -17100,8 +19297,8 @@ components:
         description:
           type: string
           nullable: true
-          description: Pin description - 500 characters maximum.
-          maxLength: 500
+          description: Pin description - 800 characters maximum.
+          maxLength: 800
         link:
           type: string
           nullable: true
@@ -17137,6 +19334,7 @@ components:
       type: string
       description: Campaign placement group type
       example: ALL
+      default: ALL
       enum:
       - ALL
       - SEARCH
@@ -17276,6 +19474,8 @@ components:
           nullable: true
           title: collections_hero_destination_url
           type: string
+        grid_click_type:
+          $ref: '#/components/schemas/GridClickType'
       type: object
       title: ProductGroupPromotion
     ProductGroupPromotionCreateRequest:
@@ -17431,6 +19631,108 @@ components:
           $ref: '#/components/schemas/CatalogsProductGroupMultipleStringListCriteria'
       required:
       - PRODUCT_TYPE_4
+    QuizPinData:
+      description: This field includes all quiz data including questions, options,
+        and results.
+      example:
+        questions:
+        - question_id: 1
+          question_text: Where do you thrive?
+          options:
+          - text: Hangout vibes
+          - text: Time to party!
+          - text: Keeping it lowkey
+        - question_id: 2
+          question_text: Where would you nap?
+          options:
+          - text: Hammock in the mountains
+          - text: Beach towel in the sand
+          - text: Tent under the stars
+        - question_id: 2
+          question_text: Who are you taking?
+          options:
+          - text: "No one\u2014solo trip!"
+          - text: My best friend
+          - text: The family
+        results:
+        - organicPinId: '1234'
+          android_deep_link: https://www.pinterest.com/
+          iOS_deep_link: https://www.pinterest.com/
+          destination_url: https://www.pinterest.com/
+          result_id: 1
+        - organicPinId: '1234'
+          android_deep_link: https://www.pinterest.com/
+          iOS_deep_link: https://www.pinterest.com/
+          destination_url: https://www.pinterest.com/
+          result_id: 2
+        - organicPinId: '1234'
+          android_deep_link: https://www.pinterest.com/
+          iOS_deep_link: https://www.pinterest.com/
+          destination_url: https://www.pinterest.com/
+          result_id: 3
+      type: object
+      nullable: true
+      properties:
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuizPinQuestion'
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuizPinResult'
+    QuizPinOption:
+      description: ' This field contains multiple options to a quiz question.'
+      example:
+        id: 1
+        text: Where do you thrive?
+      type: object
+      nullable: true
+      properties:
+        id:
+          type: number
+        text:
+          type: string
+    QuizPinQuestion:
+      description: A specific quiz inquiry.
+      example:
+        question_id: 1
+        question_text: Where do you thrive?
+        options:
+        - text: Hangout vibes
+        - text: Time to party!
+        - text: Keeping it lowkey
+      type: object
+      nullable: true
+      properties:
+        question_id:
+          type: number
+        question_text:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuizPinOption'
+    QuizPinResult:
+      description: "The result, and link out, based on the user\u2019s choice."
+      example:
+        organic_pin_id: pinId
+        android_deep_link: https://www.pinterest.com/
+        ios_deep_link: https://www.pinterest.com/
+        destination_url: https://www.pinterest.com/
+      type: object
+      nullable: true
+      properties:
+        organic_pin_id:
+          type: string
+        android_deep_link:
+          type: string
+        ios_deep_link:
+          type: string
+        destination_url:
+          type: string
+        result_id:
+          type: number
     RelatedTerms:
       type: object
       properties:
@@ -17503,6 +19805,7 @@ components:
       - AD_GROUP_STATUS
       - AD_GROUP_ENTITY_STATUS
       - PRODUCT_GROUP_ID
+      - PRODUCT_GROUP_STATUS
       - ORDER_LINE_ID
       - ORDER_LINE_NAME
       - CLICKTHROUGH_1
@@ -17519,6 +19822,7 @@ components:
       - TOTAL_IMPRESSION
       - TOTAL_IMPRESSION_USER
       - TOTAL_IMPRESSION_FREQUENCY
+      - COST_PER_OUTBOUND_CLICK_IN_DOLLAR
       - TOTAL_ENGAGEMENT_PAGE_VISIT
       - TOTAL_ENGAGEMENT_SIGNUP
       - TOTAL_ENGAGEMENT_CHECKOUT
@@ -18023,6 +20327,27 @@ components:
       - TOTAL_UNKNOWN_CONVERSION_RATE
       - TOTAL_CUSTOM_CONVERSION_RATE
       - STANDARD_AD_FEED_ITEM_ID
+    Role:
+      type: string
+      description: An internal role type used on business access, EMPLOYEE, ADMIN.
+      example: ADMIN
+      enum:
+      - UNKNOWN
+      - OWNER
+      - ADMIN
+      - ANALYST
+      - SOS_READER
+      - FINANCE_MANAGER
+      - AUDIENCE_MANAGER
+      - CAMPAIGN_MANAGER
+      - CATALOGS_MANAGER
+      - RESTRICTED_OWNER
+      - PROFILE_MANAGER
+      - PROFILE_PUBLISHER
+      - RESOURCE_PINNER_LIST_OWNER
+      - RESOURCE_PINNER_LIST_READER
+      - BIZ_PINNER_LIST_SHARER
+      - RESOURCE_CONVERSION_TAGS_READER
     SSIOAccountAddress:
       type: object
       properties:
@@ -18419,6 +20744,50 @@ components:
           type: integer
           title: level
           example: 2
+    TargetingAdvertiserCountry:
+      type: string
+      description: Advertiser's ISO two character country code.
+      example: US
+      nullable: true
+      enum:
+      - US
+      - GB
+      - CA
+      - IE
+      - AU
+      - NZ
+      - FR
+      - SE
+      - IL
+      - DE
+      - AT
+      - IT
+      - ES
+      - NL
+      - BE
+      - PT
+      - CH
+      - HK
+      - JP
+      - KR
+      - SG
+      - 'NO'
+      - DK
+      - FI
+      - CY
+      - LU
+      - MT
+      - PL
+      - RO
+      - HU
+      - CZ
+      - GR
+      - SK
+      - BR
+      - MX
+      - AR
+      - CL
+      - CO
     TargetingOptionResponse:
       title: TargetingOptionResponse
       type: array
@@ -18825,9 +21194,15 @@ components:
             - ITEM_ID
             - PRODUCT_ITEM_ID
             - INTERNAL_PRODUCT_ITEM_ID
+            - PRODUCT_ITEM_NAME
+            - PRODUCT_ITEM_IMAGE_URL
+            - PRODUCT_ITEM_PRICE
             - ORDER_LINE_ID
             - ORDER_LINE_NAME
             - ORDER_LINE_PIN_REV_SHARE
+            - ORDER_LINE_PAID_TYPE
+            - SPEND_ORDER_LINE_ID
+            - SPEND_ORDER_LINE_PAID_TYPE
             - CLICKTHROUGH_1
             - REPIN_1
             - IMPRESSION_1
@@ -18869,6 +21244,7 @@ components:
             - TOTAL_IMPRESSION_USER
             - TOTAL_IMPRESSION_FREQUENCY
             - TOTAL_OUTBOUND_CLICK
+            - COST_PER_OUTBOUND_CLICK_IN_DOLLAR
             - ENGAGEMENT_PAGE_VISIT_1
             - ENGAGEMENT_SIGNUP_1
             - ENGAGEMENT_CHECKOUT_1
@@ -19448,6 +21824,16 @@ components:
             - AVERAGE_WATCH_VIDEO_VALUE_IN_MICRO_DOLLAR
             - AVERAGE_VIEW_CATEGORY_VALUE_IN_MICRO_DOLLAR
             - AVERAGE_UNKNOWN_VALUE_IN_MICRO_DOLLAR
+            - AVERAGE_PAGE_VISIT_VALUE_IN_MICRO_US_DOLLAR
+            - AVERAGE_SIGNUP_VALUE_IN_MICRO_US_DOLLAR
+            - AVERAGE_CHECKOUT_VALUE_IN_MICRO_US_DOLLAR
+            - AVERAGE_CUSTOM_VALUE_IN_MICRO_US_DOLLAR
+            - AVERAGE_ADD_TO_CART_VALUE_IN_MICRO_US_DOLLAR
+            - AVERAGE_LEAD_VALUE_IN_MICRO_US_DOLLAR
+            - AVERAGE_SEARCH_VALUE_IN_MICRO_US_DOLLAR
+            - AVERAGE_WATCH_VIDEO_VALUE_IN_MICRO_US_DOLLAR
+            - AVERAGE_VIEW_CATEGORY_VALUE_IN_MICRO_US_DOLLAR
+            - AVERAGE_UNKNOWN_VALUE_IN_MICRO_US_DOLLAR
             - TOTAL_PAGE_VISIT_VALUE_IN_MICRO_US_DOLLAR
             - TOTAL_SIGNUP_VALUE_IN_MICRO_US_DOLLAR
             - TOTAL_CHECKOUT_VALUE_IN_MICRO_US_DOLLAR
@@ -19712,6 +22098,7 @@ components:
             - REPORT_DATE_START
             - REPORT_DATE_END
             - PINNER_LIST_NAME
+            - PINNER_LIST_TYPE
             - ORDER_VALUE
             - ORDER_QUANTITY
             - ADVERTISER_NAME
@@ -20051,6 +22438,8 @@ components:
             - SHOWCASE_SUBPAGE_CLOSEUP
             - SHOWCASE_CARD_THUMBNAIL_SWIPE_FORWARD
             - SHOWCASE_CARD_THUMBNAIL_SWIPE_BACKWARD
+            - _SHOWCASE_SUBPAGE_CLOSEUP_INTERNAL
+            - SHOWCASE_CARD_LANDING
             - SHOWCASE_AVERAGE_SUBPAGE_CLOSEUP_PER_SESSION
             - TOTAL_CHECKOUT_CONVERSION_RATE
             - TOTAL_VIEW_CATEGORY_CONVERSION_RATE
@@ -20069,6 +22458,7 @@ components:
             - TARGETING_COUNTRY
             - TARGETING_LOCATION
             - TARGETING_APPTYPE
+            - TARGETING_LOCATION_CODE
           type: array
         granularity:
           $ref: '#/components/schemas/Granularity'
@@ -20134,9 +22524,7 @@ components:
           example:
           - '1597252063'
           items:
-            description: Custom Column ID
-            example: '123456789'
-            type: string
+            $ref: '#/components/schemas/CustomColumnId'
           nullable: true
           type: array
         type:
@@ -20447,7 +22835,7 @@ components:
         age_group:
           description: "The age group to apply a demographic range to the product.\
             \ Must be one of the following values (upper or lowercased): \u2018newborn\u2019\
-            \ , \u2018infant\u2019, \u2018toddler\u2019, \u2018kids\u2019, or \u2018\
+            , \u2018infant\u2019, \u2018toddler\u2019, \u2018kids\u2019, or \u2018\
             adult\u2019."
           example: newborn
           type: string
@@ -20455,7 +22843,7 @@ components:
         availability:
           description: "The availability of the product. Must be one of the following\
             \ values (upper or lowercased): \u2018in stock\u2019, \u2018out of stock\u2019\
-            \ , \u2018preorder\u2019."
+            , \u2018preorder\u2019."
           example: in stock
           type: string
         average_review_rating:
@@ -20541,7 +22929,7 @@ components:
         gender:
           description: "The gender associated with the product. Must be one of the\
             \ following values (upper or lowercased): \u2018male\u2019, \u2018female\u2019\
-            \ , or \u2018unisex\u2019."
+            , or \u2018unisex\u2019."
           example: unisex
           type: string
           nullable: true
@@ -20681,15 +23069,15 @@ components:
           description: "Indicates the country\u2019s sizing system in which you are\
             \ submitting your product. Must be one of the following values (upper\
             \ or lowercased): \u2018US\u2019, \u2018UK\u2019, \u2018EU\u2019, \u2018\
-            DE\u2019 , \u2018FR\u2019, \u2018JP\u2019, \u2018CN\u2019, \u2018IT\u2019\
-            , \u2018 BR\u2019, \u2018MEX\u2019, or \u2018AU\u2019."
+            DE\u2019, \u2018FR\u2019, \u2018JP\u2019, \u2018CN\u2019, \u2018IT\u2019\
+            , \u2018BR\u2019, \u2018MEX\u2019, or \u2018AU\u2019."
           example: US
           type: string
           nullable: true
         size_type:
           description: "Additional description for the size. Must be one of the following\
             \ values (upper or lowercased): \u2018regular\u2019, \u2018petite\u2019\
-            \ , \u2018plus\u2019, \u2018big_and_tall\u2019, or \u2018maternity\u2019\
+            , \u2018plus\u2019, \u2018big_and_tall\u2019, or \u2018maternity\u2019\
             ."
           example: regular
           type: string
@@ -20730,48 +23118,54 @@ components:
           nullable: true
           items:
             type: string
-    UpdateInvitesResultsResponseArray:
-      description: Response to the send Members or Partners Invite or Request
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            type: object
-            properties:
-              invite:
-                type: object
-                nullable: true
-                properties:
-                  invite_data:
-                    type: object
-                    properties:
-                      invite_expiration:
-                        type: integer
-                      last_updated_time:
-                        type: integer
-                      sent_at:
-                        type: integer
-                  is_received_invite:
-                    type: boolean
-                  user:
-                    type: object
-                    properties:
-                      username:
-                        type: string
-                        nullable: true
-                      email:
-                        type: string
-                      id:
-                        type: string
-              exception:
-                type: object
-                nullable: true
-                properties:
-                  message:
-                    type: string
-                  code:
-                    type: integer
+    UpdateMaskFieldType:
+      description: The field types supported by the update mask
+      example: availability
+      type: string
+      enum:
+      - ad_link
+      - adult
+      - age_group
+      - availability
+      - average_review_rating
+      - brand
+      - checkout_enabled
+      - color
+      - condition
+      - custom_label_0
+      - custom_label_1
+      - custom_label_2
+      - custom_label_3
+      - custom_label_4
+      - description
+      - free_shipping_label
+      - free_shipping_limit
+      - gender
+      - google_product_category
+      - gtin
+      - item_group_id
+      - last_updated_time
+      - link
+      - material
+      - min_ad_price
+      - mpn
+      - number_of_ratings
+      - number_of_reviews
+      - pattern
+      - price
+      - product_type
+      - sale_price
+      - shipping
+      - shipping_height
+      - shipping_weight
+      - shipping_width
+      - size
+      - size_system
+      - size_type
+      - tax
+      - title
+      - variant_names
+      - variant_values
     UserFollowingFeedType:
       description: Specifies the type of followees to be kept when filtering them.
       enum:
@@ -20903,7 +23297,24 @@ components:
         width:
           type: integer
           description: Width (in pixels)
+    PartnerType:
+      enum:
+      - INTERNAL
+      - EXTERNAL
+      example: INTERNAL
+      type: string
   parameters:
+    result_limit:
+      description: Max search result size
+      in: query
+      name: limit
+      example: 4
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 10
     path_ad_account_id:
       name: ad_account_id
       description: Unique identifier of an ad account.
@@ -20980,6 +23391,13 @@ components:
       required: true
       schema:
         type: string
+    include_details:
+      name: include_details
+      description: if set to True then attach the errors/details to all the requests
+      in: query
+      schema:
+        type: boolean
+        default: false
     path_campaign_id:
       name: campaign_id
       description: Campaign ID, must be associated with the ad account ID provided
@@ -21007,7 +23425,9 @@ components:
       schema:
         type: string
     path_catalogs_processing_result_id:
-      description: Unique identifier of a feed processing result
+      description: Unique identifier of a feed processing result. It can be acquired
+        from the "id" field of the "items" array within the response of the [List
+        processing results for a given feed](https://developers.pinterest.com/docs/api/v5/#operation/feed_processing_results/list).
       name: processing_result_id
       in: path
       example: '5224831246441439241'
@@ -21119,6 +23539,14 @@ components:
       style: simple
       schema:
         $ref: '#/components/schemas/AudienceDefinitionScope'
+    path_subscription_id:
+      name: subscription_id
+      description: Unique identifier of a subscription.
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^\d+$
     path_targeting_type:
       name: targeting_type
       description: Public targeting type.
@@ -21388,17 +23816,8 @@ components:
         minItems: 1
         maxItems: 100
     query_catalogs_catalog_id:
-      description: Filter feeds for a given catalog_id. If not given, feeds from all
-        catalogs are returned
-      in: query
-      required: false
-      name: catalog_id
-      schema:
-        type: string
-        pattern: ^\d+$
-    query_catalogs_id:
-      description: Unique identifier of a catalog. If not given, oldest catalog will
-        be used
+      description: Filter entities for a given catalog_id. If not given, all catalogs
+        are considered.
       in: query
       required: false
       name: catalog_id
@@ -21406,9 +23825,10 @@ components:
         type: string
         pattern: ^\d+$
     query_catalogs_feed_id:
-      description: Unique identifier of a feed
+      description: Filter entities for a given feed_id. If not given, all feeds are
+        considered.
       in: query
-      required: true
+      required: false
       name: feed_id
       schema:
         type: string
@@ -21437,22 +23857,12 @@ components:
       schema:
         $ref: '#/components/schemas/CatalogsItemValidationIssue'
     query_catalogs_items:
+      deprecated: true
       name: item_ids
       in: query
-      description: Catalogs Item ids
+      description: This parameter is deprecated. Use filters instead.
       example:
       - CR123
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-    query_catalogs_hotels:
-      name: hotel_ids
-      in: query
-      description: Catalogs Hotel ids
-      example:
-      - ht123
       required: false
       schema:
         type: array
@@ -21466,6 +23876,14 @@ components:
       required: true
       schema:
         type: string
+    query_catalogs_items_filters:
+      name: filters
+      in: query
+      description: Identifies items to be retrieved. This is a required parameter.
+      required: false
+      style: deepObject
+      schema:
+        $ref: '#/components/schemas/CatalogsItemsFilters'
     query_catalogs_items_language:
       name: language
       in: query
@@ -21549,6 +23967,7 @@ components:
           - TOTAL_IMPRESSION
           - TOTAL_IMPRESSION_USER
           - TOTAL_IMPRESSION_FREQUENCY
+          - COST_PER_OUTBOUND_CLICK_IN_DOLLAR
           - TOTAL_ENGAGEMENT_SIGNUP
           - TOTAL_ENGAGEMENT_CHECKOUT
           - TOTAL_ENGAGEMENT_LEAD
@@ -21584,6 +24003,7 @@ components:
           - PAGE_VISIT_ROAS
           - CHECKOUT_ROAS
           - CUSTOM_ROAS
+          - VIDEO_MRC_VIEWS_1
           - VIDEO_3SEC_VIEWS_2
           - VIDEO_P100_COMPLETE_2
           - VIDEO_P0_COMBINED_2
@@ -21811,6 +24231,8 @@ components:
           - ACTIVE
           - PAUSED
           - ARCHIVED
+          - DRAFT
+          - DELETED_DRAFT
         default:
         - ACTIVE
         - PAUSED
@@ -21978,6 +24400,18 @@ components:
         minItems: 1
         type: array
       style: form
+    query_pin_metrics:
+      name: pin_metrics
+      description: Specify whether to return 90d and lifetime Pin metrics. Total comments
+        and total reactions are only available with lifetime Pin metrics. If Pin was
+        created before <code>2023-03-20</code> lifetime metrics will only be available
+        for Video and Idea Pin formats. Lifetime metrics are available for all Pin
+        formats since then.
+      in: query
+      required: false
+      schema:
+        type: boolean
+        default: false
     query_list_input_terms:
       description: List of input terms.
       in: query
@@ -22001,6 +24435,14 @@ components:
           $ref: '#/components/schemas/MatchType'
         minItems: 1
         maxItems: 5
+    query_partners:
+      name: partners
+      in: query
+      description: A list of business partners ids separated by comma.
+      example: 00101010101,2222220101
+      required: false
+      schema:
+        type: string
     query_metric_types:
       description: 'Metric types to get data for, default is all. '
       explode: false
@@ -22101,10 +24543,8 @@ components:
             - IMPRESSION
             - OUTBOUND_CLICK
             - PIN_CLICK
-            - PROFILE_VISIT
             - SAVE
             - SAVE_RATE
-            - USER_FOLLOW
             - TOTAL_COMMENTS
             - TOTAL_REACTIONS
           - description: Video Pin metric types
@@ -22113,10 +24553,8 @@ components:
             - IMPRESSION
             - OUTBOUND_CLICK
             - PIN_CLICK
-            - PROFILE_VISIT
             - SAVE
             - SAVE_RATE
-            - USER_FOLLOW
             - VIDEO_MRC_VIEW
             - VIDEO_10S_VIEW
             - QUARTILE_95_PERCENT_VIEW
@@ -22146,6 +24584,13 @@ components:
         default: ALL
         enum:
         - ALL
+        - ORGANIC_IMAGE
+        - ORGANIC_PRODUCT
+        - ORGANIC_VIDEO
+        - ADS_STANDARD
+        - ADS_PRODUCT
+        - ADS_VIDEO
+        - ADS_IDEA
         - PRODUCT
         - REGULAR
         - VIDEO
