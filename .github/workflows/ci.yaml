@@ -1,0 +1,55 @@
+name: Transform OpenAPI to Postman Collection
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'v5/openapi.yaml'
+      - 'v5/openapi.json'
+
+
+jobs:
+  sync-to-postman:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          npm install -g openapi-to-postmanv2
+          npm install axios
+
+      - name: Backup Current Postman Collection
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+          COLLECTION_UID: ${{ secrets.POSTMAN_COLLECTION_UID }}
+          TIMESTAMP: $(date +%Y%m%d_%H%M%S)
+        run: |
+          mkdir -p ./postman/backup
+          node .github/scripts/backup-collection.js
+
+      - name: Upload Backup as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-collection-backup
+          path: ./postman/backup/collection_*.json
+          retention-days: 90
+
+      - name: Convert OpenAPI to Postman Collection
+        run: |
+          openapi2postmanv2 \
+            -s ./v5/openapi.yaml \
+            -o ./postman/collection.json \
+            -p \
+            --pretty
+
+      - name: Update Postman Collection
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+          COLLECTION_UID: ${{ secrets.POSTMAN_COLLECTION_UID }}
+        run: node .github/scripts/update-collection.js
