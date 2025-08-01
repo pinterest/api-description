@@ -4,6 +4,7 @@ const fs = require('fs').promises;
 const POSTMAN_API_KEY = process.env.POSTMAN_API_KEY;
 const COLLECTION_UID = process.env.COLLECTION_UID;
 const POSTMAN_API_BASE = 'https://api.getpostman.com';
+const WORKSPACE_NAME = 'Pinterest Collections';
 
 // Validate required environment variables
 if (!POSTMAN_API_KEY) {
@@ -16,14 +17,49 @@ if (!COLLECTION_UID) {
   process.exit(1);
 }
 
-async function getCollections() {
+async function getWorkspaces() {
   try {
-    const response = await axios.get(`${POSTMAN_API_BASE}/collections`, {
+    const response = await axios.get(`${POSTMAN_API_BASE}/workspaces`, {
       headers: {
         'X-API-Key': POSTMAN_API_KEY
       }
     });
-    return response.data.collections;
+    return response.data.workspaces;
+  } catch (error) {
+    console.error('Error fetching workspaces:', error.response?.data || error.message);
+    throw error;
+  }
+}
+
+async function getCollectionsFromWorkspace(workspaceId) {
+  try {
+    const response = await axios.get(`${POSTMAN_API_BASE}/workspaces/${workspaceId}`, {
+      headers: {
+        'X-API-Key': POSTMAN_API_KEY
+      }
+    });
+    return response.data.workspace.collections;
+  } catch (error) {
+    console.error('Error fetching collections from workspace:', error.response?.data || error.message);
+    throw error;
+  }
+}
+
+async function getCollections() {
+  try {
+    // Get all workspaces
+    const workspaces = await getWorkspaces();
+    
+    // Find the Pinterest Collections workspace
+    const targetWorkspace = workspaces.find(w => w.name === WORKSPACE_NAME);
+    if (!targetWorkspace) {
+      throw new Error(`Workspace "${WORKSPACE_NAME}" not found`);
+    }
+    
+    console.log(`Found workspace: ${targetWorkspace.name} (ID: ${targetWorkspace.id})`);
+    
+    // Get collections from the specific workspace
+    return await getCollectionsFromWorkspace(targetWorkspace.id);
   } catch (error) {
     console.error('Error fetching collections:', error.response?.data || error.message);
     throw error;
@@ -45,10 +81,20 @@ async function getCollection(uid) {
 }
 
 async function updateCollection(uid, updateData) {
-  try {
-    const response = await axios.put(`${POSTMAN_API_BASE}/collections/${uid}`, {
+  try {    
+    if (!uid) {
+      throw new Error('Collection UID is required but was not provided');
+    }
+    
+    if (!updateData || typeof updateData !== 'object') {
+      throw new Error('Update data is required and must be an object');
+    }
+    
+    const payload = {
       collection: updateData
-    }, {
+    };
+    
+    const response = await axios.put(`${POSTMAN_API_BASE}/collections/${uid}`, payload, {
       headers: {
         'X-API-Key': POSTMAN_API_KEY,
         'Content-Type': 'application/json'
@@ -61,11 +107,18 @@ async function updateCollection(uid, updateData) {
   }
 }
 
-async function createCollection(collectionData) {
+async function createCollection(collectionData, workspaceId) {
   try {
-    const response = await axios.post(`${POSTMAN_API_BASE}/collections`, {
+    const payload = {
       collection: collectionData
-    }, {
+    };
+    
+    // Add workspace parameter if provided
+    if (workspaceId) {
+      payload.workspace = workspaceId;
+    }
+    
+    const response = await axios.post(`${POSTMAN_API_BASE}/collections`, payload, {
       headers: {
         'X-API-Key': POSTMAN_API_KEY,
         'Content-Type': 'application/json'
@@ -78,8 +131,20 @@ async function createCollection(collectionData) {
   }
 }
 
-function extractVersion(name) {
-  const match = name.match(/(\d+)\.(\d+)\.(\d+)/);
+async function getLatestGitHubRelease() {
+  try {
+    const response = await axios.get('https://api.github.com/repos/pinterest/api-description/releases/latest');
+    return response.data.tag_name;
+  } catch (error) {
+    console.error('Error fetching GitHub releases:', error.response?.data || error.message);
+    throw error;
+  }
+}
+
+function parseVersion(versionString) {
+  // Remove 'v' prefix if present
+  const cleanVersion = versionString.replace(/^v/, '');
+  const match = cleanVersion.match(/(\d+)\.(\d+)\.(\d+)/);
   if (match) {
     return {
       major: parseInt(match[1]),
@@ -90,37 +155,42 @@ function extractVersion(name) {
   return null;
 }
 
-function getNextVersion(collections) {
-  let highestVersion = null;
-  
-  collections.forEach(collection => {
-    const version = extractVersion(collection.name);
-    if (version) {
-      const versionString = `${version.major}.${version.minor}.${version.patch}`;
-      const highestString = highestVersion ? 
-        `${highestVersion.major}.${highestVersion.minor}.${highestVersion.patch}` : '0.0.0';
-      
-      if (versionString > highestString) {
-        highestVersion = version;
-      }
+async function getNextVersion() {
+  try {
+    const latestRelease = await getLatestGitHubRelease();
+    console.log(`Latest GitHub release: ${latestRelease}`);
+    
+    const version = parseVersion(latestRelease);
+    if (!version) {
+      throw new Error(`Could not parse version from GitHub release: ${latestRelease}`);
     }
-  });
-  
-  if (!highestVersion) return '1.0.0';
-  
-  highestVersion.minor += 1;
-  highestVersion.patch = 0;
-  
-  return `${highestVersion.major}.${highestVersion.minor}.${highestVersion.patch}`;
+    
+    // Increment minor version
+    version.minor += 1;
+    version.patch = 0;
+    
+    return `${version.major}.${version.minor}.${version.patch}`;
+  } catch (error) {
+    console.error('Error getting next version from GitHub:', error.message);
+    console.log('Falling back to default version 1.0.0');
+    return '1.0.0';
+  }
 }
 
 async function main() {
   try {
     console.log('Starting collection versioning process...');
     
-    // Get all collections
+    // Get all workspaces and find target workspace
+    const workspaces = await getWorkspaces();
+    const targetWorkspace = workspaces.find(w => w.name === WORKSPACE_NAME);
+    if (!targetWorkspace) {
+      throw new Error(`Workspace "${WORKSPACE_NAME}" not found`);
+    }
+    
+    // Get collections from Pinterest Collections workspace
     const collections = await getCollections();
-    console.log(`Found ${collections.length} collections:`, collections.map(c => c.name));
+    console.log(`Found ${collections.length} collections in "${WORKSPACE_NAME}" workspace:`, collections.map(c => c.name));
     
     // Find the target collection - try by UID first (primary method), then by name as fallback
     let latestCollection = collections.find(c => c.uid === COLLECTION_UID);
@@ -129,15 +199,18 @@ async function main() {
       console.log(`Collection with UID ${COLLECTION_UID} not found, searching by name "Pinterest REST API (latest)"...`);
       latestCollection = collections.find(c => c.name === 'Pinterest REST API (latest)');
       if (!latestCollection) {
+        collections.forEach(c => console.log(`  - "${c.name}"`));
         throw new Error(`Collection not found by UID ${COLLECTION_UID} or by name "Pinterest REST API (latest)"`);
       }
-      console.log(`Tip: Update COLLECTION_UID to: ${latestCollection.uid}`);
     }
     
-    console.log(`Found collection: ${latestCollection.name} (UID: ${latestCollection.uid})`);
+    // Validate that we have a valid UID
+    if (!latestCollection.uid) {
+      throw new Error('Collection UID is undefined or null');
+    }
     
-    // Calculate next version
-    const nextVersion = getNextVersion(collections);
+    // Calculate next version from GitHub releases
+    const nextVersion = await getNextVersion();
     const versionedName = `Pinterest REST API ${nextVersion}`;
     
     console.log(`Next version will be: ${versionedName}`);
@@ -147,7 +220,6 @@ async function main() {
     const currentLatestContent = await getCollection(latestCollection.uid);
     
     // Step 2: Create a new versioned collection with the current content
-    console.log(`Creating snapshot: "${versionedName}"...`);
     const versionedCollectionData = {
       ...currentLatestContent,
       info: {
@@ -160,11 +232,11 @@ async function main() {
     delete versionedCollectionData.uid;
     delete versionedCollectionData.id;
     
-    const versionedCollection = await createCollection(versionedCollectionData);
+    const versionedCollection = await createCollection(versionedCollectionData, targetWorkspace.id);
     console.log(`Created snapshot: ${versionedCollection.name}`);
     
     // Step 3: Update the "latest" collection with the new OpenAPI conversion
-    console.log('Loading OpenAPI conversion...');
+    console.log('\nStep 3: Updating latest collection...');
     const convertedCollectionPath = './postman/collection.json';
     
     // Check if the converted collection file exists
@@ -175,7 +247,8 @@ async function main() {
     }
     
     const convertedCollectionData = JSON.parse(await fs.readFile(convertedCollectionPath, 'utf8'));
-    
+    console.log('Converted collection loaded successfully');
+
     // Ensure the converted collection has the correct name
     if (!convertedCollectionData.info) {
       convertedCollectionData.info = {};
@@ -185,15 +258,19 @@ async function main() {
     // Remove uid and id from the converted data
     delete convertedCollectionData.uid;
     delete convertedCollectionData.id;
+  
+    // Validate data before sending
+    if (!convertedCollectionData || Object.keys(convertedCollectionData).length === 0) {
+      throw new Error('Converted collection data is empty or invalid');
+    }
     
     console.log('Updating "latest" collection with fresh API specs...');
-    await updateCollection(latestCollection.uid, convertedCollectionData);
+    const updateResult = await updateCollection(latestCollection.uid, convertedCollectionData);
     
     console.log('\n✓ Success!:');
     console.log(`  - Created backup: "${versionedName}"`);
     console.log(`  - Updated "latest" with new OpenAPI specs`);
-    console.log(`  - Collection UID stayed the same: ${latestCollection.uid}`);
-    
+    console.log('Collection updated successfully');
   } catch (error) {
     console.error('Error:', error.response?.data || error.message);
     process.exit(1);
