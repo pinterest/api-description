@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 5.16.0
+  version: 5.17.0
   title: Pinterest REST API
   description: Pinterest's REST API
   contact:
@@ -345,7 +345,7 @@ paths:
         \ is used to track very small transactions, based on the currency set in the\
         \ advertiser\u2019s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the\
         \ standard unit of currency selected in the advertiser\u2019s profile.</p>\n\
-        <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
+        \ <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001\
         \ </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>,\
         \ using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars\
@@ -438,13 +438,8 @@ paths:
       description: |-
         Get analytics for the specified ad groups in the specified <code>ad_account_id</code>, filtered by the specified options.
         - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
-        - If granularity is not HOUR, the furthest back you can are allowed to pull data is 90 days before the current date in UTC time and the max time range supported is 90 days.
-        - If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.
-
-        <strong>Deprecation notice</strong>
-        As of <strong>March 31, 2025</strong>, requests to this endpoint have changed for the following parameters:
-        - <code>engagement_window_days</code>: This parameter no longer returns new data. However, you can still access historic data for up to 25 weeks after the deprecation date.
-        - <code>granularity</code>: The <code>HOUR</code> enum for this parameter no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums remain available as usual.
+        - If granularity is not HOUR, you can pull data from up to 90 days before the current date in UTC time, with a maximum time range of 90 days.
+        - If granularity is HOUR, you can pull data from up to 8 days before the current date in UTC time, with a maximum time range of 3 days.
       operationId: ad_groups/analytics
       security:
       - pinterest_oauth2:
@@ -500,13 +495,8 @@ paths:
         - The token's user_account must either be the Owner of the specified ad account, or have one
         of the necessary roles granted to them via
         <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
-        - If granularity is not HOUR, the furthest back you can are allowed to pull data is 90 days before the current date in UTC time and the max time range supported is 90 days.
-        - If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.
-
-        <strong>Deprecation notice</strong>
-        As of <strong>March 31, 2025</strong>, requests to this endpoint have changed for the following parameters:
-        - <code>engagement_window_days</code>: This parameter no longer returns new data. However, you can still access historic data for up to 25 weeks after the deprecation date.
-        - <code>granularity</code>: The <code>HOUR</code> enum for this parameter no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums remain available as usual.
+        - If granularity is not HOUR, you can pull data from up to 90 days before the current date in UTC time, with a maximum time range of 90 days.
+        - If granularity is HOUR, you can pull data from up to 8 days before the current date in UTC time, with a maximum time range of 3 days.
       operationId: ad_groups_targeting_analytics/get
       security:
       - pinterest_oauth2:
@@ -825,13 +815,8 @@ paths:
         Get analytics for the specified ads in the specified <code>ad_account_id</code>, filtered by the specified options.
         - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
         - The request must contain either ad_ids or both campaign_ids and pin_ids.
-        - If granularity is not HOUR, the furthest back you can are allowed to pull data is 90 days before the current date in UTC time and the max time range supported is 90 days.
-        - If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.
-
-        <strong>Deprecation notice</strong>
-        As of <strong>March 31, 2025</strong>, requests to this endpoint have changed for the following parameters:
-        - <code>engagement_window_days</code>: This parameter no longer returns new data. However, you can still access historic data for up to 25 weeks after the deprecation date.
-        - <code>granularity</code>: The <code>HOUR</code> enum for this parameter no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums remain available as usual.
+        - If granularity is not HOUR, you can pull data from up to 90 days before the current date in UTC time, with a maximum time range of 90 days.
+        - If granularity is HOUR, you can pull data from up to 8 days before the current date in UTC time, with a maximum time range of 3 days.
       operationId: ads/analytics
       security:
       - pinterest_oauth2:
@@ -987,13 +972,8 @@ paths:
         - The token's user_account must either be the Owner of the specified ad account, or have one
         of the necessary roles granted to them via
         <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
-        - If granularity is not HOUR, the furthest back you can are allowed to pull data is 90 days before the current date in UTC time and the max time range supported is 90 days.
-        - If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.
-
-        <strong>Deprecation notice</strong>
-        As of <strong>March 31, 2025</strong>, requests to this endpoint have changed for the following parameters:
-        - <code>engagement_window_days</code>: This parameter no longer returns new data. However, you can still access historic data for up to 25 weeks after the deprecation date.
-        - <code>granularity</code>: The <code>HOUR</code> enum for this parameter no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums remain available as usual.
+        - If granularity is not HOUR, you can pull data from up to 90 days before the current date in UTC time, with a maximum time range of 90 days.
+        - If granularity is HOUR, you can pull data from up to 8 days before the current date in UTC time, with a maximum time range of 3 days.
       operationId: ad_targeting_analytics/get
       security:
       - pinterest_oauth2:
@@ -1070,13 +1050,8 @@ paths:
       description: |-
         Get analytics for the specified <code>ad_account_id</code>, filtered by the specified options.
         - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
-        - If granularity is not HOUR, the furthest back you can are allowed to pull data is 90 days before the current date in UTC time and the max time range supported is 90 days.
-        - If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time.
-
-        <strong>Deprecation notice</strong>
-        As of <strong>March 31, 2025</strong>, requests to this endpoint have changed for the following parameters:
-        - <code>engagement_window_days</code>: This parameter no longer returns new data. However, you can still access historic data for up to 25 weeks after the deprecation date.
-        - <code>granularity</code>: The <code>HOUR</code> enum for this parameter no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums remain available as usual.
+        - If granularity is not HOUR, you can pull data from up to 90 days before the current date in UTC time, with a maximum time range of 90 days.
+        - If granularity is HOUR, you can pull data from up to 8 days before the current date in UTC time.
       operationId: ad_account/analytics
       security:
       - pinterest_oauth2:
@@ -1524,13 +1499,13 @@ paths:
         \ <p/>\n<p>Microcurrency is used to track very small transactions, based on\
         \ the currency set in the advertiser\u2019s profile.</p>\n<p>A microcurrency\
         \ unit is 10^(-6) of the standard unit of currency selected in the advertiser\u2019\
-        s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as\
-        \ an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
+        \ s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars\
+        \ as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
         \  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between\
         \ currency and microcurrency</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n\
         \  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n\
-        </ul>\nFor more on bid floors see <a class=\"reference external\" href=\"\
+        \ </ul>\nFor more on bid floors see <a class=\"reference external\" href=\"\
         https://help.pinterest.com/en/business/article/set-your-bid\"> Set your bid</a>."
       operationId: ad_groups_bid_floor/get
       security:
@@ -1872,7 +1847,7 @@ paths:
         <p>Microcurrency is used to track very small transactions, based on the currency\
         \ set in the advertiser\u2019s profile.</p>\n<p>A microcurrency unit is 10^(-6)\
         \ of the standard unit of currency selected in the advertiser\u2019s profile.</p>\n\
-        <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
+        \ <p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001\
         \ </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>,\
         \ using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars\
@@ -1915,13 +1890,13 @@ paths:
     patch:
       summary: Update campaigns
       description: "Update multiple ad campaigns based on campaign_ids. <p/>\n<strong>Note:</strong><p/>\n\
-        - <p>The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency\
+        \ - <p>The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency\
         \ amounts based on the currency field set in the advertiser's profile. (e.g.\
         \ USD) <p/>\n<p>Microcurrency is used to track very small transactions, based\
         \ on the currency set in the advertiser\u2019s profile.</p>\n<p>A microcurrency\
         \ unit is 10^(-6) of the standard unit of currency selected in the advertiser\u2019\
-        s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as\
-        \ an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
+        \ s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars\
+        \ as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n\
         \  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between\
         \ currency and microcurrency</strong>, using dollars as an example currency:</p>\n\
         <ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n\
@@ -1967,13 +1942,8 @@ paths:
       description: |-
         Get analytics for the specified campaigns in the specified <code>ad_account_id</code>, filtered by the specified options.
         - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
-        - If granularity is not HOUR, the furthest back you can are allowed to pull data is 90 days before the current date in UTC time and the max time range supported is 90 days.
-        - If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.
-
-        <strong>Deprecation notice</strong>
-        As of <strong>March 31, 2025</strong>, requests to this endpoint have changed for the following parameters:
-        - <code>engagement_window_days</code>: This parameter no longer returns new data. However, you can still access historic data for up to 25 weeks after the deprecation date.
-        - <code>granularity</code>: The <code>HOUR</code> enum for this parameter no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums remain available as usual.
+        - If granularity is not HOUR, you can pull data from up to 90 days before the current date in UTC time, with a maximum time range of 90 days.
+        - If granularity is HOUR, you can pull data from up to 8 days before the current date in UTC time, with a maximum time range of 3 days.
       operationId: campaigns/analytics
       security:
       - pinterest_oauth2:
@@ -2029,13 +1999,8 @@ paths:
         - The token's user_account must either be the Owner of the specified ad account, or have one
         of the necessary roles granted to them via
         <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
-        - If granularity is not HOUR, the furthest back you can are allowed to pull data is 90 days before the current date in UTC time and the max time range supported is 90 days.
-        - If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.
-
-        <strong>Deprecation notice</strong>
-        As of <strong>March 31, 2025</strong>, requests to this endpoint have changed for the following parameters:
-        - <code>engagement_window_days</code>: This parameter no longer returns new data. However, you can still access historic data for up to 25 weeks after the deprecation date.
-        - <code>granularity</code>: The <code>HOUR</code> enum for this parameter no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums remain available as usual.
+        - If granularity is not HOUR, you can pull data from up to 90 days before the current date in UTC time, with a maximum time range of 90 days.
+        - If granularity is HOUR, you can pull data from up to 8 days before the current date in UTC time, with a maximum time range of 3 days.
       operationId: campaign_targeting_analytics/get
       security:
       - pinterest_oauth2:
@@ -2139,7 +2104,7 @@ paths:
       description: "Create a conversion tag, also known as <a href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\"\
         \ target=\"_blank\">Pinterest tag</a>, with the option to enable enhanced\
         \ match.<p/>\nThe Pinterest Tag tracks actions people take on the ad account\u2019\
-        s website after they view the ad account's ad on Pinterest. The advertiser\
+        \ s website after they view the ad account's ad on Pinterest. The advertiser\
         \ needs to customize this tag to track conversions.<p/>\nFor more information,\
         \ see:<p/>\n<a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\"\
         >Set up the Pinterest tag</a><p/>\n<a class=\"reference external\" href=\"\
@@ -2281,7 +2246,7 @@ paths:
         https://help.pinterest.com/en/business/article/audience-targeting\" target=\"\
         _blank\">Audience targeting</a>\nor the <a href=\"/docs/api-features/targeting-overview/\"\
         \ target=\"_blank\">Audiences</a> section of the ads management guide.<p/>\n\
-        <p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\"\
+        \ <p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\"\
         \ target=\"_blank\">requirements</a></u> for what type of information is allowed\
         \ when uploading a customer list.</b></p>\n<p>When you create a customer list,\
         \ the system scans the list for existing Pinterest accounts;\nthe list must\
@@ -2290,7 +2255,7 @@ paths:
         \ only the Pinterest accounts that were included in your starting\nlist \u2013\
         \ is what will be used to create the audience.</p>\n<p>Note that once you\
         \ have created your customer list, you must convert it into an audience (of\
-        \ the \u201CCUSTOMER_LIST\u201D type)\nusing the <a href=\"#operation/create_audience_handler\"\
+        \ the \u201C CUSTOMER_LIST\u201D type)\nusing the <a href=\"#operation/create_audience_handler\"\
         >create audience endpoint</a> before it can be used.</p>"
       operationId: customer_lists/create
       security:
@@ -2400,7 +2365,7 @@ paths:
         <p>When you add records to an existing customer list, the system scans the\
         \ additions for existing Pinterest\naccounts; those are the records that will\
         \ be added to your \u201CCUSTOMER_LIST\u201D audience. Your original list\
-        \ of records\nto add will be deleted when the matching process is complete.</p>\n\
+        \ of records\n to add will be deleted when the matching process is complete.</p>\n\
         <p>For more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\"\
         \ target=\"_blank\">Audience targeting</a>\nor the <a href=\"/docs/api-features/targeting-overview/\"\
         \ target=\"_blank\">Audiences</a>\nsection of the ads management guide.</p>"
@@ -2677,7 +2642,16 @@ paths:
       - $ref: '#/components/parameters/query_campaign_id'
       - $ref: '#/components/parameters/query_ad_group_id'
       - $ref: '#/components/parameters/query_match_types'
-      - $ref: '#/components/parameters/query_page_size'
+      - name: page_size
+        description: Maximum number of items to include in a single page of the response.
+          Default maximum of 250. See documentation on <a href='/docs/reference/pagination/'>Pagination</a>
+          for more information.
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 25
       - $ref: '#/components/parameters/query_bookmark'
       responses:
         '200':
@@ -2832,7 +2806,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LabelCreate'
+              $ref: '#/components/schemas/LabelCreateRequest'
       responses:
         '200':
           content:
@@ -2936,7 +2910,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LabelUpdate'
+              $ref: '#/components/schemas/LabelUpdateRequest'
       responses:
         '200':
           content:
@@ -3009,7 +2983,7 @@ paths:
         \ all apps, if you're interested in joining the beta, please reach out to\
         \ your Pinterest account manager.</strong>\n\nCreate lead forms. Lead forms\
         \ are used in lead ads and allow you to control what text appears on the lead\
-        \ form\u2019s description, questions and confirmation sections.\n\nFor more,\
+        \ form\u2019 s description, questions and confirmation sections.\n\nFor more,\
         \ see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/lead-ads\"\
         >Lead ads</a>."
       summary: Create lead forms
@@ -3219,9 +3193,9 @@ paths:
       description: Get the advertiser's list of lead ads subscriptions. Only requests
         for the OWNER or ADMIN of the ad_account will be allowed.
       parameters:
-      - $ref: '#/components/parameters/AdAccountId'
-      - $ref: '#/components/parameters/Resource.BookmarkParams.bookmark'
-      - $ref: '#/components/parameters/Resource.BookmarkParams.page_size'
+      - $ref: '#/components/parameters/Pinterest.Lib.AdAccountId'
+      - $ref: '#/components/parameters/Pinterest.Lib.BookmarkParams.bookmark'
+      - $ref: '#/components/parameters/Pinterest.Lib.BookmarkParams.page_size'
       responses:
         '200':
           description: The request has succeeded.
@@ -3245,40 +3219,40 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '401':
           description: Authentication is required and has either failed or not been
             provided.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '403':
           description: The request was valid, but the server is refusing action. The
             user might not have the necessary permissions for a resource.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '404':
           description: The requested resource could not be found on this server.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '429':
           description: The user has sent too many requests in a given amount of time
             and is being rate limited.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
       tags:
       - lead_ads
       security:
@@ -3296,7 +3270,7 @@ paths:
           - Advertisers can set up multiple integrations using ad_account_id + lead_form_id but only one integration per unique records.
           - For data security, egress lead data is encrypted with AES-256-GCM.
       parameters:
-      - $ref: '#/components/parameters/AdAccountId'
+      - $ref: '#/components/parameters/Pinterest.Lib.AdAccountId'
       responses:
         '200':
           description: The request has succeeded.
@@ -3310,20 +3284,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '403':
           description: The request was valid, but the server is refusing action. The
             user might not have the necessary permissions for a resource.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
       tags:
       - lead_ads
       requestBody:
@@ -3345,7 +3319,7 @@ paths:
         Get an existing lead ads webhook subscription by ID.
           - Only requests for the OWNER or ADMIN of the ad_account will be allowed.'
       parameters:
-      - $ref: '#/components/parameters/AdAccountId'
+      - $ref: '#/components/parameters/Pinterest.Lib.AdAccountId'
       - $ref: '#/components/parameters/SubscriptionIdPathParam'
       responses:
         '200':
@@ -3360,40 +3334,40 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '401':
           description: Authentication is required and has either failed or not been
             provided.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '403':
           description: The request was valid, but the server is refusing action. The
             user might not have the necessary permissions for a resource.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '404':
           description: The requested resource could not be found on this server.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '429':
           description: The user has sent too many requests in a given amount of time
             and is being rate limited.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
       tags:
       - lead_ads
       security:
@@ -3410,7 +3384,7 @@ paths:
         Delete an existing lead ads webhook subscription by ID.
           - Only requests for the OWNER or ADMIN of the ad_account will be allowed.'
       parameters:
-      - $ref: '#/components/parameters/AdAccountId'
+      - $ref: '#/components/parameters/Pinterest.Lib.AdAccountId'
       - $ref: '#/components/parameters/SubscriptionIdPathParam'
       responses:
         '204':
@@ -3421,40 +3395,40 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '401':
           description: Authentication is required and has either failed or not been
             provided.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '403':
           description: The request was valid, but the server is refusing action. The
             user might not have the necessary permissions for a resource.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '404':
           description: The requested resource could not be found on this server.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         '429':
           description: The user has sent too many requests in a given amount of time
             and is being rate limited.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         default:
           description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource.Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
       tags:
       - lead_ads
       security:
@@ -3917,13 +3891,8 @@ paths:
       description: |-
         Get analytics for the specified product groups in the specified <code>ad_account_id</code>, filtered by the specified options.
         - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
-        - If granularity is not HOUR, the furthest back you can are allowed to pull data is 90 days before the current date in UTC time and the max time range supported is 90 days.
-        - If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.
-
-        <strong>Deprecation notice</strong>
-        As of <strong>March 31, 2025</strong>, requests to this endpoint have changed for the following parameters:
-        - <code>engagement_window_days</code>: This parameter no longer returns new data. However, you can still access historic data for up to 25 weeks after the deprecation date.
-        - <code>granularity</code>: The <code>HOUR</code> enum for this parameter no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums remain available as usual.
+          - If granularity is not HOUR, you can pull data from up to 90 days before the current date in UTC time, with a maximum time range of 90 days.
+        - If granularity is HOUR, you can pull data from up to 8 days before the current date in UTC time, with a maximum time range of 3 days.
       operationId: product_groups/analytics
       security:
       - pinterest_oauth2:
@@ -4214,15 +4183,10 @@ paths:
       description: |-
         This returns a token that you can use to download the report when it is ready. Note that this endpoint requires the parameters to be passed as JSON-formatted in the request body. This endpoint does not support URL query parameters.
         - The token's user_account must either be the Owner of the specified ad account, or have one of the necessary roles granted to them via <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
-        - If granularity is not HOUR, the furthest back you can are allowed to pull data is 914 days before the current date in UTC time and the max time range supported is 186 days.
-        - If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.
-        - If level is PRODUCT_ITEM, the furthest back you can are allowed to pull data is 92 days before the current date in UTC time and the max time range supported is 31 days.
+        - If granularity is not HOUR, you can pull data from up to 914 days before the current date in UTC time, with a maximum time range of 186 days.
+        - If granularity is HOUR, you can pull data from up to 8 days before the current date in UTC time, with a maximum time range of 3 days.
+        - If level is PRODUCT_ITEM, you can pull data from up to 92 days before the current date in UTC time, with a maximum time range of 31 days.
         - If level is PRODUCT_ITEM, ad_ids and ad_statuses parameters are not allowed. Any columns related to pin promotion and ad is not allowed either.
-
-        <strong>Deprecation notice</strong>
-        As of <strong>March 31, 2025</strong>, requests to this endpoint have changed for the following parameters:
-        - <code>engagement_window_days</code>: This parameter no longer returns new data. However, you can still access historic data for up to 25 weeks after the deprecation date.
-        - <code>granularity</code>: The <code>HOUR</code> enum for this parameter no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums remain available as usual.
       operationId: analytics/create_report
       security:
       - pinterest_oauth2:
@@ -4253,6 +4217,88 @@ paths:
               example:
                 code: 400
                 message: Invalid ad account ads analytics parameters.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_accounts
+  /ad_accounts/{ad_account_id}/reports/brand_category_sku:
+    get:
+      summary: Get advertiser brand, category, SKU report
+      description: |-
+        <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+        Get a brand, category, SKU report for an ad account. This call returns the URL for the report that matches the token returned in the request to the Create brand, category, SKU report endpoint.
+      operationId: analytics/get_conversion_product_report
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      - $ref: '#/components/parameters/query_token_required'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdsAnalyticsGetAsyncResponse'
+          description: Success
+        '400':
+          description: Invalid ad account ads analytics parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid ad account ads analytics parameters.
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - ad_accounts
+    post:
+      summary: Create a request for a brand, category, SKU report
+      description: |-
+        <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+        This creates an asynchronous brand, category, SKU report based on the given request. This request returns a token that you can use to download the report when it is ready.
+      operationId: analytics/create_conversion_product_report
+      security:
+      - pinterest_oauth2:
+        - ads:read
+      x-ratelimit-category: ads_analytics
+      x-sandbox: disabled
+      parameters:
+      - $ref: '#/components/parameters/path_ad_account_id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversionProductReportRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdsAnalyticsCreateAsyncResponse'
+          description: Success
+        '400':
+          description: Invalid ad account ads analytics brand, category, SKU parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: Invalid ad account ads analytics brand, category, SKU parameters
         default:
           description: Unexpected error
           content:
@@ -4574,13 +4620,8 @@ paths:
         - The token's user_account must either be the Owner of the specified ad account, or have one
         of the necessary roles granted to them via
         <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>: Admin, Analyst, Campaign Manager.
-        - If granularity is not HOUR, the furthest back you can are allowed to pull data is 90 days before the current date in UTC time and the max time range supported is 90 days.
-        - If granularity is HOUR, the furthest back you can are allowed to pull data is 8 days before the current date in UTC time and the max time range supported is 3 days.
-
-        <strong>Deprecation notice</strong>
-        As of <strong>March 31, 2025</strong>, requests to this endpoint have changed for the following parameters:
-        - <code>engagement_window_days</code>: This parameter no longer returns new data. However, you can still access historic data for up to 25 weeks after the deprecation date.
-        - <code>granularity</code>: The <code>HOUR</code> enum for this parameter no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums remain available as usual.
+        - If granularity is not HOUR, you can pull data from up to 90 days before the current date in UTC time, with a maximum time range of 90 days.
+        - If granularity is HOUR, you can pull data from up to 8 days before the current date in UTC time, with a maximum time range of 3 days.
       operationId: ad_account_targeting_analytics/get
       security:
       - pinterest_oauth2:
@@ -7480,7 +7521,8 @@ paths:
 
         <a href='/docs/api-features/shopping-overview/'>Learn more</a>
 
-        Note: this API only supports the catalog type of HOTEL for now.
+        Note: Access to the Product and Creative Assets catalog type is restricted to a specific group of users.
+        If you require access, please reach out to your partner manager.
       operationId: catalogs/create
       security:
       - pinterest_oauth2:
@@ -14148,6 +14190,19 @@ components:
             example: Christmas Sale
             title: image_tag
             type: string
+          video_tag:
+            description: Multi video template tag, image_tag and video_tag are mutual
+              exclusive.
+            example: Black Friday Sale
+            title: video_tag
+            type: string
+          preferred_media_type:
+            type: string
+            enum:
+            - VIDEO
+            - IMAGE
+            description: Preferred media type.
+            example: IMAGE
           creative_type:
             type: string
             enum:
@@ -14463,18 +14518,7 @@ components:
         - granularity
       - type: object
         allOf:
-        - type: object
-          properties:
-            campaign_ids:
-              type: array
-              description: List of campaign ids
-              example:
-              - '12345678'
-              items:
-                type: string
-                pattern: ^\d+$
-              maxItems: 500
-              minItems: 1
+        - $ref: '#/components/schemas/CampaignIdFilter'
         - type: object
           properties:
             campaign_statuses:
@@ -14487,29 +14531,14 @@ components:
                 $ref: '#/components/schemas/CampaignSummaryStatus'
               maxItems: 6
               minItems: 1
+        - $ref: '#/components/schemas/CampaignObjectivesFilter'
         - type: object
           properties:
-            campaign_objective_types:
-              type: array
-              description: List of values for filtering. ["WEB_SESSIONS"] in BETA.
-              example:
-              - AWARENESS
-              items:
-                $ref: '#/components/schemas/ObjectiveType'
-              maxItems: 7
-              minItems: 1
-        - type: object
-          properties:
-            ad_group_ids:
-              type: array
-              description: List of ad group ids
-              example:
-              - '12345678'
-              items:
-                type: string
-                pattern: ^\d+$
-              maxItems: 500
-              minItems: 1
+            campaign_brand_label:
+              type: string
+              description: Campaign brand label for filtering.
+              example: Brand
+        - $ref: '#/components/schemas/AdGroupIdFilter'
         - type: object
           properties:
             ad_group_statuses:
@@ -14850,6 +14879,19 @@ components:
           type: string
           nullable: true
           example: The offer has already been redeemed by this advertiser
+    AdGroupIdFilter:
+      type: object
+      properties:
+        ad_group_ids:
+          type: array
+          description: List of ad group ids
+          example:
+          - '12345678'
+          items:
+            type: string
+            pattern: ^\d+$
+          maxItems: 500
+          minItems: 1
     AgeBucketList:
       title: AgeRange
       type: array
@@ -15381,7 +15423,7 @@ components:
             \ you can use event data to capture event details from your website. This\
             \ object lists all the available predefined event data fields in the Pinterest\
             \ tag. You can include these event data fields as part of a VISITOR audience\u2019\
-            s `rule`; however, you **must** specify an `event` for the `event_data`\
+            \ s `rule`; however, you **must** specify an `event` for the `event_data`\
             \ fields to be evaluated. Besides what\u2019s listed, you can also create\
             \ your own set of `event_data` fields and define their usages or purposes\
             \ according to your website needs. However, the benefit of using the predefined\
@@ -15398,7 +15440,7 @@ components:
             USD\", \"line_items\": [ { \"product_name\": \"Red leather boots\", \"\
             product_id\": \"3486\", \"product_category\": \"shoe\", \"product_variant_id\"\
             : \"JB11103000\", \"product_price\": 499, \"product_quantity\": \"1\"\
-            , \"product_brand\": \"My brand\" }]}<br>`watchvideo`<br>\"event_data\"\
+            \ , \"product_brand\": \"My brand\" }]}<br>`watchvideo`<br>\"event_data\"\
             : { \"video_title\": \"My Product Video 01\" }<br>`lead`<br>\"event_data\"\
             : { \"lead_type\": \"Newsletter\" }"
           properties:
@@ -16941,6 +16983,19 @@ components:
           type: string
           pattern: ^\d+$
       type: object
+    CampaignIdFilter:
+      type: object
+      properties:
+        campaign_ids:
+          type: array
+          description: List of campaign ids
+          example:
+          - '12345678'
+          items:
+            type: string
+            pattern: ^\d+$
+          maxItems: 500
+          minItems: 1
     CampaignIsAutomatedCampaign:
       type: boolean
       description: Specifies whether the campaign was created in the automated campaign
@@ -17055,6 +17110,18 @@ components:
           CAMPAIGN_ID: '547602124502'
           SPEND_IN_DOLLAR: 30
           TOTAL_CLICKTHROUGH: 216
+    CampaignObjectivesFilter:
+      type: object
+      properties:
+        campaign_objective_types:
+          type: array
+          description: List of values for filtering. ["WEB_SESSIONS"] in BETA.
+          example:
+          - AWARENESS
+          items:
+            $ref: '#/components/schemas/ObjectiveType'
+          maxItems: 7
+          minItems: 1
     CancelInvitesBody:
       description: Request body used to cancel invites
       type: object
@@ -17103,11 +17170,7 @@ components:
       additionalProperties: false
       properties:
         catalog_type:
-          description: Type of the catalog entity.
-          type: string
-          enum:
-          - HOTEL
-          - CREATIVE_ASSETS
+          $ref: '#/components/schemas/CatalogsType'
         name:
           description: A human-friendly name associated to a given catalog.
           type: string
@@ -17490,7 +17553,6 @@ components:
           catalog_id:
             description: Catalog id pertaining to the feed. If not provided, feed
               will use a default catalog based on type.
-            nullable: true
             type: string
             pattern: ^\d+$
         required:
@@ -19468,6 +19530,11 @@ components:
           $ref: '#/components/schemas/CatalogsFeedProcessingSchedule'
         catalog_type:
           $ref: '#/components/schemas/CatalogsType'
+        catalog_id:
+          description: Catalog id pertaining to the feed. If not provided, feed will
+            use a default catalog based on type. Currently, this field has no effect.
+          type: string
+          pattern: ^\d+$
         default_country:
           $ref: '#/components/schemas/Country'
         default_availability:
@@ -19567,7 +19634,6 @@ components:
           description: Catalog id pertaining to the feed. If not provided, feed will
             use a default catalog based on type. At the moment a catalog can not have
             multiple hotel feeds but this will change in the future.
-          nullable: true
           type: string
           pattern: ^\d+$
         status:
@@ -19706,7 +19772,6 @@ components:
           description: Catalog id pertaining to the feed. If not provided, feed will
             use a default catalog based on type. At the moment a catalog can not have
             multiple creative assets feeds but this will change in the future.
-          nullable: true
           type: string
           pattern: ^\d+$
         status:
@@ -22473,6 +22538,12 @@ components:
                 UPDATE: '#/components/schemas/CatalogsUpdateRetailItem'
                 UPSERT: '#/components/schemas/CatalogsUpsertRetailItem'
                 DELETE: '#/components/schemas/CatalogsDeleteRetailItem'
+        catalog_id:
+          description: Catalog id pertaining to the retail item. If not provided,
+            default to oldest retail catalog
+          example: '2680059592705'
+          type: string
+          pattern: ^\d+$
       required:
       - catalog_type
       - country
@@ -24246,6 +24317,325 @@ components:
       - event_timestamp
       - ad_group_id
       - attribution_scope
+    ConversionProductReportRequest:
+      type: object
+      description: Request for a brand, category, SKU report
+      properties:
+        report_name:
+          description: Name of the conversion product report.
+          type: string
+        start_date:
+          description: 'Metric report start date (UTC). Format: YYYY-MM-DD.<br> Start
+            date must be after 2024-03-16. 7 day minimum time window for report is
+            required.'
+          type: string
+          pattern: ^(\d{4})-(\d{2})-(\d{2})$
+          example: '2024-03-17'
+        end_date:
+          description: 'Metric report end date (UTC). Format: YYYY-MM-DD.<br> A max
+            of 1 year is allowed between the start and end date for reports.'
+          type: string
+          pattern: ^(\d{4})-(\d{2})-(\d{2})$
+          example: '2024-04-23'
+        granularity:
+          description: TOTAL - metrics are aggregated over the specified date range.<br>
+            WEEK - metrics are broken down weekly.<br> MONTH - metrics are broken
+            down monthly.
+          type: string
+          enum:
+          - WEEK
+          - MONTH
+          - TOTAL
+        level:
+          description: Level of the report
+          type: string
+          enum:
+          - ADVERTISER
+          - CAMPAIGN
+          - AD_GROUP
+        columns:
+          description: Metric and entity columns
+          type: array
+          items:
+            $ref: '#/components/schemas/ConversionProductReportingColumn'
+        click_window_days:
+          description: Number of days to use as the conversion attribution window
+            for a pin click action. Applies to Pinterest Tag conversion metrics. Prior
+            conversion tags use their defined attribution windows. If not specified,
+            defaults to `30` days.
+          type: integer
+          allOf:
+          - $ref: '#/components/schemas/ConversionAttributionWindowDays'
+          default: 30
+        view_window_days:
+          description: Number of days to use as the conversion attribution window
+            for a view action. Applies to Pinterest Tag conversion metrics. Prior
+            conversion tags use their defined attribution windows. If not specified,
+            defaults to `30` day.
+          type: integer
+          allOf:
+          - $ref: '#/components/schemas/ConversionAttributionWindowDays'
+          default: 30
+        conversion_report_time:
+          description: 'The date by which the conversion metrics returned from this
+            endpoint will be reported. There are two dates associated with a conversion
+            event: the date that the user interacted with the ad, and the date that
+            the user completed a conversion event.'
+          type: string
+          allOf:
+          - $ref: '#/components/schemas/ConversionReportTimeType'
+          default: TIME_OF_AD_ACTION
+        conversion_product_breakdown:
+          description: Report breakdown type. This is used to specify the breakdown
+            of the report by brand, category, or SKU.
+          type: string
+          allOf:
+          - type: string
+            enum:
+            - PRODUCT_BRAND
+            - PRODUCT_CATEGORY
+            - PRODUCT_BRAND_AND_CATEGORY
+            - PRODUCT_SKU
+            - PRODUCT_SKU_GROUP
+          default: PRODUCT_BRAND
+        conversion_product_attribution_type:
+          description: Required attribution type of the B/C/S report.<br>When the
+            attribution type is BRAND_ATTRIBUTION, start_date for the report must
+            be after 2025-04-01.
+          allOf:
+          - type: string
+            enum:
+            - DEFAULT
+            - BRAND_ATTRIBUTION
+          default: DEFAULT
+          enum:
+          - DEFAULT
+          - BRAND_ATTRIBUTION
+        campaign_objective_types:
+          type: array
+          description: List of values for filtering. Default is ['CONSIDERATION','AWARENESS','WEB_CONVERSION','VIDEO_COMPLETION'].
+          items:
+            $ref: '#/components/schemas/ObjectiveType'
+          maxItems: 7
+          minItems: 1
+        campaign_ids:
+          type: array
+          description: List of campaign ids. <br>Only support campaign_ids field when
+            level of the report is CAMPAIGN.
+          example:
+          - '12345678'
+          items:
+            type: string
+            pattern: ^\d+$
+          maxItems: 500
+          minItems: 1
+        ad_group_ids:
+          type: array
+          description: List of ad group ids. <br>Only support ad_group_ids field when
+            level of the report is AD_GROUP.
+          example:
+          - '12345678'
+          items:
+            type: string
+            pattern: ^\d+$
+          maxItems: 500
+          minItems: 1
+        product_sku_ids:
+          type: array
+          description: List of SKU ids. <br>Only support product_sku_ids field when
+            report breakdown type is PRODUCT_SKU_GROUP.
+          example:
+          - WBC45678
+          - WBC45679
+          items:
+            type: string
+            pattern: ^[a-zA-Z0-9]+$
+          maxItems: 500
+          minItems: 2
+      required:
+      - report_name
+      - start_date
+      - end_date
+      - granularity
+      - level
+      - columns
+    ConversionProductReportingColumn:
+      type: string
+      description: Conversion Product Reporting columns
+      example: AD_GROUP_ID
+      enum:
+      - CAMPAIGN_NAME
+      - CAMPAIGN_ID
+      - ADVERTISER_ID
+      - AD_GROUP_ID
+      - CAMPAIGN_OBJECTIVE_TYPE
+      - AD_GROUP_NAME
+      - CONVERSION_PRODUCT_ID
+      - CONVERSION_PRODUCT_BRAND
+      - CONVERSION_PRODUCT_CATEGORY
+      - CONVERSION_PRODUCT_ID_GROUP
+      - TOTAL_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_INAPP_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_OFFLINE_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_CONVERSION_PRODUCT_VALUE
+      - TOTAL_INAPP_CONVERSION_PRODUCT_VALUE
+      - TOTAL_OFFLINE_CONVERSION_PRODUCT_VALUE
+      - TOTAL_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_INAPP_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_OFFLINE_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_CHECKOUT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_CHECKOUT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_CHECKOUT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_CHECKOUT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_CHECKOUT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_CHECKOUT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_INAPP_CHECKOUT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_INAPP_CHECKOUT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_INAPP_CHECKOUT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_OFFLINE_CHECKOUT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_OFFLINE_CHECKOUT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_OFFLINE_CHECKOUT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_ADD_TO_CART_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_ADD_TO_CART_CONVERSION_PRODUCT_VALUE
+      - TOTAL_ADD_TO_CART_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_ADD_TO_CART_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_ADD_TO_CART_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_ADD_TO_CART_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_INAPP_ADD_TO_CART_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_INAPP_ADD_TO_CART_CONVERSION_PRODUCT_VALUE
+      - TOTAL_INAPP_ADD_TO_CART_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_PAGE_VISIT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_PAGE_VISIT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_PAGE_VISIT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_PAGE_VISIT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_PAGE_VISIT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_PAGE_VISIT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_SIGNUP_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_SIGNUP_CONVERSION_PRODUCT_VALUE
+      - TOTAL_SIGNUP_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_SIGNUP_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_SIGNUP_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_SIGNUP_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_INAPP_SIGNUP_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_INAPP_SIGNUP_CONVERSION_PRODUCT_VALUE
+      - TOTAL_INAPP_SIGNUP_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_OFFLINE_SIGNUP_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_OFFLINE_SIGNUP_CONVERSION_PRODUCT_VALUE
+      - TOTAL_OFFLINE_SIGNUP_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WATCH_VIDEO_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WATCH_VIDEO_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WATCH_VIDEO_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_WATCH_VIDEO_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_WATCH_VIDEO_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_WATCH_VIDEO_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_LEAD_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_LEAD_CONVERSION_PRODUCT_VALUE
+      - TOTAL_LEAD_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_LEAD_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_LEAD_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_LEAD_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_OFFLINE_LEAD_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_OFFLINE_LEAD_CONVERSION_PRODUCT_VALUE
+      - TOTAL_OFFLINE_LEAD_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_SEARCH_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_SEARCH_CONVERSION_PRODUCT_VALUE
+      - TOTAL_SEARCH_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_SEARCH_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_SEARCH_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_SEARCH_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_INAPP_SEARCH_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_INAPP_SEARCH_CONVERSION_PRODUCT_VALUE
+      - TOTAL_INAPP_SEARCH_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_VIEW_CATEGORY_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_VIEW_CATEGORY_CONVERSION_PRODUCT_VALUE
+      - TOTAL_VIEW_CATEGORY_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_VIEW_CATEGORY_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_VIEW_CATEGORY_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_VIEW_CATEGORY_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_CUSTOM_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_CUSTOM_CONVERSION_PRODUCT_VALUE
+      - TOTAL_CUSTOM_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_CUSTOM_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_CUSTOM_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_CUSTOM_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_OFFLINE_CUSTOM_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_OFFLINE_CUSTOM_CONVERSION_PRODUCT_VALUE
+      - TOTAL_OFFLINE_CUSTOM_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_UNKNOWN_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_UNKNOWN_CONVERSION_PRODUCT_VALUE
+      - TOTAL_UNKNOWN_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_UNKNOWN_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_UNKNOWN_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_UNKNOWN_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_INAPP_UNKNOWN_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_INAPP_UNKNOWN_CONVERSION_PRODUCT_VALUE
+      - TOTAL_INAPP_UNKNOWN_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_OFFLINE_UNKNOWN_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_OFFLINE_UNKNOWN_CONVERSION_PRODUCT_VALUE
+      - TOTAL_OFFLINE_UNKNOWN_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_ADD_PAYMENT_INFO_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_ADD_PAYMENT_INFO_CONVERSION_PRODUCT_VALUE
+      - TOTAL_ADD_PAYMENT_INFO_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_ADD_PAYMENT_INFO_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_ADD_PAYMENT_INFO_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_ADD_PAYMENT_INFO_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_INAPP_ADD_PAYMENT_INFO_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_INAPP_ADD_PAYMENT_INFO_CONVERSION_PRODUCT_VALUE
+      - TOTAL_INAPP_ADD_PAYMENT_INFO_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_OFFLINE_ADD_PAYMENT_INFO_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_OFFLINE_ADD_PAYMENT_INFO_CONVERSION_PRODUCT_VALUE
+      - TOTAL_OFFLINE_ADD_PAYMENT_INFO_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_ADD_TO_WISHLIST_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_ADD_TO_WISHLIST_CONVERSION_PRODUCT_VALUE
+      - TOTAL_ADD_TO_WISHLIST_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_ADD_TO_WISHLIST_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_ADD_TO_WISHLIST_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_ADD_TO_WISHLIST_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_INAPP_ADD_TO_WISHLIST_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_INAPP_ADD_TO_WISHLIST_CONVERSION_PRODUCT_VALUE
+      - TOTAL_INAPP_ADD_TO_WISHLIST_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_OFFLINE_ADD_TO_WISHLIST_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_OFFLINE_ADD_TO_WISHLIST_CONVERSION_PRODUCT_VALUE
+      - TOTAL_OFFLINE_ADD_TO_WISHLIST_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_INITIATE_CHECKOUT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_INITIATE_CHECKOUT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_INITIATE_CHECKOUT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_INITIATE_CHECKOUT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_INITIATE_CHECKOUT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_INITIATE_CHECKOUT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_INAPP_INITIATE_CHECKOUT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_INAPP_INITIATE_CHECKOUT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_INAPP_INITIATE_CHECKOUT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_OFFLINE_INITIATE_CHECKOUT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_OFFLINE_INITIATE_CHECKOUT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_OFFLINE_INITIATE_CHECKOUT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_SUBSCRIBE_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_SUBSCRIBE_CONVERSION_PRODUCT_VALUE
+      - TOTAL_SUBSCRIBE_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_SUBSCRIBE_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_SUBSCRIBE_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_SUBSCRIBE_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_INAPP_SUBSCRIBE_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_INAPP_SUBSCRIBE_CONVERSION_PRODUCT_VALUE
+      - TOTAL_INAPP_SUBSCRIBE_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_OFFLINE_SUBSCRIBE_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_OFFLINE_SUBSCRIBE_CONVERSION_PRODUCT_VALUE
+      - TOTAL_OFFLINE_SUBSCRIBE_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_VIEW_CONTENT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_VIEW_CONTENT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_VIEW_CONTENT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_WEB_VIEW_CONTENT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_WEB_VIEW_CONTENT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_WEB_VIEW_CONTENT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_INAPP_VIEW_CONTENT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_INAPP_VIEW_CONTENT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_INAPP_VIEW_CONTENT_CONVERSION_PRODUCT_VALUE_IN_USD
+      - TOTAL_OFFLINE_VIEW_CONTENT_CONVERSION_PRODUCT_QUANTITY
+      - TOTAL_OFFLINE_VIEW_CONTENT_CONVERSION_PRODUCT_VALUE
+      - TOTAL_OFFLINE_VIEW_CONTENT_CONVERSION_PRODUCT_VALUE_IN_USD
     ConversionReportAttributionType:
       type: string
       description: Attribution type. Refers to the Pinterest Tag endpoints
@@ -25709,7 +26099,9 @@ components:
       - PRODUCT_GROUP
     Granularity:
       type: string
-      description: Granularity
+      description: |-
+        <p>Specifies the time interval at which analytics data is broken down. Determines how metrics are grouped within the requested date range.</p>
+        <p><strong>Note:</strong> The `HOUR` enum no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums are unchanged.</p>
       enum:
       - TOTAL
       - DAY
@@ -27525,8 +27917,8 @@ components:
           type: string
           description: Label status.
           example: ACTIVE
-    LabelCreate:
-      title: LabelCreate
+    LabelCreateRequest:
+      title: LabelCreateRequest
       type: object
       properties:
         labels:
@@ -27595,8 +27987,8 @@ components:
       enum:
       - BRAND
       example: BRAND
-    LabelUpdate:
-      title: LabelUpdate
+    LabelUpdateRequest:
+      title: LabelUpdateRequest
       type: object
       properties:
         labels:
@@ -29201,6 +29593,11 @@ components:
               nullable: true
               title: ConversionLearningModeType
               type: string
+            reporting_event:
+              description: Event name for custom or standard events mapped to an oCPM
+                model
+              example: INITIATE_CHECKOUT
+              type: string
           type: object
         frequency_goal_metadata:
           properties:
@@ -30632,6 +31029,10 @@ components:
           type: number
         currency_code:
           $ref: '#/components/schemas/Currency'
+        custom_text:
+          description: Custom text.
+          example: My promotion
+          type: string
     PromotionType:
       type: string
       description: Determines the displayed promotion text along with what parameters
@@ -30661,6 +31062,7 @@ components:
       - POINTS_ON_ALL_PURCHASES
       - BONUS
       - POINTS_WITH_PURCHASE
+      - CUSTOM
     PromotionUpdateRequest:
       title: PromotionUpdateRequest
       type: object
@@ -32068,9 +32470,8 @@ components:
         LOCALE:
           type: array
           nullable: true
-          description: 24 ISO 639-1 two letter language codes. If the LOCALE field
-            is missing, the default behavior in terms of ad delivery is that **All
-            languages will be targeted, only english non-sublanguage will be targeted**.
+          description: 24 ISO 639-1 two-letter language codes. If the LOCALE field
+            is not included in the request, all languages are targeted.
           items:
             type: string
         LOCATION:
@@ -34966,7 +35367,7 @@ components:
         age_group:
           description: "The age group to apply a demographic range to the product.\
             \ Must be one of the following values (upper or lowercased): \u2018newborn\u2019\
-            , \u2018infant\u2019, \u2018toddler\u2019, \u2018kids\u2019, or \u2018\
+            \ , \u2018infant\u2019, \u2018toddler\u2019, \u2018kids\u2019, or \u2018\
             adult\u2019."
           example: newborn
           type: string
@@ -34974,7 +35375,7 @@ components:
         availability:
           description: "The availability of the product. Must be one of the following\
             \ values (upper or lowercased): \u2018in stock\u2019, \u2018out of stock\u2019\
-            , \u2018preorder\u2019."
+            \ , \u2018preorder\u2019."
           example: in stock
           type: string
         average_review_rating:
@@ -35095,7 +35496,7 @@ components:
         gender:
           description: "The gender associated with the product. Must be one of the\
             \ following values (upper or lowercased): \u2018male\u2019, \u2018female\u2019\
-            , or \u2018unisex\u2019."
+            \ , or \u2018unisex\u2019."
           example: unisex
           type: string
           nullable: true
@@ -35242,15 +35643,15 @@ components:
           description: "Indicates the country\u2019s sizing system in which you are\
             \ submitting your product. Must be one of the following values (upper\
             \ or lowercased): \u2018US\u2019, \u2018UK\u2019, \u2018EU\u2019, \u2018\
-            DE\u2019, \u2018FR\u2019, \u2018JP\u2019, \u2018CN\u2019, \u2018IT\u2019\
-            , \u2018BR\u2019, \u2018MEX\u2019, or \u2018AU\u2019."
+            DE\u2019 , \u2018FR\u2019, \u2018JP\u2019, \u2018CN\u2019, \u2018IT\u2019\
+            , \u2018 BR\u2019, \u2018MEX\u2019, or \u2018AU\u2019."
           example: US
           type: string
           nullable: true
         size_type:
           description: "Additional description for the size. Must be one of the following\
             \ values (upper or lowercased): \u2018regular\u2019, \u2018petite\u2019\
-            , \u2018plus\u2019, \u2018big_and_tall\u2019, or \u2018maternity\u2019\
+            \ , \u2018plus\u2019, \u2018big_and_tall\u2019, or \u2018maternity\u2019\
             ."
           example: regular
           type: string
@@ -35291,6 +35692,12 @@ components:
           nullable: true
           items:
             type: string
+        promotion_id:
+          description: A unique identifier referencing the promotion associated with
+            this catalog item.
+          example: promotion_1
+          type: string
+          nullable: true
         ad_image_0_link:
           type: string
           description: |-
@@ -36523,7 +36930,7 @@ components:
             type: string
             description: Standard HTTPS webhook URL.
             title: webhook_url
-    Resource.Error:
+    Pinterest.Lib.Error:
       type: object
       required:
       - code
@@ -37660,7 +38067,9 @@ components:
         an engagement action. Engagements include saves, closeups, link clicks, and
         carousel card swipes. Applies to Pinterest Tag conversion metrics. Prior conversion
         tags use their defined attribution windows. If not specified, defaults to
-        `30` days.
+        `30` days.<br> <strong>Note:</strong> This parameter no longer returns new
+        data. However, you can still access historic data through <strong>Sept 30,
+        2027</strong>.
       schema:
         type: integer
         enum:
@@ -37764,6 +38173,50 @@ components:
         default:
         - ACTIVE
         - PAUSED
+    query_entity_ids:
+      description: List of entity Ids to use to filter the results.
+      in: query
+      name: entity_ids
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: ^\d+$
+          maxLength: 18
+        minItems: 1
+        maxItems: 100
+    query_schedule_statuses:
+      name: schedule_statuses
+      in: query
+      required: false
+      description: Specifies which schedules to return based on their status.
+      schema:
+        type: array
+        items:
+          type: string
+          example: ACTIVE
+          enum:
+          - DRAFT
+          - CREATED
+          - SCHEDULED
+          - ACTIVE
+          - COMPLETED
+          - FAILED
+          - CANCELED
+    query_schedule_types:
+      name: schedule_type
+      in: query
+      required: false
+      description: Specifies which schedules to return based on their type.
+      schema:
+        type: array
+        items:
+          type: string
+          example: CAMPAIGN_BUDGET
+          enum:
+          - CAMPAIGN_BUDGET
+          - CAMPAIGN_BID_MULTIPLIERS
     query_explicit_following:
       description: Whether or not to include implicit user follows, which means followees
         with board follows. When explicit_following is True, it means we only want
@@ -38558,7 +39011,7 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/ReportingTimeZone'
-    AdAccountId:
+    Pinterest.Lib.AdAccountId:
       name: ad_account_id
       in: path
       required: true
@@ -38567,7 +39020,7 @@ components:
         type: string
         pattern: ^\d+$
         maxLength: 18
-    Resource.OrderingParams.order:
+    Pinterest.Lib.OrderingParams.order:
       name: order
       in: query
       required: false
@@ -38580,18 +39033,19 @@ components:
         enum:
         - ASCENDING
         - DESCENDING
-    Resource.BookmarkParams.page_size:
+    Pinterest.Lib.BookmarkParams.page_size:
       name: page_size
       in: query
       required: false
-      description: "Maximum number of items to include in a single page. \nSee documentation\
-        \ on <a href='/docs/reference/pagination/'>Pagination</a> for more information."
+      description: |-
+        Maximum number of items to include in a single page.
+        See documentation on [Pagination](/docs/reference/pagination/) for more information.
       schema:
         type: integer
         minimum: 1
         maximum: 250
         default: 25
-    Resource.BookmarkParams.bookmark:
+    Pinterest.Lib.BookmarkParams.bookmark:
       name: bookmark
       in: query
       required: false
