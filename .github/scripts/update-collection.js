@@ -155,7 +155,7 @@ function parseVersion(versionString) {
   return null;
 }
 
-async function getNextVersion() {
+async function getCurrentReleaseVersion() {
   try {
     const latestRelease = await getLatestGitHubRelease();
     console.log(`Latest GitHub release: ${latestRelease}`);
@@ -165,13 +165,10 @@ async function getNextVersion() {
       throw new Error(`Could not parse version from GitHub release: ${latestRelease}`);
     }
     
-    // Increment minor version
-    version.minor += 1;
-    version.patch = 0;
-    
+    // Return the current version without incrementing
     return `${version.major}.${version.minor}.${version.patch}`;
   } catch (error) {
-    console.error('Error getting next version from GitHub:', error.message);
+    console.error('Error getting current version from GitHub:', error.message);
     console.log('Falling back to default version 1.0.0');
     return '1.0.0';
   }
@@ -209,11 +206,11 @@ async function main() {
       throw new Error('Collection UID is undefined or null');
     }
     
-    // Calculate next version from GitHub releases
-    const nextVersion = await getNextVersion();
-    const versionedName = `Pinterest REST API ${nextVersion}`;
+    // Use current version from GitHub releases
+    const currentVersion = await getCurrentReleaseVersion();
+    const versionedName = `Pinterest REST API ${currentVersion}`;
     
-    console.log(`Next version will be: ${versionedName}`);
+    console.log(`Current version will be: ${versionedName}`);
     
     // Step 1: Get the current content of the "latest" collection
     console.log('Getting current collection content...');
@@ -224,7 +221,14 @@ async function main() {
       ...currentLatestContent,
       info: {
         ...currentLatestContent.info,
-        name: versionedName
+        name: versionedName,
+        // Update description to include the version
+        description: currentLatestContent.info.description 
+          ? currentLatestContent.info.description.replace(
+              "Pinterest's REST API", 
+              `Pinterest's REST API (${currentVersion})`
+            )
+          : `Pinterest's REST API (${currentVersion})`
       }
     };
     
