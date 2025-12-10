@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 5.20.0
+  version: 5.21.0
   title: Pinterest REST API
   description: Pinterest's REST API
   contact:
@@ -19,31 +19,70 @@ paths:
       summary: List ad accounts
       description: |-
         Get a list of the ad_accounts that the "operation user_account" has access to.
-        - This includes ad_accounts they own and ad_accounts that are owned by others who have granted them <a href="https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts">Business Access</a>.
+                - This includes ad_accounts they own and ad_accounts that are owned by others who have granted them [Business Access](https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts).
       parameters:
-        - $ref: '#/components/parameters/query_bookmark'
-        - $ref: '#/components/parameters/query_page_size'
-        - $ref: '#/components/parameters/query_include_shared_accounts'
+        - name: include_shared_accounts
+          in: query
+          description: Include shared ad accounts
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - $ref: '#/components/parameters/Pinterest.Lib.BookmarkParams.bookmark'
+        - $ref: '#/components/parameters/Pinterest.Lib.BookmarkParams.page_size'
       responses:
         '200':
-          description: response
+          description: The request has succeeded.
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/Paginated'
-                  - type: object
-                    properties:
-                      items:
-                        description: Ad accounts
-                        items:
-                          $ref: '#/components/schemas/AdAccount'
+                type: object
+                properties:
+                  bookmark:
+                    type: string
+                    nullable: true
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdAccount'
+                required:
+                  - items
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: 'The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         default:
-          description: Unexpected error
+          description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
       security:
         - pinterest_oauth2:
             - 'ads:read'
@@ -58,29 +97,65 @@ paths:
       summary: Create ad account
       description: |-
         Create a new ad account. Different ad accounts can support different currencies, payment methods, etc.
-        An ad account is needed to create campaigns, ad groups, and ads; other accounts (your employees or partners) can be assigned business access and appropriate roles to access an ad account. <p/>
-        You can set up up to 50 ad accounts per user. (The user must have a business account to create an ad account.) <p/>
-        For more, see <a class="reference external" href="https://help.pinterest.com/en/business/article/create-an-advertiser-account">Create an advertiser account</a>.
+        An ad account is needed to create campaigns, ad groups, and ads; other accounts (your employees or partners) can be assigned business access and appropriate roles to access an ad account.
+
+        You can set up up to 50 ad accounts per user. (The user must have a business account to create an ad account.)
+        For more, see [Create an advertiser account](https://help.pinterest.com/en/business/article/create-an-advertiser-account).
       requestBody:
-        description: Ad account to create.
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AdAccountCreateRequest'
+              $ref: '#/components/schemas/AdAccountCreate'
       responses:
         '200':
-          description: Success
+          description: The request has succeeded.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AdAccount'
-        default:
-          description: Unexpected error
+        '201':
+          description: Resource create operation completed successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/AdAccount'
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: 'The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
       security:
         - pinterest_oauth2:
             - 'ads:write'
@@ -94,20 +169,50 @@ paths:
       summary: Get ad account
       description: Get an ad account
       parameters:
-        - $ref: '#/components/parameters/path_ad_account_id'
+        - $ref: '#/components/parameters/AdAccountKey'
       responses:
         '200':
-          description: Success
+          description: The request has succeeded.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AdAccount'
-        default:
-          description: Unexpected error
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: 'The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
       security:
         - pinterest_oauth2:
             - 'ads:read'
@@ -565,7 +670,7 @@ paths:
     post:
       operationId: ads/create
       summary: Create ads
-      description: 'Create multiple new ads. Request must contain ad_group_id, creative_type, and the source Pin pin_id.'
+      description: 'Create multiple new ads. Request must contain `ad_group_id`, `creative_type`, and the source Pin `pin_id`.'
       parameters:
         - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -2109,8 +2214,7 @@ paths:
         the list must include at least 100 Pinterest accounts. Your original list will be deleted when the matching process
         is complete. The filtered list – containing only the Pinterest accounts that were included in your starting
         list – is what will be used to create the audience.</p>
-        <p>Note that once you have created your customer list, you must convert it into an audience (of the “CUSTOMER_LIST” type)
-        using the <a href="#operation/create_audience_handler">create audience endpoint</a> before it can be used.</p>
+        <p>To use your customer list after creating it, convert it into a customer list audience by passing the `CUSTOMER_LIST` audience type at the <a href="https://developer.pinterest.com/docs/api/v5/audiences-create" target="blank">create audience endpoint</a>.</p>
       parameters:
         - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -12184,6 +12288,14 @@ paths:
       x-sandbox: enabled
 components:
   parameters:
+    AdAccountKey:
+      name: ad_account_id
+      in: path
+      required: true
+      schema:
+        type: string
+        maxLength: 18
+        pattern: ^\d+$
     aggregate_report_rows:
       in: query
       description: Determines if report rows should be aggregated across all requested entities. This feature is currently in BETA and is not available to all users.
@@ -12205,6 +12317,22 @@ components:
       required: true
       schema:
         type: string
+        pattern: ^\d+$
+    ConversionCriteriaGroupHealthKey.id:
+      name: ad_account_id
+      in: path
+      required: true
+      schema:
+        type: string
+        maxLength: 18
+        pattern: ^\d+$
+    EventQualityScoreParentKey:
+      name: ad_account_id
+      in: path
+      required: true
+      schema:
+        type: string
+        maxLength: 18
         pattern: ^\d+$
     fetch_system_users:
       name: fetch_system_users
@@ -14412,46 +14540,6 @@ components:
         - CLICKTHROUGH
         - IMPRESSION
         - VIDEO_V_50_MRC
-    AdAccount:
-      type: object
-      properties:
-        country:
-          $ref: '#/components/schemas/Country'
-        created_time:
-          description: Creation time. Unix timestamp in seconds.
-          type: integer
-          example: 1451431341
-          nullable: true
-          title: created_time
-        currency:
-          $ref: '#/components/schemas/Currency'
-        id:
-          type: string
-        name:
-          type: string
-        owner:
-          type: object
-          properties:
-            id:
-              description: The owning account's user ID.
-              type: string
-            username:
-              description: Public username for the user account
-              type: string
-          title: Ad account owner
-        permissions:
-          type: array
-          items:
-            $ref: '#/components/schemas/BusinessAccessRole'
-            nullable: true
-          title: permissions
-        updated_time:
-          description: Last update time. Unix timestamp in seconds.
-          type: integer
-          example: 1451431341
-          nullable: true
-          title: updated_time
-      readOnly: true
     AdAccountAnalyticsResponse:
       type: array
       items:
@@ -14473,31 +14561,6 @@ components:
           AD_ACCOUNT_ID: '547602124502'
           SPEND_IN_DOLLAR: 30
           TOTAL_CLICKTHROUGH: 216
-    AdAccountCreateRequest:
-      type: object
-      properties:
-        country:
-          $ref: '#/components/schemas/Country'
-        currency:
-          $ref: '#/components/schemas/Currency'
-        name:
-          description: Ad Account name.
-          type: string
-          example: ACME Tools
-          maxLength: 256
-          title: name
-        owner_user_id:
-          description: Advertiser's owning user ID.
-          type: string
-          example: '383791336903426391'
-          pattern: ^\d+$
-          title: owner_user_id
-      example:
-        country: US
-        currency: USD
-        owner_user_id: '383791336903426391'
-        name: ACME Tools
-      title: AdAccountCreate
     AdAccountCreateSubscriptionRequest:
       type: object
       properties:
@@ -15769,7 +15832,7 @@ components:
             customizable_cta_type:
               allOf:
                 - $ref: '#/components/schemas/CustomizableCTAType'
-                - description: 'Select a call to action (CTA) to display below your ad. CTA options for catalog sales campaigns are SHOP_NOW, BOOK_NOW, ON_SALE, GET_DEAL, BUY_ONLINE_PICKUP_IN_STORE'
+                - description: 'Select a call to action (CTA) to display below your ad. CTA options for catalog sales campaigns are `SHOP_NOW`, `BOOK_NOW`, `ON_SALE`, `GET_DEAL`, `BUY_ONLINE_PICKUP_IN_STORE`'
             hero_image_title:
               description: Title displayed below ad.
               type: string
@@ -17676,23 +17739,6 @@ components:
       required:
         - name
       title: Board section
-    BoardUpdate:
-      description: Board fields for updates
-      type: object
-      properties:
-        description:
-          type: string
-          example: My favorite summer recipes
-          nullable: true
-        name:
-          type: string
-          example: Summer Recipes
-        privacy:
-          type: string
-          enum:
-            - PUBLIC
-            - SECRET
-      title: BoardUpdate
     BookClosedResponse:
       description: Creation fields
       type: object
@@ -17970,13 +18016,14 @@ components:
     BusinessAccessRole:
       description: Permission role for business access.
       type: string
-      example: ADMIN
       enum:
         - OWNER
         - ADMIN
         - ANALYST
         - SOS_READER
         - FINANCE_MANAGER
+        - FINANCE_VIEW
+        - FINANCE_EDIT
         - AUDIENCE_MANAGER
         - CAMPAIGN_MANAGER
         - CATALOGS_MANAGER
@@ -25784,7 +25831,6 @@ components:
     Country:
       description: Country ID from ISO 3166-1 alpha-2.
       type: string
-      example: US
       enum:
         - AD
         - AE
@@ -26296,7 +26342,6 @@ components:
     Currency:
       description: Currency Codes from ISO 4217
       type: string
-      example: USD
       enum:
         - UNK
         - USD
@@ -32975,11 +33020,11 @@ components:
       nullable: true
       title: TargetingOptionResponse
     TargetingSpec:
-      description: 'Ad group targeting specification defining the ad group target audience. For example, `{"APPTYPE":["iphone"], "GENDER":["male"], "LOCALE":["en-US"], "LOCATION":["501"], "AGE_BUCKET":["25-34"]}`'
+      description: 'Ad group targeting specification defining the ad group target audience. For example, `{"APPTYPE":["iphone"], "GENDER":["male"], "LOCALE":["en-US"], "LOCATION":["501"], "MINIMUM_AGE":"18", "MAXIMUM_AGE":"65+"}`'
       type: object
       properties:
         AGE_BUCKET:
-          description: 'Age ranges. If the AGE_BUCKET field is missing, the default behavior in terms of ad delivery is that **All age buckets** will be targeted.'
+          description: '**Legacy field.** Predefined age ranges. We recommend using MINIMUM_AGE and MAXIMUM_AGE instead for more flexible targeting. Cannot be combined with MINIMUM_AGE/MAXIMUM_AGE. If neither AGE_BUCKET nor MINIMUM_AGE/MAXIMUM_AGE are specified, all ages will be targeted.'
           type: array
           items:
             type: string
@@ -33063,6 +33108,16 @@ components:
           items:
             type: string
           nullable: true
+        MAXIMUM_AGE:
+          description: 'Maximum age to target (inclusive). Values: "18", "19", ..., "65", "65+". Must be used together with `MINIMUM_AGE`. Cannot be combined with `AGE_BUCKET`. If neither `MINIMUM_AGE`/`MAXIMUM_AGE` nor `AGE_BUCKET` are specified, all ages will be targeted.'
+          type: string
+          example: 65+
+          pattern: ^\d+\+?$
+        MINIMUM_AGE:
+          description: 'Minimum age to target (inclusive). Values: "18", "19", ..., "65". Note: 65+ is not allowed for minimum age. Must be used together with `MAXIMUM_AGE`. Cannot be combined with `AGE_BUCKET`. If neither `MINIMUM_AGE`/`MAXIMUM_AGE` nor `AGE_BUCKET` are specified, all ages will be targeted.'
+          type: string
+          example: '18'
+          pattern: ^\d+$
         SHOPPING_RETARGETING:
           description: "Array of object: lookback_window\t[Integer]: Number of days ago to start lookback timeframe for dynamic retargeting tag_types [Array of integer]: Event types to target for dynamic retargeting exclusion_window [Integer]: Number of days ago to stop lookback timeframe for dynamic retargeting"
           type: array
@@ -37762,6 +37817,72 @@ components:
       enum:
         - ASCENDING
         - DESCENDING
+    AdAccount:
+      type: object
+      properties:
+        country:
+          $ref: '#/components/schemas/Country'
+        created_time:
+          description: ' Creation time. Unix timestamp in seconds.'
+          type: integer
+          nullable: true
+          readOnly: true
+        currency:
+          $ref: '#/components/schemas/Currency'
+        id:
+          type: string
+          maxLength: 18
+          pattern: ^\d+$
+        name:
+          description: Ad account name.
+          type: string
+          maxLength: 256
+        owner:
+          description: Ad account owner
+          allOf:
+            - $ref: '#/components/schemas/AdAccountOwner'
+          readOnly: true
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessAccessRole'
+          readOnly: true
+          title: permissions
+        updated_time:
+          type: integer
+          nullable: true
+          readOnly: true
+          title: updated_time
+      required:
+        - id
+    AdAccountCreate:
+      description: Resource create operation model.
+      type: object
+      properties:
+        country:
+          $ref: '#/components/schemas/Country'
+        currency:
+          $ref: '#/components/schemas/Currency'
+        name:
+          description: Ad account name.
+          type: string
+          maxLength: 256
+        owner_user_id:
+          description: Advertiser's owning user ID.
+          type: string
+          pattern: ^\d+$
+    AdAccountOwner:
+      type: object
+      properties:
+        id:
+          description: The owning account's user ID.
+          type: string
+        username:
+          description: Public username for the user account
+          type: string
+    Pinterest.Lib.IntegerFormatType:
+      type: string
+      pattern: ^\d+$
   securitySchemes:
     pinterest_oauth2:
       type: oauth2
@@ -37975,6 +38096,7 @@ x-tagGroups:
       - resources
       - search
       - terms
+      - pca_uploads
   - name: Shopping
     tags:
       - catalogs

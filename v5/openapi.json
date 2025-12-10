@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "5.20.0",
+    "version": "5.21.0",
     "title": "Pinterest REST API",
     "description": "Pinterest's REST API",
     "contact": {
@@ -24,50 +24,107 @@
       "get": {
         "operationId": "ad_accounts/list",
         "summary": "List ad accounts",
-        "description": "Get a list of the ad_accounts that the \"operation user_account\" has access to.\n- This includes ad_accounts they own and ad_accounts that are owned by others who have granted them <a href=\"https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts\">Business Access</a>.",
+        "description": "Get a list of the ad_accounts that the \"operation user_account\" has access to.\n        - This includes ad_accounts they own and ad_accounts that are owned by others who have granted them [Business Access](https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts).",
         "parameters": [
           {
-            "$ref": "#/components/parameters/query_bookmark"
+            "name": "include_shared_accounts",
+            "in": "query",
+            "description": "Include shared ad accounts",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
           },
           {
-            "$ref": "#/components/parameters/query_page_size"
+            "$ref": "#/components/parameters/Pinterest.Lib.BookmarkParams.bookmark"
           },
           {
-            "$ref": "#/components/parameters/query_include_shared_accounts"
+            "$ref": "#/components/parameters/Pinterest.Lib.BookmarkParams.page_size"
           }
         ],
         "responses": {
           "200": {
-            "description": "response",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/Paginated"
+                  "type": "object",
+                  "properties": {
+                    "bookmark": {
+                      "type": "string",
+                      "nullable": true
                     },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "items": {
-                          "description": "Ad accounts",
-                          "items": {
-                            "$ref": "#/components/schemas/AdAccount"
-                          }
-                        }
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AdAccount"
                       }
                     }
+                  },
+                  "required": [
+                    "items"
                   ]
                 }
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
                 }
               }
             }
@@ -94,21 +151,20 @@
       "post": {
         "operationId": "ad_accounts/create",
         "summary": "Create ad account",
-        "description": "Create a new ad account. Different ad accounts can support different currencies, payment methods, etc.\nAn ad account is needed to create campaigns, ad groups, and ads; other accounts (your employees or partners) can be assigned business access and appropriate roles to access an ad account. <p/>\nYou can set up up to 50 ad accounts per user. (The user must have a business account to create an ad account.) <p/>\nFor more, see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/create-an-advertiser-account\">Create an advertiser account</a>.",
+        "description": "Create a new ad account. Different ad accounts can support different currencies, payment methods, etc.\nAn ad account is needed to create campaigns, ad groups, and ads; other accounts (your employees or partners) can be assigned business access and appropriate roles to access an ad account.\n\nYou can set up up to 50 ad accounts per user. (The user must have a business account to create an ad account.)\nFor more, see [Create an advertiser account](https://help.pinterest.com/en/business/article/create-an-advertiser-account).",
         "requestBody": {
-          "description": "Ad account to create.",
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdAccountCreateRequest"
+                "$ref": "#/components/schemas/AdAccountCreate"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -117,12 +173,72 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "201": {
+            "description": "Resource create operation completed successfully.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/AdAccount"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
                 }
               }
             }
@@ -149,12 +265,12 @@
         "description": "Get an ad account",
         "parameters": [
           {
-            "$ref": "#/components/parameters/path_ad_account_id"
+            "$ref": "#/components/parameters/AdAccountKey"
           }
         ],
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
@@ -163,12 +279,62 @@
               }
             }
           },
-          "default": {
-            "description": "Unexpected error",
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
                 }
               }
             }
@@ -296,7 +462,7 @@
       "post": {
         "operationId": "ad_groups/create",
         "summary": "Create ad groups",
-        "description": "Create multiple new ad groups. All ads in a given ad group will have the same budget, bid, run dates, targeting, and placement (search, browse, other). For more information, <a href=\"https://help.pinterest.com/en/business/article/campaign-structure\" target=\"_blank\"> click here</a>.\n<strong>Notes:</strong>\n- `bid_in_micro_currency` and `budget_in_micro_currency` should be expressed in microcurrency amounts based on the currency field set in the advertiser's profile.<p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>\n- Ad groups belong to ad campaigns. Some types of campaigns (e.g. budget optimization) have limits on the number of ad groups they can hold. If you exceed those limits, you will get an error message.\n- Certain organizations with <a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank\" target=\"blank\">closed beta</a> access can set `start_time` and `end_time` at the ad group level for campaigns with Campaign Budget Optimization (CBO) objectives: `TRAFFIC`, `AWARENESS`, `WEB_CONVERSIONS`, and `CATALOG_SALES`. All other organizations can set these scheduling parameters for non-CBO campaigns only.\n- If the parent ad campaign has start and end times set, ad group start and end times must occur within the parent campaign schedule. ",
+        "description": "Create multiple new ad groups. All ads in a given ad group will have the same budget, bid, run dates, targeting, and placement (search, browse, other). For more information, <a href=\"https://help.pinterest.com/en/business/article/campaign-structure\" target=\"_blank\"> click here</a>.\n<strong>Notes:</strong>\n- `bid_in_micro_currency` and `budget_in_micro_currency` should be expressed in microcurrency amounts based on the currency field set in the advertiser's profile.<p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser\u2019s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser\u2019s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>\n- Ad groups belong to ad campaigns. Some types of campaigns (e.g. budget optimization) have limits on the number of ad groups they can hold. If you exceed those limits, you will get an error message.\n- Certain organizations with <a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank\" target=\"blank\">closed beta</a> access can set `start_time` and `end_time` at the ad group level for campaigns with Campaign Budget Optimization (CBO) objectives: `TRAFFIC`, `AWARENESS`, `WEB_CONVERSIONS`, and `CATALOG_SALES`. All other organizations can set these scheduling parameters for non-CBO campaigns only.\n- If the parent ad campaign has start and end times set, ad group start and end times must occur within the parent campaign schedule. ",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -919,7 +1085,7 @@
       "post": {
         "operationId": "ads/create",
         "summary": "Create ads",
-        "description": "Create multiple new ads. Request must contain ad_group_id, creative_type, and the source Pin pin_id.",
+        "description": "Create multiple new ads. Request must contain `ad_group_id`, `creative_type`, and the source Pin `pin_id`.",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -1705,7 +1871,7 @@
           {
             "name": "order",
             "in": "query",
-            "description": "The order in which to sort the items returned: “ASCENDING” or “DESCENDING” by ID.\nFor received audiences, it is sorted by sharing event time.\nNote that higher-value IDs are associated with more-recently added items.",
+            "description": "The order in which to sort the items returned: \u201cASCENDING\u201d or \u201cDESCENDING\u201d by ID.\nFor received audiences, it is sorted by sharing event time.\nNote that higher-value IDs are associated with more-recently added items.",
             "required": false,
             "schema": {
               "type": "string",
@@ -2227,7 +2393,7 @@
       "post": {
         "operationId": "ad_groups_bid_floor/get",
         "summary": "Get bid floors",
-        "description": "List bid floors for your campaign configuration. Bid floors are given in microcurrency values based on the currency in the bid floor specification. <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>\nFor more on bid floors see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-your-bid\"> Set your bid</a>.",
+        "description": "List bid floors for your campaign configuration. Bid floors are given in microcurrency values based on the currency in the bid floor specification. <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser\u2019s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser\u2019s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>\nFor more on bid floors see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-your-bid\"> Set your bid</a>.",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -2794,7 +2960,7 @@
       "post": {
         "operationId": "campaigns/create",
         "summary": "Create campaigns",
-        "description": "Create multiple new campaigns. Every campaign has its own campaign_id and houses one or more ad groups, which contain one or more ads.\nFor more, see <a href=\"https://help.pinterest.com/en/business/article/set-up-your-campaign/\">Set up your campaign</a>. <p/>\n<strong>Note:</strong>\n- The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser’s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser’s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>",
+        "description": "Create multiple new campaigns. Every campaign has its own campaign_id and houses one or more ad groups, which contain one or more ads.\nFor more, see <a href=\"https://help.pinterest.com/en/business/article/set-up-your-campaign/\">Set up your campaign</a>. <p/>\n<strong>Note:</strong>\n- The values for 'lifetime_spend_cap' and 'daily_spend_cap' are microcurrency amounts based on the currency field set in the advertiser's profile. (e.g. USD) <p/>\n<p>Microcurrency is used to track very small transactions, based on the currency set in the advertiser\u2019s profile.</p>\n<p>A microcurrency unit is 10^(-6) of the standard unit of currency selected in the advertiser\u2019s profile.</p>\n<p><strong>Equivalency equations</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>$1 = 1,000,000 microdollars</li>\n  <li>1 microdollar = $0.000001 </li>\n</ul>\n<p><strong>To convert between currency and microcurrency</strong>, using dollars as an example currency:</p>\n<ul>\n  <li>To convert dollars to microdollars, mutiply dollars by 1,000,000</li>\n  <li>To convert microdollars to dollars, divide microdollars by 1,000,000</li>\n</ul>",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3207,7 +3373,7 @@
       "post": {
         "operationId": "conversion_tags/create",
         "summary": "Create conversion tag",
-        "description": "Create a conversion tag, also known as <a href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\" target=\"_blank\">Pinterest tag</a>, with the option to enable enhanced match.<p/>\nThe Pinterest Tag tracks actions people take on the ad account’s website after they view the ad account's ad on Pinterest. The advertiser needs to customize this tag to track conversions.<p/>\nFor more information, see:<p/>\n<a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\">Set up the Pinterest tag</a><p/>\n<a class=\"reference external\" href=\"/docs/track-conversions/pinterest-tag/\">Pinterest Tag</a><p/>\n<a class=\"reference external\" href=\"/docs/track-conversions/pinterest-tag/#enhanced-match\">Enhanced match</a>",
+        "description": "Create a conversion tag, also known as <a href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\" target=\"_blank\">Pinterest tag</a>, with the option to enable enhanced match.<p/>\nThe Pinterest Tag tracks actions people take on the ad account\u2019s website after they view the ad account's ad on Pinterest. The advertiser needs to customize this tag to track conversions.<p/>\nFor more information, see:<p/>\n<a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag\">Set up the Pinterest tag</a><p/>\n<a class=\"reference external\" href=\"/docs/track-conversions/pinterest-tag/\">Pinterest Tag</a><p/>\n<a class=\"reference external\" href=\"/docs/track-conversions/pinterest-tag/#enhanced-match\">Enhanced match</a>",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3444,7 +3610,7 @@
       "post": {
         "operationId": "customer_lists/create",
         "summary": "Create customer lists",
-        "description": "<p>Create a customer list from your records(hashed or plain-text email addresses, or hashed MAIDs or IDFAs).</p>\n<p>A customer list is one of the four types of Pinterest audiences: for more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>\nor the <a href=\"/docs/api-features/targeting-overview/\" target=\"_blank\">Audiences</a> section of the ads management guide.<p/>\n<p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\" target=\"_blank\">requirements</a></u> for what type of information is allowed when uploading a customer list.</b></p>\n<p>When you create a customer list, the system scans the list for existing Pinterest accounts;\nthe list must include at least 100 Pinterest accounts. Your original list will be deleted when the matching process\nis complete. The filtered list – containing only the Pinterest accounts that were included in your starting\nlist – is what will be used to create the audience.</p>\n<p>Note that once you have created your customer list, you must convert it into an audience (of the “CUSTOMER_LIST” type)\nusing the <a href=\"#operation/create_audience_handler\">create audience endpoint</a> before it can be used.</p>",
+        "description": "<p>Create a customer list from your records(hashed or plain-text email addresses, or hashed MAIDs or IDFAs).</p>\n<p>A customer list is one of the four types of Pinterest audiences: for more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>\nor the <a href=\"/docs/api-features/targeting-overview/\" target=\"_blank\">Audiences</a> section of the ads management guide.<p/>\n<p><b>Please review our <u><a href=\"https://help.pinterest.com/en/business/article/audience-targeting#section-13341\" target=\"_blank\">requirements</a></u> for what type of information is allowed when uploading a customer list.</b></p>\n<p>When you create a customer list, the system scans the list for existing Pinterest accounts;\nthe list must include at least 100 Pinterest accounts. Your original list will be deleted when the matching process\nis complete. The filtered list \u2013 containing only the Pinterest accounts that were included in your starting\nlist \u2013 is what will be used to create the audience.</p>\n<p>To use your customer list after creating it, convert it into a customer list audience by passing the `CUSTOMER_LIST` audience type at the <a href=\"https://developer.pinterest.com/docs/api/v5/audiences-create\" target=\"blank\">create audience endpoint</a>.</p>",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -3621,7 +3787,7 @@
       "patch": {
         "operationId": "customer_lists/update",
         "summary": "Update customer list",
-        "description": "<p>Append or remove records to/from an existing customer list. (A customer list is one of the four types of Pinterest audiences.)</p>\n<p>When you add records to an existing customer list, the system scans the additions for existing Pinterest\naccounts; those are the records that will be added to your “CUSTOMER_LIST” audience. Your original list of records\nto add will be deleted when the matching process is complete.</p>\n<p>For more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>\nor the <a href=\"/docs/api-features/targeting-overview/\" target=\"_blank\">Audiences</a>\nsection of the ads management guide.</p>",
+        "description": "<p>Append or remove records to/from an existing customer list. (A customer list is one of the four types of Pinterest audiences.)</p>\n<p>When you add records to an existing customer list, the system scans the additions for existing Pinterest\naccounts; those are the records that will be added to your \u201cCUSTOMER_LIST\u201d audience. Your original list of records\nto add will be deleted when the matching process is complete.</p>\n<p>For more information, see <a href=\"https://help.pinterest.com/en/business/article/audience-targeting\" target=\"_blank\">Audience targeting</a>\nor the <a href=\"/docs/api-features/targeting-overview/\" target=\"_blank\">Audiences</a>\nsection of the ads management guide.</p>",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -4534,7 +4700,7 @@
       "post": {
         "operationId": "lead_forms/create",
         "summary": "Create lead forms",
-        "description": "<strong>This feature is currently in beta and not available to all apps, if you're interested in joining the beta, please reach out to your Pinterest account manager.</strong>\n\nCreate lead forms. Lead forms are used in lead ads and allow you to control what text appears on the lead form’s description, questions and confirmation sections.\n\nFor more, see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/lead-ads\">Lead ads</a>.",
+        "description": "<strong>This feature is currently in beta and not available to all apps, if you're interested in joining the beta, please reach out to your Pinterest account manager.</strong>\n\nCreate lead forms. Lead forms are used in lead ads and allow you to control what text appears on the lead form\u2019s description, questions and confirmation sections.\n\nFor more, see <a class=\"reference external\" href=\"https://help.pinterest.com/en/business/article/lead-ads\">Lead ads</a>.",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_ad_account_id"
@@ -8170,7 +8336,7 @@
       "get": {
         "operationId": "boards/get",
         "summary": "Get board",
-        "description": "\n\n    Get a board owned by the operation user_account - or a group board that has been shared with this account.\n    * Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the \"operation user_account\".\n    * By default, the \"operation user_account\" is the token user_account.",
+        "description": "\n    Get a board owned by the operation user_account - or a group board that has been shared with this account.\n    * Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the \"operation user_account\".\n    * By default, the \"operation user_account\" is the token user_account.",
         "parameters": [
           {
             "$ref": "#/components/parameters/BoardKey"
@@ -8272,7 +8438,7 @@
       "delete": {
         "operationId": "boards/delete",
         "summary": "Delete board",
-        "description": "\n\n    Delete a board owned by the \"operation user_account\".\n    * Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the \"operation user_account\".\n    * By default, the \"operation user_account\" is the token user_account.",
+        "description": "\n    Delete a board owned by the \"operation user_account\".\n    * Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the \"operation user_account\".\n    * By default, the \"operation user_account\" is the token user_account.",
         "parameters": [
           {
             "$ref": "#/components/parameters/BoardKey"
@@ -8363,7 +8529,7 @@
       "patch": {
         "operationId": "boards/update",
         "summary": "Update board",
-        "description": "\n\n    Update a board owned by the \"operating user_account\".\n    * Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the \"operation user_account\".\n    * By default, the \"operation user_account\" is the token user_account.",
+        "description": "\n    Update a board owned by the \"operating user_account\".\n    * Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the \"operation user_account\".\n    * By default, the \"operation user_account\" is the token user_account.",
         "parameters": [
           {
             "$ref": "#/components/parameters/BoardWithUpdatePrivacyKey"
@@ -10966,7 +11132,7 @@
       "post": {
         "operationId": "asset_group/create",
         "summary": "Create a new asset group.",
-        "description": "Create a new asset group with the specified parameters.\n- An <a href=\"https://help.pinterest.com/en/business/article/asset-groups\">asset group</a> is a custom group of assets based on how you’d like to manage your accounts.",
+        "description": "Create a new asset group with the specified parameters.\n- An <a href=\"https://help.pinterest.com/en/business/article/asset-groups\">asset group</a> is a custom group of assets based on how you\u2019d like to manage your accounts.",
         "parameters": [
           {
             "$ref": "#/components/parameters/path_business_user"
@@ -16548,7 +16714,7 @@
       "post": {
         "operationId": "pins/create",
         "summary": "Create Pin",
-        "description": "\n\n Create a Pin on a board or board section owned by the \"operation user_account\".\n\n Note: If the current \"operation user_account\" (defined by the access token) has access to another user's Ad Accounts via Pinterest Business Access, you can modify your request to make use of the current operation_user_account's permissions to those Ad Accounts by including the ad_account_id in the path parameters for the request (e.g. .../?ad_account_id=12345&...).\n\n- This function is intended solely for publishing new content created by the user. If you are interested in saving content created by others to your Pinterest boards, sometimes called 'curated content', please use our [Save button](/docs/web-features/add-ons-overview/) instead. For more tips on creating fresh content for Pinterest, review our [Content App Solutions Guide](/docs/api-features/content-overview/).\n\n**[Learn more](/docs/api-features/creating-boards-and-pins/#creating-video-pins)** about video Pin creation.\n\n**[Learn more](/docs/api-features/creating-boards-and-pins/#creating-image-pins)** about image Pin creation.",
+        "description": "\n Create a Pin on a board or board section owned by the \"operation user_account\".\n\n Note: If the current \"operation user_account\" (defined by the access token) has access to another user's Ad Accounts via Pinterest Business Access, you can modify your request to make use of the current operation_user_account's permissions to those Ad Accounts by including the ad_account_id in the path parameters for the request (e.g. .../?ad_account_id=12345&...).\n\n- This function is intended solely for publishing new content created by the user. If you are interested in saving content created by others to your Pinterest boards, sometimes called 'curated content', please use our [Save button](/docs/web-features/add-ons-overview/) instead. For more tips on creating fresh content for Pinterest, review our [Content App Solutions Guide](/docs/api-features/content-overview/).\n\n**[Learn more](/docs/api-features/creating-boards-and-pins/#creating-video-pins)** about video Pin creation.\n\n**[Learn more](/docs/api-features/creating-boards-and-pins/#creating-image-pins)** about image Pin creation.",
         "parameters": [
           {
             "$ref": "#/components/parameters/QueryParams.query_ad_account_id"
@@ -16673,7 +16839,7 @@
       "get": {
         "operationId": "pins/list",
         "summary": "List Pins",
-        "description": "\n\n    Get a list of the Pins owned by the \"operation user_account\".\n    - By default, the \"operation user_account\" is the token user_account.\n    - All Pins owned by the \"operation user_account\" are included, regardless of who owns the board they are on.\n\n    Optional: Business Access: Specify an `ad_account_id` to use the owner of that ad_account as the \"operation user_account\".\n\n    Disclaimer: There are known performance issues when filtering by field `creative_type` and including protected pins.\n    If your request is timing out in this scenario, we encourage you to use [GET List Pins on Board](/docs/api/v5/#operation/boards/list_pins).",
+        "description": "\n    Get a list of the Pins owned by the \"operation user_account\".\n    - By default, the \"operation user_account\" is the token user_account.\n    - All Pins owned by the \"operation user_account\" are included, regardless of who owns the board they are on.\n\n    Optional: Business Access: Specify an `ad_account_id` to use the owner of that ad_account as the \"operation user_account\".\n\n    Disclaimer: There are known performance issues when filtering by field `creative_type` and including protected pins.\n    If your request is timing out in this scenario, we encourage you to use [GET List Pins on Board](/docs/api/v5/#operation/boards/list_pins).",
         "parameters": [
           {
             "$ref": "#/components/parameters/QueryParams.query_pin_filter"
@@ -16812,7 +16978,7 @@
       "get": {
         "operationId": "pins/get",
         "summary": "Get Pin",
-        "description": "\n\n  Get a Pin owned by the \"operation user_account\" - or on a group board that has been shared with this account.\n  - By default, the \"operation user_account\" is the token user_account.\n\n  Optional: Business Access: Specify an `ad_account_id` (obtained via [List ad accounts](/docs/api/v5/#operation/ad_accounts/list)) to use the owner of that ad_account as the \"operation user_account\". In order to do this, the token user_account must have one of the following [Business Access](https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts) roles on the ad_account:\n\n  - For Pins on public or protected boards: Owner, Admin, Analyst, Campaign Manager.\n  - For Pins on secret boards: Owner, Admin.",
+        "description": "\n  Get a Pin owned by the \"operation user_account\" - or on a group board that has been shared with this account.\n  - By default, the \"operation user_account\" is the token user_account.\n\n  Optional: Business Access: Specify an `ad_account_id` (obtained via [List ad accounts](/docs/api/v5/#operation/ad_accounts/list)) to use the owner of that ad_account as the \"operation user_account\". In order to do this, the token user_account must have one of the following [Business Access](https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts) roles on the ad_account:\n\n  - For Pins on public or protected boards: Owner, Admin, Analyst, Campaign Manager.\n  - For Pins on secret boards: Owner, Admin.",
         "parameters": [
           {
             "$ref": "#/components/parameters/PinKey"
@@ -17037,7 +17203,7 @@
       "delete": {
         "operationId": "pins/delete",
         "summary": "Delete Pin",
-        "description": "\n\n  Delete a Pins owned by the \"operation user_account\" - or on a group board that has been shared with this account.\n  - By default, the \"operation user_account\" is the token user_account.\n\n  Optional: Business Access: Specify an `ad_account_id` (obtained via [List ad accounts](/docs/api/v5/#operation/ad_accounts/list)) to use the owner of that ad_account as the \"operation user_account\". In order to do this, the token user_account must have one of the following [Business Access](https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts) roles on the ad_account:\n\n  - For Pins on public or protected boards: Owner, Admin, Analyst, Campaign Manager.\n  - For Pins on secret boards: Owner, Admin.",
+        "description": "\n  Delete a Pins owned by the \"operation user_account\" - or on a group board that has been shared with this account.\n  - By default, the \"operation user_account\" is the token user_account.\n\n  Optional: Business Access: Specify an `ad_account_id` (obtained via [List ad accounts](/docs/api/v5/#operation/ad_accounts/list)) to use the owner of that ad_account as the \"operation user_account\". In order to do this, the token user_account must have one of the following [Business Access](https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts) roles on the ad_account:\n\n  - For Pins on public or protected boards: Owner, Admin, Analyst, Campaign Manager.\n  - For Pins on secret boards: Owner, Admin.",
         "parameters": [
           {
             "$ref": "#/components/parameters/PinKey"
@@ -19463,6 +19629,16 @@
   },
   "components": {
     "parameters": {
+      "AdAccountKey": {
+        "name": "ad_account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "maxLength": 18,
+          "pattern": "^\\d+$"
+        }
+      },
       "aggregate_report_rows": {
         "in": "query",
         "description": "Determines if report rows should be aggregated across all requested entities. This feature is currently in BETA and is not available to all users.",
@@ -19488,6 +19664,26 @@
         "required": true,
         "schema": {
           "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
+      "ConversionCriteriaGroupHealthKey.id": {
+        "name": "ad_account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "maxLength": 18,
+          "pattern": "^\\d+$"
+        }
+      },
+      "EventQualityScoreParentKey": {
+        "name": "ad_account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "maxLength": 18,
           "pattern": "^\\d+$"
         }
       },
@@ -21344,7 +21540,7 @@
         "style": "form"
       },
       "query_order": {
-        "description": "The order in which to sort the items returned: “ASCENDING” or “DESCENDING”\nby ID. Note that higher-value IDs are associated with more-recently added\nitems.",
+        "description": "The order in which to sort the items returned: \u201cASCENDING\u201d or \u201cDESCENDING\u201d\nby ID. Note that higher-value IDs are associated with more-recently added\nitems.",
         "in": "query",
         "name": "order",
         "required": false,
@@ -22098,60 +22294,6 @@
           "VIDEO_V_50_MRC"
         ]
       },
-      "AdAccount": {
-        "type": "object",
-        "properties": {
-          "country": {
-            "$ref": "#/components/schemas/Country"
-          },
-          "created_time": {
-            "description": "Creation time. Unix timestamp in seconds.",
-            "type": "integer",
-            "example": 1451431341,
-            "nullable": true,
-            "title": "created_time"
-          },
-          "currency": {
-            "$ref": "#/components/schemas/Currency"
-          },
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "owner": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "The owning account's user ID.",
-                "type": "string"
-              },
-              "username": {
-                "description": "Public username for the user account",
-                "type": "string"
-              }
-            },
-            "title": "Ad account owner"
-          },
-          "permissions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BusinessAccessRole",
-              "nullable": true
-            },
-            "title": "permissions"
-          },
-          "updated_time": {
-            "description": "Last update time. Unix timestamp in seconds.",
-            "type": "integer",
-            "example": 1451431341,
-            "nullable": true,
-            "title": "updated_time"
-          }
-        },
-        "readOnly": true
-      },
       "AdAccountAnalyticsResponse": {
         "type": "array",
         "items": {
@@ -22179,38 +22321,6 @@
             "TOTAL_CLICKTHROUGH": 216
           }
         }
-      },
-      "AdAccountCreateRequest": {
-        "type": "object",
-        "properties": {
-          "country": {
-            "$ref": "#/components/schemas/Country"
-          },
-          "currency": {
-            "$ref": "#/components/schemas/Currency"
-          },
-          "name": {
-            "description": "Ad Account name.",
-            "type": "string",
-            "example": "ACME Tools",
-            "maxLength": 256,
-            "title": "name"
-          },
-          "owner_user_id": {
-            "description": "Advertiser's owning user ID.",
-            "type": "string",
-            "example": "383791336903426391",
-            "pattern": "^\\d+$",
-            "title": "owner_user_id"
-          }
-        },
-        "example": {
-          "country": "US",
-          "currency": "USD",
-          "owner_user_id": "383791336903426391",
-          "name": "ACME Tools"
-        },
-        "title": "AdAccountCreate"
       },
       "AdAccountCreateSubscriptionRequest": {
         "type": "object",
@@ -23833,7 +23943,7 @@
                     "$ref": "#/components/schemas/CustomizableCTAType"
                   },
                   {
-                    "description": "Select a call to action (CTA) to display below your ad. CTA options for catalog sales campaigns are SHOP_NOW, BOOK_NOW, ON_SALE, GET_DEAL, BUY_ONLINE_PICKUP_IN_STORE"
+                    "description": "Select a call to action (CTA) to display below your ad. CTA options for catalog sales campaigns are `SHOP_NOW`, `BOOK_NOW`, `ON_SALE`, `GET_DEAL`, `BUY_ONLINE_PICKUP_IN_STORE`"
                   }
                 ]
               },
@@ -24698,7 +24808,7 @@
             "nullable": true
           },
           "discountInMicroCurrency": {
-            "description": "The discount applied in the offer’s currency value.",
+            "description": "The discount applied in the offer\u2019s currency value.",
             "type": "number",
             "example": 125000000,
             "nullable": true
@@ -25505,7 +25615,7 @@
             "title": "event"
           },
           "event_data": {
-            "description": "Optional for VISITOR `audience_type`. With the Pinterest tag, you can use event data to capture event details from your website. This object lists all the available predefined event data fields in the Pinterest tag. You can include these event data fields as part of a VISITOR audience’s `rule`; however, you **must** specify an `event` for the `event_data` fields to be evaluated. Besides what’s listed, you can also create your own set of `event_data` fields and define their usages or purposes according to your website needs. However, the benefit of using the predefined event data fields is that we can provide various metrics based on those fields' data.<br>Examples per `event` type:<br>`pagevisit`<br>\"event_data\": { \"page_name\": \"My online store 123 | view items | shoe\" }<br>`signup`<br>\"event_data\": { \"lead_type\": \"New release promotion\" }<br>`checkout`<br>\"event_data\": { \"value\": 116, \"order_quantity\": 2, \"currency\": \"USD\", \"line_items\": [ { \"product_name\": \"Pillows (Set of 2)\", \"product_id\": \"11\", \"product_price\": 48, \"product_quantity\": 1 }, { \"product_name\": \"Pillows, Large (Set of 2)\", \"product_id\": \"15\", \"product_price\": 68, \"product_quantity\": 1 } ] }<br>`addtocart`<br>\"event_data\": { \"value\": 499, \"order_quantity\": 1, \"currency\": \"USD\", \"line_items\": [ { \"product_name\": \"Red leather boots\", \"product_id\": \"3486\", \"product_category\": \"shoe\", \"product_variant_id\": \"JB11103000\", \"product_price\": 499, \"product_quantity\": \"1\", \"product_brand\": \"My brand\" }]}<br>`watchvideo`<br>\"event_data\": { \"video_title\": \"My Product Video 01\" }<br>`lead`<br>\"event_data\": { \"lead_type\": \"Newsletter\" }",
+            "description": "Optional for VISITOR `audience_type`. With the Pinterest tag, you can use event data to capture event details from your website. This object lists all the available predefined event data fields in the Pinterest tag. You can include these event data fields as part of a VISITOR audience\u2019s `rule`; however, you **must** specify an `event` for the `event_data` fields to be evaluated. Besides what\u2019s listed, you can also create your own set of `event_data` fields and define their usages or purposes according to your website needs. However, the benefit of using the predefined event data fields is that we can provide various metrics based on those fields' data.<br>Examples per `event` type:<br>`pagevisit`<br>\"event_data\": { \"page_name\": \"My online store 123 | view items | shoe\" }<br>`signup`<br>\"event_data\": { \"lead_type\": \"New release promotion\" }<br>`checkout`<br>\"event_data\": { \"value\": 116, \"order_quantity\": 2, \"currency\": \"USD\", \"line_items\": [ { \"product_name\": \"Pillows (Set of 2)\", \"product_id\": \"11\", \"product_price\": 48, \"product_quantity\": 1 }, { \"product_name\": \"Pillows, Large (Set of 2)\", \"product_id\": \"15\", \"product_price\": 68, \"product_quantity\": 1 } ] }<br>`addtocart`<br>\"event_data\": { \"value\": 499, \"order_quantity\": 1, \"currency\": \"USD\", \"line_items\": [ { \"product_name\": \"Red leather boots\", \"product_id\": \"3486\", \"product_category\": \"shoe\", \"product_variant_id\": \"JB11103000\", \"product_price\": 499, \"product_quantity\": \"1\", \"product_brand\": \"My brand\" }]}<br>`watchvideo`<br>\"event_data\": { \"video_title\": \"My Product Video 01\" }<br>`lead`<br>\"event_data\": { \"lead_type\": \"Newsletter\" }",
             "type": "object",
             "properties": {
               "currency": {
@@ -26358,29 +26468,6 @@
         ],
         "title": "Board section"
       },
-      "BoardUpdate": {
-        "description": "Board fields for updates",
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string",
-            "example": "My favorite summer recipes",
-            "nullable": true
-          },
-          "name": {
-            "type": "string",
-            "example": "Summer Recipes"
-          },
-          "privacy": {
-            "type": "string",
-            "enum": [
-              "PUBLIC",
-              "SECRET"
-            ]
-          }
-        },
-        "title": "BoardUpdate"
-      },
       "BookClosedResponse": {
         "description": "Creation fields",
         "type": "object",
@@ -26772,13 +26859,14 @@
       "BusinessAccessRole": {
         "description": "Permission role for business access.",
         "type": "string",
-        "example": "ADMIN",
         "enum": [
           "OWNER",
           "ADMIN",
           "ANALYST",
           "SOS_READER",
           "FINANCE_MANAGER",
+          "FINANCE_VIEW",
+          "FINANCE_EDIT",
           "AUDIENCE_MANAGER",
           "CAMPAIGN_MANAGER",
           "CATALOGS_MANAGER",
@@ -29400,7 +29488,7 @@
             "type": "integer"
           },
           "FETCH_INACTIVE_FEED_ERROR": {
-            "description": "Your feed wasn't ingested because it hasn’t changed in the previous 90 days.",
+            "description": "Your feed wasn't ingested because it hasn\u2019t changed in the previous 90 days.",
             "type": "integer"
           },
           "IMAGE_LINK_INVALID": {
@@ -35264,7 +35352,7 @@
             "type": "string"
           },
           "visibility": {
-            "description": "Visibility of the creative assets. Must be one of the following values (upper or lowercase): ‘visible’, ‘hidden’.",
+            "description": "Visibility of the creative assets. Must be one of the following values (upper or lowercase): \u2018visible\u2019, \u2018hidden\u2019.",
             "type": "string",
             "nullable": true
           }
@@ -36074,7 +36162,7 @@
                   "nullable": true
                 },
                 "partner_name": {
-                  "description": "The third party partner name responsible to send the event to Conversions API on behalf of the advertiser. The naming convention is \"ss-partnername\" lowercase. E.g ‘ss-shopify’",
+                  "description": "The third party partner name responsible to send the event to Conversions API on behalf of the advertiser. The naming convention is \"ss-partnername\" lowercase. E.g \u2018ss-shopify\u2019",
                   "type": "string",
                   "example": "ss-partnername",
                   "nullable": true
@@ -37239,7 +37327,6 @@
       "Country": {
         "description": "Country ID from ISO 3166-1 alpha-2.",
         "type": "string",
-        "example": "US",
         "enum": [
           "AD",
           "AE",
@@ -37842,7 +37929,6 @@
       "Currency": {
         "description": "Currency Codes from ISO 4217",
         "type": "string",
-        "example": "USD",
         "enum": [
           "UNK",
           "USD",
@@ -44519,7 +44605,7 @@
               "question_text": "Who are you taking?",
               "options": [
                 {
-                  "text": "No one—solo trip!"
+                  "text": "No one\u2014solo trip!"
                 },
                 {
                   "text": "My best friend"
@@ -44608,7 +44694,7 @@
         "nullable": true
       },
       "QuizPinResult": {
-        "description": "The result, and link out, based on the user’s choice.",
+        "description": "The result, and link out, based on the user\u2019s choice.",
         "type": "object",
         "properties": {
           "android_deep_link": {
@@ -45947,11 +46033,11 @@
         "title": "TargetingOptionResponse"
       },
       "TargetingSpec": {
-        "description": "Ad group targeting specification defining the ad group target audience. For example, `{\"APPTYPE\":[\"iphone\"], \"GENDER\":[\"male\"], \"LOCALE\":[\"en-US\"], \"LOCATION\":[\"501\"], \"AGE_BUCKET\":[\"25-34\"]}`",
+        "description": "Ad group targeting specification defining the ad group target audience. For example, `{\"APPTYPE\":[\"iphone\"], \"GENDER\":[\"male\"], \"LOCALE\":[\"en-US\"], \"LOCATION\":[\"501\"], \"MINIMUM_AGE\":\"18\", \"MAXIMUM_AGE\":\"65+\"}`",
         "type": "object",
         "properties": {
           "AGE_BUCKET": {
-            "description": "Age ranges. If the AGE_BUCKET field is missing, the default behavior in terms of ad delivery is that **All age buckets** will be targeted.",
+            "description": "**Legacy field.** Predefined age ranges. We recommend using MINIMUM_AGE and MAXIMUM_AGE instead for more flexible targeting. Cannot be combined with MINIMUM_AGE/MAXIMUM_AGE. If neither AGE_BUCKET nor MINIMUM_AGE/MAXIMUM_AGE are specified, all ages will be targeted.",
             "type": "array",
             "items": {
               "type": "string",
@@ -46057,6 +46143,18 @@
               "type": "string"
             },
             "nullable": true
+          },
+          "MAXIMUM_AGE": {
+            "description": "Maximum age to target (inclusive). Values: \"18\", \"19\", ..., \"65\", \"65+\". Must be used together with `MINIMUM_AGE`. Cannot be combined with `AGE_BUCKET`. If neither `MINIMUM_AGE`/`MAXIMUM_AGE` nor `AGE_BUCKET` are specified, all ages will be targeted.",
+            "type": "string",
+            "example": "65+",
+            "pattern": "^\\d+\\+?$"
+          },
+          "MINIMUM_AGE": {
+            "description": "Minimum age to target (inclusive). Values: \"18\", \"19\", ..., \"65\". Note: 65+ is not allowed for minimum age. Must be used together with `MAXIMUM_AGE`. Cannot be combined with `AGE_BUCKET`. If neither `MINIMUM_AGE`/`MAXIMUM_AGE` nor `AGE_BUCKET` are specified, all ages will be targeted.",
+            "type": "string",
+            "example": "18",
+            "pattern": "^\\d+$"
           },
           "SHOPPING_RETARGETING": {
             "description": "Array of object: lookback_window\t[Integer]: Number of days ago to start lookback timeframe for dynamic retargeting tag_types [Array of integer]: Event types to target for dynamic retargeting exclusion_window [Integer]: Number of days ago to stop lookback timeframe for dynamic retargeting",
@@ -49433,25 +49531,25 @@
             "nullable": true
           },
           "ad_link": {
-            "description": "Allows advertisers to specify a separate URL that can be used to track traffic coming from Pinterest shopping ads. Must send full URL including tracking—do not send tracking parameters only. At this time we do not support impression tracking. Must begin with http:// or https://.",
+            "description": "Allows advertisers to specify a separate URL that can be used to track traffic coming from Pinterest shopping ads. Must send full URL including tracking\u2014do not send tracking parameters only. At this time we do not support impression tracking. Must begin with http:// or https://.",
             "type": "string",
             "example": "https://www.example.com/cat/denim-shirt/item012?utm_source=Pinterest",
             "nullable": true
           },
           "adult": {
-            "description": "Set this attribute to TRUE if you're submitting items that are considered “adult”. These will not be shown on Pinterest.",
+            "description": "Set this attribute to TRUE if you're submitting items that are considered \u201cadult\u201d. These will not be shown on Pinterest.",
             "type": "boolean",
             "example": true,
             "nullable": true
           },
           "age_group": {
-            "description": "The age group to apply a demographic range to the product. Must be one of the following values (upper or lowercased): ‘newborn’, ‘infant’, ‘toddler’, ‘kids’, or ‘adult’.",
+            "description": "The age group to apply a demographic range to the product. Must be one of the following values (upper or lowercased): \u2018newborn\u2019, \u2018infant\u2019, \u2018toddler\u2019, \u2018kids\u2019, or \u2018adult\u2019.",
             "type": "string",
             "example": "newborn",
             "nullable": true
           },
           "availability": {
-            "description": "The availability of the product. Must be one of the following values (upper or lowercased): ‘in stock’, ‘out of stock’, ‘preorder’.",
+            "description": "The availability of the product. Must be one of the following values (upper or lowercased): \u2018in stock\u2019, \u2018out of stock\u2019, \u2018preorder\u2019.",
             "type": "string",
             "example": "in stock"
           },
@@ -49464,7 +49562,7 @@
           "brand": {
             "description": "The brand of the product.",
             "type": "string",
-            "example": "Josie’s Denim",
+            "example": "Josie\u2019s Denim",
             "nullable": true
           },
           "checkout_enabled": {
@@ -49481,7 +49579,7 @@
             "nullable": true
           },
           "condition": {
-            "description": "The condition of the product. Must be one of the following values (upper or lowercased): ‘new’, ‘used’, or ‘refurbished’.",
+            "description": "The condition of the product. Must be one of the following values (upper or lowercased): \u2018new\u2019, \u2018used\u2019, or \u2018refurbished\u2019.",
             "type": "string",
             "example": "new",
             "nullable": true
@@ -49569,7 +49667,7 @@
             "nullable": true
           },
           "gender": {
-            "description": "The gender associated with the product. Must be one of the following values (upper or lowercased): ‘male’, ‘female’, or ‘unisex’.",
+            "description": "The gender associated with the product. Must be one of the following values (upper or lowercased): \u2018male\u2019, \u2018female\u2019, or \u2018unisex\u2019.",
             "type": "string",
             "example": "unisex",
             "nullable": true
@@ -49674,9 +49772,9 @@
             "example": "24.99 USD"
           },
           "product_type": {
-            "description": "<p><= 1000 characters</p>\n<p>The categorization of your product based on your custom product\ntaxonomy. Subcategories must be sent separated by “ > “. The > must be\nwrapped by spaces. We do not recognize any other delimiters such as comma\nor pipe.</p>",
+            "description": "<p><= 1000 characters</p>\n<p>The categorization of your product based on your custom product\ntaxonomy. Subcategories must be sent separated by \u201c > \u201c. The > must be\nwrapped by spaces. We do not recognize any other delimiters such as comma\nor pipe.</p>",
             "type": "string",
-            "example": "Clothing > Women’s > Shirts > Denim",
+            "example": "Clothing > Women\u2019s > Shirts > Denim",
             "nullable": true
           },
           "promotion_id": {
@@ -49728,13 +49826,13 @@
             "nullable": true
           },
           "size_system": {
-            "description": "Indicates the country’s sizing system in which you are submitting your product. Must be one of the following values (upper or lowercased): ‘US’, ‘UK’, ‘EU’, ‘DE’, ‘FR’, ‘JP’, ‘CN’, ‘IT’, ‘BR’, ‘MEX’, or ‘AU’.",
+            "description": "Indicates the country\u2019s sizing system in which you are submitting your product. Must be one of the following values (upper or lowercased): \u2018US\u2019, \u2018UK\u2019, \u2018EU\u2019, \u2018DE\u2019, \u2018FR\u2019, \u2018JP\u2019, \u2018CN\u2019, \u2018IT\u2019, \u2018BR\u2019, \u2018MEX\u2019, or \u2018AU\u2019.",
             "type": "string",
             "example": "US",
             "nullable": true
           },
           "size_type": {
-            "description": "Additional description for the size. Must be one of the following values (upper or lowercased): ‘regular’, ‘petite’, ‘plus’, ‘big_and_tall’, or ‘maternity’.",
+            "description": "Additional description for the size. Must be one of the following values (upper or lowercased): \u2018regular\u2019, \u2018petite\u2019, \u2018plus\u2019, \u2018big_and_tall\u2019, or \u2018maternity\u2019.",
             "type": "string",
             "example": "regular",
             "nullable": true
@@ -49748,7 +49846,7 @@
           "title": {
             "description": "<p><= 500 characters</p>\n<p>The name of the product.</p>",
             "type": "string",
-            "example": "Women’s denim shirt, large"
+            "example": "Women\u2019s denim shirt, large"
           },
           "unit_pricing_base_measure": {
             "description": "Unit pricing base measure of the product. This data will only be shown to pinners in the enabled countries. Expected format: <base_measure> <unit_type>",
@@ -50817,7 +50915,7 @@
             "default": false
           },
           "name": {
-            "description": "\n\n    Name of the board.\n\n    **Note:** If you create an ad-only board by setting `is_ads_only`\n    to `true`, the board name automatically becomes \"Ad-only Pins\".",
+            "description": "\n    Name of the board.\n\n    **Note:** If you create an ad-only board by setting `is_ads_only`\n    to `true`, the board name automatically becomes \"Ad-only Pins\".",
             "type": "string",
             "example": "Summer recipes"
           },
@@ -50909,7 +51007,7 @@
             "readOnly": true
           },
           "name": {
-            "description": "\n\n    Name of the board.\n\n    **Note:** If you create an ad-only board by setting `is_ads_only`\n    to `true`, the board name automatically becomes \"Ad-only Pins\".",
+            "description": "\n    Name of the board.\n\n    **Note:** If you create an ad-only board by setting `is_ads_only`\n    to `true`, the board name automatically becomes \"Ad-only Pins\".",
             "type": "string",
             "example": "Summer recipes"
           },
@@ -50982,7 +51080,7 @@
             "nullable": true
           },
           "name": {
-            "description": "\n\n    Name of the board.\n\n    **Note:** If you create an ad-only board by setting `is_ads_only`\n    to `true`, the board name automatically becomes \"Ad-only Pins\".",
+            "description": "\n    Name of the board.\n\n    **Note:** If you create an ad-only board by setting `is_ads_only`\n    to `true`, the board name automatically becomes \"Ad-only Pins\".",
             "type": "string",
             "example": "Summer recipes"
           },
@@ -51004,6 +51102,98 @@
           "ASCENDING",
           "DESCENDING"
         ]
+      },
+      "AdAccount": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "created_time": {
+            "description": " Creation time. Unix timestamp in seconds.",
+            "type": "integer",
+            "nullable": true,
+            "readOnly": true
+          },
+          "currency": {
+            "$ref": "#/components/schemas/Currency"
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 18,
+            "pattern": "^\\d+$"
+          },
+          "name": {
+            "description": "Ad account name.",
+            "type": "string",
+            "maxLength": 256
+          },
+          "owner": {
+            "description": "Ad account owner",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdAccountOwner"
+              }
+            ],
+            "readOnly": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BusinessAccessRole"
+            },
+            "readOnly": true,
+            "title": "permissions"
+          },
+          "updated_time": {
+            "type": "integer",
+            "nullable": true,
+            "readOnly": true,
+            "title": "updated_time"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "AdAccountCreate": {
+        "description": "Resource create operation model.",
+        "type": "object",
+        "properties": {
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/Currency"
+          },
+          "name": {
+            "description": "Ad account name.",
+            "type": "string",
+            "maxLength": 256
+          },
+          "owner_user_id": {
+            "description": "Advertiser's owning user ID.",
+            "type": "string",
+            "pattern": "^\\d+$"
+          }
+        }
+      },
+      "AdAccountOwner": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The owning account's user ID.",
+            "type": "string"
+          },
+          "username": {
+            "description": "Public username for the user account",
+            "type": "string"
+          }
+        }
+      },
+      "Pinterest.Lib.IntegerFormatType": {
+        "type": "string",
+        "pattern": "^\\d+$"
       }
     },
     "securitySchemes": {
@@ -51318,7 +51508,8 @@
         "oauth",
         "resources",
         "search",
-        "terms"
+        "terms",
+        "pca_uploads"
       ]
     },
     {
