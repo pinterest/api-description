@@ -45,7 +45,7 @@ jobs:
             -s ./v5/openapi.yaml \
             -o ./postman/collection.json \
             -p \
-            --pretty
+            -O folderStrategy=Tags
 
       - name: Version and Create New Postman Collection
         env:
