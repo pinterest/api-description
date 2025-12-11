@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: 5.21.0
+  version: 5.22.0
   title: Pinterest REST API
   description: Pinterest's REST API
   contact:
@@ -483,6 +483,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1030,6 +1031,13 @@ paths:
                                 - SUBSCRIBE
                                 - VIEW_CONTENT
                                 - ADVERTISER_DEFINED_EVENT
+                                - APP_OPEN
+                                - CONTACT
+                                - SCHEDULE
+                                - FIND_LOCATION
+                                - CUSTOMIZE_PRODUCT
+                                - SUBMIT_APPLICATION
+                                - START_TRIAL
                             - type: string
                               nullable: true
                               enum:
@@ -1213,8 +1221,8 @@ paths:
       description: |-
         Create an audience you can use in targeting for specific ad groups. Targeting combines customer information with
         the ways users interact with Pinterest to help you reach specific groups of users; you can include or exclude
-        specific audience_ids when you create an ad group. <p/>
-        For more, see <a class="reference external" href="https://help.pinterest.com/en/business/article/audience-targeting" target="_blank">Audience targeting</a>.
+        specific `audience_ids` when you create an ad group. <p/>
+        Learn about <a href="/docs/work-with-targets-and-audiences/create-audiences/" target="_blank">creating different kinds of audiences</a>.
       parameters:
         - $ref: '#/components/parameters/path_ad_account_id'
       requestBody:
@@ -1289,6 +1297,7 @@ paths:
         - $ref: '#/components/parameters/path_audience_id'
       requestBody:
         description: The audience to be updated.
+        required: true
         content:
           application/json:
             schema:
@@ -2035,26 +2044,142 @@ paths:
       x-ratelimit-category: ads_read
       x-sandbox: enabled
   '/ad_accounts/{ad_account_id}/conversion_tags':
+    post:
+      operationId: conversion_tags/create
+      summary: Create conversion tag
+      description: |-
+        Create a conversion tag, also known as [Pinterest tag](https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag), with the option to enable enhanced match.
+
+        The Pinterest Tag tracks actions people take on the ad account's website after they view the ad account's ad on Pinterest. The advertiser needs to customize this tag to track conversions.
+
+        For more information, see:
+
+        [Set up the Pinterest tag](https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag)
+
+        [Pinterest Tag](/docs/track-conversions/pinterest-tag/)
+
+        [Enhanced match](/docs/track-conversions/pinterest-tag/#enhanced-match)
+      parameters:
+        - $ref: '#/components/parameters/ConversionTagParentKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversionTagCreate'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionTag'
+        '201':
+          description: Resource create operation completed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionTag'
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: 'The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - 'ads:write'
+      tags:
+        - conversion_tags
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
     get:
       operationId: conversion_tags/list
-      summary: Get conversion tags
+      summary: List conversion tags
       description: List conversion tags associated with an ad account.
       parameters:
-        - $ref: '#/components/parameters/path_ad_account_id'
+        - $ref: '#/components/parameters/ConversionTagParentKey'
         - $ref: '#/components/parameters/query_filter_deleted'
       responses:
         '200':
-          description: Success
+          description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConversionTagListResponse'
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConversionTag'
+                required:
+                  - items
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: 'The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
         default:
-          description: Unexpected error
+          description: An unexpected error response.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
       security:
         - pinterest_oauth2:
             - 'ads:read'
@@ -2063,45 +2188,6 @@ paths:
       tags:
         - conversion_tags
       x-ratelimit-category: ads_read
-      x-sandbox: disabled
-    post:
-      operationId: conversion_tags/create
-      summary: Create conversion tag
-      description: |-
-        Create a conversion tag, also known as <a href="https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag" target="_blank">Pinterest tag</a>, with the option to enable enhanced match.<p/>
-        The Pinterest Tag tracks actions people take on the ad account’s website after they view the ad account's ad on Pinterest. The advertiser needs to customize this tag to track conversions.<p/>
-        For more information, see:<p/>
-        <a class="reference external" href="https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag">Set up the Pinterest tag</a><p/>
-        <a class="reference external" href="/docs/track-conversions/pinterest-tag/">Pinterest Tag</a><p/>
-        <a class="reference external" href="/docs/track-conversions/pinterest-tag/#enhanced-match">Enhanced match</a>
-      parameters:
-        - $ref: '#/components/parameters/path_ad_account_id'
-      requestBody:
-        description: Conversion Tag to create
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConversionTagCreate'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConversionTagResponse'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-        - pinterest_oauth2:
-            - 'ads:write'
-      tags:
-        - conversion_tags
-      x-ratelimit-category: ads_write
       x-sandbox: disabled
   '/ad_accounts/{ad_account_id}/conversion_tags/ocpm_eligible':
     get:
@@ -2185,7 +2271,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConversionTagResponse'
+                $ref: '#/components/schemas/ConversionTag'
         default:
           description: Unexpected error
           content:
@@ -2353,6 +2439,109 @@ paths:
             - 'ads:write'
       tags:
         - customer_lists
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+  '/ad_accounts/{ad_account_id}/customer_lists/{customer_list_id}/uploads':
+    post:
+      operationId: customer_list_uploads/create
+      summary: Create customer list upload
+      description: |-
+        <a href="/docs/getting-started/using-beta-and-restricted-features/" target="_blank">Closed beta</a>
+
+        <p>Create a customer list upload request for multipart S3 upload.</p>
+        <p>Note: Each part must be at least 5mb; however the last part can be any size greater than 0.
+        Clients with smaller files can request a single part count. This minimal part size restriction is defined by the AWS S3 API.</p>
+        <p><b>Please review the <u><a href="/docs/api/v5/customer_lists-update/" target="_blank">update customer list endpoint</a></u> documentation for additional information.</b></p>
+      parameters:
+        - $ref: '#/components/parameters/path_ad_account_id'
+        - $ref: '#/components/parameters/path_customer_list_id'
+      requestBody:
+        description: Parameters to create a customer list upload request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerListUploadCreateRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerListUploadCreateResponse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - pinterest_oauth2:
+            - 'ads:write'
+      tags:
+        - customer_list_uploads
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+  '/ad_accounts/{ad_account_id}/customer_lists/{customer_list_id}/uploads/{customer_list_upload_id}':
+    get:
+      operationId: customer_list_uploads/get
+      summary: Get customer list upload
+      description: |-
+        <a href="/docs/getting-started/using-beta-and-restricted-features/" target="_blank">Closed beta</a>
+        <p>Get the metadata for a given upload by its ID.</p>
+      parameters:
+        - $ref: '#/components/parameters/path_ad_account_id'
+        - $ref: '#/components/parameters/path_customer_list_id'
+        - $ref: '#/components/parameters/path_customer_list_upload_id'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerListUploadResponse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - pinterest_oauth2:
+            - 'ads:read'
+      tags:
+        - customer_list_uploads
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+  '/ad_accounts/{ad_account_id}/customer_lists/{customer_list_id}/uploads/{customer_list_upload_id}/run':
+    post:
+      operationId: customer_list_uploads/run
+      summary: Run customer list upload
+      description: |-
+        <a href="/docs/getting-started/using-beta-and-restricted-features/" target="_blank">Closed beta</a>
+        <p>Begin processing a customer list upload.</p>
+      parameters:
+        - $ref: '#/components/parameters/path_ad_account_id'
+        - $ref: '#/components/parameters/path_customer_list_id'
+        - $ref: '#/components/parameters/path_customer_list_upload_id'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerListUploadResponse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - pinterest_oauth2:
+            - 'ads:write'
+      tags:
+        - customer_list_uploads
       x-ratelimit-category: ads_write
       x-sandbox: disabled
   '/ad_accounts/{ad_account_id}/events':
@@ -4994,13 +5183,12 @@ paths:
     post:
       operationId: boards/create
       summary: Create board
-      description: |2-
-            Create a board owned by the "operation user_account".
-            
-            Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the "operation user_account".
-            * By default, the "operation user_account" is the token user_account.
+      description: |-
+        Create a board owned by the "operation user_account".
+        Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the "operation user_account".
+        * By default, the "operation user_account" is the token user_account.
       parameters:
-        - $ref: '#/components/parameters/QueryParams.query_ad_account_id'
+        - $ref: '#/components/parameters/query_ad_account_id'
       requestBody:
         required: true
         content:
@@ -5070,16 +5258,14 @@ paths:
     get:
       operationId: boards/list
       summary: List boards
-      description: |2-
-            Get a list of the boards owned by the "operation user_account" + group boards where this account is a collaborator
-            
-            Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the "operation user_account".
-            
-            Optional: Specify a privacy type (public, protected, or secret) to indicate which boards to return.
-            * If no privacy is specified, all boards that can be returned (based on the scopes of the token and ad_account role if applicable) will be returned.
+      description: |-
+        Get a list of the boards owned by the "operation user_account" + group boards where this account is a collaborator
+        Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the "operation user_account".
+        Optional: Specify a privacy type (public, protected, or secret) to indicate which boards to return.
+        * If no privacy is specified, all boards that can be returned (based on the scopes of the token and ad_account role if applicable) will be returned.
       parameters:
-        - $ref: '#/components/parameters/QueryParams.query_ad_account_id'
-        - $ref: '#/components/parameters/QueryParams.query_board_privacy'
+        - $ref: '#/components/parameters/query_ad_account_id'
+        - $ref: '#/components/parameters/query_board_privacy'
         - $ref: '#/components/parameters/Pinterest.Lib.BookmarkParams.bookmark'
         - $ref: '#/components/parameters/Pinterest.Lib.BookmarkParams.page_size'
       responses:
@@ -5148,15 +5334,13 @@ paths:
     get:
       operationId: boards/get
       summary: Get board
-      description: |2-
-
-
-            Get a board owned by the operation user_account - or a group board that has been shared with this account.
-            * Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the "operation user_account".
-            * By default, the "operation user_account" is the token user_account.
+      description: |-
+        Get a board owned by the operation user_account - or a group board that has been shared with this account.
+        * Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the "operation user_account".
+        * By default, the "operation user_account" is the token user_account.
       parameters:
         - $ref: '#/components/parameters/BoardKey'
-        - $ref: '#/components/parameters/QueryParams.query_ad_account_id'
+        - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '200':
           description: The request has succeeded.
@@ -5212,15 +5396,13 @@ paths:
     delete:
       operationId: boards/delete
       summary: Delete board
-      description: |2-
-
-
-            Delete a board owned by the "operation user_account".
-            * Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the "operation user_account".
-            * By default, the "operation user_account" is the token user_account.
+      description: |-
+        Delete a board owned by the "operation user_account".
+        * Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the "operation user_account".
+        * By default, the "operation user_account" is the token user_account.
       parameters:
         - $ref: '#/components/parameters/BoardKey'
-        - $ref: '#/components/parameters/QueryParams.query_ad_account_id'
+        - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '204':
           description: Resource deleted successfully.
@@ -5271,15 +5453,13 @@ paths:
     patch:
       operationId: boards/update
       summary: Update board
-      description: |2-
-
-
-            Update a board owned by the "operating user_account".
-            * Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the "operation user_account".
-            * By default, the "operation user_account" is the token user_account.
+      description: |-
+        Update a board owned by the "operating user_account".
+        * Optional: Business Access: Specify an ad_account_id to use the owner of that ad_account as the "operation user_account".
+        * By default, the "operation user_account" is the token user_account.
       parameters:
         - $ref: '#/components/parameters/BoardWithUpdatePrivacyKey'
-        - $ref: '#/components/parameters/QueryParams.query_ad_account_id'
+        - $ref: '#/components/parameters/query_ad_account_id'
       requestBody:
         required: true
         content:
@@ -9773,6 +9953,7 @@ paths:
         Note: If you're interested in joining the beta, please reach out to your Pinterest account manager.
       requestBody:
         description: Parameters to get create/update the Integration Metadata
+        required: true
         content:
           application/json:
             schema:
@@ -9880,6 +10061,7 @@ paths:
         - $ref: '#/components/parameters/path_external_business_id'
       requestBody:
         description: Parameters to get create/update the Integration Metadata
+        required: true
         content:
           application/json:
             schema:
@@ -10345,6 +10527,31 @@ paths:
         - notification
       x-ratelimit-category: ads_read
       x-sandbox: enabled
+  /oauth/conversion_token:
+    post:
+      operationId: oauth/conversion_token
+      summary: Generate OAuth access token for conversion API
+      description: Generate a new and long-lived OAuth access token dedicated for sending conversions using a valid access token.
+      responses:
+        '200':
+          description: response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionAccessTokenResponse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - pinterest_oauth2:
+            - 'ads:write'
+      tags:
+        - oauth
+      x-ratelimit-category: org_write
+      x-sandbox: enabled
   /oauth/token:
     post:
       operationId: oauth/token
@@ -10447,7 +10654,7 @@ paths:
 
         **[Learn more](/docs/api-features/creating-boards-and-pins/#creating-image-pins)** about image Pin creation.
       parameters:
-        - $ref: '#/components/parameters/QueryParams.query_ad_account_id'
+        - $ref: '#/components/parameters/query_ad_account_id'
       requestBody:
         required: true
         content:
@@ -10533,12 +10740,12 @@ paths:
             Disclaimer: There are known performance issues when filtering by field `creative_type` and including protected pins.
             If your request is timing out in this scenario, we encourage you to use [GET List Pins on Board](/docs/api/v5/#operation/boards/list_pins).
       parameters:
-        - $ref: '#/components/parameters/QueryParams.query_pin_filter'
-        - $ref: '#/components/parameters/QueryParams.query_pin_metrics'
-        - $ref: '#/components/parameters/QueryParams.query_include_protected_pins'
-        - $ref: '#/components/parameters/QueryParams.query_pin_type'
-        - $ref: '#/components/parameters/QueryParams.query_creative_types'
-        - $ref: '#/components/parameters/QueryParams.query_ad_account_id'
+        - $ref: '#/components/parameters/query_pin_filter'
+        - $ref: '#/components/parameters/query_pin_metrics'
+        - $ref: '#/components/parameters/query_include_protected_pins'
+        - $ref: '#/components/parameters/query_pin_type'
+        - $ref: '#/components/parameters/query_creative_types'
+        - $ref: '#/components/parameters/query_ad_account_id'
         - $ref: '#/components/parameters/Pinterest.Lib.BookmarkParams.bookmark'
         - $ref: '#/components/parameters/Pinterest.Lib.BookmarkParams.page_size'
       responses:
@@ -10621,8 +10828,8 @@ paths:
           - For Pins on secret boards: Owner, Admin.
       parameters:
         - $ref: '#/components/parameters/PinKey'
-        - $ref: '#/components/parameters/QueryParams.query_ad_account_id'
-        - $ref: '#/components/parameters/QueryParams.query_pin_metrics'
+        - $ref: '#/components/parameters/query_ad_account_id'
+        - $ref: '#/components/parameters/query_pin_metrics'
       responses:
         '200':
           description: The request has succeeded.
@@ -10692,7 +10899,7 @@ paths:
         **This endpoint is currently in beta and not available to all apps. [Learn more](/docs/getting-started/using-beta-and-restricted-features/).**
       parameters:
         - $ref: '#/components/parameters/PinKey'
-        - $ref: '#/components/parameters/QueryParams.query_ad_account_id'
+        - $ref: '#/components/parameters/query_ad_account_id'
       requestBody:
         required: true
         content:
@@ -10772,7 +10979,7 @@ paths:
           - For Pins on secret boards: Owner, Admin.
       parameters:
         - $ref: '#/components/parameters/PinKey'
-        - $ref: '#/components/parameters/QueryParams.query_ad_account_id'
+        - $ref: '#/components/parameters/query_ad_account_id'
       responses:
         '204':
           description: Resource deleted successfully.
@@ -12277,6 +12484,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      deprecated: true
       security:
         - pinterest_oauth2:
             - 'user_accounts:read'
@@ -12286,6 +12494,73 @@ paths:
         - user_account
       x-ratelimit-category: org_read
       x-sandbox: enabled
+  '/ad_accounts/{ad_account_id}/conversion_eqs':
+    get:
+      operationId: conversion_eqs/list
+      summary: Get event quality score (EQS)
+      description: |-
+        Get the Event Quality Score (EQS) of your conversion signals.
+
+        [Event Quality Score](https://help.pinterest.com/en/business/article/eqs) indicates how effective the customer information and event insights (metadata) passed with your web, app and offline conversion events may be at matching to a Pinterest user.
+      parameters:
+        - $ref: '#/components/parameters/EventQualityScoreListParams.lookback_period'
+        - $ref: '#/components/parameters/EventQualityScoreListParams.source_platform'
+        - $ref: '#/components/parameters/EventQualityScoreListParams.ingestion_source'
+        - $ref: '#/components/parameters/Pinterest.Lib.AdAccountId'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventQualityScore'
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: 'The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - 'ads:read'
+        - client_credentials:
+            - 'ads:read'
+      tags:
+        - conversion_eqs
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
 components:
   parameters:
     AdAccountKey:
@@ -12318,7 +12593,16 @@ components:
       schema:
         type: string
         pattern: ^\d+$
-    ConversionCriteriaGroupHealthKey.id:
+    CatalogId:
+      name: catalog_id
+      in: path
+      required: true
+      description: Unique identifier of a catalog.
+      schema:
+        type: string
+        maxLength: 18
+        pattern: ^\d+$
+    ConversionTagParentKey:
       name: ad_account_id
       in: path
       required: true
@@ -12326,7 +12610,7 @@ components:
         type: string
         maxLength: 18
         pattern: ^\d+$
-    EventQualityScoreParentKey:
+    ConversionTagWithUpdateStatusKey.id:
       name: ad_account_id
       in: path
       required: true
@@ -12334,6 +12618,27 @@ components:
         type: string
         maxLength: 18
         pattern: ^\d+$
+    EventQualityScoreListParams.ingestion_source:
+      name: ingestion_source
+      in: query
+      required: false
+      description: Ingestion source of event.
+      schema:
+        $ref: '#/components/schemas/IngestionSourceOptions'
+    EventQualityScoreListParams.lookback_period:
+      name: lookback_period
+      in: query
+      required: true
+      description: Lookback window (number of days).
+      schema:
+        $ref: '#/components/schemas/LookbackPeriodOptions'
+    EventQualityScoreListParams.source_platform:
+      name: source_platform
+      in: query
+      required: false
+      description: Source platform of event.
+      schema:
+        $ref: '#/components/schemas/SourcePlatformOptions'
     fetch_system_users:
       name: fetch_system_users
       in: query
@@ -12582,6 +12887,15 @@ components:
     path_customer_list_id:
       name: customer_list_id
       description: Unique identifier of a customer list
+      in: path
+      required: true
+      schema:
+        type: string
+        maxLength: 18
+        pattern: ^\d+$
+    path_customer_list_upload_id:
+      name: customer_list_upload_id
+      description: Unique identifier of a customer list upload
       in: path
       required: true
       schema:
@@ -12843,8 +13157,9 @@ components:
         $ref: '#/components/schemas/AudienceAccountType'
     query_ad_account_id:
       name: ad_account_id
-      description: Unique identifier of an ad account.
       in: query
+      required: false
+      description: Unique identifier of an ad account.
       schema:
         type: string
         maxLength: 18
@@ -13071,6 +13386,13 @@ components:
         format: date
         example: '2023-01-01'
         pattern: '^(\d{4})-(\d{2})-(\d{2})$'
+    query_board_privacy:
+      name: privacy
+      in: query
+      required: false
+      description: The privacy level of the board
+      schema:
+        $ref: '#/components/schemas/BoardPrivacyFilter'
     query_bookmark:
       name: bookmark
       description: Cursor used to fetch the next page of items
@@ -13434,6 +13756,8 @@ components:
             - TOTAL_WEB_VIEW_CHECKOUT_VALUE_IN_MICRO_DOLLAR
             - INAPP_CHECKOUT_COST_PER_ACTION
             - TOTAL_OFFLINE_CHECKOUT
+            - TOTAL_APP_INSTALL_CONVERSION_RATE
+            - TOTAL_INAPP_APP_INSTALL_CONVERSION_RATE
             - IDEA_PIN_PRODUCT_TAG_VISIT_1
             - IDEA_PIN_PRODUCT_TAG_VISIT_2
             - TOTAL_IDEA_PIN_PRODUCT_TAG_VISIT
@@ -13563,24 +13887,14 @@ components:
       description: Get metrics for pins created in the last "n" days.
       example: 30
     query_creative_types:
-      in: query
       name: creative_types
+      in: query
       required: false
-      description: 'Pin creative types filter. </p><strong>Note:</strong> SHOP_THE_PIN has been deprecated. Please use COLLECTION instead.'
+      description: 'Pin creative types filter. **Note:** SHOP_THE_PIN has been deprecated. Please use COLLECTION instead.'
       schema:
         type: array
         items:
-          type: string
-          example: REGULAR
-          enum:
-            - REGULAR
-            - VIDEO
-            - SHOPPING
-            - CAROUSEL
-            - MAX_VIDEO
-            - SHOP_THE_PIN
-            - COLLECTION
-            - IDEA
+          $ref: '#/components/schemas/CreativeType'
     query_end_date:
       description: 'Metric report end date (UTC). Format: YYYY-MM-DD. Cannot be more than 90 days past start_date.'
       in: query
@@ -13639,12 +13953,11 @@ components:
         default: false
     query_filter_deleted:
       name: filter_deleted
-      description: Filter out deleted tags.
       in: query
       required: false
+      description: Filter by deleted status
       schema:
         type: boolean
-        example: true
         default: false
     query_flatten_rule:
       description: Uniform the format of Audiences rules for presentation on Web UI.
@@ -13704,6 +14017,14 @@ components:
         type: boolean
         default: false
       style: form
+    query_include_protected_pins:
+      name: include_protected_pins
+      in: query
+      required: false
+      description: Whether to include protected pins in the results
+      schema:
+        type: boolean
+        default: false
     query_include_shared_accounts:
       in: query
       description: Include shared ad accounts
@@ -14008,6 +14329,17 @@ components:
                 - TOTAL_COMMENTS
                 - TOTAL_REACTIONS
       style: form
+    query_pin_filter:
+      name: pin_filter
+      in: query
+      required: false
+      description: The filter to apply to the pins
+      schema:
+        type: string
+        enum:
+          - exclude_native
+          - exclude_repins
+          - has_been_promoted
     query_pin_format:
       description: 'Pin formats to get data for, default is all.'
       in: query
@@ -14027,9 +14359,14 @@ components:
           - ADS_IDEA
     query_pin_metrics:
       name: pin_metrics
-      description: Specify whether to return 90d and lifetime Pin metrics. Total comments and total reactions are only available with lifetime Pin metrics. If Pin was created before <code>2023-03-20</code> lifetime metrics will only be available for Video and Idea Pin formats. Lifetime metrics are available for all Pin formats since then.
       in: query
       required: false
+      description: |-
+        Specify whether to return 90d and lifetime Pin metrics. Total comments
+        and total reactions are only available with lifetime Pin metrics. If Pin was
+        created before `2023-03-20` lifetime metrics will only be available
+        for Video and Idea Pin formats. Lifetime metrics are available for all Pin
+        formats since then.
       schema:
         type: boolean
         default: false
@@ -14041,6 +14378,15 @@ components:
       schema:
         type: string
         example: 0Q01N0000015hekSVDFDC
+    query_pin_type:
+      name: pin_type
+      in: query
+      required: false
+      description: 'The type of pins to return, currently only enabled for private pins'
+      schema:
+        type: string
+        enum:
+          - PRIVATE
     query_product_group_ids_required:
       description: List of Product group Ids to use to filter the results.
       in: query
@@ -14399,62 +14745,6 @@ components:
       schema:
         type: string
         example: mysite.test
-    QueryParams.query_ad_account_id:
-      name: ad_account_id
-      in: query
-      required: false
-      description: Unique identifier of an ad account.
-      schema:
-        type: string
-        maxLength: 18
-        pattern: ^\d+$
-    QueryParams.query_board_privacy:
-      name: privacy
-      in: query
-      required: false
-      schema:
-        $ref: '#/components/schemas/QueryParams.BoardPrivacyFilter'
-    QueryParams.query_creative_types:
-      name: creative_types
-      in: query
-      required: false
-      description: 'Pin creative types filter. **Note:** SHOP_THE_PIN has been deprecated. Please use COLLECTION instead.'
-      schema:
-        type: array
-        items:
-          $ref: '#/components/schemas/CreativeType'
-    QueryParams.query_include_protected_pins:
-      name: include_protected_pins
-      in: query
-      required: false
-      schema:
-        type: boolean
-        default: false
-    QueryParams.query_pin_filter:
-      name: pin_filter
-      in: query
-      required: false
-      schema:
-        type: string
-        enum:
-          - exclude_native
-          - exclude_repins
-          - has_been_promoted
-    QueryParams.query_pin_metrics:
-      name: pin_metrics
-      in: query
-      required: false
-      schema:
-        type: boolean
-        default: false
-    QueryParams.query_pin_type:
-      name: pin_type
-      in: query
-      required: false
-      schema:
-        type: string
-        enum:
-          - PRIVATE
     result_limit:
       description: Max search result size
       in: query
@@ -17035,7 +17325,7 @@ components:
           $ref: '#/components/schemas/AudienceInsightType'
       title: AudienceInsightsResponse
     AudienceRule:
-      description: 'JSON object defining targeted audience users. Example rule formats per audience type:<br>CUSTOMER_LIST: { "customer_list_id": "&lt;customer list ID&gt;"}<br>ACTALIKE: { "seed_id": ["&lt;audience ID&gt;"], "country": "US", "percentage": "10" }<br>(Valid countries include: "US", "CA", and "GB". Percentage should be 1-10.<br>The targeted audience should be this % size across Pinterest.)<br>VISITOR: { "visitor_source_id": ["&lt;conversion tag ID&gt;"], "retention_days": "180", "event_source": {"=": ["web", "mobile"]}, "ingestion_source": {"=": ["tag"]}}<br>(Retention days should be 1-540. Retention applies to specific customers.)<br>ENGAGEMENT: {"engagement_domain": ["www.entomi.com"], "engager_type": 1}<br>For more details on engagement audiences, see <a href="/docs/redoc/adtech_ads_v4/#section/November-2021" target="_blank">November 2021 changelog</a>.'
+      description: 'JSON object defining targeted audience users. Example rule formats per audience type:<br>CUSTOMER_LIST: { "customer_list_id": "&lt;customer list ID&gt;"}<br>ACTALIKE: { "seed_id": ["&lt;audience ID&gt;"], "country": "US", "percentage": "10" }<br>(Valid countries include: "US", "CA", and "GB". Percentage should be 1-10.<br>The targeted audience should be this % size across Pinterest.)<br>VISITOR: { "visitor_source_id": ["&lt;conversion tag ID&gt;"], "retention_days": "180", "event_source": {"=": ["web", "mobile"]}, "ingestion_source": {"=": ["tag"]}}<br>(Retention days should be 1-540. Retention applies to specific customers.)<br>ENGAGEMENT: {"engagement_domain": ["www.example.com"], "engager_type": 1}<br>Learn more about <a href="/docs/work-with-targets-and-audiences/create-audiences/#engagement-audience" target="_blank">engagement audiences</a>.'
       type: object
       properties:
         ad_account_id:
@@ -17097,101 +17387,7 @@ components:
           example: checkout
           title: event
         event_data:
-          description: 'Optional for VISITOR `audience_type`. With the Pinterest tag, you can use event data to capture event details from your website. This object lists all the available predefined event data fields in the Pinterest tag. You can include these event data fields as part of a VISITOR audience’s `rule`; however, you **must** specify an `event` for the `event_data` fields to be evaluated. Besides what’s listed, you can also create your own set of `event_data` fields and define their usages or purposes according to your website needs. However, the benefit of using the predefined event data fields is that we can provide various metrics based on those fields'' data.<br>Examples per `event` type:<br>`pagevisit`<br>"event_data": { "page_name": "My online store 123 | view items | shoe" }<br>`signup`<br>"event_data": { "lead_type": "New release promotion" }<br>`checkout`<br>"event_data": { "value": 116, "order_quantity": 2, "currency": "USD", "line_items": [ { "product_name": "Pillows (Set of 2)", "product_id": "11", "product_price": 48, "product_quantity": 1 }, { "product_name": "Pillows, Large (Set of 2)", "product_id": "15", "product_price": 68, "product_quantity": 1 } ] }<br>`addtocart`<br>"event_data": { "value": 499, "order_quantity": 1, "currency": "USD", "line_items": [ { "product_name": "Red leather boots", "product_id": "3486", "product_category": "shoe", "product_variant_id": "JB11103000", "product_price": 499, "product_quantity": "1", "product_brand": "My brand" }]}<br>`watchvideo`<br>"event_data": { "video_title": "My Product Video 01" }<br>`lead`<br>"event_data": { "lead_type": "Newsletter" }'
-          type: object
-          properties:
-            currency:
-              $ref: '#/components/schemas/Currency'
-            lead_type:
-              description: 'Promotion code. For example, "Newsletter".'
-              type: string
-              example: Newsletter
-              title: lead_type
-            line_items:
-              type: object
-              properties:
-                product_brand:
-                  description: 'Product brand. For example, "Parker".'
-                  type: string
-                  example: Parker
-                  title: product_brand
-                product_category:
-                  description: 'Product category. For example, "Shoes".'
-                  type: string
-                  example: Shoes
-                  title: product_category
-                product_id:
-                  description: 'Product ID. For example, 1414.'
-                  type: integer
-                  example: 1414
-                  title: product_id
-                product_name:
-                  description: 'Product name. For example, "Parker Boots".'
-                  type: string
-                  example: Parker Boots
-                  title: product_name
-                product_price:
-                  description: 'Product price. For example, "99.99".'
-                  type: string
-                  example: '99.99'
-                  title: product_price
-                product_quantity:
-                  description: 'Product quantity. For example, 2.'
-                  type: integer
-                  example: 2
-                  title: product_quantity
-                product_variant:
-                  description: 'Product variant. For example, "Red".'
-                  type: string
-                  example: Red
-                  title: product_variant
-                product_variant_id:
-                  description: 'Product variant ID. For example, "1414-34832".'
-                  type: string
-                  example: 1414-34832
-                  title: product_variant_id
-              title: LineItem
-            order_id:
-              description: 'Order ID. For example, "X-151481".'
-              type: string
-              example: X-151481
-              title: order_id
-            order_quantity:
-              description: 'Order quantity. For example, 1.'
-              type: integer
-              example: 1
-              title: order_quantity
-            page_name:
-              description: 'Page name. For example, "Our Favorite Pins on Pinterest".'
-              type: string
-              example: Our Favorite Pins on Pinterest.
-              title: page_name
-            promo_code:
-              description: 'Promotion code. For example, "WINTER10".'
-              type: string
-              example: WINTER10
-              title: promo_code
-            property:
-              description: 'Property. For example, "Athleta".'
-              type: string
-              example: Athleta
-              title: property
-            search_query:
-              description: 'Search query string. For example, "boots".'
-              type: string
-              example: boots
-              title: search_query
-            value:
-              description: 'Product value. For example, "199.98"'
-              type: string
-              example: '199.98'
-              title: value
-            video_title:
-              description: 'Video title. For example, "How to style your Parker Boots".'
-              type: string
-              example: How to style your Parker Boots
-              title: video_title
-          title: PinterestTagEventData
+          $ref: '#/components/schemas/EventData'
         event_source:
           description: 'Optional for VISITOR. You can use it as a {''='': [value]}. Supported values are: web, mobile, offline'
           type: object
@@ -22318,10 +22514,11 @@ components:
           nullable: true
           readOnly: true
         created_time:
-          description: 'Date and time (UTC) of the batch creation: YYYY-MM-DD''T''hh:mm:ss'
+          description: 'Date and time (UTC) of the batch creation: YYYY-MM-DD''T''hh:mm:ss. If null, batch creation was skipped due to a recent duplicate ingestion.'
           type: string
           format: date-time
           example: '2024-01-01T20:10:40'
+          nullable: true
           readOnly: true
         items:
           description: Array with the catalogs items processing records part of the catalogs items batch
@@ -22332,6 +22529,7 @@ components:
           $ref: '#/components/schemas/BatchOperationStatus'
       required:
         - catalog_type
+        - created_time
     CatalogsItemsRequest:
       description: Request object of catalogs items
       type: object
@@ -23546,15 +23744,19 @@ components:
         max_score:
           description: Max value for the hotel rating score.
           type: number
+          nullable: true
         number_of_reviewers:
           description: Total number of people who have rated this hotel.
           type: integer
+          nullable: true
         rating_system:
           description: System you use for guest reviews.
           type: string
+          nullable: true
         score:
           description: Your hotel's rating.
           type: number
+          nullable: true
     CatalogsHotelItemErrorResponse:
       description: Object describing a hotel item error
       type: object
@@ -23570,8 +23772,10 @@ components:
           description: The catalog hotel id in the merchant namespace
           type: string
           example: DS0294-M
+      additionalProperties: false
       required:
         - catalog_type
+        - errors
     CatalogsHotelItemResponse:
       description: Object describing a hotel record
       type: object
@@ -23591,6 +23795,7 @@ components:
             $ref: '#/components/schemas/Pin'
           maxItems: 11
           nullable: true
+      additionalProperties: false
       required:
         - catalog_type
     CatalogsCreativeAssetsItemErrorResponse:
@@ -23608,8 +23813,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ItemValidationEvent'
+      additionalProperties: false
       required:
         - catalog_type
+        - errors
     CatalogsCreativeAssetsItemResponse:
       description: Object describing a hotel record
       type: object
@@ -23629,6 +23836,7 @@ components:
             $ref: '#/components/schemas/Pin'
           maxItems: 11
           nullable: true
+      additionalProperties: false
       required:
         - catalog_type
     CreativeAssetsProcessingRecord:
@@ -23712,8 +23920,10 @@ components:
           description: The catalog item id in the merchant namespace
           type: string
           example: DS0294-M
+      additionalProperties: false
       required:
         - catalog_type
+        - errors
     CatalogsRetailItemResponse:
       description: Object describing a retail item record
       type: object
@@ -23733,6 +23943,7 @@ components:
             $ref: '#/components/schemas/Pin'
           maxItems: 11
           nullable: true
+      additionalProperties: false
       required:
         - catalog_type
     CatalogsCreateRetailItem:
@@ -23848,6 +24059,11 @@ components:
           description: The catalog item id in the merchant namespace
           type: string
           example: DS0294-M
+        last_updated_time:
+          description: The millisecond timestamp when the item was lastly modified by the merchant.
+          type: integer
+          format: int64
+          example: 1641483432072
         operation:
           type: string
           enum:
@@ -24790,6 +25006,11 @@ components:
                     type: string
                     example: my_order_id
                     nullable: true
+                  predicted_ltv:
+                    description: Predicted lifetime value of user associated with the event. Accepted as a string in the request; it will be parsed into a double.
+                    type: string
+                    example: '2794.82'
+                    nullable: true
                   search_string:
                     description: The search string related to the user conversion event.
                     type: string
@@ -25663,133 +25884,119 @@ components:
       enum:
         - TIME_OF_AD_ACTION
         - TIME_OF_CONVERSION
-    ConversionTagCommon:
-      type: object
-      properties:
-        ad_account_id:
-          description: Ad account ID.
-          type: string
-          example: '549755885175'
-          title: ad_account_id
-        code_snippet:
-          description: Tag code snippet.
-          type: string
-          example: '<script type=text/javascript> [...]'
-          title: code_snippet
-        configs:
-          $ref: '#/components/schemas/ConversionTagConfigs'
-        enhanced_match_status:
-          $ref: '#/components/schemas/EnhancedMatchStatusType'
-        id:
-          description: Tag ID.
-          type: string
-          example: '2617998078212'
-          title: id
-        last_fired_time_ms:
-          description: Time for the last event fired.
-          type: number
-          example: 1599030000000
-          nullable: true
-          title: last_fired_time_ms
-        name:
-          description: Conversion tag name.
-          type: string
-          example: ACME Checkout Test Tag
-          title: name
-        status:
-          $ref: '#/components/schemas/EntityStatus'
-        version:
-          description: Version number.
-          type: string
-          example: '3'
-          title: version
-      title: ConversionTagCommon
     ConversionTagConfigs:
       type: object
       properties:
         aem_db_enabled:
-          description: 'Whether Automatic Enhanced Match birthdate is enabled. See <a href="https://help.pinterest.com/en/business/article/enhanced-match" target="_blank">Enhanced match</a> for more information.'
+          description: 'Whether Automatic Enhanced Match birthdate is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
           type: boolean
-          example: true
           default: false
           nullable: true
-          title: aem_db_enabled
         aem_enabled:
-          description: 'Whether Automatic Enhanced Match email is enabled. See <a href="https://help.pinterest.com/en/business/article/enhanced-match" target="_blank">Enhanced match</a> for more information.'
+          description: 'Whether Automatic Enhanced Match email is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
           type: boolean
-          example: true
           default: false
           nullable: true
-          title: aem_enabled
         aem_external_id_enabled:
-          description: 'Whether Automatic Enhanced Match location is enabled. See <a href="https://help.pinterest.com/en/business/article/enhanced-match" target="_blank">Enhanced match</a> for more information.'
+          description: 'Whether Automatic Enhanced Match location is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
           type: boolean
-          example: true
           default: false
           nullable: true
-          title: aem_external_id_enabled
         aem_fnln_enabled:
-          description: 'Whether Automatic Enhanced Match name is enabled. See <a href="https://help.pinterest.com/en/business/article/enhanced-match" target="_blank">Enhanced match</a> for more information.'
+          description: 'Whether Automatic Enhanced Match name is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
           type: boolean
-          example: true
           default: false
           nullable: true
-          title: aem_fnln_enabled
         aem_ge_enabled:
-          description: 'Whether Automatic Enhanced Match gender is enabled. See <a href="https://help.pinterest.com/en/business/article/enhanced-match" target="_blank">Enhanced match</a> for more information.'
+          description: 'Whether Automatic Enhanced Match gender is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
           type: boolean
-          example: true
           default: false
           nullable: true
-          title: aem_ge_enabled
         aem_loc_enabled:
-          description: 'Whether Automatic Enhanced Match location is enabled. See <a href="https://help.pinterest.com/en/business/article/enhanced-match" target="_blank">Enhanced match</a> for more information.'
+          description: 'Whether Automatic Enhanced Match location is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
           type: boolean
-          example: true
           default: false
           nullable: true
-          title: aem_loc_enabled
         aem_ph_enabled:
-          description: 'Whether Automatic Enhanced Match phone is enabled. See <a href="https://help.pinterest.com/en/business/article/enhanced-match" target="_blank">Enhanced match</a> for more information.'
+          description: 'Whether Automatic Enhanced Match phone is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
           type: boolean
-          example: true
           default: false
           nullable: true
-          title: aem_ph_enabled
         md_frequency:
           description: Metadata ingestion frequency.
           type: number
           example: 0.6
           default: 1
           nullable: true
-          title: md_frequency
-      title: ConversionTagConfigs
+        no_code_capi_domains:
+          description: List of advertiser subdomains configured for NoCodeCAPI calls.
+          type: array
+          items:
+            type: string
+          example:
+            - 'https://sub.exampledomain.com'
     ConversionTagCreate:
+      description: Resource create operation model.
       type: object
       properties:
+        aem_db_enabled:
+          description: 'Whether Automatic Enhanced Match birthdate is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        aem_enabled:
+          description: 'Whether Automatic Enhanced Match email is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        aem_external_id_enabled:
+          description: 'Whether Automatic Enhanced Match location is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        aem_fnln_enabled:
+          description: 'Whether Automatic Enhanced Match name is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        aem_ge_enabled:
+          description: 'Whether Automatic Enhanced Match gender is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        aem_loc_enabled:
+          description: 'Whether Automatic Enhanced Match location is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        aem_ph_enabled:
+          description: 'Whether Automatic Enhanced Match phone is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        md_frequency:
+          description: Metadata ingestion frequency.
+          type: number
+          example: 0.6
+          default: 1
+          nullable: true
         name:
           description: Conversion tag name.
           type: string
-          example: ACME Tools Tag
-          title: name
-      example:
-        name: ACME Tools Tag
-      allOf:
-        - $ref: '#/components/schemas/ConversionTagConfigs'
+          example: ACME Checkout Test Tag
       required:
         - name
-      title: ConversionTagCreate
     ConversionTagListResponse:
       type: object
       properties:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/ConversionTagResponse'
+            $ref: '#/components/schemas/ConversionTag'
     ConversionTagResponse:
       type: object
       allOf:
-        - $ref: '#/components/schemas/ConversionTagCommon'
+        - $ref: '#/components/schemas/ConversionTag'
       title: ConversionTagResponse
     ConversionTagType:
       description: conversion tag type
@@ -25828,6 +26035,18 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/ConversionEventResponse'
+    ConversionAccessTokenResponse:
+      description: A successful conversion access token response.
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          default: conversion
+      required:
+        - access_token
+      title: Conversion access token response
     Country:
       description: Country ID from ISO 3166-1 alpha-2.
       type: string
@@ -26587,6 +26806,231 @@ components:
         - operation_type
         - records
       title: CustomerListUpdate
+    CustomerListUploadCreateRequest:
+      type: object
+      properties:
+        operation:
+          type: string
+          allOf:
+            - $ref: '#/components/schemas/UserListOperationType'
+          title: operation
+        total_parts:
+          description: Number of parts to upload the file in.
+          type: integer
+          example: 2
+          maximum: 10
+          minimum: 1
+      required:
+        - operation
+        - total_parts
+      title: CustomerListUploadCreateRequest
+    CustomerListUpload:
+      type: object
+      properties:
+        ad_account_id:
+          description: Advertiser ID.
+          type: string
+          example: '9876543210'
+          pattern: ^\d+$
+        creation_time:
+          description: Customer List Upload creation_time. Epoch (seconds).
+          type: integer
+          example: 1728606435
+        customer_list_id:
+          description: ID of the customer list associated with this upload.
+          type: string
+          example: '59854745824'
+          pattern: ^\d+$
+        error_counts:
+          description: Error counts by error code
+          type: array
+          items:
+            type: object
+            required:
+              - error_code
+              - message
+              - count
+            properties:
+              count:
+                description: Number of records with this error
+                type: integer
+                example: 20
+              error_code:
+                description: Numeric error code
+                type: integer
+                example: 42
+              message:
+                description: Error message description
+                type: string
+                example: Invalid email
+            title: ErrorDetail
+          example:
+            - error_code: 42
+              message: Invalid email
+              count: 20
+          nullable: true
+        id:
+          description: Customer List Upload ID.
+          type: string
+          example: '1234567890'
+          pattern: ^\d+$
+        operation:
+          $ref: '#/components/schemas/UserListOperationType'
+        record_counts:
+          description: Record processing counts
+          type: object
+          nullable: true
+          properties:
+            invalid:
+              description: Number of invalid records processed
+              type: integer
+              example: 50
+            processed:
+              description: Number of records processed
+              type: integer
+              example: 1000
+            valid:
+              description: Number of valid records processed
+              type: integer
+              example: 950
+          required:
+            - processed
+            - valid
+            - invalid
+          title: RecordCounts
+        state:
+          description: Workload processing state
+          type: string
+          example: RUNNING
+          enum:
+            - NOT_STARTED
+            - RUNNING
+            - PAUSED
+            - SUCCEEDED
+            - FAILED
+        updated_time:
+          description: Customer List Upload updated_time. Epoch (seconds).
+          type: integer
+          example: 1728606435
+      required:
+        - id
+        - creation_time
+        - updated_time
+        - ad_account_id
+        - state
+        - customer_list_id
+        - operation
+      title: CustomerListUpload
+    CustomerListUploadCreateResponse:
+      type: object
+      properties:
+        customer_list_upload:
+          description: The Customer List Upload created.
+          $ref: '#/components/schemas/CustomerListUpload'
+        s3_multipart_upload_data:
+          description: Pre-signed upload URLs corresponding to each part of the upload.
+          $ref: '#/components/schemas/S3MultipartUploadData'
+      required:
+        - customer_list_upload
+        - s3_multipart_upload_data
+      title: CustomerListUploadCreateResponse
+    CustomerListUploadResponse:
+      type: object
+      properties:
+        ad_account_id:
+          description: Advertiser ID.
+          type: string
+          example: '9876543210'
+          pattern: ^\d+$
+        creation_time:
+          description: Customer List Upload creation_time. Epoch (seconds).
+          type: integer
+          example: 1728606435
+        customer_list_id:
+          description: ID of the customer list associated with this upload.
+          type: string
+          example: '59854745824'
+          pattern: ^\d+$
+        error_counts:
+          description: Error counts by error code
+          type: array
+          items:
+            type: object
+            required:
+              - error_code
+              - message
+              - count
+            properties:
+              count:
+                description: Number of records with this error
+                type: integer
+                example: 20
+              error_code:
+                description: Numeric error code
+                type: integer
+                example: 42
+              message:
+                description: Error message description
+                type: string
+                example: Invalid email
+            title: ErrorDetail
+          example:
+            - error_code: 42
+              message: Invalid email
+              count: 20
+          nullable: true
+        id:
+          description: Customer List Upload ID.
+          type: string
+          example: '1234567890'
+          pattern: ^\d+$
+        operation:
+          $ref: '#/components/schemas/UserListOperationType'
+        record_counts:
+          description: Record processing counts
+          type: object
+          nullable: true
+          properties:
+            invalid:
+              description: Number of invalid records processed
+              type: integer
+              example: 50
+            processed:
+              description: Number of records processed
+              type: integer
+              example: 1000
+            valid:
+              description: Number of valid records processed
+              type: integer
+              example: 950
+          required:
+            - processed
+            - valid
+            - invalid
+          title: RecordCounts
+        state:
+          description: Workload processing state
+          type: string
+          example: RUNNING
+          enum:
+            - NOT_STARTED
+            - RUNNING
+            - PAUSED
+            - SUCCEEDED
+            - FAILED
+        updated_time:
+          description: Customer List Upload updated_time. Epoch (seconds).
+          type: integer
+          example: 1728606435
+      required:
+        - id
+        - creation_time
+        - updated_time
+        - ad_account_id
+        - state
+        - customer_list_id
+        - operation
+      title: CustomerListUploadResponse
     DataOutputFormat:
       description: Format of generated report
       type: string
@@ -26769,17 +27213,12 @@ components:
           nullable: true
       title: SummaryPin
     EnhancedMatchStatusType:
-      description: The enhanced match status of the tag
       type: string
-      example: VALIDATION_COMPLETE
       enum:
         - UNKNOWN
         - NOT_VALIDATED
         - VALIDATING_IN_PROGRESS
         - VALIDATION_COMPLETE
-        - null
-      nullable: true
-      title: EnhancedMatchStatusType
     EntityStatus:
       description: Entity status
       type: string
@@ -27080,6 +27519,19 @@ components:
       enum:
         - CLOSEUP
         - DIRECT_TO_DESTINATION
+      nullable: true
+    DisclosureType:
+      description: 'Type of information in the page referenced by `disclosure_url`, provided either by the Food and Drug Administration (FDA) or the manufacturer.'
+      type: string
+      example: MED_GUIDE
+      enum:
+        - NO_DISCLOSURE
+        - PRESCRIBING_INFORMATION
+        - PRESCRIBING_INFORMATION_BOX_WARNING
+        - IMPORTANT_SAFETY_INFO
+        - MED_GUIDE
+        - PATIENT_INFORMATION
+        - null
       nullable: true
     HotelIdFilter:
       type: object
@@ -28433,6 +28885,96 @@ components:
               type: string
               example: black friday
               nullable: true
+            ad_video_0_link:
+              description: |-
+                <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+                <p><= 2000 characters</p>
+                <p>Ad video link that supplements main video for shopping campaigns.</p>
+                <p>Video format:</p>
+                <ul>
+                  <li>Pixel size between 75 x 75 and 9450 x 9450</li>
+                  <li>File size smaller than 2 GB</li>
+                  <li>Time span between 4 seconds and 15 minutes</li>
+                  <li>Accepted formats: .MP4, .MOV, .M4V</li>
+                </ul>
+                <p>Link guidelines:</p>
+                <ul>
+                  <li>Include extension in file name</li>
+                  <li>Do not include template or placeholder videos in link</li>
+                  <li>Make URL accessible to Pinterest user-agent</li>
+                  <li>Must start with http:// or https://</li>
+                </ul>
+              type: string
+              example: 'https://www.example.com/video/video_v2.mov'
+              nullable: true
+            ad_video_0_tag:
+              description: |-
+                <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+                <p><= 511 characters</p>
+                <p>If you provide an ad_video_x_link, include the video tag with the corresponding ad_video_x_tag attribute.</p>
+              type: string
+              example: black friday
+              nullable: true
+            ad_video_1_link:
+              description: |-
+                <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+                <p><= 2000 characters</p>
+                <p>Ad video link that supplements main video for shopping campaigns.</p>
+                <p>Video format:</p>
+                <ul>
+                  <li>Pixel size between 75 x 75 and 9450 x 9450</li>
+                  <li>File size smaller than 2 GB</li>
+                  <li>Time span between 4 seconds and 15 minutes</li>
+                  <li>Accepted formats: .MP4, .MOV, .M4V</li>
+                </ul>
+                <p>Link guidelines:</p>
+                <ul>
+                  <li>Include extension in file name</li>
+                  <li>Do not include template or placeholder videos in link</li>
+                  <li>Make URL accessible to Pinterest user-agent</li>
+                  <li>Must start with http:// or https://</li>
+                </ul>
+              type: string
+              example: 'https://www.example.com/video/video_v2.mov'
+              nullable: true
+            ad_video_1_tag:
+              description: |-
+                <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+                <p><= 511 characters</p>
+                <p>If you provide an ad_video_x_link, include the video tag with the corresponding ad_video_x_tag attribute.</p>
+              type: string
+              example: black friday
+              nullable: true
+            ad_video_2_link:
+              description: |-
+                <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+                <p><= 2000 characters</p>
+                <p>Ad video link that supplements main video for shopping campaigns.</p>
+                <p>Video format:</p>
+                <ul>
+                  <li>Pixel size between 75 x 75 and 9450 x 9450</li>
+                  <li>File size smaller than 2 GB</li>
+                  <li>Time span between 4 seconds and 15 minutes</li>
+                  <li>Accepted formats: .MP4, .MOV, .M4V</li>
+                </ul>
+                <p>Link guidelines:</p>
+                <ul>
+                  <li>Include extension in file name</li>
+                  <li>Do not include template or placeholder videos in link</li>
+                  <li>Make URL accessible to Pinterest user-agent</li>
+                  <li>Must start with http:// or https://</li>
+                </ul>
+              type: string
+              example: 'https://www.example.com/video/video_v2.mov'
+              nullable: true
+            ad_video_2_tag:
+              description: |-
+                <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+                <p><= 511 characters</p>
+                <p>If you provide an ad_video_x_link, include the video tag with the corresponding ad_video_x_tag attribute.</p>
+              type: string
+              example: black friday
+              nullable: true
     ItemBatchRecord:
       description: Object describing an item batch record
       type: object
@@ -28529,15 +29071,15 @@ components:
         - FAILURE
         - PROCESSING
     ItemResponse:
-      description: Object describing an item record
-      type: object
-      anyOf:
+      description: Object describing an item record or error
+      oneOf:
         - type: object
+          description: Successful item response
+          required:
+            - catalog_type
           properties:
             catalog_type:
               $ref: '#/components/schemas/CatalogsType'
-          required:
-            - catalog_type
           oneOf:
             - $ref: '#/components/schemas/CatalogsRetailItemResponse'
             - $ref: '#/components/schemas/CatalogsHotelItemResponse'
@@ -28549,11 +29091,17 @@ components:
               HOTEL: '#/components/schemas/CatalogsHotelItemResponse'
               CREATIVE_ASSETS: '#/components/schemas/CatalogsCreativeAssetsItemResponse'
         - type: object
+          description: Error item response
+          required:
+            - catalog_type
+            - errors
           properties:
             catalog_type:
               $ref: '#/components/schemas/CatalogsType'
-          required:
-            - catalog_type
+            errors:
+              type: array
+              items:
+                $ref: '#/components/schemas/ItemValidationEvent'
           oneOf:
             - $ref: '#/components/schemas/CatalogsRetailItemErrorResponse'
             - $ref: '#/components/schemas/CatalogsHotelItemErrorResponse'
@@ -31959,6 +32507,7 @@ components:
         - PRODUCT_ITEM_SALE_PRICE
         - PRODUCT_ITEM_PRODUCT_TYPE
         - PRODUCT_ITEM_PRODUCT_CATEGORY
+        - PRODUCT_ITEM_CURRENCY
         - ORDER_LINE_ID
         - ORDER_LINE_NAME
         - CLICKTHROUGH_1
@@ -32470,6 +33019,8 @@ components:
         - TOTAL_INAPP_ENGAGEMENT_APP_INSTALL_VALUE_IN_MICRO_DOLLAR
         - TOTAL_INAPP_VIEW_APP_INSTALL
         - TOTAL_INAPP_VIEW_APP_INSTALL_VALUE_IN_MICRO_DOLLAR
+        - TOTAL_APP_INSTALL_CONVERSION_RATE
+        - TOTAL_INAPP_APP_INSTALL_CONVERSION_RATE
         - IDEA_PIN_PAGE_FORWARD_1
         - IDEA_PIN_PAGE_FORWARD_2
         - IDEA_PIN_PAGE_BACKWARD_1
@@ -32561,6 +33112,29 @@ components:
         - RESOURCE_PINNER_LIST_READER
         - BIZ_PINNER_LIST_SHARER
         - RESOURCE_CONVERSION_TAGS_READER
+    S3FilePart:
+      type: object
+      properties:
+        part_number:
+          description: Part number for upload.
+          type: integer
+          example: 1
+        presigned_url:
+          description: Pre-signed URL.
+          type: string
+      required:
+        - part_number
+        - presigned_url
+      title: S3FilePart
+    S3MultipartUploadData:
+      type: object
+      properties:
+        file_parts:
+          description: Array of file parts with pre-signed URLs.
+          type: array
+          items:
+            $ref: '#/components/schemas/S3FilePart'
+      title: S3MultipartUploadData
     SSIOAccountAddress:
       type: object
       properties:
@@ -33103,7 +33677,7 @@ components:
             type: string
           nullable: true
         LOCATION:
-          description: '22 ISO Alpha 2 two letter country codes or US Nielsen DMA (Designated Market Area) codes (location region codes) (e.g., ["US", "807"]). For complete list, click here. Location-Country and Location-Metro codes apply. At least one of LOCATION or GEO must be specified. If the LOCATION field is missing, then only GEO values will be targeted (see GEO field above).'
+          description: '22 ISO Alpha 2 two letter country codes or US Nielsen DMA (Designated Market Area) codes (location region codes) (e.g., ["US", "807"]). For complete list, <a href="https://help.pinterest.com/sub/helpcenter/partner/pinterest_location_targeting_codes.xlsx" target="_blank">click here</a>. Location-Country and Location-Metro codes apply. At least one of LOCATION or GEO must be specified. If the LOCATION field is missing, then only GEO values will be targeted (see GEO field above).'
           type: array
           items:
             type: string
@@ -33391,6 +33965,8 @@ components:
               - TARGETING_VALUE
               - TARGETING_VALUE_NAME
               - CAMPAIGN_BRAND_LABEL
+              - CAMPAIGN_CUSTOM_LABELS
+              - APP_INSTALL_APP_NAME
               - PAID_EVENTS
               - BONUS_EVENTS
               - INSERTION
@@ -33432,6 +34008,7 @@ components:
               - KEYWORD_ID
               - KEYWORD_IS_DELETED
               - BRAND_SFDC_ACCOUNT_ID
+              - APP_INSTALL_APP_ID
               - CAMPAIGN_ACTION_TYPE
               - CAMPAIGN_BID_TYPE
               - CAMPAIGN_ENTITY_STATUS
@@ -33468,6 +34045,8 @@ components:
               - PRODUCT_GROUP_CREATIVE_TYPE
               - PROMO_ID
               - PROMO_NAME
+              - PROMO_IDS
+              - PROMO_NAMES
               - ITEM_ID
               - PRODUCT_ITEM_ID
               - INTERNAL_PRODUCT_ITEM_ID
@@ -33484,6 +34063,7 @@ components:
               - PRODUCT_ITEM_PRODUCT_CATEGORY
               - PRODUCT_ITEM_CAMPAIGN_NAME
               - PRODUCT_ITEM_AD_GROUP_NAME
+              - PRODUCT_ITEM_CURRENCY
               - ORDER_LINE_ID
               - ORDER_LINE_NAME
               - ORDER_LINE_PIN_REV_SHARE
@@ -33495,6 +34075,14 @@ components:
               - CONVERSION_PRODUCT_BRAND
               - CONVERSION_PRODUCT_CATEGORY
               - CONVERSION_PRODUCT_ID_GROUP
+              - CARTING_TOTAL_PURCHASE_INTENT_CLICKS
+              - CARTING_TOTAL_PURCHASE_INTENT_VALUE
+              - CARTING_TOTAL_PURCHASE_INTENT_VALUE_IN_MICRO_CURRENCY
+              - CARTING_RETAILER_NAME
+              - CARTING_PRODUCT_PRICE
+              - CARTING_PRODUCT_PRICE_IN_MICRO_CURRENCY
+              - CARTING_PRODUCT_NAME
+              - CARTING_PRODUCT_ID
               - CLICKTHROUGH_1
               - REPIN_1
               - IMPRESSION_1
@@ -34049,6 +34637,10 @@ components:
               - ECPI_IN_MICRO_DOLLAR
               - CPI_IN_DOLLAR
               - ECPI_IN_DOLLAR
+              - INAPP_SKAN_APP_INSTALL
+              - INAPP_SKAN_ASSISTED_APP_INSTALL
+              - INAPP_SKAN_APP_INSTALL_COST_PER_ACTION
+              - INAPP_SKAN_APP_INSTALL_CONVERSION_RATE
               - ONSITE_CHECKOUTS_CPA_BILLABLE_1
               - ONSITE_CHECKOUTS_CPA_BILLABLE_2
               - ONSITE_CHECKOUTS_CPA_BILLABLE
@@ -34922,6 +35514,8 @@ components:
               - TOTAL_INAPP_VIEW_APP_INSTALL
               - TOTAL_INAPP_VIEW_APP_INSTALL_VALUE_IN_MICRO_DOLLAR
               - TOTAL_INAPP_VIEW_APP_INSTALL_VALUE_IN_DOLLAR
+              - TOTAL_APP_INSTALL_CONVERSION_RATE
+              - TOTAL_INAPP_APP_INSTALL_CONVERSION_RATE
               - WEB_ADD_PAYMENT_INFO_COST_PER_ACTION
               - WEB_ADD_PAYMENT_INFO_ROAS
               - TOTAL_WEB_ADD_PAYMENT_INFO
@@ -35192,6 +35786,9 @@ components:
               - TARGETING_MEDIA_TYPE
               - TARGETING_AGE_BUCKET
               - TARGETING_AUDIENCE_MULTIPLIER
+              - TARGETING_LOCAL_ADS_STORE_CODE
+              - TARGETING_LANGUAGES_INCLUDE
+              - TARGETING_LANGUAGES_EXCLUDE
               - TOTAL_CONVERSION_PRODUCT_QUANTITY
               - TOTAL_WEB_CONVERSION_PRODUCT_QUANTITY
               - TOTAL_INAPP_CONVERSION_PRODUCT_QUANTITY
@@ -35521,6 +36118,755 @@ components:
               - IS_REGENERATING
               - GEN_AI_IMAGE_COUNT
               - ADVERTISER_TIME_ZONE
+              - ENGAGEMENT_CONTACT_1
+              - CLICK_CONTACT_1
+              - VIEW_CONTACT_1
+              - ENGAGEMENT_CONTACT_VALUE_IN_MICRO_DOLLAR_1
+              - CLICK_CONTACT_VALUE_IN_MICRO_DOLLAR_1
+              - VIEW_CONTACT_VALUE_IN_MICRO_DOLLAR_1
+              - ENGAGEMENT_CONTACT_QUANTITY_1
+              - CLICK_CONTACT_QUANTITY_1
+              - VIEW_CONTACT_QUANTITY_1
+              - ENGAGEMENT_CONTACT_2
+              - CLICK_CONTACT_2
+              - VIEW_CONTACT_2
+              - ENGAGEMENT_CONTACT_VALUE_IN_MICRO_DOLLAR_2
+              - CLICK_CONTACT_VALUE_IN_MICRO_DOLLAR_2
+              - VIEW_CONTACT_VALUE_IN_MICRO_DOLLAR_2
+              - ENGAGEMENT_CONTACT_QUANTITY_2
+              - CLICK_CONTACT_QUANTITY_2
+              - VIEW_CONTACT_QUANTITY_2
+              - TOTAL_ENGAGEMENT_CONTACT
+              - TOTAL_CLICK_CONTACT
+              - TOTAL_VIEW_CONTACT
+              - TOTAL_ENGAGEMENT_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_ENGAGEMENT_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_CLICK_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_CLICK_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_VIEW_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_VIEW_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_ENGAGEMENT_CONTACT_QUANTITY
+              - TOTAL_CLICK_CONTACT_QUANTITY
+              - TOTAL_VIEW_CONTACT_QUANTITY
+              - TOTAL_CONTACT
+              - TOTAL_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_CONTACT_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_CONTACT_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_CONTACT_QUANTITY
+              - TOTAL_CONTACT_VALUE_IN_DOLLAR
+              - CONTACT_COST_PER_ACTION
+              - CONTACT_COST_PER_ACTION_IN_US_DOLLAR
+              - CONTACT_ROAS
+              - TOTAL_CONTACT_CONVERSION_RATE
+              - WEB_CONTACT_COST_PER_ACTION
+              - WEB_CONTACT_ROAS
+              - TOTAL_WEB_CONTACT
+              - TOTAL_WEB_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_WEB_CLICK_CONTACT
+              - TOTAL_WEB_CLICK_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_CLICK_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_CONTACT
+              - TOTAL_WEB_ENGAGEMENT_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_WEB_VIEW_CONTACT
+              - TOTAL_WEB_VIEW_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_VIEW_CONTACT_VALUE_IN_DOLLAR
+              - INAPP_CONTACT_COST_PER_ACTION
+              - INAPP_CONTACT_ROAS
+              - TOTAL_INAPP_CONTACT
+              - TOTAL_INAPP_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_CLICK_CONTACT
+              - TOTAL_INAPP_CLICK_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_CLICK_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_CONTACT
+              - TOTAL_INAPP_ENGAGEMENT_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_VIEW_CONTACT
+              - TOTAL_INAPP_VIEW_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_VIEW_CONTACT_VALUE_IN_DOLLAR
+              - OFFLINE_CONTACT_COST_PER_ACTION
+              - OFFLINE_CONTACT_ROAS
+              - TOTAL_OFFLINE_CONTACT
+              - TOTAL_OFFLINE_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_CLICK_CONTACT
+              - TOTAL_OFFLINE_CLICK_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_CLICK_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_CONTACT
+              - TOTAL_OFFLINE_ENGAGEMENT_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_VIEW_CONTACT
+              - TOTAL_OFFLINE_VIEW_CONTACT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_VIEW_CONTACT_VALUE_IN_DOLLAR
+              - TOTAL_CONTACT_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_WEB_CONTACT_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_INAPP_CONTACT_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_OFFLINE_CONTACT_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_CONTACT_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_CONTACT_CONVERSION_PRODUCT_VALUE
+              - TOTAL_CONTACT_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_CONTACT_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_CONTACT_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_WEB_CONTACT_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_WEB_CONTACT_CONVERSION_PRODUCT_VALUE
+              - TOTAL_WEB_CONTACT_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_WEB_CONTACT_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_WEB_CONTACT_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_INAPP_CONTACT_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_INAPP_CONTACT_CONVERSION_PRODUCT_VALUE
+              - TOTAL_INAPP_CONTACT_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_INAPP_CONTACT_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_INAPP_CONTACT_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_OFFLINE_CONTACT_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_OFFLINE_CONTACT_CONVERSION_PRODUCT_VALUE
+              - TOTAL_OFFLINE_CONTACT_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_OFFLINE_CONTACT_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_OFFLINE_CONTACT_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - ENGAGEMENT_SCHEDULE_1
+              - CLICK_SCHEDULE_1
+              - VIEW_SCHEDULE_1
+              - ENGAGEMENT_SCHEDULE_VALUE_IN_MICRO_DOLLAR_1
+              - CLICK_SCHEDULE_VALUE_IN_MICRO_DOLLAR_1
+              - VIEW_SCHEDULE_VALUE_IN_MICRO_DOLLAR_1
+              - ENGAGEMENT_SCHEDULE_QUANTITY_1
+              - CLICK_SCHEDULE_QUANTITY_1
+              - VIEW_SCHEDULE_QUANTITY_1
+              - ENGAGEMENT_SCHEDULE_2
+              - CLICK_SCHEDULE_2
+              - VIEW_SCHEDULE_2
+              - ENGAGEMENT_SCHEDULE_VALUE_IN_MICRO_DOLLAR_2
+              - CLICK_SCHEDULE_VALUE_IN_MICRO_DOLLAR_2
+              - VIEW_SCHEDULE_VALUE_IN_MICRO_DOLLAR_2
+              - ENGAGEMENT_SCHEDULE_QUANTITY_2
+              - CLICK_SCHEDULE_QUANTITY_2
+              - VIEW_SCHEDULE_QUANTITY_2
+              - TOTAL_ENGAGEMENT_SCHEDULE
+              - TOTAL_CLICK_SCHEDULE
+              - TOTAL_VIEW_SCHEDULE
+              - TOTAL_ENGAGEMENT_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_ENGAGEMENT_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_CLICK_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_CLICK_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_VIEW_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_VIEW_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_ENGAGEMENT_SCHEDULE_QUANTITY
+              - TOTAL_CLICK_SCHEDULE_QUANTITY
+              - TOTAL_VIEW_SCHEDULE_QUANTITY
+              - TOTAL_SCHEDULE
+              - TOTAL_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_SCHEDULE_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_SCHEDULE_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_SCHEDULE_QUANTITY
+              - TOTAL_SCHEDULE_VALUE_IN_DOLLAR
+              - SCHEDULE_COST_PER_ACTION
+              - SCHEDULE_COST_PER_ACTION_IN_US_DOLLAR
+              - SCHEDULE_ROAS
+              - TOTAL_SCHEDULE_CONVERSION_RATE
+              - WEB_SCHEDULE_COST_PER_ACTION
+              - WEB_SCHEDULE_ROAS
+              - TOTAL_WEB_SCHEDULE
+              - TOTAL_WEB_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_WEB_CLICK_SCHEDULE
+              - TOTAL_WEB_CLICK_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_CLICK_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_SCHEDULE
+              - TOTAL_WEB_ENGAGEMENT_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_WEB_VIEW_SCHEDULE
+              - TOTAL_WEB_VIEW_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_VIEW_SCHEDULE_VALUE_IN_DOLLAR
+              - INAPP_SCHEDULE_COST_PER_ACTION
+              - INAPP_SCHEDULE_ROAS
+              - TOTAL_INAPP_SCHEDULE
+              - TOTAL_INAPP_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_CLICK_SCHEDULE
+              - TOTAL_INAPP_CLICK_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_CLICK_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_SCHEDULE
+              - TOTAL_INAPP_ENGAGEMENT_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_VIEW_SCHEDULE
+              - TOTAL_INAPP_VIEW_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_VIEW_SCHEDULE_VALUE_IN_DOLLAR
+              - OFFLINE_SCHEDULE_COST_PER_ACTION
+              - OFFLINE_SCHEDULE_ROAS
+              - TOTAL_OFFLINE_SCHEDULE
+              - TOTAL_OFFLINE_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_CLICK_SCHEDULE
+              - TOTAL_OFFLINE_CLICK_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_CLICK_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_SCHEDULE
+              - TOTAL_OFFLINE_ENGAGEMENT_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_VIEW_SCHEDULE
+              - TOTAL_OFFLINE_VIEW_SCHEDULE_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_VIEW_SCHEDULE_VALUE_IN_DOLLAR
+              - TOTAL_SCHEDULE_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_WEB_SCHEDULE_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_INAPP_SCHEDULE_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_OFFLINE_SCHEDULE_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_SCHEDULE_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_SCHEDULE_CONVERSION_PRODUCT_VALUE
+              - TOTAL_SCHEDULE_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_SCHEDULE_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_SCHEDULE_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_WEB_SCHEDULE_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_WEB_SCHEDULE_CONVERSION_PRODUCT_VALUE
+              - TOTAL_WEB_SCHEDULE_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_WEB_SCHEDULE_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_WEB_SCHEDULE_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_INAPP_SCHEDULE_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_INAPP_SCHEDULE_CONVERSION_PRODUCT_VALUE
+              - TOTAL_INAPP_SCHEDULE_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_INAPP_SCHEDULE_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_INAPP_SCHEDULE_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_OFFLINE_SCHEDULE_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_OFFLINE_SCHEDULE_CONVERSION_PRODUCT_VALUE
+              - TOTAL_OFFLINE_SCHEDULE_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_OFFLINE_SCHEDULE_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_OFFLINE_SCHEDULE_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - ENGAGEMENT_FIND_LOCATION_1
+              - CLICK_FIND_LOCATION_1
+              - VIEW_FIND_LOCATION_1
+              - ENGAGEMENT_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR_1
+              - CLICK_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR_1
+              - VIEW_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR_1
+              - ENGAGEMENT_FIND_LOCATION_QUANTITY_1
+              - CLICK_FIND_LOCATION_QUANTITY_1
+              - VIEW_FIND_LOCATION_QUANTITY_1
+              - ENGAGEMENT_FIND_LOCATION_2
+              - CLICK_FIND_LOCATION_2
+              - VIEW_FIND_LOCATION_2
+              - ENGAGEMENT_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR_2
+              - CLICK_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR_2
+              - VIEW_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR_2
+              - ENGAGEMENT_FIND_LOCATION_QUANTITY_2
+              - CLICK_FIND_LOCATION_QUANTITY_2
+              - VIEW_FIND_LOCATION_QUANTITY_2
+              - TOTAL_ENGAGEMENT_FIND_LOCATION
+              - TOTAL_CLICK_FIND_LOCATION
+              - TOTAL_VIEW_FIND_LOCATION
+              - TOTAL_ENGAGEMENT_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_ENGAGEMENT_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_CLICK_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_CLICK_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_VIEW_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_VIEW_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_ENGAGEMENT_FIND_LOCATION_QUANTITY
+              - TOTAL_CLICK_FIND_LOCATION_QUANTITY
+              - TOTAL_VIEW_FIND_LOCATION_QUANTITY
+              - TOTAL_FIND_LOCATION
+              - TOTAL_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_FIND_LOCATION_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_FIND_LOCATION_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_FIND_LOCATION_QUANTITY
+              - TOTAL_FIND_LOCATION_VALUE_IN_DOLLAR
+              - FIND_LOCATION_COST_PER_ACTION
+              - FIND_LOCATION_COST_PER_ACTION_IN_US_DOLLAR
+              - FIND_LOCATION_ROAS
+              - TOTAL_FIND_LOCATION_CONVERSION_RATE
+              - WEB_FIND_LOCATION_COST_PER_ACTION
+              - WEB_FIND_LOCATION_ROAS
+              - TOTAL_WEB_FIND_LOCATION
+              - TOTAL_WEB_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_WEB_CLICK_FIND_LOCATION
+              - TOTAL_WEB_CLICK_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_CLICK_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_FIND_LOCATION
+              - TOTAL_WEB_ENGAGEMENT_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_WEB_VIEW_FIND_LOCATION
+              - TOTAL_WEB_VIEW_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_VIEW_FIND_LOCATION_VALUE_IN_DOLLAR
+              - INAPP_FIND_LOCATION_COST_PER_ACTION
+              - INAPP_FIND_LOCATION_ROAS
+              - TOTAL_INAPP_FIND_LOCATION
+              - TOTAL_INAPP_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_CLICK_FIND_LOCATION
+              - TOTAL_INAPP_CLICK_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_CLICK_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_FIND_LOCATION
+              - TOTAL_INAPP_ENGAGEMENT_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_VIEW_FIND_LOCATION
+              - TOTAL_INAPP_VIEW_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_VIEW_FIND_LOCATION_VALUE_IN_DOLLAR
+              - OFFLINE_FIND_LOCATION_COST_PER_ACTION
+              - OFFLINE_FIND_LOCATION_ROAS
+              - TOTAL_OFFLINE_FIND_LOCATION
+              - TOTAL_OFFLINE_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_CLICK_FIND_LOCATION
+              - TOTAL_OFFLINE_CLICK_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_CLICK_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_FIND_LOCATION
+              - TOTAL_OFFLINE_ENGAGEMENT_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_VIEW_FIND_LOCATION
+              - TOTAL_OFFLINE_VIEW_FIND_LOCATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_VIEW_FIND_LOCATION_VALUE_IN_DOLLAR
+              - TOTAL_FIND_LOCATION_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_WEB_FIND_LOCATION_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_INAPP_FIND_LOCATION_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_OFFLINE_FIND_LOCATION_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_FIND_LOCATION_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_FIND_LOCATION_CONVERSION_PRODUCT_VALUE
+              - TOTAL_FIND_LOCATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_FIND_LOCATION_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_FIND_LOCATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_WEB_FIND_LOCATION_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_WEB_FIND_LOCATION_CONVERSION_PRODUCT_VALUE
+              - TOTAL_WEB_FIND_LOCATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_WEB_FIND_LOCATION_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_WEB_FIND_LOCATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_INAPP_FIND_LOCATION_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_INAPP_FIND_LOCATION_CONVERSION_PRODUCT_VALUE
+              - TOTAL_INAPP_FIND_LOCATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_INAPP_FIND_LOCATION_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_INAPP_FIND_LOCATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_OFFLINE_FIND_LOCATION_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_OFFLINE_FIND_LOCATION_CONVERSION_PRODUCT_VALUE
+              - TOTAL_OFFLINE_FIND_LOCATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_OFFLINE_FIND_LOCATION_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_OFFLINE_FIND_LOCATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - ENGAGEMENT_CUSTOMIZE_PRODUCT_1
+              - CLICK_CUSTOMIZE_PRODUCT_1
+              - VIEW_CUSTOMIZE_PRODUCT_1
+              - ENGAGEMENT_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR_1
+              - CLICK_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR_1
+              - VIEW_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR_1
+              - ENGAGEMENT_CUSTOMIZE_PRODUCT_QUANTITY_1
+              - CLICK_CUSTOMIZE_PRODUCT_QUANTITY_1
+              - VIEW_CUSTOMIZE_PRODUCT_QUANTITY_1
+              - ENGAGEMENT_CUSTOMIZE_PRODUCT_2
+              - CLICK_CUSTOMIZE_PRODUCT_2
+              - VIEW_CUSTOMIZE_PRODUCT_2
+              - ENGAGEMENT_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR_2
+              - CLICK_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR_2
+              - VIEW_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR_2
+              - ENGAGEMENT_CUSTOMIZE_PRODUCT_QUANTITY_2
+              - CLICK_CUSTOMIZE_PRODUCT_QUANTITY_2
+              - VIEW_CUSTOMIZE_PRODUCT_QUANTITY_2
+              - TOTAL_ENGAGEMENT_CUSTOMIZE_PRODUCT
+              - TOTAL_CLICK_CUSTOMIZE_PRODUCT
+              - TOTAL_VIEW_CUSTOMIZE_PRODUCT
+              - TOTAL_ENGAGEMENT_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_ENGAGEMENT_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_CLICK_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_CLICK_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_VIEW_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_VIEW_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_ENGAGEMENT_CUSTOMIZE_PRODUCT_QUANTITY
+              - TOTAL_CLICK_CUSTOMIZE_PRODUCT_QUANTITY
+              - TOTAL_VIEW_CUSTOMIZE_PRODUCT_QUANTITY
+              - TOTAL_CUSTOMIZE_PRODUCT
+              - TOTAL_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_CUSTOMIZE_PRODUCT_QUANTITY
+              - TOTAL_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - CUSTOMIZE_PRODUCT_COST_PER_ACTION
+              - CUSTOMIZE_PRODUCT_COST_PER_ACTION_IN_US_DOLLAR
+              - CUSTOMIZE_PRODUCT_ROAS
+              - TOTAL_CUSTOMIZE_PRODUCT_CONVERSION_RATE
+              - WEB_CUSTOMIZE_PRODUCT_COST_PER_ACTION
+              - WEB_CUSTOMIZE_PRODUCT_ROAS
+              - TOTAL_WEB_CUSTOMIZE_PRODUCT
+              - TOTAL_WEB_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_WEB_CLICK_CUSTOMIZE_PRODUCT
+              - TOTAL_WEB_CLICK_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_CLICK_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_CUSTOMIZE_PRODUCT
+              - TOTAL_WEB_ENGAGEMENT_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_WEB_VIEW_CUSTOMIZE_PRODUCT
+              - TOTAL_WEB_VIEW_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_VIEW_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - INAPP_CUSTOMIZE_PRODUCT_COST_PER_ACTION
+              - INAPP_CUSTOMIZE_PRODUCT_ROAS
+              - TOTAL_INAPP_CUSTOMIZE_PRODUCT
+              - TOTAL_INAPP_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_CLICK_CUSTOMIZE_PRODUCT
+              - TOTAL_INAPP_CLICK_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_CLICK_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_CUSTOMIZE_PRODUCT
+              - TOTAL_INAPP_ENGAGEMENT_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_VIEW_CUSTOMIZE_PRODUCT
+              - TOTAL_INAPP_VIEW_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_VIEW_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - OFFLINE_CUSTOMIZE_PRODUCT_COST_PER_ACTION
+              - OFFLINE_CUSTOMIZE_PRODUCT_ROAS
+              - TOTAL_OFFLINE_CUSTOMIZE_PRODUCT
+              - TOTAL_OFFLINE_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_CLICK_CUSTOMIZE_PRODUCT
+              - TOTAL_OFFLINE_CLICK_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_CLICK_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_CUSTOMIZE_PRODUCT
+              - TOTAL_OFFLINE_ENGAGEMENT_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_VIEW_CUSTOMIZE_PRODUCT
+              - TOTAL_OFFLINE_VIEW_CUSTOMIZE_PRODUCT_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_VIEW_CUSTOMIZE_PRODUCT_VALUE_IN_DOLLAR
+              - TOTAL_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_WEB_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_INAPP_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_OFFLINE_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE
+              - TOTAL_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_WEB_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_WEB_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE
+              - TOTAL_WEB_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_WEB_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_WEB_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_INAPP_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_INAPP_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE
+              - TOTAL_INAPP_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_INAPP_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_INAPP_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_OFFLINE_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_OFFLINE_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE
+              - TOTAL_OFFLINE_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_OFFLINE_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_OFFLINE_CUSTOMIZE_PRODUCT_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - ENGAGEMENT_SUBMIT_APPLICATION_1
+              - CLICK_SUBMIT_APPLICATION_1
+              - VIEW_SUBMIT_APPLICATION_1
+              - ENGAGEMENT_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR_1
+              - CLICK_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR_1
+              - VIEW_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR_1
+              - ENGAGEMENT_SUBMIT_APPLICATION_QUANTITY_1
+              - CLICK_SUBMIT_APPLICATION_QUANTITY_1
+              - VIEW_SUBMIT_APPLICATION_QUANTITY_1
+              - ENGAGEMENT_SUBMIT_APPLICATION_2
+              - CLICK_SUBMIT_APPLICATION_2
+              - VIEW_SUBMIT_APPLICATION_2
+              - ENGAGEMENT_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR_2
+              - CLICK_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR_2
+              - VIEW_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR_2
+              - ENGAGEMENT_SUBMIT_APPLICATION_QUANTITY_2
+              - CLICK_SUBMIT_APPLICATION_QUANTITY_2
+              - VIEW_SUBMIT_APPLICATION_QUANTITY_2
+              - TOTAL_ENGAGEMENT_SUBMIT_APPLICATION
+              - TOTAL_CLICK_SUBMIT_APPLICATION
+              - TOTAL_VIEW_SUBMIT_APPLICATION
+              - TOTAL_ENGAGEMENT_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_ENGAGEMENT_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_CLICK_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_CLICK_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_VIEW_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_VIEW_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_ENGAGEMENT_SUBMIT_APPLICATION_QUANTITY
+              - TOTAL_CLICK_SUBMIT_APPLICATION_QUANTITY
+              - TOTAL_VIEW_SUBMIT_APPLICATION_QUANTITY
+              - TOTAL_SUBMIT_APPLICATION
+              - TOTAL_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_SUBMIT_APPLICATION_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_SUBMIT_APPLICATION_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_SUBMIT_APPLICATION_QUANTITY
+              - TOTAL_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - SUBMIT_APPLICATION_COST_PER_ACTION
+              - SUBMIT_APPLICATION_COST_PER_ACTION_IN_US_DOLLAR
+              - SUBMIT_APPLICATION_ROAS
+              - TOTAL_SUBMIT_APPLICATION_CONVERSION_RATE
+              - WEB_SUBMIT_APPLICATION_COST_PER_ACTION
+              - WEB_SUBMIT_APPLICATION_ROAS
+              - TOTAL_WEB_SUBMIT_APPLICATION
+              - TOTAL_WEB_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_WEB_CLICK_SUBMIT_APPLICATION
+              - TOTAL_WEB_CLICK_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_CLICK_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_SUBMIT_APPLICATION
+              - TOTAL_WEB_ENGAGEMENT_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_WEB_VIEW_SUBMIT_APPLICATION
+              - TOTAL_WEB_VIEW_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_VIEW_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - INAPP_SUBMIT_APPLICATION_COST_PER_ACTION
+              - INAPP_SUBMIT_APPLICATION_ROAS
+              - TOTAL_INAPP_SUBMIT_APPLICATION
+              - TOTAL_INAPP_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_CLICK_SUBMIT_APPLICATION
+              - TOTAL_INAPP_CLICK_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_CLICK_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_SUBMIT_APPLICATION
+              - TOTAL_INAPP_ENGAGEMENT_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_VIEW_SUBMIT_APPLICATION
+              - TOTAL_INAPP_VIEW_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_VIEW_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - OFFLINE_SUBMIT_APPLICATION_COST_PER_ACTION
+              - OFFLINE_SUBMIT_APPLICATION_ROAS
+              - TOTAL_OFFLINE_SUBMIT_APPLICATION
+              - TOTAL_OFFLINE_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_CLICK_SUBMIT_APPLICATION
+              - TOTAL_OFFLINE_CLICK_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_CLICK_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_SUBMIT_APPLICATION
+              - TOTAL_OFFLINE_ENGAGEMENT_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_VIEW_SUBMIT_APPLICATION
+              - TOTAL_OFFLINE_VIEW_SUBMIT_APPLICATION_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_VIEW_SUBMIT_APPLICATION_VALUE_IN_DOLLAR
+              - TOTAL_SUBMIT_APPLICATION_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_WEB_SUBMIT_APPLICATION_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_INAPP_SUBMIT_APPLICATION_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_OFFLINE_SUBMIT_APPLICATION_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_SUBMIT_APPLICATION_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE
+              - TOTAL_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_WEB_SUBMIT_APPLICATION_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_WEB_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE
+              - TOTAL_WEB_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_WEB_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_WEB_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_INAPP_SUBMIT_APPLICATION_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_INAPP_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE
+              - TOTAL_INAPP_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_INAPP_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_INAPP_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_OFFLINE_SUBMIT_APPLICATION_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_OFFLINE_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE
+              - TOTAL_OFFLINE_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_OFFLINE_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_OFFLINE_SUBMIT_APPLICATION_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - ENGAGEMENT_START_TRIAL_1
+              - CLICK_START_TRIAL_1
+              - VIEW_START_TRIAL_1
+              - ENGAGEMENT_START_TRIAL_VALUE_IN_MICRO_DOLLAR_1
+              - CLICK_START_TRIAL_VALUE_IN_MICRO_DOLLAR_1
+              - VIEW_START_TRIAL_VALUE_IN_MICRO_DOLLAR_1
+              - ENGAGEMENT_START_TRIAL_QUANTITY_1
+              - CLICK_START_TRIAL_QUANTITY_1
+              - VIEW_START_TRIAL_QUANTITY_1
+              - ENGAGEMENT_START_TRIAL_2
+              - CLICK_START_TRIAL_2
+              - VIEW_START_TRIAL_2
+              - ENGAGEMENT_START_TRIAL_VALUE_IN_MICRO_DOLLAR_2
+              - CLICK_START_TRIAL_VALUE_IN_MICRO_DOLLAR_2
+              - VIEW_START_TRIAL_VALUE_IN_MICRO_DOLLAR_2
+              - ENGAGEMENT_START_TRIAL_QUANTITY_2
+              - CLICK_START_TRIAL_QUANTITY_2
+              - VIEW_START_TRIAL_QUANTITY_2
+              - TOTAL_ENGAGEMENT_START_TRIAL
+              - TOTAL_CLICK_START_TRIAL
+              - TOTAL_VIEW_START_TRIAL
+              - TOTAL_ENGAGEMENT_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_ENGAGEMENT_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_CLICK_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_CLICK_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_VIEW_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_VIEW_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_ENGAGEMENT_START_TRIAL_QUANTITY
+              - TOTAL_CLICK_START_TRIAL_QUANTITY
+              - TOTAL_VIEW_START_TRIAL_QUANTITY
+              - TOTAL_START_TRIAL
+              - TOTAL_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_START_TRIAL_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_START_TRIAL_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_START_TRIAL_QUANTITY
+              - TOTAL_START_TRIAL_VALUE_IN_DOLLAR
+              - START_TRIAL_COST_PER_ACTION
+              - START_TRIAL_COST_PER_ACTION_IN_US_DOLLAR
+              - START_TRIAL_ROAS
+              - TOTAL_START_TRIAL_CONVERSION_RATE
+              - WEB_START_TRIAL_COST_PER_ACTION
+              - WEB_START_TRIAL_ROAS
+              - TOTAL_WEB_START_TRIAL
+              - TOTAL_WEB_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_WEB_CLICK_START_TRIAL
+              - TOTAL_WEB_CLICK_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_CLICK_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_START_TRIAL
+              - TOTAL_WEB_ENGAGEMENT_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_WEB_VIEW_START_TRIAL
+              - TOTAL_WEB_VIEW_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_VIEW_START_TRIAL_VALUE_IN_DOLLAR
+              - INAPP_START_TRIAL_COST_PER_ACTION
+              - INAPP_START_TRIAL_ROAS
+              - TOTAL_INAPP_START_TRIAL
+              - TOTAL_INAPP_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_CLICK_START_TRIAL
+              - TOTAL_INAPP_CLICK_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_CLICK_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_START_TRIAL
+              - TOTAL_INAPP_ENGAGEMENT_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_VIEW_START_TRIAL
+              - TOTAL_INAPP_VIEW_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_VIEW_START_TRIAL_VALUE_IN_DOLLAR
+              - OFFLINE_START_TRIAL_COST_PER_ACTION
+              - OFFLINE_START_TRIAL_ROAS
+              - TOTAL_OFFLINE_START_TRIAL
+              - TOTAL_OFFLINE_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_CLICK_START_TRIAL
+              - TOTAL_OFFLINE_CLICK_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_CLICK_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_START_TRIAL
+              - TOTAL_OFFLINE_ENGAGEMENT_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_VIEW_START_TRIAL
+              - TOTAL_OFFLINE_VIEW_START_TRIAL_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_VIEW_START_TRIAL_VALUE_IN_DOLLAR
+              - TOTAL_START_TRIAL_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_WEB_START_TRIAL_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_INAPP_START_TRIAL_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_OFFLINE_START_TRIAL_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_START_TRIAL_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_START_TRIAL_CONVERSION_PRODUCT_VALUE
+              - TOTAL_START_TRIAL_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_START_TRIAL_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_START_TRIAL_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_WEB_START_TRIAL_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_WEB_START_TRIAL_CONVERSION_PRODUCT_VALUE
+              - TOTAL_WEB_START_TRIAL_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_WEB_START_TRIAL_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_WEB_START_TRIAL_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_INAPP_START_TRIAL_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_INAPP_START_TRIAL_CONVERSION_PRODUCT_VALUE
+              - TOTAL_INAPP_START_TRIAL_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_INAPP_START_TRIAL_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_INAPP_START_TRIAL_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_OFFLINE_START_TRIAL_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_OFFLINE_START_TRIAL_CONVERSION_PRODUCT_VALUE
+              - TOTAL_OFFLINE_START_TRIAL_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_OFFLINE_START_TRIAL_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_OFFLINE_START_TRIAL_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - ENGAGEMENT_APP_OPEN_1
+              - CLICK_APP_OPEN_1
+              - VIEW_APP_OPEN_1
+              - ENGAGEMENT_APP_OPEN_VALUE_IN_MICRO_DOLLAR_1
+              - CLICK_APP_OPEN_VALUE_IN_MICRO_DOLLAR_1
+              - VIEW_APP_OPEN_VALUE_IN_MICRO_DOLLAR_1
+              - ENGAGEMENT_APP_OPEN_QUANTITY_1
+              - CLICK_APP_OPEN_QUANTITY_1
+              - VIEW_APP_OPEN_QUANTITY_1
+              - ENGAGEMENT_APP_OPEN_2
+              - CLICK_APP_OPEN_2
+              - VIEW_APP_OPEN_2
+              - ENGAGEMENT_APP_OPEN_VALUE_IN_MICRO_DOLLAR_2
+              - CLICK_APP_OPEN_VALUE_IN_MICRO_DOLLAR_2
+              - VIEW_APP_OPEN_VALUE_IN_MICRO_DOLLAR_2
+              - ENGAGEMENT_APP_OPEN_QUANTITY_2
+              - CLICK_APP_OPEN_QUANTITY_2
+              - VIEW_APP_OPEN_QUANTITY_2
+              - TOTAL_ENGAGEMENT_APP_OPEN
+              - TOTAL_CLICK_APP_OPEN
+              - TOTAL_VIEW_APP_OPEN
+              - TOTAL_ENGAGEMENT_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_ENGAGEMENT_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_CLICK_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_CLICK_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_VIEW_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_VIEW_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_ENGAGEMENT_APP_OPEN_QUANTITY
+              - TOTAL_CLICK_APP_OPEN_QUANTITY
+              - TOTAL_VIEW_APP_OPEN_QUANTITY
+              - TOTAL_APP_OPEN
+              - TOTAL_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - AVERAGE_APP_OPEN_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_APP_OPEN_VALUE_IN_MICRO_US_DOLLAR
+              - TOTAL_APP_OPEN_QUANTITY
+              - TOTAL_APP_OPEN_VALUE_IN_DOLLAR
+              - APP_OPEN_COST_PER_ACTION
+              - APP_OPEN_COST_PER_ACTION_IN_US_DOLLAR
+              - APP_OPEN_ROAS
+              - TOTAL_APP_OPEN_CONVERSION_RATE
+              - WEB_APP_OPEN_COST_PER_ACTION
+              - WEB_APP_OPEN_ROAS
+              - TOTAL_WEB_APP_OPEN
+              - TOTAL_WEB_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_WEB_CLICK_APP_OPEN
+              - TOTAL_WEB_CLICK_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_CLICK_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_APP_OPEN
+              - TOTAL_WEB_ENGAGEMENT_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_ENGAGEMENT_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_WEB_VIEW_APP_OPEN
+              - TOTAL_WEB_VIEW_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_WEB_VIEW_APP_OPEN_VALUE_IN_DOLLAR
+              - INAPP_APP_OPEN_COST_PER_ACTION
+              - INAPP_APP_OPEN_ROAS
+              - TOTAL_INAPP_APP_OPEN
+              - TOTAL_INAPP_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_CLICK_APP_OPEN
+              - TOTAL_INAPP_CLICK_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_CLICK_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_APP_OPEN
+              - TOTAL_INAPP_ENGAGEMENT_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_ENGAGEMENT_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_INAPP_VIEW_APP_OPEN
+              - TOTAL_INAPP_VIEW_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_INAPP_VIEW_APP_OPEN_VALUE_IN_DOLLAR
+              - OFFLINE_APP_OPEN_COST_PER_ACTION
+              - OFFLINE_APP_OPEN_ROAS
+              - TOTAL_OFFLINE_APP_OPEN
+              - TOTAL_OFFLINE_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_CLICK_APP_OPEN
+              - TOTAL_OFFLINE_CLICK_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_CLICK_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_APP_OPEN
+              - TOTAL_OFFLINE_ENGAGEMENT_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_ENGAGEMENT_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_OFFLINE_VIEW_APP_OPEN
+              - TOTAL_OFFLINE_VIEW_APP_OPEN_VALUE_IN_MICRO_DOLLAR
+              - TOTAL_OFFLINE_VIEW_APP_OPEN_VALUE_IN_DOLLAR
+              - TOTAL_APP_OPEN_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_WEB_APP_OPEN_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_INAPP_APP_OPEN_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_OFFLINE_APP_OPEN_CONVERSION_PRODUCT_COUNT_UNIQUE
+              - TOTAL_APP_OPEN_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_APP_OPEN_CONVERSION_PRODUCT_VALUE
+              - TOTAL_APP_OPEN_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_APP_OPEN_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_APP_OPEN_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_WEB_APP_OPEN_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_WEB_APP_OPEN_CONVERSION_PRODUCT_VALUE
+              - TOTAL_WEB_APP_OPEN_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_WEB_APP_OPEN_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_WEB_APP_OPEN_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_INAPP_APP_OPEN_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_INAPP_APP_OPEN_CONVERSION_PRODUCT_VALUE
+              - TOTAL_INAPP_APP_OPEN_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_INAPP_APP_OPEN_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_INAPP_APP_OPEN_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
+              - TOTAL_OFFLINE_APP_OPEN_CONVERSION_PRODUCT_QUANTITY
+              - TOTAL_OFFLINE_APP_OPEN_CONVERSION_PRODUCT_VALUE
+              - TOTAL_OFFLINE_APP_OPEN_CONVERSION_PRODUCT_VALUE_IN_MICRO_UNITS
+              - TOTAL_OFFLINE_APP_OPEN_CONVERSION_PRODUCT_VALUE_IN_USD
+              - TOTAL_OFFLINE_APP_OPEN_CONVERSION_PRODUCT_VALUE_IN_MICRO_USD
           example:
             - SPEND_IN_DOLLAR
         conversion_report_time_type:
@@ -36587,6 +37933,96 @@ components:
           type: string
           example: 'https://www.example.com/cat/denim-shirt/item012?utm_source=Pinterest'
           nullable: true
+        ad_video_0_link:
+          description: |-
+            <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+            <p><= 2000 characters</p>
+            <p>Ad video link that supplements main video for shopping campaigns.</p>
+            <p>Video format:</p>
+            <ul>
+              <li>Pixel size between 75 x 75 and 9450 x 9450</li>
+              <li>File size smaller than 2 GB</li>
+              <li>Time span between 4 seconds and 15 minutes</li>
+              <li>Accepted formats: .MP4, .MOV, .M4V</li>
+            </ul>
+            <p>Link guidelines:</p>
+            <ul>
+              <li>Include extension in file name</li>
+              <li>Do not include template or placeholder videos in link</li>
+              <li>Make URL accessible to Pinterest user-agent</li>
+              <li>Must start with http:// or https://</li>
+            </ul>
+          type: string
+          example: 'https://www.example.com/video/video_v2.mov'
+          nullable: true
+        ad_video_0_tag:
+          description: |-
+            <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+            <p><= 511 characters</p>
+            <p>If you provide an ad_video_x_link, include the video tag with the corresponding ad_video_x_tag attribute.</p>
+          type: string
+          example: black friday
+          nullable: true
+        ad_video_1_link:
+          description: |-
+            <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+            <p><= 2000 characters</p>
+            <p>Ad video link that supplements main video for shopping campaigns.</p>
+            <p>Video format:</p>
+            <ul>
+              <li>Pixel size between 75 x 75 and 9450 x 9450</li>
+              <li>File size smaller than 2 GB</li>
+              <li>Time span between 4 seconds and 15 minutes</li>
+              <li>Accepted formats: .MP4, .MOV, .M4V</li>
+            </ul>
+            <p>Link guidelines:</p>
+            <ul>
+              <li>Include extension in file name</li>
+              <li>Do not include template or placeholder videos in link</li>
+              <li>Make URL accessible to Pinterest user-agent</li>
+              <li>Must start with http:// or https://</li>
+            </ul>
+          type: string
+          example: 'https://www.example.com/video/video_v2.mov'
+          nullable: true
+        ad_video_1_tag:
+          description: |-
+            <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+            <p><= 511 characters</p>
+            <p>If you provide an ad_video_x_link, include the video tag with the corresponding ad_video_x_tag attribute.</p>
+          type: string
+          example: black friday
+          nullable: true
+        ad_video_2_link:
+          description: |-
+            <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+            <p><= 2000 characters</p>
+            <p>Ad video link that supplements main video for shopping campaigns.</p>
+            <p>Video format:</p>
+            <ul>
+              <li>Pixel size between 75 x 75 and 9450 x 9450</li>
+              <li>File size smaller than 2 GB</li>
+              <li>Time span between 4 seconds and 15 minutes</li>
+              <li>Accepted formats: .MP4, .MOV, .M4V</li>
+            </ul>
+            <p>Link guidelines:</p>
+            <ul>
+              <li>Include extension in file name</li>
+              <li>Do not include template or placeholder videos in link</li>
+              <li>Make URL accessible to Pinterest user-agent</li>
+              <li>Must start with http:// or https://</li>
+            </ul>
+          type: string
+          example: 'https://www.example.com/video/video_v2.mov'
+          nullable: true
+        ad_video_2_tag:
+          description: |-
+            <a href="/docs/getting-started/using-beta-and-restricted-features/" target="blank" target="blank">Restricted</a>
+            <p><= 511 characters</p>
+            <p>If you provide an ad_video_x_link, include the video tag with the corresponding ad_video_x_tag attribute.</p>
+          type: string
+          example: black friday
+          nullable: true
         adult:
           description: Set this attribute to TRUE if you're submitting items that are considered “adult”. These will not be shown on Pinterest.
           type: boolean
@@ -36597,6 +38033,10 @@ components:
           type: string
           example: newborn
           nullable: true
+        android_deep_link:
+          description: The deep link to the product on the Android app.
+          type: string
+          example: 'pinterest://item/1234567890'
         availability:
           description: 'The availability of the product. Must be one of the following values (upper or lowercased): ‘in stock’, ‘out of stock’, ‘preorder’.'
           type: string
@@ -36741,6 +38181,10 @@ components:
           type: string
           example: '10:10.00 USD'
           nullable: true
+        ios_deep_link:
+          description: The deep link to the product on the iOS app.
+          type: string
+          example: 'pinterest://item/1234567890'
         item_group_id:
           description: |-
             <p><= 127 characters</p>
@@ -37680,7 +39124,7 @@ components:
             - $ref: '#/components/schemas/BoardPrivacy'
       required:
         - name
-    QueryParams.BoardPrivacyFilter:
+    BoardPrivacyFilter:
       type: string
       enum:
         - ALL
@@ -37883,6 +39327,538 @@ components:
     Pinterest.Lib.IntegerFormatType:
       type: string
       pattern: ^\d+$
+    EventQualityScore:
+      description: Schema for GET Conversion EQS response.
+      type: object
+      properties:
+        ingestion_source:
+          $ref: '#/components/schemas/IngestionSourceOptions'
+        lookback_period:
+          $ref: '#/components/schemas/LookbackPeriodOptions'
+        overall_status:
+          $ref: '#/components/schemas/OverallStatusOptions'
+        quality_components:
+          $ref: '#/components/schemas/QualityComponents'
+        source_platform:
+          $ref: '#/components/schemas/SourcePlatformOptions'
+      required:
+        - overall_status
+        - quality_components
+        - ingestion_source
+        - source_platform
+        - lookback_period
+    SourcePlatformOptions:
+      description: List of source platforms for a conversion event.
+      type: string
+      enum:
+        - WEB
+        - MOBILE
+        - MOBILE_ANDROID
+        - MOBILE_IOS
+        - OFFLINE
+        - PINTEREST_WEB
+        - PINTEREST_ANDROID
+        - PINTEREST_IOS
+        - POINT_OF_SALE
+    IngestionSourceOptions:
+      description: List of ingestion sources for a conversion event.
+      type: string
+      enum:
+        - TAG
+        - MMP
+        - FILE_UPLOAD
+        - CONVERSIONS_API
+        - NATIVE
+    OverallStatusOptions:
+      description: Overall status of event quality score.
+      type: string
+      enum:
+        - NEEDS_IMPROVEMENT
+        - FAIR
+        - GOOD
+    QualityComponents:
+      description: 'Set of quality components, with each component containing a event coverage and details.'
+      type: object
+      properties:
+        advertiser_external_id:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QualityComponentDetails'
+        click_id_epik:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QualityComponentDetails'
+        external_event_id:
+          description: Dedup components.
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QualityComponentDetails'
+        hashed_email:
+          description: User matching identifiers.
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QualityComponentDetails'
+        hashed_maid:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QualityComponentDetails'
+        ip_address:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QualityComponentDetails'
+        order_id:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QualityComponentDetails'
+        order_value:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QualityComponentDetails'
+        product_id:
+          description: Product/event metadata.
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QualityComponentDetails'
+        source_url:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QualityComponentDetails'
+        user_agent:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QualityComponentDetails'
+    LookbackPeriodOptions:
+      description: Days in lookback window in the GET Conversion EQS response.
+      type: string
+      enum:
+        - 1d
+        - 14d
+    QualityComponentIssue:
+      description: Details of an issue with a quality component.
+      type: object
+      properties:
+        id:
+          description: Unique identifier for the issue check.
+          type: string
+        name:
+          description: Human-readable name of the issue.
+          type: string
+        reason:
+          description: Detailed reason for the issue.
+          type: string
+      required:
+        - id
+        - name
+        - reason
+    QualityComponentDetails:
+      description: Metrics for a specific event type within a quality component.
+      type: object
+      properties:
+        coverage:
+          description: Coverage percentage for this event type.
+          type: number
+        issues:
+          description: 'List of issues detected for this event type, if any.'
+          type: array
+          items:
+            $ref: '#/components/schemas/QualityComponentIssue'
+        overlap:
+          description: Overlap percentage for this event type. Only populated for external_event_id
+          type: number
+      required:
+        - coverage
+    EventData:
+      description: |2-
+            Optional for VISITOR `audience_type`.
+            With the Pinterest tag, you can use event data to capture event details from your website.
+            This object lists all the available predefined event data fields in the Pinterest tag.
+            You can include these event data fields as part of a VISITOR audience’s `rule`; however, you **must** specify an `event` for the `event_data` fields to be evaluated.
+            Besides what’s listed, you can also create your own set of `event_data` fields and define their usages or purposes according to your website needs.
+            However, the benefit of using the predefined event data fields is that we can provide various metrics based on those fields' data.
+            Examples per `event` type:
+            `pagevisit`
+            "event_data": { "page_name": "My online store 123 | view items | shoe" }
+            `signup`
+            "event_data": { "lead_type": "New release promotion" }
+            `checkout`
+            "event_data": { "value": 116, "order_quantity": 2, "currency": "USD", "line_items": [ { "product_name": "Pillows (Set of 2)", "product_id": "11", "product_price": 48, "product_quantity": 1 }, { "product_name": "Pillows, Large (Set of 2)", "product_id": "15", "product_price": 68, "product_quantity": 1 } ] }
+            `addtocart`
+            "event_data": { "value": 499, "order_quantity": 1, "currency": "USD", "line_items": [ { "product_name": "Red leather boots", "product_id": "3486", "product_category": "shoe", "product_variant_id": "JB11103000", "product_price": 499, "product_quantity": "1", "product_brand": "My brand" }]}
+            `watchvideo`
+            "event_data": { "video_title": "My Product Video 01" }
+            `lead`
+            "event_data": { "lead_type": "Newsletter" }
+      type: object
+      properties:
+        currency:
+          description: 'Currency. For example, ''USD''.'
+          allOf:
+            - $ref: '#/components/schemas/Currency'
+        lead_type:
+          description: 'Promotion code. For example, ''Newsletter''.'
+          type: string
+          example: Newsletter
+          title: lead_type
+        line_items:
+          allOf:
+            - $ref: '#/components/schemas/LineItem'
+          title: LineItem
+        order_id:
+          description: 'Order ID. For example, ''X-151481''.'
+          type: string
+          example: X-151481
+          title: order_id
+        order_quantity:
+          description: 'Order quantity. For example, 1.'
+          type: integer
+          example: 1
+          title: order_quantity
+        page_name:
+          description: 'Page name. For example, ''Our Favorite Pins on Pinterest''.'
+          type: string
+          example: Our Favorite Pins on Pinterest
+          title: page_name
+        promo_code:
+          description: 'Promotion code. For example, ''WINTER10''.'
+          type: string
+          example: WINTER10
+          title: promo_code
+        property:
+          description: 'Property. For example, ''Athleta''.'
+          type: string
+          example: Athleta
+          title: property
+        search_query:
+          description: 'Search query string. For example, ''boots''.'
+          type: string
+          example: boots
+          title: search_query
+        value:
+          description: 'Product value. For example, ''199.98''.'
+          type: string
+          example: '199.98'
+          title: value
+        video_title:
+          description: 'Video title. For example, ''How to style your Parker Boots''.'
+          type: string
+          example: How to style your Parker Boots
+          title: video_title
+    LineItem:
+      type: object
+      properties:
+        product_brand:
+          description: 'Product brand. For example, ''Parker''.'
+          type: string
+          example: Parker
+          title: product_brand
+        product_category:
+          description: 'Product category. For example, ''Shoes''.'
+          type: string
+          example: Shoes
+          title: product_category
+        product_id:
+          description: 'Product ID. For example, 1414.'
+          type: integer
+          example: 1414
+          title: product_id
+        product_name:
+          description: 'Product name. For example, ''Parker Boots''.'
+          type: string
+          example: Parker Boots
+          title: product_name
+        product_price:
+          description: 'Product price. For example, ''99.99''.'
+          type: string
+          example: '99.99'
+          title: product_price
+        product_quantity:
+          description: 'Product quantity. For example, 2.'
+          type: integer
+          example: 2
+          title: product_quantity
+        product_variant:
+          description: 'Product variant. For example, ''Red''.'
+          type: string
+          example: Red
+          title: product_variant
+        product_variant_id:
+          description: 'Product variant ID. For example, ''1414-34832''.'
+          type: string
+          example: 1414-34832
+          title: product_variant_id
+    ConversionHealthSelectionUpdate:
+      description: Resource create or update operation model.
+      type: object
+      properties:
+        selection:
+          description: Map of feature selections where keys are feature identifiers
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ConversionHealthSelectionItem'
+    ConversionHealthSelectionItem:
+      description: User selection of conversion health criteria for a single feature
+      type: object
+      properties:
+        conversionType:
+          description: Status for conversion types
+          type: object
+        criteria:
+          description: Status for criteria
+          type: object
+        ingestionSource:
+          description: Status for ingestion sources
+          type: object
+        status:
+          description: Overall status for this selection item
+      example:
+        conversionType:
+          type_1:
+            status: SELECTED
+        criteria:
+          criteria_1:
+            status: DISMISSED
+        ingestionSource:
+          source_1:
+            status: SELECTED
+        status: SELECTED
+      required:
+        - status
+    ConversionTag:
+      type: object
+      properties:
+        ad_account_id:
+          description: Ad account ID.
+          type: string
+          example: '549755885175'
+          readOnly: true
+        status:
+          allOf:
+            - $ref: '#/components/schemas/EntityStatus'
+          readOnly: true
+      allOf:
+        - $ref: '#/components/schemas/ConversionTagCommon'
+      required:
+        - ad_account_id
+    ConversionTagWithUpdateStatusUpdate:
+      description: Resource create or update operation model.
+      type: object
+      properties:
+        aem_db_enabled:
+          description: 'Whether Automatic Enhanced Match birthdate is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        aem_enabled:
+          description: 'Whether Automatic Enhanced Match email is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        aem_external_id_enabled:
+          description: 'Whether Automatic Enhanced Match location is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        aem_fnln_enabled:
+          description: 'Whether Automatic Enhanced Match name is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        aem_ge_enabled:
+          description: 'Whether Automatic Enhanced Match gender is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        aem_loc_enabled:
+          description: 'Whether Automatic Enhanced Match location is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        aem_ph_enabled:
+          description: 'Whether Automatic Enhanced Match phone is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.'
+          type: boolean
+          default: false
+          nullable: true
+        md_frequency:
+          description: Metadata ingestion frequency.
+          type: number
+          example: 0.6
+          default: 1
+          nullable: true
+        no_code_capi_domains:
+          description: List of advertiser subdomains configured for NoCodeCAPI calls.
+          type: array
+          items:
+            type: string
+          example:
+            - 'https://sub.exampledomain.com'
+        status:
+          $ref: '#/components/schemas/NonDraftEntityStatus'
+    ConversionTagCommon:
+      type: object
+      properties:
+        code_snippet:
+          description: Tag code snippet.
+          type: string
+          example: '<script type=text/javascript> [...]'
+          readOnly: true
+        configs:
+          allOf:
+            - $ref: '#/components/schemas/ConversionTagConfigs'
+          readOnly: true
+        enhanced_match_status:
+          description: The enhanced match status of the tag
+          example: VALIDATION_COMPLETE
+          allOf:
+            - $ref: '#/components/schemas/EnhancedMatchStatusType'
+          nullable: true
+          readOnly: true
+        id:
+          description: Tag ID.
+          type: string
+          example: '2617998078212'
+          readOnly: true
+        last_fired_time_ms:
+          description: Time for the last event fired.
+          type: number
+          example: 1599030000000
+          nullable: true
+          readOnly: true
+        name:
+          description: Conversion tag name.
+          type: string
+          example: ACME Checkout Test Tag
+        version:
+          description: Version number.
+          type: string
+          example: '3'
+          readOnly: true
+      required:
+        - name
+    NonDraftEntityStatus:
+      description: Entity status
+      type: string
+      example: ACTIVE
+      enum:
+        - ACTIVE
+        - PAUSED
+        - ARCHIVED
+    LocalStoreCreate:
+      description: Resource create operation model.
+      type: object
+      properties:
+        address_primary:
+          description: Primary address line of the store.
+          type: string
+          example: 123 Johnson St
+        address_secondary:
+          description: Secondary address line of the store.
+          type: string
+          example: Suite 100
+        city:
+          description: City where the store is located.
+          type: string
+          example: Sunnyvale
+        country:
+          description: Country code where the store is located.
+          allOf:
+            - $ref: '#/components/schemas/Country'
+        latitude:
+          description: Geographic latitude coordinate of the store.
+          type: number
+          format: float
+          example: -30.21
+        longitude:
+          description: Geographic longitude coordinate of the store.
+          type: number
+          format: float
+          example: 50.45
+        name:
+          description: The name of the local store.
+          type: string
+          example: Sunnyvale Store
+        postal_code:
+          description: Postal or ZIP code of the store.
+          type: string
+          example: '94043'
+        region:
+          description: State or region code where the store is located.
+          type: string
+          example: CA
+        store_code:
+          description: Merchant provided code for the local store. Unique within the merchant's catalog.
+          type: string
+          example: store_1
+      required:
+        - store_code
+        - name
+        - country
+    LocalStoreUpdate:
+      type: object
+      properties:
+        address_primary:
+          description: Primary address line of the store.
+          type: string
+          example: 123 Johnson St
+        address_secondary:
+          description: Secondary address line of the store.
+          type: string
+          example: Suite 100
+        city:
+          description: City where the store is located.
+          type: string
+          example: Sunnyvale
+        country:
+          description: Country code where the store is located.
+          allOf:
+            - $ref: '#/components/schemas/Country'
+        id:
+          description: The ID of the local store.
+          type: string
+          example: '1234567890'
+          pattern: ^\d+$
+        latitude:
+          description: Geographic latitude coordinate of the store.
+          type: number
+          format: float
+          example: -30.21
+        longitude:
+          description: Geographic longitude coordinate of the store.
+          type: number
+          format: float
+          example: 50.45
+        name:
+          description: The name of the local store.
+          type: string
+          example: Sunnyvale Store
+        postal_code:
+          description: Postal or ZIP code of the store.
+          type: string
+          example: '94043'
+        region:
+          description: State or region code where the store is located.
+          type: string
+          example: CA
+        store_code:
+          description: Merchant provided code for the local store. Unique within the merchant's catalog.
+          type: string
+          example: store_1
+      required:
+        - id
+    LocalStoreId:
+      description: Local store ID as string in format of integer
+      type: string
+      pattern: ^\d+$
+    Pinterest.Lib.Status204:
+      description: The resource was successfully deleted.
+      type: object
+      properties:
+        statusCode:
+          type: number
+          enum:
+            - 204
+      required:
+        - statusCode
+      title: Successfully deleted
   securitySchemes:
     pinterest_oauth2:
       type: oauth2
@@ -37995,8 +39971,13 @@ tags:
   - name: catalog_reports
     description: View and manage reports about catalogs.
     x-display-name: reports
+  - name: catalog_supplemental
+    description: View and manage catalog supplemental items.
+    x-display-name: supplemental
   - name: catalogs
     description: Manage information about shopping product catalogs and items.
+  - name: conversion_eqs
+    description: Get the Event Quality Score (EQS) of your conversion signals.
   - name: conversion_events
     description: Submit conversion events via the Pinterest API.
   - name: conversion_tags
@@ -38086,6 +40067,7 @@ x-tagGroups:
   - name: Conversions
     tags:
       - conversion_events
+      - conversion_eqs
       - conversion_tags
       - msot_events
   - name: Others
@@ -38105,6 +40087,7 @@ x-tagGroups:
       - catalog_reports
       - catalog_items
       - catalog_regions
+      - catalog_supplemental
   - name: Account Claiming
     tags:
       - account_claiming
