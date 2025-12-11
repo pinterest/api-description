@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "version": "5.22.0",
+    "version": "5.23.0",
     "title": "Pinterest REST API",
     "description": "Pinterest's REST API",
     "contact": {
@@ -3333,7 +3333,7 @@
         "description": "Create a conversion tag, also known as [Pinterest tag](https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag), with the option to enable enhanced match.\n\nThe Pinterest Tag tracks actions people take on the ad account's website after they view the ad account's ad on Pinterest. The advertiser needs to customize this tag to track conversions.\n\nFor more information, see:\n\n[Set up the Pinterest tag](https://help.pinterest.com/en/business/article/set-up-the-pinterest-tag)\n\n[Pinterest Tag](/docs/track-conversions/pinterest-tag/)\n\n[Enhanced match](/docs/track-conversions/pinterest-tag/#enhanced-match)",
         "parameters": [
           {
-            "$ref": "#/components/parameters/ConversionTagParentKey"
+            "$ref": "#/components/parameters/Pinterest.Lib.AdAccountId"
           }
         ],
         "requestBody": {
@@ -3447,10 +3447,10 @@
         "description": "List conversion tags associated with an ad account.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/ConversionTagParentKey"
+            "$ref": "#/components/parameters/query_filter_deleted"
           },
           {
-            "$ref": "#/components/parameters/query_filter_deleted"
+            "$ref": "#/components/parameters/Pinterest.Lib.AdAccountId"
           }
         ],
         "responses": {
@@ -8021,13 +8021,13 @@
       "post": {
         "operationId": "analytics/create_template_report",
         "summary": "Create async request for an analytics report using a template",
-        "description": "This takes a template ID and an optional custom timeframe and constructs an asynchronous report based on the\ntemplate. It returns a token that you can use to download the report when it is ready.",
+        "description": "\n  This takes a template ID and an optional custom timeframe and\n  constructs an asynchronous report based on the template. It returns\n  a token that you can use to download the report when it is ready.",
         "parameters": [
           {
-            "$ref": "#/components/parameters/path_ad_account_id"
+            "$ref": "#/components/parameters/TemplateBasedReportKey.id"
           },
           {
-            "$ref": "#/components/parameters/path_template_id"
+            "$ref": "#/components/parameters/TemplateBasedReportKey.template_id"
           },
           {
             "$ref": "#/components/parameters/query_start_date_async"
@@ -8041,35 +8041,81 @@
         ],
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AdsAnalyticsCreateAsyncResponse"
+                  "$ref": "#/components/schemas/TemplateBasedReport"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Resource create operation completed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateBasedReport"
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid ad account ads analytics template parameters.",
+            "description": "The request could not be understood by the server due to unexpected data.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "example": {
-                  "code": 400,
-                  "message": "Invalid ad account analytics template parameters."
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
                 }
               }
             }
           },
           "default": {
-            "description": "Unexpected error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
                 }
               }
             }
@@ -19963,6 +20009,342 @@
         "x-sandbox": "enabled"
       }
     },
+    "/trends/topics/featured": {
+      "get": {
+        "operationId": "trends_featured_topics/list",
+        "summary": "Get featured topics",
+        "description": "  Enables advertisers to pull top five trending topics by interest and market, at full parity with the Pinterest Trends UI.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_interest"
+          },
+          {
+            "$ref": "#/components/parameters/query_product_category_detail_region"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FeaturedTrend"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "user_accounts:read"
+            ]
+          },
+          {
+            "client_credentials": [
+              "user_accounts:read"
+            ]
+          }
+        ],
+        "tags": [
+          "product_categories"
+        ],
+        "x-ratelimit-category": "trends_read",
+        "x-sandbox": "disabled"
+      }
+    },
+    "/trends/product_categories/details": {
+      "get": {
+        "operationId": "trends_product_categories_details/list",
+        "summary": "Get product category details",
+        "description": "  Enables advertisers to retrieve demographic information, related pins, and trend lines for specified product categories",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductCategoryIds"
+          },
+          {
+            "$ref": "#/components/parameters/query_product_category_detail_region"
+          },
+          {
+            "$ref": "#/components/parameters/query_product_category_lookback_window"
+          },
+          {
+            "$ref": "#/components/parameters/query_product_category_engagement_type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductCategoryDetails"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "user_accounts:read"
+            ]
+          },
+          {
+            "client_credentials": [
+              "user_accounts:read"
+            ]
+          }
+        ],
+        "tags": [
+          "product_categories"
+        ],
+        "x-ratelimit-category": "trends_read",
+        "x-sandbox": "disabled"
+      }
+    },
+    "/trends/product_categories/trending": {
+      "get": {
+        "operationId": "trends_product_categories_trending/list",
+        "summary": "Get a list of growing Shopping Product Categories",
+        "description": "  Get a list of growing Shopping Product Categories in ranked order allowing filtering by engagement type, vertical, age, and gender.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_product_category_detail_region"
+          },
+          {
+            "$ref": "#/components/parameters/query_vertical_product_category"
+          },
+          {
+            "$ref": "#/components/parameters/query_age_trends_buckets"
+          },
+          {
+            "$ref": "#/components/parameters/query_gender_buckets"
+          },
+          {
+            "$ref": "#/components/parameters/query_product_category_engagement_type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TrendingProductCategory"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "user_accounts:read"
+            ]
+          },
+          {
+            "client_credentials": [
+              "user_accounts:read"
+            ]
+          }
+        ],
+        "tags": [
+          "product_categories"
+        ],
+        "x-ratelimit-category": "trends_read",
+        "x-sandbox": "disabled"
+      }
+    },
     "/ad_accounts/{ad_account_id}/conversion_eqs": {
       "get": {
         "operationId": "conversion_eqs/list",
@@ -20128,26 +20510,6 @@
           "pattern": "^\\d+$"
         }
       },
-      "ConversionTagParentKey": {
-        "name": "ad_account_id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "maxLength": 18,
-          "pattern": "^\\d+$"
-        }
-      },
-      "ConversionTagWithUpdateStatusKey.id": {
-        "name": "ad_account_id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "maxLength": 18,
-          "pattern": "^\\d+$"
-        }
-      },
       "EventQualityScoreListParams.ingestion_source": {
         "name": "ingestion_source",
         "in": "query",
@@ -20208,6 +20570,25 @@
           },
           "maxItems": 250,
           "minItems": 1
+        }
+      },
+      "LabeledEntitiesKey.id": {
+        "name": "ad_account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "maxLength": 18,
+          "pattern": "^\\d+$"
+        }
+      },
+      "LabeledEntitiesKey.label_id": {
+        "name": "label_id",
+        "in": "path",
+        "required": true,
+        "description": "Label ID.",
+        "schema": {
+          "type": "string"
         }
       },
       "MediaKey": {
@@ -20760,6 +21141,20 @@
       "Pinterest.Lib.OrderingParams.order": {
         "$ref": "#/components/parameters/Pinterest.Lib.OrderingParams"
       },
+      "ProductCategoryIds": {
+        "name": "product_categories",
+        "in": "query",
+        "required": true,
+        "description": "List of product categories",
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ProductCategoryEnum"
+          },
+          "maxItems": 20,
+          "minItems": 1
+        }
+      },
       "query_account_type": {
         "description": "Filter accounts by account type.",
         "in": "query",
@@ -20894,6 +21289,18 @@
         "required": false,
         "schema": {
           "$ref": "#/components/schemas/AgeBucketList"
+        }
+      },
+      "query_age_trends_buckets": {
+        "name": "ages",
+        "in": "query",
+        "required": false,
+        "description": "Age to filter by. If not provided, the results will be filtered by all ages.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/AgeTrendsBucket"
+          }
         }
       },
       "query_app_types": {
@@ -21168,14 +21575,15 @@
         }
       },
       "query_catalogs_feed_id": {
-        "description": "Filter entities for a given feed_id. If not given, all feeds are considered.",
+        "name": "feed_id",
         "in": "query",
         "required": false,
-        "name": "feed_id",
+        "description": "Filter entities for a given feed_id. If not given, all feeds are considered.",
         "schema": {
           "type": "string",
           "pattern": "^\\d+$"
-        }
+        },
+        "explode": false
       },
       "query_catalogs_item_numbers": {
         "name": "item_numbers",
@@ -21654,10 +22062,10 @@
         }
       },
       "query_end_date_async": {
-        "description": "Metric report end date (UTC). Format: YYYY-MM-DD. Cannot be more than 2.5 years past start date.",
-        "in": "query",
         "name": "end_date",
+        "in": "query",
         "required": false,
+        "description": "Metric report end date (UTC). Format: YYYY-MM-DD. Cannot be more than 2.5 years past start date.",
         "schema": {
           "type": "string",
           "format": "date"
@@ -21747,6 +22155,18 @@
           ]
         }
       },
+      "query_gender_buckets": {
+        "name": "genders",
+        "in": "query",
+        "required": false,
+        "description": "Gender to filter by, If not provided, the results will be filtered by all genders.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/GenderBucket"
+          }
+        }
+      },
       "query_gender_list": {
         "name": "genders",
         "description": "If set, filters the results to trends among users who identify with the specified gender(s).<br />\nIf unset, trends among all genders will be returned.<br />\nThe `unknown` group includes users with unspecified or customized gender profile settings.",
@@ -21771,11 +22191,10 @@
         }
       },
       "query_granularity_async": {
-        "description": "TOTAL - metrics are aggregated over the specified date range.<br> DAY - metrics are broken down daily.<br> HOUR - metrics are broken down hourly.<br>WEEKLY - metrics are broken down weekly.<br>MONTHLY - metrics are broken down monthly",
-        "example": "DAY",
-        "in": "query",
         "name": "granularity",
+        "in": "query",
         "required": false,
+        "description": "\n  TOTAL - metrics are aggregated over the specified date range.\n\n  DAY - metrics are broken down daily.\n\n  HOUR - metrics are broken down hourly.\n\n  WEEKLY - metrics are broken down weekly.\n\n  MONTHLY - metrics are broken down monthly",
         "schema": {
           "$ref": "#/components/schemas/Granularity"
         }
@@ -21820,6 +22239,15 @@
         "required": true,
         "schema": {
           "type": "string"
+        }
+      },
+      "query_interest": {
+        "name": "interest",
+        "in": "query",
+        "required": false,
+        "description": "Interest to filter by",
+        "schema": {
+          "$ref": "#/components/schemas/InterestsEnum"
         }
       },
       "query_interest_list": {
@@ -22208,6 +22636,35 @@
           ]
         }
       },
+      "query_product_category_detail_region": {
+        "name": "region",
+        "in": "query",
+        "required": true,
+        "description": "\n     The geographic region of interest. Only top product categories within the specified region will be returned.\n     The `region` parameter is formatted as ISO 3166-2 country codes delimited by `+`.\n\n    - `US` - United States\n    - `GB+IE` - Great Britain & Ireland\n    - `CA` - Canada",
+        "schema": {
+          "$ref": "#/components/schemas/ProductCategoryRegion"
+        }
+      },
+      "query_product_category_engagement_type": {
+        "name": "engagement_type",
+        "in": "query",
+        "required": false,
+        "description": "\n    Type of engagement metric to analyze.\n- `ENGAGEMENT` - Overall engagement metric\n- `OUTBOUND_CLICK` - Number of outbound clicks\n- `SAVE` - Number of pin saves",
+        "schema": {
+          "default": "ENGAGEMENT",
+          "$ref": "#/components/schemas/ProductCategoriesEngagementType"
+        }
+      },
+      "query_product_category_lookback_window": {
+        "name": "lookback_window",
+        "in": "query",
+        "required": false,
+        "description": "\n  Time period for historical data analysis in days. The lookback window defines how far back in time the API will analyze data to compute trend metrics.\n  - `90` - Last 90 days (3 months)\n  - `180` - Last 180 days (6 months)\n  - `365` - Last 365 days (1 year)\n  - `730` - Last 730 days (2 years)",
+        "schema": {
+          "default": 365,
+          "$ref": "#/components/schemas/ProductCategoryDetailLookbackWindow"
+        }
+      },
       "query_product_group_ids_required": {
         "description": "List of Product group Ids to use to filter the results.",
         "in": "query",
@@ -22469,10 +22926,10 @@
         }
       },
       "query_start_date_async": {
-        "description": "Metric report start date (UTC). Format: YYYY-MM-DD. Cannot be more than 2.5 years back from today.",
-        "in": "query",
         "name": "start_date",
+        "in": "query",
         "required": false,
+        "description": "Metric report start date (UTC). Format: YYYY-MM-DD. Cannot be more than 2.5 years back from today.",
         "schema": {
           "type": "string",
           "format": "date"
@@ -22593,6 +23050,18 @@
           "pattern": "(?!^\\d+$)^.+$"
         }
       },
+      "query_vertical_product_category": {
+        "name": "verticals",
+        "in": "query",
+        "required": false,
+        "description": "List of verticals to filter by",
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/VerticalProductCategory"
+          }
+        }
+      },
       "query_video_pin_metric_types": {
         "description": "Metric types to get video data for, default is all. ",
         "explode": false,
@@ -22670,6 +23139,26 @@
         "schema": {
           "type": "string",
           "pattern": "^\\d+$"
+        }
+      },
+      "TemplateBasedReportKey.id": {
+        "name": "ad_account_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "maxLength": 18,
+          "pattern": "^\\d+$"
+        }
+      },
+      "TemplateBasedReportKey.template_id": {
+        "name": "template_id",
+        "in": "path",
+        "required": true,
+        "description": "Unique identifier of a template.",
+        "schema": {
+          "type": "string",
+          "maxLength": 18
         }
       }
     },
@@ -23103,6 +23592,14 @@
           },
           "destination_url": {
             "description": "Destination URL.",
+            "type": "string",
+            "nullable": true
+          },
+          "disclosure_type": {
+            "$ref": "#/components/schemas/DisclosureType"
+          },
+          "disclosure_url": {
+            "description": "URL for a page that provides disclosures about a pharmaceutical product, such as potential side effects. Make sure the URL takes the user directly to the disclosure content and the referenced site is secure.",
             "type": "string",
             "nullable": true
           },
@@ -23780,7 +24277,15 @@
         "type": "object",
         "properties": {
           "APP_TYPE": {
-            "$ref": "#/components/schemas/TargetingSpecAppType"
+            "type": "string",
+            "enum": [
+              "android_mobile",
+              "android_tablet",
+              "ipad",
+              "iphone",
+              "web",
+              "web_mobile"
+            ]
           }
         },
         "example": {
@@ -23796,17 +24301,6 @@
           "format": "double"
         },
         "nullable": true
-      },
-      "TargetingSpecAppType": {
-        "type": "string",
-        "enum": [
-          "android_mobile",
-          "android_tablet",
-          "ipad",
-          "iphone",
-          "web",
-          "web_mobile"
-        ]
       },
       "PlacementMultipliers": {
         "description": "This represents a mapping from placement to a bid price adjustment.\n\nMultiplier values must be between 0 and 10. A value of 10 represents a 900% increase in bid price (from $1 to $10 for example). A value of 0 will stop distribution for this item on the specified placement in `MAX_BID` ad groups in `CATALOG_SALES` campaigns. All placement multipliers must be set at the same time. If a multiplier is not provided it is assumed to be 1 (no bid adjustment).",
@@ -27108,10 +27602,15 @@
                   "title": "id"
                 },
                 "status": {
-                  "$ref": "#/components/schemas/LabelStatus"
+                  "description": "Set status to `ARCHIVED` to remove the label from the parent entity.",
+                  "type": "string",
+                  "example": "ARCHIVED",
+                  "enum": [
+                    "ARCHIVED"
+                  ]
                 },
                 "value": {
-                  "description": "Label name. 100-character limit.",
+                  "description": "</p><strong>Note:</strong> value field will be deprecated. Label name. 100-character limit.",
                   "type": "string",
                   "maxLength": 100
                 }
@@ -39541,7 +40040,7 @@
         "title": "PRODUCT_GROUP"
       },
       "Granularity": {
-        "description": "<p>Specifies the time interval at which analytics data is broken down. Determines how metrics are grouped within the requested date range.</p>\n<p><strong>Note:</strong> The `HOUR` enum no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums are unchanged.</p>",
+        "description": "Specifies the time interval at which analytics data is broken down. Determines how metrics are grouped within the requested date range.\n**Note:** The `HOUR` enum no longer provides data for conversion metrics, but it still returns data for non-conversion metrics. All other enums are unchanged.",
         "type": "string",
         "enum": [
           "TOTAL",
@@ -41511,7 +42010,14 @@
             "title": "parent_id"
           },
           "parent_type": {
-            "$ref": "#/components/schemas/LabelParentType"
+            "description": "Label parent entity type.",
+            "type": "string",
+            "example": "CAMPAIGN",
+            "enum": [
+              "CAMPAIGN",
+              null
+            ],
+            "nullable": true
           },
           "status": {
             "$ref": "#/components/schemas/LabelStatus"
@@ -41580,10 +42086,8 @@
         "type": "string",
         "example": "CAMPAIGN",
         "enum": [
-          "CAMPAIGN",
-          null
-        ],
-        "nullable": true
+          "CAMPAIGN"
+        ]
       },
       "LabelsResponse": {
         "type": "object",
@@ -46099,7 +46603,7 @@
         ]
       },
       "ReportingTimeZone": {
-        "description": "<a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank\" target=\"blank\">Closed beta</a>\nSpecify the timezone to be applied for the reporting.",
+        "description": "[Closed beta](/docs/getting-started/using-beta-and-restricted-features/) Specify the timezone to be applied for the reporting.",
         "type": "string",
         "example": "PINTEREST_TIME_ZONE",
         "enum": [
@@ -46794,19 +47298,7 @@
             "description": "**Legacy field.** Predefined age ranges. We recommend using MINIMUM_AGE and MAXIMUM_AGE instead for more flexible targeting. Cannot be combined with MINIMUM_AGE/MAXIMUM_AGE. If neither AGE_BUCKET nor MINIMUM_AGE/MAXIMUM_AGE are specified, all ages will be targeted.",
             "type": "array",
             "items": {
-              "type": "string",
-              "enum": [
-                "18-24",
-                "19+",
-                "20+",
-                "21+",
-                "25-34",
-                "35-44",
-                "45-49",
-                "50-54",
-                "55-64",
-                "65+"
-              ]
+              "$ref": "#/components/schemas/TargetingSpecAgeBucket"
             },
             "example": [
               "35-44",
@@ -46818,15 +47310,7 @@
             "description": "Allowed devices. If the APPTYPE field is missing, the default behavior in terms of ad delivery is that **All devices/apptypes** will be targeted.",
             "type": "array",
             "items": {
-              "type": "string",
-              "enum": [
-                "android_mobile",
-                "android_tablet",
-                "ipad",
-                "iphone",
-                "web",
-                "web_mobile"
-              ]
+              "$ref": "#/components/schemas/TargetingSpecAppType"
             },
             "example": [
               "ipad",
@@ -46839,8 +47323,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "pattern": "^\\d+$",
-              "minItems": 100
+              "pattern": "^\\d+$"
             },
             "nullable": true
           },
@@ -46849,8 +47332,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "pattern": "^\\d+$",
-              "minItems": 100
+              "pattern": "^\\d+$"
             },
             "nullable": true
           },
@@ -46858,12 +47340,7 @@
             "description": "Targeted genders. Values: [\"unknown\",\"male\",\"female\"]. If the GENDER field is missing, the default behavior in terms of ad delivery is that **All genders will be targeted**.",
             "type": "array",
             "items": {
-              "type": "string",
-              "enum": [
-                "unknown",
-                "male",
-                "female"
-              ]
+              "$ref": "#/components/schemas/TargetingSpecGender"
             },
             "nullable": true
           },
@@ -46914,42 +47391,7 @@
             "description": "Array of object: lookback_window\t[Integer]: Number of days ago to start lookback timeframe for dynamic retargeting tag_types [Array of integer]: Event types to target for dynamic retargeting exclusion_window [Integer]: Number of days ago to stop lookback timeframe for dynamic retargeting",
             "type": "array",
             "items": {
-              "type": "object",
-              "example": {
-                "lookback_window": 30,
-                "exclusion_window": 14,
-                "tag_types": [
-                  0,
-                  6
-                ]
-              },
-              "properties": {
-                "exclusion_window": {
-                  "description": "Number of days ago to stop lookback timeframe for dynamic retargeting",
-                  "type": "integer",
-                  "example": 14,
-                  "title": "exclusion_window"
-                },
-                "lookback_window": {
-                  "description": "Number of days ago to start lookback timeframe for dynamic retargeting",
-                  "type": "integer",
-                  "example": 30,
-                  "title": "lookback_window"
-                },
-                "tag_types": {
-                  "description": "Event types to target for dynamic retargeting",
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
-                  },
-                  "example": [
-                    0,
-                    6
-                  ],
-                  "title": "tag_types"
-                }
-              },
-              "title": "TargetingSpec_SHOPPING_RETARGETING"
+              "$ref": "#/components/schemas/TargetingSpecShoppingRetargeting"
             },
             "nullable": true
           },
@@ -46966,6 +47408,271 @@
             "nullable": true
           }
         }
+      },
+      "TargetingSpecAppType": {
+        "type": "string",
+        "enum": [
+          "android_mobile",
+          "android_tablet",
+          "ipad",
+          "iphone",
+          "web",
+          "web_mobile"
+        ]
+      },
+      "TargetingSpecAgeBucket": {
+        "type": "string",
+        "enum": [
+          "18-24",
+          "19+",
+          "20+",
+          "21+",
+          "25-34",
+          "35-44",
+          "45-49",
+          "50-54",
+          "55-64",
+          "65+"
+        ]
+      },
+      "TargetingSpecGender": {
+        "type": "string",
+        "enum": [
+          "unknown",
+          "male",
+          "female"
+        ]
+      },
+      "TargetingSpecShoppingRetargeting": {
+        "type": "object",
+        "properties": {
+          "exclusion_window": {
+            "description": "Number of days ago to stop lookback timeframe for dynamic retargeting",
+            "type": "integer",
+            "example": 14,
+            "title": "exclusion_window"
+          },
+          "lookback_window": {
+            "description": "Number of days ago to start lookback timeframe for dynamic retargeting",
+            "type": "integer",
+            "example": 30,
+            "title": "lookback_window"
+          },
+          "tag_types": {
+            "description": "Event types to target for dynamic retargeting",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              0,
+              6
+            ],
+            "title": "tag_types"
+          }
+        },
+        "example": {
+          "lookback_window": 30,
+          "exclusion_window": 14,
+          "tag_types": [
+            0,
+            6
+          ]
+        },
+        "title": "TargetingSpec_SHOPPING_RETARGETING"
+      },
+      "TargetingSpecOperationAppType": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "APPTYPE"
+            ]
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TargetingSpecAppType"
+            },
+            "nullable": true
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TargetingSpecOperationList"
+          }
+        ],
+        "required": [
+          "field",
+          "operation",
+          "values"
+        ]
+      },
+      "TargetingSpecOperationAgeBucket": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "AGE_BUCKET"
+            ]
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "SET"
+            ]
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TargetingSpecAgeBucket"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "field",
+          "operation",
+          "values"
+        ]
+      },
+      "TargetingSpecOperationGender": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "GENDER"
+            ]
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TargetingSpecGender"
+            },
+            "nullable": true
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TargetingSpecOperationList"
+          }
+        ],
+        "required": [
+          "field",
+          "operation",
+          "values"
+        ]
+      },
+      "TargetingSpecOperationShoppingRetargeting": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "SHOPPING_RETARGETING"
+            ]
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "SET"
+            ]
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TargetingSpecShoppingRetargeting"
+            },
+            "nullable": true
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TargetingSpecOperationList"
+          }
+        ],
+        "required": [
+          "field",
+          "operation",
+          "values"
+        ]
+      },
+      "TargetingSpecOperationString": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "SET"
+            ]
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "field",
+          "operation",
+          "value"
+        ]
+      },
+      "TargetingSpecOperationList": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "SET",
+              "ADD",
+              "REMOVE"
+            ]
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "field",
+          "operation",
+          "values"
+        ]
+      },
+      "TargetingSpecOperationMinMaxAge": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "MINIMUM_AGE",
+              "MAXIMUM_AGE"
+            ]
+          },
+          "value": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\d+\\+?$"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TargetingSpecOperationString"
+          }
+        ],
+        "required": [
+          "field",
+          "operation",
+          "value"
+        ]
       },
       "TargetingTemplateAudienceSizing": {
         "description": "Gets an audience size estimate for a set of given targeting spec data. <p>Returns:</p> An object containing an audience size estimate that has a reach estimate (number of unique users) against the given targeting template. This by default provides a monthly estimate. ",
@@ -47164,8 +47871,13 @@
           "operation_type": {
             "type": "string",
             "enum": [
-              "REMOVE"
+              "REMOVE",
+              "UPDATE"
             ]
+          },
+          "targeting_attributes": {
+            "description": "targeting profile attributes",
+            "$ref": "#/components/schemas/TargetingSpec"
           }
         },
         "required": [
@@ -52763,9 +53475,608 @@
           }
         }
       },
+      "ProductCategoryDetails": {
+        "description": "Product category details",
+        "type": "object",
+        "properties": {
+          "demographics": {
+            "$ref": "#/components/schemas/ProductCategoriesDemographic"
+          },
+          "has_prediction": {
+            "description": "\n    Indicates whether the keyword has a prediction available for the next 90 days.\n    This field is only applicable when include_prediction query parameter is set to true.\n    By default, the value is false and no prediction data is included in the response.",
+            "type": "boolean"
+          },
+          "metrics_highlights": {
+            "$ref": "#/components/schemas/ProductCategoriesMetricsHighlights"
+          },
+          "predicted_time_series": {
+            "description": "\n    A sequence of weekly observations of the predicted relative search volume for this keyword over the next 3 months.\n    These values are normalized to a [0-100] range, and can be used to visualize the forecasted user interest in this keyword.\n    Similar to the historical time_series, normalization is applied independently to the predicted time series of each keyword, but the normalize_against_group query parameter can be used in cases where you wish to compare relative predicted volume between keywords.\n    **Note**: The cut-off date between historical and predicted time series depends on Pinterest data availability. Usually the data needs a few days to be calculated, so the predicted time series may contain some past dates compared to today.\n    **Note**: The date of each observation is in ISO-8601 format and represents the end of the week. For example, a value of 2024-01-07 would include predicted searches for the week ending on 2024-01-07.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "product_category": {
+            "$ref": "#/components/schemas/ProductCategoryEnum"
+          },
+          "related_searches": {
+            "description": "Related search terms for this product category",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "time_series": {
+            "description": "Time series data showing trend values over time, indexed between 0 and 100",
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "product_category",
+          "has_prediction"
+        ]
+      },
+      "ProductCategoryEnum": {
+        "description": "List of product category details",
+        "type": "string",
+        "enum": [
+          "ACCENT_TABLES",
+          "ACCESSORIES",
+          "ANKLETS",
+          "APRONS",
+          "AREA_RUGS",
+          "ARMOIRES_AND_WARDROBES",
+          "ART_AND_CRAFT_PAINTS",
+          "ART_BRUSHES",
+          "ARTIFICIAL_FLORA",
+          "ARTWORK",
+          "AUDIO",
+          "AUDIO_ACCESSORIES",
+          "BACKPACKS",
+          "BAG_AND_LUGGAGE_ACCESSORIES",
+          "BAGS_AND_LUGGAGE",
+          "BAKEWARE",
+          "BANDANAS",
+          "BAR_CARTS",
+          "BARWARE",
+          "BASKETS",
+          "BATH_AND_BODY",
+          "BATH_AND_SHOWER",
+          "BATH_MATS_AND_RUGS",
+          "BATH_TOWELS_AND_WASHCLOTHS",
+          "BATHROOM_ACCESSORIES",
+          "BATHROOM_ACCESSORY_SETS",
+          "BATHROOM_VANITIES",
+          "BEACH_TOWELS",
+          "BEADS_AND_JEWELRY_MAKING_SUPPLIES",
+          "BEAUTY_SUPPLEMENTS",
+          "BED_SHEETS",
+          "BEDDING",
+          "BEDROOM_VANITIES",
+          "BEDS_AND_ACCESSORIES",
+          "BEDS_AND_BED_FRAMES",
+          "BELT_BAGS",
+          "BELTS_AND_SUSPENDERS",
+          "BENCHES",
+          "BEVERAGES",
+          "BIRD_SUPPLIES",
+          "BLANKETS",
+          "BLOUSES",
+          "BLUSHES_AND_BRONZERS",
+          "BODY_CARE",
+          "BODY_JEWELRY",
+          "BODY_MAKEUP",
+          "BODY_MOISTURIZERS",
+          "BODY_WASHES",
+          "BOOKCASES_AND_STANDING_SHELVES",
+          "BOOKENDS",
+          "BOOKS",
+          "BOOTS",
+          "BRACELETS",
+          "BRIDESMAID_DRESSES",
+          "BROOCHES_AND_LAPEL_PINS",
+          "BROW_MAKEUP",
+          "BUFFETS_AND_SIDEBOARDS",
+          "BUTTON_DOWN_SHIRTS",
+          "CABINET_HARDWARE",
+          "CABINETS_AND_STORAGE_FURNITURE",
+          "CAKE_DECORATING_SUPPLIES",
+          "CAMPING_AND_HIKING",
+          "CANDLE_HOLDERS",
+          "CANDLES",
+          "CARDSTOCK_PAPERS",
+          "CASUAL_PANTS",
+          "CAT_SUPPLIES",
+          "CHAIRS",
+          "CHANDELIERS",
+          "CHARMS_AND_PENDANTS",
+          "CHINA_CABINETS_AND_HUTCHES",
+          "CLOGS_AND_MULES",
+          "CLOTH_NAPKINS",
+          "CLOTHING",
+          "CLOTHING_AND_CLOSET_STORAGE",
+          "CLOTHING_SETS",
+          "COASTERS",
+          "COATS_AND_JACKETS",
+          "COFFEE_AND_TEA_CUPS",
+          "COFFEE_MAKERS_AND_ESPRESSO_MACHINES",
+          "COLORING_BOOKS",
+          "COMMUNICATIONS",
+          "COMPUTER_ACCESSORIES",
+          "COOKIE_CUTTERS",
+          "COOKWARE",
+          "COOKWARE_AND_BAKEWARE",
+          "COSMETIC_AND_TOILETRY_BAGS",
+          "COSTUMES_AND_ACCESSORIES",
+          "CRAFT_ADHESIVES_AND_MAGNETS",
+          "CRAFT_CUTTING_TOOLS",
+          "CRAFT_MOLDS",
+          "CRIBS_AND_TODDLER_BEDS",
+          "CURTAIN_AND_DRAPE_RODS",
+          "CURTAINS_AND_DRAPES",
+          "CUTTING_BOARDS",
+          "CYCLING",
+          "DECORATIVE_BOWLS",
+          "DECORATIVE_JARS",
+          "DECORATIVE_TAPESTRIES",
+          "DECORATIVE_TRAYS",
+          "DEODORANTS_AND_ANTIPERSPIRANTS",
+          "DESK_AND_SHELF_CLOCKS",
+          "DESKS",
+          "DIAPER_BAGS",
+          "DINNERWARE",
+          "DISHWASHERS",
+          "DOG_SUPPLIES",
+          "DOOR_MATS",
+          "DRAWING_AND_PAINTING",
+          "DRESS_PANTS",
+          "DRESSERS",
+          "DRESSES",
+          "DRILLS_AND_SCREWDRIVERS",
+          "DRINKWARE",
+          "DUFFEL_BAGS",
+          "DUVET_COVERS",
+          "DVDS_AND_VIDEOS",
+          "EARRINGS",
+          "ELECTRONICS_ACCESSORIES",
+          "ENGAGEMENT_AND_WEDDING_RINGS",
+          "ENTERTAINMENT_CENTERS_AND_TV_STANDS",
+          "ERASERS",
+          "EYE_MAKEUP",
+          "EYE_SHADOW",
+          "EYELINERS",
+          "FABRIC",
+          "FACE_COVERINGS",
+          "FACE_LOTIONS_AND_CREAMS",
+          "FACE_MAKEUP",
+          "FACIAL_CLEANSERS",
+          "FACIAL_MOISTURIZERS",
+          "FALSE_EYELASHES",
+          "FIGURINES",
+          "FIREPLACE_AND_WOOD_STOVE_ACCESSORIES",
+          "FIREPLACES",
+          "FISHING",
+          "FLAGS_AND_WINDSOCKS",
+          "FLATS",
+          "FLATWARE",
+          "FLOOR_LAMPS",
+          "FLOWER_GIRL_DRESSES",
+          "FOOD_AND_BEVERAGE_CARRIERS",
+          "FOOD_COOKERS_AND_STEAMERS",
+          "FOOD_ITEMS",
+          "FOOD_MIXERS_AND_BLENDERS",
+          "FOOD_STORAGE_CONTAINERS",
+          "FOOD_STORAGE_SUPPLIES",
+          "FOUNDATIONS_AND_CONCEALERS",
+          "FOUNTAINS_AND_PONDS",
+          "FRAGRANCE",
+          "FURNITURE",
+          "FURNITURE_SETS",
+          "GAMES",
+          "GARDENING",
+          "GARDENING_TOOLS",
+          "GLOVES_AND_MITTENS",
+          "GLUES_AND_TAPES",
+          "GROOM_AND_GROOMSMEN_SUITS",
+          "HAIR",
+          "HAIR_ACCESSORIES",
+          "HAIR_CARE",
+          "HAIR_COLOR",
+          "HAIR_COMBS",
+          "HAIR_PINS_CLAWS_AND_CLIPS",
+          "HAIR_REMOVAL",
+          "HAIR_TOOLS",
+          "HAIR_TREATMENT",
+          "HAIR_WREATHS",
+          "HAND_AND_FOOT_CARE",
+          "HAND_SOAPS_AND_SANITIZERS",
+          "HANDBAGS",
+          "HANDKERCHIEFS",
+          "HARDWARE_SUPPLIES",
+          "HATS",
+          "HEADBOARDS_AND_FOOTBOARDS",
+          "HEADWEAR",
+          "HIGHLIGHTERS",
+          "HOBBIES_AND_CREATIVE_ARTS",
+          "HOME_ACCESSORIES",
+          "HOME_DECOR_DECALS",
+          "HOME_FRAGRANCE_ACCESSORIES",
+          "HOME_FRAGRANCES",
+          "HOME_IMPROVEMENT_TOOLS_AND_SUPPLIES",
+          "HOSIERY",
+          "HOUSEHOLD_APPLIANCES",
+          "HOUSEHOLD_SUPPLIES",
+          "INCENSE",
+          "INDOOR_GAMES",
+          "JEANS",
+          "JEWELRY_AND_WATCH_ACCESSORIES",
+          "JEWELRY_AND_WATCHES",
+          "JEWELRY_SETS",
+          "JUMPSUITS_AND_ROMPERS",
+          "KEYCHAINS",
+          "KITCHEN_AND_DINING",
+          "KITCHEN_AND_DINING_ROOM_TABLES",
+          "KITCHEN_APPLIANCES",
+          "KITCHEN_KNIVES",
+          "KITCHEN_LINENS",
+          "KITCHEN_MATS",
+          "KITCHEN_ORGANIZERS",
+          "KITCHEN_TOOLS_AND_UTENSILS",
+          "KITCHEN_TOWELS",
+          "KNITTING_AND_CROCHET",
+          "KNITTING_AND_CROCHET_TOOLS",
+          "LAMP_SHADES",
+          "LAMPS",
+          "LANYARDS",
+          "LAUNDRY_HAMPERS_AND_SUPPLIES",
+          "LAWN_AND_GARDEN",
+          "LAWN_AND_GARDEN_DECOR",
+          "LAWN_ORNAMENTS_AND_GARDEN_SCULPTURES",
+          "LEGGINGS",
+          "LEOTARDS_AND_UNITARDS",
+          "LIGHTING",
+          "LIGHTING_ACCESSORIES",
+          "LIGHTING_FIXTURES",
+          "LIP_BALMS",
+          "LIP_CARE",
+          "LIP_MAKEUP",
+          "LIPSTICKS_AND_LIP_GLOSSES",
+          "MAGAZINES_AND_NEWSPAPERS",
+          "MAGNETS",
+          "MAKEUP",
+          "MAKEUP_TOOLS",
+          "MASCARAS",
+          "MATTRESSES",
+          "MEASURES_AND_RULERS",
+          "MEASURING_TOOLS_AND_SENSORS",
+          "MESSENGER_BAGS",
+          "MIRRORS",
+          "MUSIC_AND_SOUND_RECORDINGS",
+          "NAIL_ART",
+          "NAIL_ART_KIT_AND_TOOLS",
+          "NAIL_CARE",
+          "NAIL_POLISHES",
+          "NAILS",
+          "NECKLACES",
+          "NECKTIES",
+          "NIGHT_LIGHTS_AND_AMBIENT_LIGHTING",
+          "NIGHTSTANDS",
+          "NOVELTY_SIGNS",
+          "ONE_PIECES",
+          "ONESIES",
+          "OTTOMANS",
+          "OUTDOOR_FURNITURE",
+          "OUTDOOR_FURNITURE_SETS",
+          "OUTDOOR_GAMES",
+          "OUTDOOR_GRILLS",
+          "OUTDOOR_LIVING",
+          "OUTDOOR_PLAY_EQUIPMENT",
+          "OUTDOOR_RECREATION",
+          "OUTDOOR_RUGS",
+          "OUTDOOR_SEATING",
+          "OUTDOOR_STRUCTURES",
+          "OUTDOOR_TABLES",
+          "OUTERWEAR",
+          "OVENS_AND_COOKTOPS",
+          "OVERALLS",
+          "OXFORDS_AND_LOAFERS",
+          "PAINT_AND_PAINT_TOOLS",
+          "PANTS",
+          "PAPER_CRAFTS",
+          "PARASOLS_AND_RAIN_UMBRELLAS",
+          "PARTY_AND_CELEBRATION",
+          "PENDANT_LIGHTS",
+          "PENS_AND_PENCILS",
+          "PERFUMES_AND_COLOGNES",
+          "PET_CARRIERS_AND_CRATES",
+          "PET_COLLARS_AND_HARNESSES",
+          "PET_SUPPLIES",
+          "PHOTO_ALBUMS_AND_STORAGE",
+          "PICTURE_FRAMES",
+          "PILLOWCASES_AND_SHAMS",
+          "PINBACK_BUTTONS",
+          "PLACEMATS",
+          "PLANTS",
+          "PONYTAIL_HOLDERS",
+          "POOL_AND_SPA_ACCESSORIES",
+          "POSTERS_PRINTS_AND_VISUAL_ARTWORK",
+          "POTS_AND_PLANTERS",
+          "POTTERY_AND_SCULPTING",
+          "PRIMERS_AND_MAKEUP_SETTERS",
+          "PUMPS",
+          "PUZZLES",
+          "QUILTS_AND_COMFORTERS",
+          "RAZORS_AND_SHAVING_TOOLS",
+          "RINGS",
+          "RUGS",
+          "RUNNER_RUGS",
+          "SANDALS",
+          "SASHES",
+          "SAWS",
+          "SCARVES_AND_SHAWLS",
+          "SCULPTURES_AND_STATUES",
+          "SEASONAL_AND_HOLIDAY_DECORATIONS",
+          "SEATING",
+          "SERUMS_AND_ESSENCES",
+          "SERVEWARE",
+          "SEWING_MACHINES",
+          "SEWING_PATTERNS",
+          "SHAMPOO_AND_CONDITIONER",
+          "SHOE_ACCESSORIES",
+          "SHOES",
+          "SHOPPING_TOTES",
+          "SHORTS",
+          "SHOWER_CURTAINS",
+          "SKINCARE",
+          "SKINCARE_MASKS_AND_PEELS",
+          "SKIRTS",
+          "SLEEPWEAR_AND_LOUNGEWEAR",
+          "SLIPCOVERS_AND_CUSHIONS",
+          "SLIPPERS",
+          "SNEAKERS_AND_ATHLETIC_SHOES",
+          "SOCKS_AND_TIGHTS",
+          "SOFAS",
+          "SPORTS_UNIFORMS",
+          "STEMWARE",
+          "STOCKINGS",
+          "STORAGE_AND_ORGANIZATION",
+          "STORAGE_CABINETS_AND_LOCKERS",
+          "STORAGE_HOOKS_AND_RACKS",
+          "SUITCASES",
+          "SUITS",
+          "SUITS_AND_SUIT_SEPARATES",
+          "GLASSES_AND_SUNGLASSES",
+          "SUNSCREEN",
+          "SWEATERS_AND_CARDIGANS",
+          "SWEATSHIRTS_AND_HOODIES",
+          "SWIMWEAR",
+          "T_SHIRTS",
+          "TABLE_LAMPS",
+          "TABLE_RUNNERS",
+          "TABLECLOTHS",
+          "TABLES",
+          "TABLEWARE",
+          "TANK_TOPS",
+          "TANNING_OILS_AND_LOTIONS",
+          "TEETH_WHITENING",
+          "TEETH_WHITENING_TOOLS",
+          "TELEPHONY",
+          "TEXTILE_AND_SEWING",
+          "THREAD_AND_YARN",
+          "THROW_PILLOWS",
+          "TIARAS",
+          "TOILET_PAPER_HOLDERS",
+          "TONERS_AND_ASTRINGENTS",
+          "TOOL_STORAGE_AND_ORGANIZATION",
+          "TOOLS",
+          "TOPS",
+          "TOWEL_RACKS_AND_HOLDERS",
+          "TOYS",
+          "TRADITIONAL_AND_CEREMONIAL_CLOTHING",
+          "TUMBLERS_AND_WATER_BOTTLES",
+          "UNIFORMS",
+          "VASES",
+          "VEHICLE_PARTS_AND_ACCESSORIES",
+          "VEILS",
+          "WALL_CLOCKS",
+          "WALL_LIGHT_FIXTURES",
+          "WALL_PAINTS",
+          "WALL_SHELVES_AND_LEDGES",
+          "WALLETS_AND_CARD_CASES",
+          "WALLPAPERS",
+          "WATCHES",
+          "WATERING_AND_IRRIGATION",
+          "WEDDING_CEREMONY_DECOR",
+          "WEDDING_CLOTHING",
+          "WEDDING_DECOR",
+          "WEDDING_DRESS",
+          "WEDDING_GIFTS",
+          "WEDDING_STATIONERY",
+          "WEDDING_TABLE_DECOR",
+          "WIGS_AND_HAIR_EXTENSIONS",
+          "WINDOW_BLINDS_AND_SHADES",
+          "WINDOW_TREATMENT_ACCESSORIES",
+          "WINDOW_TREATMENTS",
+          "WINE_RACKS",
+          "WOOD_BOARDS_AND_PLANKS",
+          "WOODWORKING_MATERIALS",
+          "WOODWORKING_PLANS",
+          "WORK_BENCHES",
+          "WREATHS_AND_GARLANDS"
+        ]
+      },
+      "ProductCategoryRegion": {
+        "type": "string",
+        "enum": [
+          "US",
+          "GB+IE",
+          "CA"
+        ]
+      },
+      "ProductCategoryDetailLookbackWindow": {
+        "type": "number",
+        "enum": [
+          90,
+          180,
+          365,
+          730
+        ]
+      },
+      "ProductCategoriesEngagementType": {
+        "type": "string",
+        "enum": [
+          "ENGAGEMENT",
+          "OUTBOUND_CLICK",
+          "SAVE"
+        ]
+      },
+      "ProductCategoriesDemographic": {
+        "description": "Age and gender distribution who engaged with this product category in the past 3 months",
+        "type": "object",
+        "properties": {
+          "age": {
+            "description": "Age demographic distribution",
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "gender": {
+            "$ref": "#/components/schemas/GenderDemographics"
+          }
+        },
+        "required": [
+          "age",
+          "gender"
+        ]
+      },
+      "ProductCategoriesMetricsHighlights": {
+        "description": "Key performance metrics highlights for this product category",
+        "type": "object",
+        "properties": {
+          "engagement": {
+            "description": "Engagement metric value",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InnerProductCategoriesMetricsHighlights"
+              }
+            ]
+          },
+          "outbound_clicks": {
+            "description": "Number of outbound clicks",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InnerProductCategoriesMetricsHighlights"
+              }
+            ]
+          },
+          "pin_saves": {
+            "description": "Number of pin saves",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InnerProductCategoriesMetricsHighlights"
+              }
+            ]
+          }
+        }
+      },
+      "GenderDemographics": {
+        "description": "Gender demographic distribution",
+        "type": "object",
+        "properties": {
+          "female": {
+            "description": "Percentage of female users",
+            "type": "number"
+          },
+          "male": {
+            "description": "Percentage of male users",
+            "type": "number"
+          },
+          "unspecified": {
+            "description": "Percentage of users with unspecified gender",
+            "type": "number"
+          }
+        },
+        "required": [
+          "male",
+          "female",
+          "unspecified"
+        ]
+      },
       "Pinterest.Lib.IntegerFormatType": {
         "type": "string",
         "pattern": "^\\d+$"
+      },
+      "TrendingProductCategory": {
+        "description": "Trending shopping product category",
+        "type": "object",
+        "properties": {
+          "engagement_type": {
+            "description": "Engagement type",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductCategoriesEngagementType"
+              }
+            ]
+          },
+          "pct_change_mom": {
+            "description": "Month-over-month change percentage",
+            "type": "integer"
+          },
+          "percent_relative_volume": {
+            "description": "Relative volume percentage",
+            "type": "integer"
+          },
+          "product_category": {
+            "description": "Product Category Name",
+            "type": "string"
+          },
+          "verticals": {
+            "description": "Vertical name associated with the product category",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VerticalProductCategory"
+            }
+          }
+        },
+        "required": [
+          "engagement_type",
+          "product_category",
+          "pct_change_mom",
+          "percent_relative_volume"
+        ]
+      },
+      "VerticalProductCategory": {
+        "description": "List of verticals for product categories.",
+        "type": "string",
+        "enum": [
+          "FASHION",
+          "HOME_DECOR",
+          "BEAUTY"
+        ]
+      },
+      "AgeTrendsBucket": {
+        "type": "string",
+        "enum": [
+          "18-24",
+          "25-34",
+          "35-44",
+          "45-49",
+          "50-54",
+          "55-64",
+          "65+"
+        ]
+      },
+      "GenderBucket": {
+        "type": "string",
+        "enum": [
+          "MALE",
+          "FEMALE",
+          "UNSPECIFIED"
+        ]
       },
       "EventQualityScore": {
         "description": "Schema for GET Conversion EQS response.",
@@ -53089,19 +54400,6 @@
           }
         }
       },
-      "ConversionHealthSelectionUpdate": {
-        "description": "Resource create or update operation model.",
-        "type": "object",
-        "properties": {
-          "selection": {
-            "description": "Map of feature selections where keys are feature identifiers",
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/ConversionHealthSelectionItem"
-            }
-          }
-        }
-      },
       "ConversionHealthSelectionItem": {
         "description": "User selection of conversion health criteria for a single feature",
         "type": "object",
@@ -53144,6 +54442,18 @@
           "status"
         ]
       },
+      "InnerProductCategoriesMetricsHighlights": {
+        "type": "object",
+        "properties": {
+          "pct_change_mom": {
+            "description": "Month-over-month percentage change",
+            "type": "number"
+          }
+        },
+        "required": [
+          "pct_change_mom"
+        ]
+      },
       "ConversionTag": {
         "type": "object",
         "properties": {
@@ -53170,74 +54480,6 @@
         "required": [
           "ad_account_id"
         ]
-      },
-      "ConversionTagWithUpdateStatusUpdate": {
-        "description": "Resource create or update operation model.",
-        "type": "object",
-        "properties": {
-          "aem_db_enabled": {
-            "description": "Whether Automatic Enhanced Match birthdate is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.",
-            "type": "boolean",
-            "default": false,
-            "nullable": true
-          },
-          "aem_enabled": {
-            "description": "Whether Automatic Enhanced Match email is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.",
-            "type": "boolean",
-            "default": false,
-            "nullable": true
-          },
-          "aem_external_id_enabled": {
-            "description": "Whether Automatic Enhanced Match location is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.",
-            "type": "boolean",
-            "default": false,
-            "nullable": true
-          },
-          "aem_fnln_enabled": {
-            "description": "Whether Automatic Enhanced Match name is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.",
-            "type": "boolean",
-            "default": false,
-            "nullable": true
-          },
-          "aem_ge_enabled": {
-            "description": "Whether Automatic Enhanced Match gender is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.",
-            "type": "boolean",
-            "default": false,
-            "nullable": true
-          },
-          "aem_loc_enabled": {
-            "description": "Whether Automatic Enhanced Match location is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.",
-            "type": "boolean",
-            "default": false,
-            "nullable": true
-          },
-          "aem_ph_enabled": {
-            "description": "Whether Automatic Enhanced Match phone is enabled. See [Enhanced match](https://help.pinterest.com/en/business/article/enhanced-match) for more information.",
-            "type": "boolean",
-            "default": false,
-            "nullable": true
-          },
-          "md_frequency": {
-            "description": "Metadata ingestion frequency.",
-            "type": "number",
-            "example": 0.6,
-            "default": 1,
-            "nullable": true
-          },
-          "no_code_capi_domains": {
-            "description": "List of advertiser subdomains configured for NoCodeCAPI calls.",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "example": [
-              "https://sub.exampledomain.com"
-            ]
-          },
-          "status": {
-            "$ref": "#/components/schemas/NonDraftEntityStatus"
-          }
-        }
       },
       "ConversionTagCommon": {
         "type": "object",
@@ -53306,70 +54548,144 @@
           "ARCHIVED"
         ]
       },
-      "LocalStoreCreate": {
-        "description": "Resource create operation model.",
+      "FeaturedTrend": {
+        "description": "Featured trending topics for a specific interest and market",
         "type": "object",
         "properties": {
-          "address_primary": {
-            "description": "Primary address line of the store.",
-            "type": "string",
-            "example": "123 Johnson St"
-          },
-          "address_secondary": {
-            "description": "Secondary address line of the store.",
-            "type": "string",
-            "example": "Suite 100"
-          },
-          "city": {
-            "description": "City where the store is located.",
-            "type": "string",
-            "example": "Sunnyvale"
-          },
-          "country": {
-            "description": "Country code where the store is located.",
+          "interest": {
+            "description": "The main interest category",
             "allOf": [
               {
-                "$ref": "#/components/schemas/Country"
+                "$ref": "#/components/schemas/InterestsEnum"
               }
             ]
           },
-          "latitude": {
-            "description": "Geographic latitude coordinate of the store.",
-            "type": "number",
-            "format": "float",
-            "example": -30.21
+          "market": {
+            "description": "Market code (e.g., 'US', 'UK', etc.)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductCategoryRegion"
+              }
+            ]
           },
-          "longitude": {
-            "description": "Geographic longitude coordinate of the store.",
-            "type": "number",
-            "format": "float",
-            "example": 50.45
-          },
-          "name": {
-            "description": "The name of the local store.",
-            "type": "string",
-            "example": "Sunnyvale Store"
-          },
-          "postal_code": {
-            "description": "Postal or ZIP code of the store.",
-            "type": "string",
-            "example": "94043"
-          },
-          "region": {
-            "description": "State or region code where the store is located.",
-            "type": "string",
-            "example": "CA"
-          },
-          "store_code": {
-            "description": "Merchant provided code for the local store. Unique within the merchant's catalog.",
-            "type": "string",
-            "example": "store_1"
+          "trends": {
+            "description": "List of trending topics within this interest category",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrendingTopic"
+            }
           }
         },
         "required": [
-          "store_code",
-          "name",
-          "country"
+          "interest"
+        ]
+      },
+      "InterestsEnum": {
+        "type": "string",
+        "enum": [
+          "ALL",
+          "ANIMALS",
+          "ARCHITECTURE",
+          "ART",
+          "BEAUTY",
+          "DIY_AND_CRAFTS",
+          "EDUCATION",
+          "EVENT_PLANNING",
+          "FASHION",
+          "FOOD_AND_DRINKS",
+          "GARDENING",
+          "HEALTH",
+          "HOME_DECOR",
+          "PARENTING",
+          "TRAVEL",
+          "WEDDING"
+        ]
+      },
+      "TrendingTopic": {
+        "description": "Individual trending topic within an interest category",
+        "type": "object",
+        "properties": {
+          "description": {
+            "description": "Description of the trending topic",
+            "type": "string"
+          },
+          "percent_growth_mom": {
+            "description": "Month-over-month growth percentage",
+            "type": "integer",
+            "format": "int32"
+          },
+          "pins": {
+            "description": "Array of pin images related to this trend (up to 6)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrendingPin"
+            },
+            "maxItems": 6
+          },
+          "related_interests": {
+            "description": "List of related interest categories",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "related_searches": {
+            "description": "List of related search terms",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "time_series": {
+            "description": "Time series data showing trend values over time, with dates as keys and values as numeric",
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "title": {
+            "description": "Title of the trending topic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "percent_growth_mom",
+          "related_interests",
+          "related_searches",
+          "time_series",
+          "pins"
+        ]
+      },
+      "TrendingPin": {
+        "description": "Pin image data for trending topics",
+        "type": "object",
+        "properties": {
+          "height": {
+            "description": "Height of the pin image in pixels",
+            "type": "integer",
+            "format": "int32"
+          },
+          "id": {
+            "description": "Unique identifier for the pin",
+            "type": "string"
+          },
+          "src": {
+            "description": "URL of the pin image",
+            "type": "string"
+          },
+          "width": {
+            "description": "Width of the pin image in pixels",
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "src",
+          "width",
+          "id",
+          "height"
         ]
       },
       "LocalStoreUpdate": {
@@ -53461,6 +54777,32 @@
           "statusCode"
         ],
         "title": "Successfully deleted"
+      },
+      "TemplateBasedReport": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "report_status": {
+            "$ref": "#/components/schemas/BulkReportingJobStatus"
+          },
+          "template_id": {
+            "description": "Unique identifier of a template.",
+            "type": "string",
+            "maxLength": 18
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "template_id",
+          "report_status"
+        ]
+      },
+      "EntityId": {
+        "type": "string"
       }
     },
     "securitySchemes": {
