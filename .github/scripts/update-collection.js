@@ -209,13 +209,9 @@ async function main() {
       info: {
         ...currentLatestContent.info,
         name: versionedName,
-        // Update description to include the version
-        description: currentLatestContent.info.description 
-          ? currentLatestContent.info.description.replace(
-              "Pinterest's REST API", 
-              `Pinterest's REST API (${previousVersion})`
-            )
-          : `Pinterest's REST API (${previousVersion})`
+        // Always set a clean, versioned description to avoid appending version
+        // numbers when the existing description already contains a version suffix.
+        description: `Pinterest's REST API (${previousVersion})`
       }
     };
     
