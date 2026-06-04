@@ -1,5 +1,6 @@
 const axios = require('axios');
 const fs = require('fs').promises;
+const { execSync } = require('child_process');
 
 const POSTMAN_API_KEY = process.env.POSTMAN_API_KEY;
 const COLLECTION_UID = process.env.COLLECTION_UID;
@@ -131,46 +132,32 @@ async function createCollection(collectionData, workspaceId) {
   }
 }
 
-async function getLatestGitHubRelease() {
+async function getCurrentVersionFromSpec() {
+  const specPath = './v5/openapi.json';
   try {
-    const response = await axios.get('https://api.github.com/repos/pinterest/api-description/releases/latest');
-    return response.data.tag_name;
+    const specData = JSON.parse(await fs.readFile(specPath, 'utf8'));
+    const version = specData?.info?.version;
+    if (!version) {
+      throw new Error(`Could not find info.version in ${specPath}`);
+    }
+    return version;
   } catch (error) {
-    console.error('Error fetching GitHub releases:', error.response?.data || error.message);
+    console.error('Error reading current version from OpenAPI spec:', error.message);
     throw error;
   }
 }
 
-function parseVersion(versionString) {
-  // Remove 'v' prefix if present
-  const cleanVersion = versionString.replace(/^v/, '');
-  const match = cleanVersion.match(/(\d+)\.(\d+)\.(\d+)/);
-  if (match) {
-    return {
-      major: parseInt(match[1]),
-      minor: parseInt(match[2]),
-      patch: parseInt(match[3])
-    };
-  }
-  return null;
-}
-
-async function getCurrentReleaseVersion() {
+async function getPreviousVersionFromSpec() {
   try {
-    const latestRelease = await getLatestGitHubRelease();
-    console.log(`Latest GitHub release: ${latestRelease}`);
-    
-    const version = parseVersion(latestRelease);
+    const prevContent = execSync('git show HEAD~1:v5/openapi.json').toString();
+    const version = JSON.parse(prevContent)?.info?.version;
     if (!version) {
-      throw new Error(`Could not parse version from GitHub release: ${latestRelease}`);
+      throw new Error('Could not find info.version in HEAD~1:v5/openapi.json');
     }
-    
-    // Return the current version without incrementing
-    return `${version.major}.${version.minor}.${version.patch}`;
+    return version;
   } catch (error) {
-    console.error('Error getting current version from GitHub:', error.message);
-    console.log('Falling back to default version 1.0.0');
-    return '1.0.0';
+    console.error('Error reading previous version from git:', error.message);
+    throw error;
   }
 }
 
@@ -206,11 +193,11 @@ async function main() {
       throw new Error('Collection UID is undefined or null');
     }
     
-    // Use current version from GitHub releases
-    const currentVersion = await getCurrentReleaseVersion();
-    const versionedName = `Pinterest REST API ${currentVersion}`;
+    const previousVersion = await getPreviousVersionFromSpec();
+    const currentVersion = await getCurrentVersionFromSpec();
+    const versionedName = `Pinterest REST API ${previousVersion}`;
     
-    console.log(`Current version will be: ${versionedName}`);
+    console.log(`Snapshot will be named: "${versionedName}" (deploying ${currentVersion})`);
     
     // Step 1: Get the current content of the "latest" collection
     console.log('Getting current collection content...');
@@ -226,9 +213,9 @@ async function main() {
         description: currentLatestContent.info.description 
           ? currentLatestContent.info.description.replace(
               "Pinterest's REST API", 
-              `Pinterest's REST API (${currentVersion})`
+              `Pinterest's REST API (${previousVersion})`
             )
-          : `Pinterest's REST API (${currentVersion})`
+          : `Pinterest's REST API (${previousVersion})`
       }
     };
     
@@ -258,6 +245,7 @@ async function main() {
       convertedCollectionData.info = {};
     }
     convertedCollectionData.info.name = 'Pinterest REST API (latest)';
+    convertedCollectionData.info.description = `Pinterest's REST API (${currentVersion})`;
     
     // Remove uid and id from the converted data
     delete convertedCollectionData.uid;
