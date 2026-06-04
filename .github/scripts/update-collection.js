@@ -149,7 +149,7 @@ async function getCurrentVersionFromSpec() {
 
 async function getPreviousVersionFromSpec() {
   try {
-    const prevContent = execSync('git show HEAD~1:v5/openapi.json').toString();
+    const prevContent = execSync('git show HEAD~1:v5/openapi.json', { maxBuffer: 50 * 1024 * 1024 }).toString();
     const version = JSON.parse(prevContent)?.info?.version;
     if (!version) {
       throw new Error('Could not find info.version in HEAD~1:v5/openapi.json');
