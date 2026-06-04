@@ -6,6 +6,7 @@ on:
     paths:
       - 'v5/openapi.yaml'
       - 'v5/openapi.json'
+  workflow_dispatch:
 
 jobs:
   sync-to-postman:
