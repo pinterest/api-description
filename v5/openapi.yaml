@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Pinterest REST API
-  version: 5.28.0
+  version: 5.29.0
   contact:
     name: Pinterest, Inc.
     url: https://developers.pinterest.com/
@@ -3306,10 +3306,15 @@ paths:
       operationId: campaigns/create
       summary: Create campaigns
       description: |-
-        Create multiple new campaigns. Every campaign has its own campaign_id
-        and houses one or more ad groups, which contain one or more ads.
+        
+        Create multiple new campaigns. Every campaign has its own campaign_id and houses one or more ad groups, which contain one or more ads.
 
         For more, see [Set up your campaign](https://help.pinterest.com/en/business/article/set-up-your-campaign/).
+
+        **Campaign objective types are changing!**
+
+        As part of objective simplification, `WEB_CONVERSION` and `CATALOG_SALES` objectives are being deprecated and replaced by `SALES` and `LEADS`. A new optional `intended_promotion_type` parameter is also being introduced, allowing you to create ads from either Pins or product catalog under the `SALES` and `CONSIDERATION` objectives. Legacy objectives remain available until **February 1, 2027**, after which you will need to migrate your campaigns to the new objectives. Get [full details and the migration timeline for objective simplification](/docs/work-with-ads/try-out-campaign-objective-type-simplification/).
+
 
         **Note:**
         - The values for `lifetime_spend_cap` and `daily_spend_cap` are microcurrency amounts based on the currency field set in the advertiser's profile (e.g. USD).
@@ -3390,6 +3395,10 @@ paths:
       summary: Update campaigns
       description: |-
         Update multiple ad campaigns based on campaign_ids.
+
+        **Campaign objective types are changing!**
+
+        As part of objective simplification, `WEB_CONVERSION` and `CATALOG_SALES` objectives are being deprecated and replaced by `SALES` and `LEADS`. A new optional `intended_promotion_type` parameter is also being introduced, allowing you to create ads from either Pins or product catalog under the `SALES` and `CONSIDERATION` objectives. Legacy objectives remain available until **February 1, 2027**, after which you will need to migrate your campaigns to the new objectives. Get [full details and the migration timeline for objective simplification](/docs/work-with-ads/try-out-campaign-objective-type-simplification/).
 
         **Note:**
         - The values for `lifetime_spend_cap` and `daily_spend_cap` are microcurrency amounts based on the currency field set in the advertiser's profile (e.g. USD).
@@ -4091,6 +4100,7 @@ paths:
             - ads:read
         - client_credentials:
             - ads:read
+        - conversion_token: []
       tags:
         - conversion_eqs
       x-ratelimit-category: ads_read
@@ -15386,6 +15396,63 @@ paths:
         - media
       x-ratelimit-category: org_read
       x-sandbox: enabled
+  /merchant/{merchant_id}/status:
+    get:
+      operationId: merchant_status/get
+      summary: Get merchant status
+      description: Get the approval status of a merchant, including any pending reasons.
+      parameters:
+        - $ref: '#/components/parameters/path_merchant_id'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantStatusResponse'
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - catalogs:read
+      tags:
+        - merchant_status
+      x-ratelimit-category: org_read
+      x-sandbox: disabled
   /notifications:
     post:
       operationId: notification/post
@@ -18432,25 +18499,37 @@ paths:
                 required:
                   - items
         '400':
-          description: The server could not understand the request due to invalid syntax.
+          description: The request could not be understood by the server due to unexpected data.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pinterest.Lib.Error'
         '401':
-          description: Access is unauthorized.
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pinterest.Lib.Error'
         '404':
-          description: The server cannot find the requested resource.
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pinterest.Lib.Error'
         default:
-          description: Unexpected error
+          description: An unexpected error response.
           content:
             application/json:
               schema:
@@ -18466,6 +18545,13 @@ paths:
       x-sandbox: enabled
 components:
   parameters:
+    AdAccountDiscountWithEnumTypeKey:
+      name: id
+      in: path
+      required: true
+      description: Discount ID
+      schema:
+        type: integer
     AdAccountKey:
       name: ad_account_id
       in: path
@@ -18871,6 +18957,14 @@ components:
       schema:
         type: string
         pattern: ^\d+$
+    MarketingOfferRedemptionKey.id:
+      name: ad_account_id
+      in: path
+      required: true
+      schema:
+        type: string
+        maxLength: 18
+        pattern: ^\d+$
     MediaKey:
       name: media_id
       in: path
@@ -18878,6 +18972,13 @@ components:
       description: |-
         Unique identifier for this media upload. Used to track status
         and for attaching during Pin creation.
+      schema:
+        type: string
+        pattern: ^\d+$
+    MediaLatentDisclosurePathParam:
+      name: media_id
+      in: path
+      required: true
       schema:
         type: string
         pattern: ^\d+$
@@ -18933,6 +19034,13 @@ components:
         maxLength: 20
         minLength: 1
         pattern: ^\d+$
+    path_bill_id:
+      name: bill_id
+      in: path
+      required: true
+      description: Unique identifier of the bill to refund.
+      schema:
+        type: integer
     path_billing_invoice_id:
       name: billing_invoice_id
       in: path
@@ -19052,6 +19160,14 @@ components:
       in: path
       required: true
       description: lead_export_id token returned from the create a lead export endpoint
+      schema:
+        type: string
+        pattern: ^\d+$
+    path_merchant_id:
+      name: merchant_id
+      in: path
+      required: true
+      description: Unique identifier of a merchant.
       schema:
         type: string
         pattern: ^\d+$
@@ -19741,6 +19857,13 @@ components:
       description: Contains the parameters for report identification.
       schema:
         $ref: '#/components/schemas/CatalogsReportStatsParameters'
+    query_catalogs_supplemental_feed_type:
+      name: type
+      in: query
+      required: false
+      description: Filter supplemental feeds by supplemental feed type.
+      schema:
+        $ref: '#/components/schemas/CatalogsSupplementalFeedType'
     query_child_asset_id:
       name: child_asset_id
       in: query
@@ -20552,6 +20675,8 @@ components:
           - ASSET_GROUP
           - CATALOG
           - CONSUMER
+          - PINNER_LIST
+          - CONVERSION_SEGMENT
     query_resource_type_internal:
       name: asset_type
       in: query
@@ -21276,6 +21401,11 @@ components:
             $ref: '#/components/schemas/BusinessAccessRole'
           readOnly: true
           title: permissions
+        targeting_rmn_business_id:
+          description: RMN business ID for the ad account.
+          type: string
+          pattern: ^\d+$
+          readOnly: true
         time_zone:
           description: The time zone of the ad account, in IANA format (e.g., "America/Los_Angeles"). Adding your local time zone lets you view your campaigns and ad reporting in your preferred time zone. Future reports will be available in both your local time zone and default UTC time zone. Historical data takes 1-2 months to backfill. Your billing and order lines will remain in UTC.
           type: string
@@ -21327,6 +21457,14 @@ components:
         - CAMPAIGN
         - AD_GROUP
         - AD
+    AdAccountInfo:
+      description: Information about an ad account asset.
+      type: object
+      properties:
+        targeting_rmn_business_id:
+          description: RMN business ID for the ad account.
+          type: string
+          pattern: ^\d+$
     AdAccountOwner:
       type: object
       properties:
@@ -26546,6 +26684,10 @@ components:
       description: An object containing the permissions a business has on the asset.
       type: object
       properties:
+        ad_account_info:
+          description: An object containing all the information specific to the provided ad account. This field will be populated only if asset_type equals 'AD_ACCOUNT'.
+          allOf:
+            - $ref: '#/components/schemas/AdAccountInfo'
         catalog_info:
           description: An object containing all the information specific to the provided catalog. This field will be populated only if asset_type equals 'CATALOG'.
           allOf:
@@ -26766,6 +26908,21 @@ components:
           type: string
           example: '549755885175'
           pattern: ^\d+$
+        app_id:
+          description: |-
+            [Closed beta](/docs/getting-started/using-beta-and-restricted-features/)
+
+            The store ID of the mobile app for `APP_INSTALL` campaigns.
+          type: string
+          example: '429047995'
+        app_platform:
+          description: |-
+            [Closed beta](/docs/getting-started/using-beta-and-restricted-features/)
+
+            Platform of the mobile app for `APP_INSTALL` campaigns.
+          example: IOS
+          allOf:
+            - $ref: '#/components/schemas/MobileAppPlatform'
         bid_options:
           description: |-
             [Restricted](/docs/getting-started/using-beta-and-restricted-features/)
@@ -27060,6 +27217,21 @@ components:
           type: string
           example: '549755885175'
           pattern: ^\d+$
+        app_id:
+          description: |-
+            [Closed beta](/docs/getting-started/using-beta-and-restricted-features/)
+
+            The store ID of the mobile app for `APP_INSTALL` campaigns.
+          type: string
+          example: '429047995'
+        app_platform:
+          description: |-
+            [Closed beta](/docs/getting-started/using-beta-and-restricted-features/)
+
+            Platform of the mobile app for `APP_INSTALL` campaigns.
+          example: IOS
+          allOf:
+            - $ref: '#/components/schemas/MobileAppPlatform'
         bid_options:
           description: |-
             [Restricted](/docs/getting-started/using-beta-and-restricted-features/)
@@ -27946,6 +28118,18 @@ components:
           type: number
           format: float
           example: 12
+        lifetime_click:
+          description: Estimated lifetime clicks.
+          type: number
+          format: float
+        lifetime_click_lower:
+          description: Lower estimate of lifetime clicks.
+          type: number
+          format: float
+        lifetime_click_upper:
+          description: Upper estimate of lifetime clicks.
+          type: number
+          format: float
         lifetime_frequency:
           description: Estimated lifetime frequency.
           type: number
@@ -28592,6 +28776,13 @@ components:
       properties:
         catalog_type:
           $ref: '#/components/schemas/CatalogsType'
+        country:
+          description: |-
+            Catalog-level default country (ISO 3166-1 alpha-2) for RETAIL international (INTL)
+            catalogs. Only set for `RETAIL` catalogs that opt into INTL behavior; required
+            together with `locale` to enable INTL supplemental feeds.
+          allOf:
+            - $ref: '#/components/schemas/Country'
         created_at:
           type: string
           format: date-time
@@ -28602,6 +28793,13 @@ components:
           type: string
           example: '864344156814050986'
           pattern: ^\d+$
+        locale:
+          description: |-
+            Catalog-level default locale (normalized BCP-47 tag) for RETAIL international (INTL)
+            catalogs. Only set for `RETAIL` catalogs that opt into INTL behavior; required
+            together with `country` to enable INTL supplemental feeds.
+          allOf:
+            - $ref: '#/components/schemas/CatalogsLocale'
         name:
           description: A human-friendly name associated to a catalog entity.
           type: string
@@ -28648,6 +28846,20 @@ components:
       properties:
         catalog_type:
           $ref: '#/components/schemas/CatalogsType'
+        country:
+          description: |-
+            Catalog-level default country (ISO 3166-1 alpha-2) for RETAIL international (INTL)
+            catalogs. Only set for `RETAIL` catalogs that opt into INTL behavior; required
+            together with `locale` to enable INTL supplemental feeds.
+          allOf:
+            - $ref: '#/components/schemas/Country'
+        locale:
+          description: |-
+            Catalog-level default locale (normalized BCP-47 tag) for RETAIL international (INTL)
+            catalogs. Only set for `RETAIL` catalogs that opt into INTL behavior; required
+            together with `country` to enable INTL supplemental feeds.
+          allOf:
+            - $ref: '#/components/schemas/CatalogsLocale'
         name:
           description: A human-friendly name associated to a catalog entity.
           type: string
@@ -28742,6 +28954,16 @@ components:
       required:
         - all_of
       title: all_of
+    CatalogsBaseFiltersAllOfUpdate:
+      type: object
+      properties:
+        all_of:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogsBaseFilterKeys'
+          minItems: 1
+      additionalProperties: false
+      title: all_of
     CatalogsBaseFiltersAnyOf:
       type: object
       properties:
@@ -28754,6 +28976,88 @@ components:
       required:
         - any_of
       title: any_of
+    CatalogsBaseFiltersAnyOfUpdate:
+      type: object
+      properties:
+        any_of:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogsBaseFilterKeys'
+          minItems: 1
+      additionalProperties: false
+      title: any_of
+    CatalogsCountryLocaleEntry:
+      description: A single (country -> locales) entry inside a catalog's country/locale mapping.
+      type: object
+      properties:
+        country:
+          description: ISO 3166-1 alpha-2 country code.
+          example: US
+          allOf:
+            - $ref: '#/components/schemas/Country'
+        locales:
+          description: Allowed locales for the given country (max 5 unique entries).
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogsLocale'
+          example:
+            - en-US
+            - es-419
+          maxItems: 5
+          minItems: 1
+      additionalProperties: false
+      required:
+        - country
+        - locales
+    CatalogsCountryLocaleMapping:
+      description: |-
+        Country/locale mapping for an international Pinterest product catalog. Each catalog
+        has at most one mapping that defines the supported (country, locale) pairs for its
+        items. Only `RETAIL` / `PRODUCT` catalogs that already have both a default `country`
+        and `locale` set on the catalog itself are eligible.
+      type: object
+      properties:
+        catalog_id:
+          description: Identifier of the catalog this mapping belongs to.
+          type: string
+          pattern: ^\d+$
+          readOnly: true
+        country_to_locales:
+          description: Country -> locales entries supported by the catalog.
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogsCountryLocaleEntry'
+          minItems: 1
+        created_at:
+          description: Unix timestamp (seconds) when the mapping was first created.
+          type: integer
+          readOnly: true
+        id:
+          description: Pinterest-generated unique identifier for this country/locale mapping.
+          type: string
+          readOnly: true
+        merchant_id:
+          description: Identifier of the merchant that owns the underlying catalog.
+          type: string
+          pattern: ^\d+$
+          readOnly: true
+        updated_at:
+          description: Unix timestamp (seconds) when the mapping was last updated.
+          type: integer
+          readOnly: true
+      additionalProperties: false
+      required:
+        - country_to_locales
+    CatalogsCountryLocaleMappingUpdate:
+      description: Resource create or update operation model.
+      type: object
+      properties:
+        country_to_locales:
+          description: Country -> locales entries supported by the catalog.
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogsCountryLocaleEntry'
+          minItems: 1
     CatalogsCreateCreativeAssetsItem:
       description: A creative assets item to be created.
       type: object
@@ -34277,6 +34581,9 @@ components:
           type: string
           enum:
             - RETAIL
+        images:
+          type: number
+          minimum: 0
         in_stock:
           type: number
           minimum: 0
@@ -34298,6 +34605,7 @@ components:
         - out_of_stock
         - preorder
         - total
+        - images
       title: catalogs_retail_product_group_product_counts
     CatalogsRetailProductGroupUpdateRequest:
       description: Request object for updating a retail product group.
@@ -34311,14 +34619,18 @@ components:
           enum:
             - RETAIL
         country:
-          $ref: '#/components/schemas/Country'
+          allOf:
+            - $ref: '#/components/schemas/NullableCountry'
+          nullable: true
         description:
           type: string
           nullable: true
         filters:
           $ref: '#/components/schemas/CatalogsProductGroupFiltersRequest'
         locale:
-          $ref: '#/components/schemas/CatalogsLocale'
+          allOf:
+            - $ref: '#/components/schemas/NullableCatalogsLocale'
+          nullable: true
         name:
           description: Name of catalog product group
           type: string
@@ -34430,6 +34742,269 @@ components:
       enum:
         - ACTIVE
         - INACTIVE
+    CatalogsSupplementalFeed:
+      description: |-
+        Supplemental feed profile attached to a RETAIL catalog.
+
+        v1 of this resource is RETAIL-only — every payload variant carries
+        `catalog_type: "RETAIL"`. Future catalog types (HOTEL, CREATIVE_ASSETS,
+        ...) will be added by introducing an outer `@discriminated` union on
+        `catalog_type` whose RETAIL branch is the current
+        `CatalogsSupplementalFeedVariants` union.
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        feed:
+          description: Supplemental feed payload.
+          allOf:
+            - $ref: '#/components/schemas/CatalogsSupplementalFeedVariants'
+        id:
+          description: Supplemental feed id generated by Pinterest.
+          allOf:
+            - $ref: '#/components/schemas/Pinterest.Lib.IntegerFormatType'
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      additionalProperties: false
+      required:
+        - id
+        - feed
+        - created_at
+        - updated_at
+    CatalogsSupplementalFeedCountry:
+      type: object
+      properties:
+        countries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Country'
+        type:
+          type: string
+          enum:
+            - COUNTRY
+      allOf:
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedPayloadBase'
+      required:
+        - type
+        - countries
+    CatalogsSupplementalFeedCountryUpdate:
+      type: object
+      properties:
+        countries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Country'
+        type:
+          type: string
+          enum:
+            - COUNTRY
+      allOf:
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedPayloadBaseUpdate'
+    CatalogsSupplementalFeedCreate:
+      description: Resource create operation model.
+      type: object
+      properties:
+        feed:
+          description: Supplemental feed payload.
+          allOf:
+            - $ref: '#/components/schemas/CatalogsSupplementalFeedVariants'
+      required:
+        - feed
+    CatalogsSupplementalFeedLocalInventory:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - LOCAL_INVENTORY
+      allOf:
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedPayloadBase'
+      required:
+        - type
+    CatalogsSupplementalFeedLocalInventoryUpdate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - LOCAL_INVENTORY
+      allOf:
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedPayloadBaseUpdate'
+    CatalogsSupplementalFeedLocale:
+      type: object
+      properties:
+        locales:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogsLocale'
+        type:
+          type: string
+          enum:
+            - LOCALE
+      allOf:
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedPayloadBase'
+      required:
+        - type
+        - locales
+    CatalogsSupplementalFeedLocaleUpdate:
+      type: object
+      properties:
+        locales:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogsLocale'
+        type:
+          type: string
+          enum:
+            - LOCALE
+      allOf:
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedPayloadBaseUpdate'
+    CatalogsSupplementalFeedPartialUpdate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - PARTIAL_UPDATE
+      allOf:
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedPayloadBase'
+      required:
+        - type
+    CatalogsSupplementalFeedPartialUpdateUpdate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - PARTIAL_UPDATE
+      allOf:
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedPayloadBaseUpdate'
+    CatalogsSupplementalFeedPayloadBase:
+      description: Shared fields for all supplemental feed payload variants.
+      type: object
+      properties:
+        catalog_id:
+          description: Catalog this supplemental feed belongs to.
+          type: string
+          pattern: ^\d+$
+        catalog_type:
+          description: Catalog type the supplemental feed is attached to. v1 supports `RETAIL` only.
+          type: string
+          enum:
+            - RETAIL
+        format:
+          $ref: '#/components/schemas/CatalogsFormat'
+        location:
+          description: Feed download location (URL or integration-specific reference).
+          allOf:
+            - $ref: '#/components/schemas/FeedLocation'
+        name:
+          $ref: '#/components/schemas/FeedDisplayName'
+        status:
+          $ref: '#/components/schemas/CatalogsSupplementalFeedStatus'
+      required:
+        - catalog_id
+        - catalog_type
+        - name
+        - location
+        - format
+    CatalogsSupplementalFeedPayloadBaseUpdate:
+      description: Shared fields for all supplemental feed payload variants.
+      type: object
+      properties:
+        format:
+          $ref: '#/components/schemas/CatalogsFormat'
+        location:
+          description: Feed download location (URL or integration-specific reference).
+          allOf:
+            - $ref: '#/components/schemas/FeedLocation'
+        name:
+          $ref: '#/components/schemas/FeedDisplayName'
+        status:
+          $ref: '#/components/schemas/CatalogsSupplementalFeedStatus'
+    CatalogsSupplementalFeedRegionalPricing:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - REGIONAL_PRICING
+      allOf:
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedPayloadBase'
+      required:
+        - type
+    CatalogsSupplementalFeedRegionalPricingUpdate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - REGIONAL_PRICING
+      allOf:
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedPayloadBaseUpdate'
+    CatalogsSupplementalFeedStatus:
+      description: Lifecycle status for a supplemental feed profile.
+      type: string
+      enum:
+        - ACTIVE
+        - INACTIVE
+        - DISABLED
+    CatalogsSupplementalFeedType:
+      description: Supplemental feed type when filtering list results.
+      type: string
+      enum:
+        - COUNTRY
+        - LOCALE
+        - REGIONAL_PRICING
+        - PARTIAL_UPDATE
+        - LOCAL_INVENTORY
+    CatalogsSupplementalFeedUpdate:
+      description: Resource create or update operation model.
+      type: object
+      properties:
+        feed:
+          description: Supplemental feed payload.
+          allOf:
+            - $ref: '#/components/schemas/CatalogsSupplementalFeedVariantsUpdate'
+    CatalogsSupplementalFeedVariants:
+      description: Supplemental feed payload, discriminated by `type`.
+      type: object
+      discriminator:
+        propertyName: type
+        mapping:
+          COUNTRY: '#/components/schemas/CatalogsSupplementalFeedCountry'
+          LOCALE: '#/components/schemas/CatalogsSupplementalFeedLocale'
+          REGIONAL_PRICING: '#/components/schemas/CatalogsSupplementalFeedRegionalPricing'
+          PARTIAL_UPDATE: '#/components/schemas/CatalogsSupplementalFeedPartialUpdate'
+          LOCAL_INVENTORY: '#/components/schemas/CatalogsSupplementalFeedLocalInventory'
+      oneOf:
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedCountry'
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedLocale'
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedRegionalPricing'
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedPartialUpdate'
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedLocalInventory'
+    CatalogsSupplementalFeedVariantsUpdate:
+      description: Supplemental feed payload, discriminated by `type`.
+      type: object
+      discriminator:
+        propertyName: type
+        mapping:
+          COUNTRY: '#/components/schemas/CatalogsSupplementalFeedCountryUpdate'
+          LOCALE: '#/components/schemas/CatalogsSupplementalFeedLocaleUpdate'
+          REGIONAL_PRICING: '#/components/schemas/CatalogsSupplementalFeedRegionalPricingUpdate'
+          PARTIAL_UPDATE: '#/components/schemas/CatalogsSupplementalFeedPartialUpdateUpdate'
+          LOCAL_INVENTORY: '#/components/schemas/CatalogsSupplementalFeedLocalInventoryUpdate'
+      oneOf:
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedCountryUpdate'
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedLocaleUpdate'
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedRegionalPricingUpdate'
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedPartialUpdateUpdate'
+        - $ref: '#/components/schemas/CatalogsSupplementalFeedLocalInventoryUpdate'
     CatalogsType:
       description: Type of the catalog entity.
       type: string
@@ -35848,8 +36423,9 @@ components:
     ConversionObjectiveType:
       description: |-
         Intended result of the campaign.
+        As part of [objective simplification](/docs/work-with-ads/try-out-campaign-objective-type-simplification/), `WEB_CONVERSION` and `CATALOG_SALES` objectives are being deprecated and replaced by `SALES` and `LEADS`.
+        Also, `WEB_SESSIONS` and `VIDEO_VIEW` objectives are deprecated. We recommend using `VIDEO_COMPLETION` as an alternative for the latter.
         You can only update objectives for draft campaigns.
-        `WEB_SESSIONS` and `VIDEO_VIEW` objectives are deprecated. We recommend using `VIDEO_COMPLETION` as an alternative for the latter.
       type: string
       enum:
         - AWARENESS
@@ -36256,7 +36832,6 @@ components:
           description: Tag ID.
           type: string
           example: '2617998078212'
-          readOnly: true
         last_fired_time_ms:
           description: Time for the last event fired.
           type: number
@@ -36922,6 +37497,7 @@ components:
         - MAX_WIDTH_REGULAR_COLLECTION
         - MAX_WIDTH_VIDEO_COLLECTION
         - APP
+        - CTV_VIDEO
       title: CreativeType enum used ads
     Currency:
       description: Currency Codes from ISO 4217
@@ -38831,7 +39407,6 @@ components:
         name:
           type: string
           example: Man cave
-      title: Interest
     InterestsEnum:
       type: string
       enum:
@@ -41612,6 +42187,8 @@ components:
       type: string
       enum:
         - video
+        - image_latent_disclosure
+        - video_latent_disclosure
       title: Media upload type
     MemberBusinessRole:
       description: |-
@@ -41623,6 +42200,34 @@ components:
       enum:
         - EMPLOYEE
         - BIZ_ADMIN
+    MerchantApprovalStatusType:
+      description: The merchant's high-level approval status.
+      type: string
+      enum:
+        - PENDING
+        - APPROVED
+        - DECLINED
+    MerchantPendingReason:
+      description: The reason a merchant's status is pending.
+      type: string
+      enum:
+        - PENDING_APPEAL
+        - PENDING_REVIEW
+        - PENDING_ACTION_NEEDED
+    MerchantStatusResponse:
+      description: Merchant approval status and pending reason details.
+      type: object
+      properties:
+        merchant_approval_status:
+          description: The merchant's high-level approval status.
+          allOf:
+            - $ref: '#/components/schemas/MerchantApprovalStatusType'
+        pending_reasons:
+          description: The reason a merchant's status is pending.
+          allOf:
+            - $ref: '#/components/schemas/MerchantPendingReason'
+      required:
+        - merchant_approval_status
     MetricsReportingLevel:
       description: Level of the reporting request
       type: string
@@ -42150,6 +42755,310 @@ components:
         - SALE_PRICE_EFFECTIVE_DATE
         - null
       nullable: true
+    NullableCatalogsLocale:
+      type: string
+      enum:
+        - af-ZA
+        - ar-SA
+        - bg-BG
+        - bn-IN
+        - cs-CZ
+        - da-DK
+        - de
+        - el-GR
+        - en-AU
+        - en-CA
+        - en-GB
+        - en-IN
+        - en-US
+        - es-419
+        - es-AR
+        - es-ES
+        - es-MX
+        - fi-FI
+        - fr
+        - fr-CA
+        - he-IL
+        - hi-IN
+        - hr-HR
+        - hu-HU
+        - id-ID
+        - it
+        - ja
+        - ko-KR
+        - ms-MY
+        - nb-NO
+        - nl
+        - pl-PL
+        - pt-BR
+        - pt-PT
+        - ro-RO
+        - ru-RU
+        - sk-SK
+        - sv-SE
+        - te-IN
+        - th-TH
+        - tl-PH
+        - tr
+        - uk-UA
+        - vi-VN
+        - zh-CN
+        - zh-TW
+        - null
+      nullable: true
+    NullableCountry:
+      type: string
+      enum:
+        - AD
+        - AE
+        - AF
+        - AG
+        - AI
+        - AL
+        - AM
+        - AO
+        - AQ
+        - AR
+        - AS
+        - AT
+        - AU
+        - AW
+        - AX
+        - AZ
+        - BA
+        - BB
+        - BD
+        - BE
+        - BF
+        - BG
+        - BH
+        - BI
+        - BJ
+        - BL
+        - BM
+        - BN
+        - BO
+        - BQ
+        - BR
+        - BS
+        - BT
+        - BV
+        - BW
+        - BY
+        - BZ
+        - CA
+        - CC
+        - CD
+        - CF
+        - CG
+        - CH
+        - CI
+        - CK
+        - CL
+        - CM
+        - CN
+        - CO
+        - CR
+        - CU
+        - CV
+        - CW
+        - CX
+        - CY
+        - CZ
+        - DE
+        - DJ
+        - DK
+        - DM
+        - DO
+        - DZ
+        - EC
+        - EE
+        - EG
+        - EH
+        - ER
+        - ES
+        - ET
+        - FI
+        - FJ
+        - FK
+        - FM
+        - FO
+        - FR
+        - GA
+        - GB
+        - GD
+        - GE
+        - GF
+        - GG
+        - GH
+        - GI
+        - GL
+        - GM
+        - GN
+        - GP
+        - GQ
+        - GR
+        - GS
+        - GT
+        - GU
+        - GW
+        - GY
+        - HK
+        - HM
+        - HN
+        - HR
+        - HT
+        - HU
+        - ID
+        - IE
+        - IL
+        - IM
+        - IN
+        - IO
+        - IQ
+        - IR
+        - IS
+        - IT
+        - JE
+        - JM
+        - JO
+        - JP
+        - KE
+        - KG
+        - KH
+        - KI
+        - KM
+        - KN
+        - KR
+        - KW
+        - KY
+        - KZ
+        - LA
+        - LB
+        - LC
+        - LI
+        - LK
+        - LR
+        - LS
+        - LT
+        - LU
+        - LV
+        - LY
+        - MA
+        - MC
+        - MD
+        - ME
+        - MF
+        - MG
+        - MH
+        - MK
+        - ML
+        - MM
+        - MN
+        - MO
+        - MP
+        - MQ
+        - MR
+        - MS
+        - MT
+        - MU
+        - MV
+        - MW
+        - MX
+        - MY
+        - MZ
+        - NA
+        - NC
+        - NE
+        - NF
+        - NG
+        - NI
+        - NL
+        - NO
+        - NP
+        - NR
+        - NU
+        - NZ
+        - OM
+        - PA
+        - PE
+        - PF
+        - PG
+        - PH
+        - PK
+        - PL
+        - PM
+        - PN
+        - PR
+        - PS
+        - PT
+        - PW
+        - PY
+        - QA
+        - RE
+        - RO
+        - RS
+        - RU
+        - RW
+        - SA
+        - SB
+        - SC
+        - SD
+        - SE
+        - SG
+        - SH
+        - SI
+        - SJ
+        - SK
+        - SL
+        - SM
+        - SN
+        - SO
+        - SR
+        - SS
+        - ST
+        - SV
+        - SX
+        - SY
+        - SZ
+        - TC
+        - TD
+        - TF
+        - TG
+        - TH
+        - TJ
+        - TK
+        - TL
+        - TM
+        - TN
+        - TO
+        - TR
+        - TT
+        - TV
+        - TW
+        - TZ
+        - UA
+        - UG
+        - UM
+        - US
+        - UY
+        - UZ
+        - VA
+        - VC
+        - VE
+        - VG
+        - VI
+        - VN
+        - VU
+        - WF
+        - WS
+        - YE
+        - YT
+        - ZA
+        - ZM
+        - ZW
+        - null
+      nullable: true
     NullableCurrency:
       description: Currency Codes from ISO 4217.
       type: string
@@ -42660,6 +43569,8 @@ components:
         - PROFILE_PUBLISHER
         - CONSUMER_USER
         - BIZ_PINNER_LIST_SHARER
+        - BIZ_CONVERSION_SEGMENT_SHARER
+        - BIZ_CONVERSION_SEGMENT_RESTRICTED_SHARER
     PermissionsResponse:
       description: Permission levels member or partner has on an asset.
       type: array
@@ -50761,17 +51672,10 @@ components:
           type: string
           example: pinr.eyJhbGciOiJS...
         token_type_hint:
-          description: The type of the token to revoke. Please refer to [our developer guide for more information](https://developers.pinterest.com/docs/getting-started/set-up-authentication-and-authorization/) for more information.
-          allOf:
-            - $ref: '#/components/schemas/TokenTypeHint'
+          description: Optional hint about the token type. Accepted per RFC 7009 but ignored server-side; revocation proceeds based on the decoded token type.
+          type: string
       required:
         - token
-    TokenTypeHint:
-      description: The type of token to revoke.
-      type: string
-      enum:
-        - access_token
-        - refresh_token
     TopPinsAnalyticsResponse:
       type: object
       properties:
@@ -51954,8 +52858,6 @@ components:
             $ref: '#/components/schemas/UpdateMemberAssetAccessItem'
           maxItems: 50
           minItems: 1
-      required:
-        - accesses
     UpdateMemberAssetAccessItem:
       type: object
       properties:
@@ -52481,15 +53383,11 @@ x-tagGroups:
       - pins
       - boards
       - media
-      - aggregated_comments
-      - aggregated_pin_data
       - product_tags
       - user_account
-      - entity_history
   - name: Campaign Management
     tags:
       - ad_accounts
-      - ab_tests
       - campaigns
       - ad_groups
       - ads
@@ -52522,7 +53420,6 @@ x-tagGroups:
       - business_access_assets
       - business_access_invite
       - business_access_relationships
-      - rmn_billing_contract
   - name: Conversions
     tags:
       - conversion_events
@@ -52530,24 +53427,18 @@ x-tagGroups:
       - conversion_segments
       - conversion_tags
       - conversions
-      - msot_adobe_analytics
       - msot_events
-      - san_conversion
       - conversion_deletion_requests
   - name: Others
     tags:
       - advanced_auction
-      - appsflyer_audience
-      - commerce_integrations
       - integrations
       - merchant_status
       - notification
       - oauth
       - resources
       - search
-      - site_status
       - terms
-      - pca_uploads
       - trends
   - name: Shopping
     tags:
