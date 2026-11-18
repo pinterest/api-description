@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Pinterest REST API",
-    "version": "5.29.0",
+    "version": "5.30.0",
     "contact": {
       "name": "Pinterest, Inc.",
       "url": "https://developers.pinterest.com/"
@@ -5043,7 +5043,7 @@
       "post": {
         "operationId": "bulk_upsert/create",
         "summary": "Create/update ad entities in bulk",
-        "description": "Either create or update any combination of campaigns, ad groups, product groups, ads, keywords, schedules, or labels.\nNote that this request will be processed asynchronously; the response will include a <code>request_id</code>\nthat can be used to obtain the status of the request.",
+        "description": "Either create or update any combination of campaigns, ad groups, product groups, ads, keywords, schedules, or labels.\nNote that this request will be processed asynchronously; the response will include a `request_id`\nthat can be used to obtain the status of the request.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Pinterest.Lib.AdAccountId"
@@ -5055,13 +5055,73 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BulkUpsertResponse"
+                  "$ref": "#/components/schemas/BulkUpsert"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Resource create operation completed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkUpsert"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
                 }
               }
             }
           },
           "default": {
-            "description": "Unexpected error",
+            "description": "An unexpected error response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5079,11 +5139,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BulkUpsertRequest"
+                "$ref": "#/components/schemas/BulkWriteJobCreate"
               }
             }
-          },
-          "description": "Parameters to get create/update ad entities in bulk"
+          }
         },
         "security": [
           {
@@ -18497,6 +18556,9 @@
             "$ref": "#/components/parameters/path_non_system_business_user"
           },
           {
+            "$ref": "#/components/parameters/query_invites_assets_summary"
+          },
+          {
             "$ref": "#/components/parameters/query_is_member"
           },
           {
@@ -21453,7 +21515,7 @@
       "post": {
         "operationId": "items_batch/post",
         "summary": "Operate on item batch",
-        "description": "This endpoint supports multiple operations on a set of one or more catalog items owned by the \"operation user_account\". [See detailed documentation here.](/docs/work-with-catalogs/modify-items-in-batch/)\n- By default, the \"operation user_account\" is the token user_account.\n\nOptional: Business Access: Specify an `ad_account_id` (obtained via [List ad accounts](/docs/api/v5/#operation/ad_accounts/list)) to use the owner of that ad_account as the \"operation user_account\". In order to do this, the token user_account must have one of the following [Business Access](https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts) roles on the ad_account: Owner, Admin, Catalogs Manager.\n\nNote:\n- Access to the Creative Assets catalog type is restricted to a specific group of users.\nIf you require access, please reach out to your partner manager.\n- The item UPSERT operation is restricted to users without a feed data source. If you plan to migrate item ingestion from feeds to the API, please reach out to your partner manager or via the Help Center to get assistance.",
+        "description": "This endpoint supports multiple operations on a set of one or more catalog items owned by the \"operation user_account\". [See detailed documentation here.](/docs/work-with-catalogs/modify-items-in-batch/)\n- By default, the \"operation user_account\" is the token user_account.\n\nOptional: Business Access: Specify an `ad_account_id` (obtained via [List ad accounts](/docs/api/v5/#operation/ad_accounts/list)) to use the owner of that ad_account as the \"operation user_account\". In order to do this, the token user_account must have one of the following [Business Access](https://help.pinterest.com/en/business/article/share-and-manage-access-to-your-ad-accounts) roles on the ad_account: Owner, Admin, Catalogs Manager.\n\nNote:\n- Access to the Creative Assets catalog type is restricted to a specific group of users.\nIf you require access, please reach out to your partner manager.\n- The item UPSERT operation is restricted to users without a feed data source. If you plan to migrate item ingestion from feeds to the API, please reach out to your partner manager or via the Help Center to get assistance.\n- The `last_updated_time` attribute of an item can be used to determine the data written order. In other words, an item update with a larger `last_updated_time` will always override an item update with a smaller one.",
         "parameters": [
           {
             "$ref": "#/components/parameters/query_ad_account_id"
@@ -24658,7 +24720,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IntegrationLogsSuccessResponse"
+                  "$ref": "#/components/schemas/MessageResponse"
                 }
               }
             }
@@ -25051,7 +25113,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MediaUploadCreate"
+                "$ref": "#/components/schemas/MediaUploadCreateRequest"
               }
             }
           }
@@ -30248,6 +30310,15 @@
   },
   "components": {
     "parameters": {
+      "AdAccountDiscountKey": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Discount ID",
+        "schema": {
+          "type": "integer"
+        }
+      },
       "AdAccountDiscountWithEnumTypeKey": {
         "name": "id",
         "in": "path",
@@ -30775,6 +30846,26 @@
           "pattern": "^\\d+$"
         }
       },
+      "OverlayAssignmentRuleKey": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "The unique identifier of the overlay assignment rule.",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
+      "OverlayKey": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "The unique identifier of the overlay.",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
       "PinKey": {
         "name": "pin_id",
         "in": "path",
@@ -30879,7 +30970,7 @@
         "description": "The contract ID",
         "schema": {
           "$ref": "#/components/schemas/Pinterest.Lib.IntegerFormatType",
-          "maxLength": 18
+          "maxLength": 19
         }
       },
       "ScheduleParentKey": {
@@ -32382,6 +32473,16 @@
         "description": "Invite type to filter invites by. Only invites of the specified type will be returned.",
         "schema": {
           "$ref": "#/components/schemas/InviteType"
+        }
+      },
+      "query_invites_assets_summary": {
+        "name": "assets_summary",
+        "in": "query",
+        "required": false,
+        "description": "  Include assets summary in the response if this is true.\n\n  The assets summary returns a dictionary representing a summary of the assets\n  the member or partner will be granted access to.",
+        "schema": {
+          "type": "boolean",
+          "default": false
         }
       },
       "query_is_member": {
@@ -34745,9 +34846,7 @@
           },
           "pin_id": {
             "type": "string",
-            "pattern": "^\\d+$",
-            "description": "Pin ID.",
-            "example": "394205773611545468"
+            "pattern": "^\\d+$"
           }
         },
         "allOf": [
@@ -35438,7 +35537,7 @@
           "end_time": {
             "type": "integer",
             "nullable": true,
-            "description": "Timestamp in Unix format for scheduling when ads in the ad group stop appearing. If not specified, ads run indefinitely unless you update the ad group by changing their status to `paused`. Cannot occur after `end_time` for parent campaign (if specified). Learn about <a href=\"/docs/api-features/managing-ads/#step-2-create-an-ad-group\" target=\"blank\">scheduling ads</a>.\nFor certain organizations (<a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank\" target=\"blank\">Closed beta</a>): Supported for campaigns with Campaign Budget Optimization (CBO).\nFor all organizations: Supported for campaigns without CBO.",
+            "description": "Timestamp in Unix format for scheduling when ads in the ad group stop appearing. If not specified, ads run indefinitely unless you update the ad group by changing their status to `paused`. Cannot occur after `end_time` for parent campaign (if specified). Learn about [scheduling ads](/docs/api-features/managing-ads/#step-2-create-an-ad-group).\nFor certain organizations ([Closed beta](/docs/getting-started/using-beta-and-restricted-features/)): Supported for campaigns with Campaign Budget Optimization (CBO).\nFor all organizations: Supported for campaigns without CBO.",
             "example": 5705424000
           },
           "is_creative_optimization": {
@@ -35449,7 +35548,7 @@
           },
           "lifetime_frequency_cap": {
             "type": "integer",
-            "description": "Set a limit to the number of times a promoted pin from this campaign can be impressed by a pinner within the past rolling 30 days. Only available for CPM (cost per mille (1000 impressions))  ad groups. A CPM ad group has an IMPRESSION <a href=\"/docs/redoc/#section/Billable-event\">billable_event</a> value. This field **REQUIRES** the `end_time` field.",
+            "description": "Set a limit to the number of times a promoted pin from this campaign can be impressed by a pinner within the past rolling 30 days. Only available for CPM (cost per mille (1000 impressions))  ad groups. A CPM ad group has an IMPRESSION [billable_event](/docs/redoc/#section/Billable-event) value. This field **REQUIRES** the `end_time` field.",
             "example": 100
           },
           "name": {
@@ -35476,7 +35575,7 @@
                 "$ref": "#/components/schemas/PlacementGroupType"
               }
             ],
-            "description": "<a href=\"/docs/redoc/#section/Placement-group\">Placement group</a>."
+            "description": "[Placement group](/docs/redoc/#section/Placement-group)."
           },
           "promotion_application_level": {
             "type": "string",
@@ -35512,7 +35611,7 @@
           "start_time": {
             "type": "integer",
             "nullable": true,
-            "description": "Timestamp in Unix format for scheduling when ads in the ad group start to appear. If not specified, ads appear during parent campaign's `start_time`. Cannot precede `start_time` for parent campaign (if specified). Learn about <a href=\"/docs/api-features/managing-ads/#step-2-create-an-ad-group\" target=\"blank\">scheduling ads</a>.\nFor certain organizations (<a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank\" target=\"blank\">Closed beta</a>): Supported for campaigns with Campaign Budget Optimization (CBO).\nFor all organizations: Supported for campaigns without CBO.",
+            "description": "Timestamp in Unix format for scheduling when ads in the ad group start to appear. If not specified, ads appear during parent campaign's `start_time`. Cannot precede `start_time` for parent campaign (if specified). Learn about [scheduling ads](/docs/api-features/managing-ads/#step-2-create-an-ad-group).\nFor certain organizations ([Closed beta](/docs/getting-started/using-beta-and-restricted-features/)): Supported for campaigns with Campaign Budget Optimization (CBO).\nFor all organizations: Supported for campaigns without CBO.",
             "example": 5686848000
           },
           "status": {
@@ -35524,7 +35623,7 @@
             "description": "Ad group/entity status."
           },
           "targeting_spec": {
-            "$ref": "#/components/schemas/TargetingSpec"
+            "$ref": "#/components/schemas/TargetingSpecOptimal"
           },
           "targeting_template_ids": {
             "type": "array",
@@ -35545,7 +35644,7 @@
               }
             ],
             "nullable": true,
-            "description": "Third-party tracking URLs.<br> JSON object with the format: {\"<a href=\"/docs/redoc/#section/Tracking-URL-event\">Tracking event enum</a>\":[URL string array],...}<br> For example: {\"impression\": [\"URL1\", \"URL2\"], \"click\": [\"URL1\", \"URL2\", \"URL3\"]}.<br>Up to three tracking URLs are supported for each event type. Tracking URLs set at the ad group or ad level can override those set at the campaign level. May be null. Pass in an empty object - EmptyObject - to remove tracking URLs.<br><br> For more information, see <a href=\"https://help.pinterest.com/en/business/article/third-party-and-dynamic-tracking\" target=\"_blank\">Third-party and dynamic tracking</a>."
+            "description": "Third-party tracking URLs.\n\nJSON object with the format: {\"[Tracking event enum](/docs/redoc/#section/Tracking-URL-event)\": [URL string array], ...}\nFor example: {\"impression\": [\"URL1\", \"URL2\"], \"click\": [\"URL1\", \"URL2\", \"URL3\"]}.\nUp to three tracking URLs are supported for each event type. Tracking URLs set at the ad group or ad level can override those set at the campaign level. May be null. Pass in an empty object - EmptyObject - to remove tracking URLs.\n\nFor more information, see [Third-party and dynamic tracking](https://help.pinterest.com/en/business/article/third-party-and-dynamic-tracking)."
           }
         },
         "allOf": [
@@ -35559,7 +35658,7 @@
                 "type": "number",
                 "minimum": 0,
                 "maximum": 10,
-                "description": "<a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank>Open beta</a>\nBid multiplier for ad group. This value is a double between 0.1\nand 10.0. Enter 0 to remove the bid multiplier.\n- Make sure the `bid_strategy` type for your ad group is set to `AUTOMATIC_BID`.\n- Not currently supported for <a href=\"/docs/api-features/pinterest-performance-plus-setup/\" target=\"blank\">Pinterest Performance+ campaigns</a>."
+                "description": "[Open beta](/docs/getting-started/using-beta-and-restricted-features/)\nBid multiplier for ad group. This value is a double between 0.1\nand 10.0. Enter 0 to remove the bid multiplier.\n- Make sure the `bid_strategy` type for your ad group is set to `AUTOMATIC_BID`.\n- Not currently supported for [Pinterest Performance+ campaigns](/docs/api-features/pinterest-performance-plus-setup/)."
               },
               "budget_type": {
                 "allOf": [
@@ -35597,7 +35696,7 @@
             "type": "number",
             "minimum": 0,
             "maximum": 10,
-            "description": "<a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank>Open beta</a>\nBid multiplier for ad group. This value is a double between 0.1\nand 10.0. Enter 0 to remove the bid multiplier.\n- Make sure the `bid_strategy` type for your ad group is set to `AUTOMATIC_BID`.\n- Not currently supported for <a href=\"/docs/api-features/pinterest-performance-plus-setup/\" target=\"blank\">Pinterest Performance+ campaigns</a>."
+            "description": "[Open beta](/docs/getting-started/using-beta-and-restricted-features/)\nBid multiplier for ad group. This value is a double between 0.1\nand 10.0. Enter 0 to remove the bid multiplier.\n- Make sure the `bid_strategy` type for your ad group is set to `AUTOMATIC_BID`.\n- Not currently supported for [Pinterest Performance+ campaigns](/docs/api-features/pinterest-performance-plus-setup/)."
           },
           "budget_type": {
             "allOf": [
@@ -35991,7 +36090,7 @@
           "auto_targeting_enabled": {
             "type": "boolean",
             "nullable": true,
-            "description": "Enable auto-targeting for ad group. Default value is True. Also known as <a href=\"https://help.pinterest.com/en/business/article/performance-plus-targeting\" target=\"_blank\">\"Pinterest Performance+ targeting\"</a>.",
+            "description": "Enable auto-targeting for ad group. Default value is True. Also known as [\"Pinterest Performance+ targeting\"](https://help.pinterest.com/en/business/article/performance-plus-targeting).",
             "example": true
           },
           "bid_in_micro_currency": {
@@ -36024,7 +36123,7 @@
           "end_time": {
             "type": "integer",
             "nullable": true,
-            "description": "Timestamp in Unix format for scheduling when ads in the ad group stop appearing. If not specified, ads run indefinitely unless you update the ad group by changing their status to `paused`. Cannot occur after `end_time` for parent campaign (if specified). Learn about <a href=\"/docs/api-features/managing-ads/#step-2-create-an-ad-group\" target=\"blank\">scheduling ads</a>.\nFor certain organizations (<a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank\" target=\"blank\">Closed beta</a>): Supported for campaigns with Campaign Budget Optimization (CBO).\nFor all organizations: Supported for campaigns without CBO.",
+            "description": "Timestamp in Unix format for scheduling when ads in the ad group stop appearing. If not specified, ads run indefinitely unless you update the ad group by changing their status to `paused`. Cannot occur after `end_time` for parent campaign (if specified). Learn about [scheduling ads](/docs/api-features/managing-ads/#step-2-create-an-ad-group).\nFor certain organizations ([Closed beta](/docs/getting-started/using-beta-and-restricted-features/)): Supported for campaigns with Campaign Budget Optimization (CBO).\nFor all organizations: Supported for campaigns without CBO.",
             "example": 5705424000
           },
           "is_creative_optimization": {
@@ -36035,7 +36134,7 @@
           },
           "lifetime_frequency_cap": {
             "type": "integer",
-            "description": "Set a limit to the number of times a promoted pin from this campaign can be impressed by a pinner within the past rolling 30 days. Only available for CPM (cost per mille (1000 impressions))  ad groups. A CPM ad group has an IMPRESSION <a href=\"/docs/redoc/#section/Billable-event\">billable_event</a> value. This field **REQUIRES** the `end_time` field.",
+            "description": "Set a limit to the number of times a promoted pin from this campaign can be impressed by a pinner within the past rolling 30 days. Only available for CPM (cost per mille (1000 impressions))  ad groups. A CPM ad group has an IMPRESSION [billable_event](/docs/redoc/#section/Billable-event) value. This field **REQUIRES** the `end_time` field.",
             "example": 100
           },
           "name": {
@@ -36062,7 +36161,7 @@
                 "$ref": "#/components/schemas/PlacementGroupType"
               }
             ],
-            "description": "<a href=\"/docs/redoc/#section/Placement-group\">Placement group</a>."
+            "description": "[Placement group](/docs/redoc/#section/Placement-group)."
           },
           "promotion_application_level": {
             "type": "string",
@@ -36098,7 +36197,7 @@
           "start_time": {
             "type": "integer",
             "nullable": true,
-            "description": "Timestamp in Unix format for scheduling when ads in the ad group start to appear. If not specified, ads appear during parent campaign's `start_time`. Cannot precede `start_time` for parent campaign (if specified). Learn about <a href=\"/docs/api-features/managing-ads/#step-2-create-an-ad-group\" target=\"blank\">scheduling ads</a>.\nFor certain organizations (<a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank\" target=\"blank\">Closed beta</a>): Supported for campaigns with Campaign Budget Optimization (CBO).\nFor all organizations: Supported for campaigns without CBO.",
+            "description": "Timestamp in Unix format for scheduling when ads in the ad group start to appear. If not specified, ads appear during parent campaign's `start_time`. Cannot precede `start_time` for parent campaign (if specified). Learn about [scheduling ads](/docs/api-features/managing-ads/#step-2-create-an-ad-group).\nFor certain organizations ([Closed beta](/docs/getting-started/using-beta-and-restricted-features/)): Supported for campaigns with Campaign Budget Optimization (CBO).\nFor all organizations: Supported for campaigns without CBO.",
             "example": 5686848000
           },
           "status": {
@@ -36110,7 +36209,7 @@
             "description": "Ad group/entity status."
           },
           "targeting_spec": {
-            "$ref": "#/components/schemas/TargetingSpec"
+            "$ref": "#/components/schemas/TargetingSpecOptimal"
           },
           "targeting_template_ids": {
             "type": "array",
@@ -36131,7 +36230,7 @@
               }
             ],
             "nullable": true,
-            "description": "Third-party tracking URLs.<br> JSON object with the format: {\"<a href=\"/docs/redoc/#section/Tracking-URL-event\">Tracking event enum</a>\":[URL string array],...}<br> For example: {\"impression\": [\"URL1\", \"URL2\"], \"click\": [\"URL1\", \"URL2\", \"URL3\"]}.<br>Up to three tracking URLs are supported for each event type. Tracking URLs set at the ad group or ad level can override those set at the campaign level. May be null. Pass in an empty object - EmptyObject - to remove tracking URLs.<br><br> For more information, see <a href=\"https://help.pinterest.com/en/business/article/third-party-and-dynamic-tracking\" target=\"_blank\">Third-party and dynamic tracking</a>."
+            "description": "Third-party tracking URLs.\n\nJSON object with the format: {\"[Tracking event enum](/docs/redoc/#section/Tracking-URL-event)\": [URL string array], ...}\nFor example: {\"impression\": [\"URL1\", \"URL2\"], \"click\": [\"URL1\", \"URL2\", \"URL3\"]}.\nUp to three tracking URLs are supported for each event type. Tracking URLs set at the ad group or ad level can override those set at the campaign level. May be null. Pass in an empty object - EmptyObject - to remove tracking URLs.\n\nFor more information, see [Third-party and dynamic tracking](https://help.pinterest.com/en/business/article/third-party-and-dynamic-tracking)."
           }
         },
         "allOf": [
@@ -36145,7 +36244,7 @@
                 "type": "number",
                 "minimum": 0,
                 "maximum": 10,
-                "description": "<a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank>Open beta</a>\nBid multiplier for ad group. This value is a double between 0.1\nand 10.0. Enter 0 to remove the bid multiplier.\n- Make sure the `bid_strategy` type for your ad group is set to `AUTOMATIC_BID`.\n- Not currently supported for <a href=\"/docs/api-features/pinterest-performance-plus-setup/\" target=\"blank\">Pinterest Performance+ campaigns</a>."
+                "description": "[Open beta](/docs/getting-started/using-beta-and-restricted-features/)\nBid multiplier for ad group. This value is a double between 0.1\nand 10.0. Enter 0 to remove the bid multiplier.\n- Make sure the `bid_strategy` type for your ad group is set to `AUTOMATIC_BID`.\n- Not currently supported for [Pinterest Performance+ campaigns](/docs/api-features/pinterest-performance-plus-setup/)."
               },
               "id": {
                 "type": "string",
@@ -36157,7 +36256,7 @@
                 "items": {
                   "$ref": "#/components/schemas/TargetingSpecOperations"
                 },
-                "description": "<div>Targeting spec operations define modifications to apply to the targeting spec.</div>\n<br />\n<div><strong>NOTE:</strong> The <code>targeting_spec</code> and <code>targeting_spec_operations</code> cannot be sent at the same time.</div>\n<br />\n<div>The supported operations are:</div>\n<ul>\n<li><code>SET</code>: sets the field with the given values. If value is set to <code>null</code>, the field will be removed.</li>\n<li><code>ADD</code>: adds the given values to the field.</li>\n<li><code>REMOVE</code>: removes the given values from the field.</li>\n</ul>\n<div>Note the following:</div>\n<ul>\n<li>Same items are not added and removed at the same time.</li>\n<li>For a given field, only <code>ADD</code>/<code>REMOVE</code> or <code>SET</code> operations are allowed, not a mix of them.</li>\n<li>Only one SET operation is allowed for a given field.</li>\n<li>The <code>AGE_BUCKET</code>, <code>MAXIMUM_AGE</code>, <code>MINIMUM_AGE</code> and <code>SHOPPING_RETARGETING</code> fields only support the <code>SET</code> operation.</li>\n</ul>"
+                "description": "Targeting spec operations define modifications to apply to the targeting spec.\n\n**NOTE:** The `targeting_spec` and `targeting_spec_operations` cannot be sent at the same time.\n\nThe supported operations are:\n- `SET`: sets the field with the given values. If value is set to `null`, the field will be removed.\n- `ADD`: adds the given values to the field.\n- `REMOVE`: removes the given values from the field.\n\nNote the following:\n- Same items are not added and removed at the same time.\n- For a given field, only `ADD`/`REMOVE` or `SET` operations are allowed, not a mix of them.\n- Only one SET operation is allowed for a given field.\n- The `AGE_BUCKET`, `MAXIMUM_AGE`, `MINIMUM_AGE` and `SHOPPING_RETARGETING` fields only support the `SET` operation."
               }
             }
           }
@@ -36174,7 +36273,7 @@
             "type": "number",
             "minimum": 0,
             "maximum": 10,
-            "description": "<a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank>Open beta</a>\nBid multiplier for ad group. This value is a double between 0.1\nand 10.0. Enter 0 to remove the bid multiplier.\n- Make sure the `bid_strategy` type for your ad group is set to `AUTOMATIC_BID`.\n- Not currently supported for <a href=\"/docs/api-features/pinterest-performance-plus-setup/\" target=\"blank\">Pinterest Performance+ campaigns</a>."
+            "description": "[Open beta](/docs/getting-started/using-beta-and-restricted-features/)\nBid multiplier for ad group. This value is a double between 0.1\nand 10.0. Enter 0 to remove the bid multiplier.\n- Make sure the `bid_strategy` type for your ad group is set to `AUTOMATIC_BID`.\n- Not currently supported for [Pinterest Performance+ campaigns](/docs/api-features/pinterest-performance-plus-setup/)."
           },
           "id": {
             "type": "string",
@@ -36186,7 +36285,7 @@
             "items": {
               "$ref": "#/components/schemas/TargetingSpecOperations"
             },
-            "description": "<div>Targeting spec operations define modifications to apply to the targeting spec.</div>\n<br />\n<div><strong>NOTE:</strong> The <code>targeting_spec</code> and <code>targeting_spec_operations</code> cannot be sent at the same time.</div>\n<br />\n<div>The supported operations are:</div>\n<ul>\n<li><code>SET</code>: sets the field with the given values. If value is set to <code>null</code>, the field will be removed.</li>\n<li><code>ADD</code>: adds the given values to the field.</li>\n<li><code>REMOVE</code>: removes the given values from the field.</li>\n</ul>\n<div>Note the following:</div>\n<ul>\n<li>Same items are not added and removed at the same time.</li>\n<li>For a given field, only <code>ADD</code>/<code>REMOVE</code> or <code>SET</code> operations are allowed, not a mix of them.</li>\n<li>Only one SET operation is allowed for a given field.</li>\n<li>The <code>AGE_BUCKET</code>, <code>MAXIMUM_AGE</code>, <code>MINIMUM_AGE</code> and <code>SHOPPING_RETARGETING</code> fields only support the <code>SET</code> operation.</li>\n</ul>"
+            "description": "Targeting spec operations define modifications to apply to the targeting spec.\n\n**NOTE:** The `targeting_spec` and `targeting_spec_operations` cannot be sent at the same time.\n\nThe supported operations are:\n- `SET`: sets the field with the given values. If value is set to `null`, the field will be removed.\n- `ADD`: adds the given values to the field.\n- `REMOVE`: removes the given values from the field.\n\nNote the following:\n- Same items are not added and removed at the same time.\n- For a given field, only `ADD`/`REMOVE` or `SET` operations are allowed, not a mix of them.\n- Only one SET operation is allowed for a given field.\n- The `AGE_BUCKET`, `MAXIMUM_AGE`, `MINIMUM_AGE` and `SHOPPING_RETARGETING` fields only support the `SET` operation."
           }
         }
       },
@@ -37952,15 +38051,6 @@
         "description": "Request containing OTP and Amazon storefront info called by Amazon",
         "title": "AmazonConnectRequest"
       },
-      "AmazonConnectResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "description": "Amazon connect response message"
-          }
-        }
-      },
       "AnalyticsDailyMetrics": {
         "type": "object",
         "properties": {
@@ -39288,7 +39378,7 @@
       },
       "AutoTargetingEnabled": {
         "type": "boolean",
-        "description": "Enable auto-targeting for ad group. Default value is True. Also known as <a href=\"https://help.pinterest.com/en/business/article/performance-plus-targeting\" target=\"_blank\">\"Pinterest Performance+ targeting\"</a>."
+        "description": "Enable auto-targeting for ad group. Default value is True. Also known as [\"Pinterest Performance+ targeting\"](https://help.pinterest.com/en/business/article/performance-plus-targeting)."
       },
       "AvailabilityFilter": {
         "type": "object",
@@ -40539,18 +40629,17 @@
         ],
         "description": "Bulk request status"
       },
-      "BulkUpsertRequest": {
+      "BulkUpsert": {
         "type": "object",
         "properties": {
-          "create": {
-            "$ref": "#/components/schemas/BulkUpsertRequestCreate"
-          },
-          "update": {
-            "$ref": "#/components/schemas/BulkUpsertRequestUpdate"
+          "request_id": {
+            "type": "string",
+            "example": "549763856477-1660864560-1407e16a-c586-4add-94df-d0b160bec0ff, 549763856477-1660864560-d0b160bec0ff",
+            "readOnly": true
           }
         },
         "description": "Two set of objects to be managed asyncronusly by bulk. One for creations, one for modifications.",
-        "title": "BulkUpsertRequest"
+        "title": "BulkUpsert"
       },
       "BulkUpsertRequestCreate": {
         "type": "object",
@@ -40669,7 +40758,7 @@
             }
           }
         },
-        "description": "Request for creation of entities in bulk.",
+        "description": "Request for updating entities in bulk.",
         "title": "BulkUpsertRequestUpdate"
       },
       "BulkUpsertRequestUpdateCatalogProductGroupsItems": {
@@ -40682,16 +40771,17 @@
           }
         ]
       },
-      "BulkUpsertResponse": {
+      "BulkWriteJobCreate": {
         "type": "object",
         "properties": {
-          "request_id": {
-            "type": "string",
-            "example": "549763856477-1660864560-1407e16a-c586-4add-94df-d0b160bec0ff, 549763856477-1660864560-d0b160bec0ff"
+          "create": {
+            "$ref": "#/components/schemas/BulkUpsertRequestCreate"
+          },
+          "update": {
+            "$ref": "#/components/schemas/BulkUpsertRequestUpdate"
           }
         },
-        "description": "ID of the bulk request.",
-        "title": "BulkUpsertResponse"
+        "description": "Resource create operation model."
       },
       "BusinessAccessRole": {
         "type": "string",
@@ -42106,7 +42196,7 @@
           "end_time": {
             "type": "integer",
             "nullable": true,
-            "description": "Timestamp in Unix format for scheduling when ads in the campaign stop appearing. Must occur after any end times for child ad groups. If `end_time` is not specified for the campaign, ads run indefinitely unless you update the campaign, changing their status to `paused`. Learn about <a href=\"/docs/api-features/managing-campaigns/#campaign-scheduling\" target=\"blank\">scheduling campaigns</a>.\nDifferent end times can be set for the campaign's child ad groups, but they cannot occur after an `end_time` specified for the campaign.\n- If your campaign has a child ad group with an end time specified, and if you update that campaign with an `end_time` that is earlier than that of the ad group, the campaign `end_time` will supersede the ad group `end_time`, and the request will not return an error.\n- In this scenario, if you call <a href=\"/docs/api/v5/campaigns-list\" target=\"blank\">List campaigns</a> or <a href=\"/docs/api/v5/ad_groups-list\" target=\"blank\">List ad groups</a>, the returned campaigns or ad groups are listed with the start and end times that you assigned them, regardless of supersedence.",
+            "description": "Timestamp in Unix format for scheduling when ads in the campaign stop appearing. Must occur after any end times for child ad groups. If `end_time` is not specified for the campaign, ads run indefinitely unless you update the campaign, changing their status to `paused`. Learn about [scheduling campaigns](/docs/api-features/managing-campaigns/#campaign-scheduling).\nDifferent end times can be set for the campaign's child ad groups, but they cannot occur after an `end_time` specified for the campaign.\n- If your campaign has a child ad group with an end time specified, and if you update that campaign with an `end_time` that is earlier than that of the ad group, the campaign `end_time` will supersede the ad group `end_time`, and the request will not return an error.\n- In this scenario, if you call [List campaigns](/docs/api/v5/campaigns-list) or [List ad groups](/docs/api/v5/ad_groups-list), the returned campaigns or ad groups are listed with the start and end times that you assigned them, regardless of supersedence.",
             "example": 1644023526
           },
           "is_automated_campaign": {
@@ -42136,7 +42226,7 @@
           "start_time": {
             "type": "integer",
             "nullable": true,
-            "description": "Timestamp in Unix format for scheduling when ads in the campaign start to appear. Must precede any start times set for child ad groups. Defaults to current time if no time is specified. Learn about <a href=\"/docs/api-features/managing-campaigns/#campaign-scheduling\" target=\"blank\">scheduling campaigns</a>.\nDifferent start times can be set for the campaign's child ad groups, but they cannot occur before a `start_time` specified for the campaign.\n- If your campaign has a child ad group with a start time specified, and if you update that campaign with a `start_time` that is later than that of the ad group, the campaign `start_time` will supersede the ad group `start_time`, and the request will not return an error.\n- In this scenario, if you call <a href=\"/docs/api/v5/campaigns-list\" target=\"blank\">List campaigns</a> or <a href=\"/docs/api/v5/ad_groups-list\" target=\"blank\">List ad groups</a>, the returned campaigns or ad groups are listed with the start and end times that you assigned them, regardless of supersedence.",
+            "description": "Timestamp in Unix format for scheduling when ads in the campaign start to appear. Must precede any start times set for child ad groups. Defaults to current time if no time is specified. Learn about [scheduling campaigns](/docs/api-features/managing-campaigns/#campaign-scheduling).\nDifferent start times can be set for the campaign's child ad groups, but they cannot occur before a `start_time` specified for the campaign.\n- If your campaign has a child ad group with a start time specified, and if you update that campaign with a `start_time` that is later than that of the ad group, the campaign `start_time` will supersede the ad group `start_time`, and the request will not return an error.\n- In this scenario, if you call [List campaigns](/docs/api/v5/campaigns-list) or [List ad groups](/docs/api/v5/ad_groups-list), the returned campaigns or ad groups are listed with the start and end times that you assigned them, regardless of supersedence.",
             "example": 1580865126
           },
           "status": {
@@ -42201,12 +42291,12 @@
               },
               "is_performance_plus": {
                 "type": "boolean",
-                "description": "Enable Pinterest Performance+ for your campaign. To learn more, see <a href=\"https://developers.pinterest.com/docs/api-features/pinterest-performance-plus-setup/\">Pinterest Performance+ Setup</a>.",
+                "description": "Enable Pinterest Performance+ for your campaign. To learn more, see [Pinterest Performance+ Setup](https://developers.pinterest.com/docs/api-features/pinterest-performance-plus-setup/).",
                 "default": false
               },
               "is_top_of_search": {
                 "type": "boolean",
-                "description": "<a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank\" target=\"blank\">Restricted</a>\n\nHave your ads and content appear at the top of search result lists in Pinterest.\n\nYou can only use this feature with the following objectives:\n`CONSIDERATION`\n`WEB_CONVERSION`\n`CATALOG_SALES`\n\nYou cannot use this feature with Pinterest Performance+ or Premiere Spotlight enabled.\n\nYou cannot change your `true` or `false` selection of this campaign if you <a href=\"https://developer.pinterest.com/docs/api/v5/campaigns-update\" target=\"blank\">update it</a>.",
+                "description": "[Restricted](/docs/getting-started/using-beta-and-restricted-features/)\n\nHave your ads and content appear at the top of search result lists in Pinterest.\n\nYou can only use this feature with the following objectives:\n`CONSIDERATION`\n`WEB_CONVERSION`\n`CATALOG_SALES`\n\nYou cannot use this feature with Pinterest Performance+ or Premiere Spotlight enabled.\n\nYou cannot change your `true` or `false` selection of this campaign if you [update it](https://developer.pinterest.com/docs/api/v5/campaigns-update).",
                 "default": false
               },
               "is_ltv_optimized": {
@@ -42267,12 +42357,12 @@
           },
           "is_performance_plus": {
             "type": "boolean",
-            "description": "Enable Pinterest Performance+ for your campaign. To learn more, see <a href=\"https://developers.pinterest.com/docs/api-features/pinterest-performance-plus-setup/\">Pinterest Performance+ Setup</a>.",
+            "description": "Enable Pinterest Performance+ for your campaign. To learn more, see [Pinterest Performance+ Setup](https://developers.pinterest.com/docs/api-features/pinterest-performance-plus-setup/).",
             "default": false
           },
           "is_top_of_search": {
             "type": "boolean",
-            "description": "<a href=\"/docs/getting-started/using-beta-and-restricted-features/\" target=\"blank\" target=\"blank\">Restricted</a>\n\nHave your ads and content appear at the top of search result lists in Pinterest.\n\nYou can only use this feature with the following objectives:\n`CONSIDERATION`\n`WEB_CONVERSION`\n`CATALOG_SALES`\n\nYou cannot use this feature with Pinterest Performance+ or Premiere Spotlight enabled.\n\nYou cannot change your `true` or `false` selection of this campaign if you <a href=\"https://developer.pinterest.com/docs/api/v5/campaigns-update\" target=\"blank\">update it</a>.",
+            "description": "[Restricted](/docs/getting-started/using-beta-and-restricted-features/)\n\nHave your ads and content appear at the top of search result lists in Pinterest.\n\nYou can only use this feature with the following objectives:\n`CONSIDERATION`\n`WEB_CONVERSION`\n`CATALOG_SALES`\n\nYou cannot use this feature with Pinterest Performance+ or Premiere Spotlight enabled.\n\nYou cannot change your `true` or `false` selection of this campaign if you [update it](https://developer.pinterest.com/docs/api/v5/campaigns-update).",
             "default": false
           },
           "is_ltv_optimized": {
@@ -42561,7 +42651,7 @@
       },
       "CampaignIsAutomatedCampaign": {
         "type": "boolean",
-        "description": "Note: This field is immutable unless the campaign is in draft status.\nSpecifies whether the campaign was created in the automated campaign flow.\nWhen using Automated Campaigns, a daily spend cap must be set, and Pinterest Performance+ may not be used.\nThe following objective types are supported:\n- CONSIDERATION\n- WEB\\_CONVERSION\n- SALES\n- CATALOG\\_SALES",
+        "description": "Note: This field is immutable unless the campaign is in draft status.\nSpecifies whether the campaign was created in the automated campaign flow.\nWhen using Automated Campaigns, a daily spend cap must be set, and Pinterest Performance+ may not be used.\nThe following objective types are supported:\n- CONSIDERATION\n- WEB_CONVERSION\n- SALES\n- CATALOG_SALES",
         "nullable": true
       },
       "CampaignIsCampaignBudgetOptimization": {
@@ -42949,7 +43039,7 @@
           "end_time": {
             "type": "integer",
             "nullable": true,
-            "description": "Timestamp in Unix format for scheduling when ads in the campaign stop appearing. Must occur after any end times for child ad groups. If `end_time` is not specified for the campaign, ads run indefinitely unless you update the campaign, changing their status to `paused`. Learn about <a href=\"/docs/api-features/managing-campaigns/#campaign-scheduling\" target=\"blank\">scheduling campaigns</a>.\nDifferent end times can be set for the campaign's child ad groups, but they cannot occur after an `end_time` specified for the campaign.\n- If your campaign has a child ad group with an end time specified, and if you update that campaign with an `end_time` that is earlier than that of the ad group, the campaign `end_time` will supersede the ad group `end_time`, and the request will not return an error.\n- In this scenario, if you call <a href=\"/docs/api/v5/campaigns-list\" target=\"blank\">List campaigns</a> or <a href=\"/docs/api/v5/ad_groups-list\" target=\"blank\">List ad groups</a>, the returned campaigns or ad groups are listed with the start and end times that you assigned them, regardless of supersedence.",
+            "description": "Timestamp in Unix format for scheduling when ads in the campaign stop appearing. Must occur after any end times for child ad groups. If `end_time` is not specified for the campaign, ads run indefinitely unless you update the campaign, changing their status to `paused`. Learn about [scheduling campaigns](/docs/api-features/managing-campaigns/#campaign-scheduling).\nDifferent end times can be set for the campaign's child ad groups, but they cannot occur after an `end_time` specified for the campaign.\n- If your campaign has a child ad group with an end time specified, and if you update that campaign with an `end_time` that is earlier than that of the ad group, the campaign `end_time` will supersede the ad group `end_time`, and the request will not return an error.\n- In this scenario, if you call [List campaigns](/docs/api/v5/campaigns-list) or [List ad groups](/docs/api/v5/ad_groups-list), the returned campaigns or ad groups are listed with the start and end times that you assigned them, regardless of supersedence.",
             "example": 1644023526
           },
           "is_automated_campaign": {
@@ -42979,7 +43069,7 @@
           "start_time": {
             "type": "integer",
             "nullable": true,
-            "description": "Timestamp in Unix format for scheduling when ads in the campaign start to appear. Must precede any start times set for child ad groups. Defaults to current time if no time is specified. Learn about <a href=\"/docs/api-features/managing-campaigns/#campaign-scheduling\" target=\"blank\">scheduling campaigns</a>.\nDifferent start times can be set for the campaign's child ad groups, but they cannot occur before a `start_time` specified for the campaign.\n- If your campaign has a child ad group with a start time specified, and if you update that campaign with a `start_time` that is later than that of the ad group, the campaign `start_time` will supersede the ad group `start_time`, and the request will not return an error.\n- In this scenario, if you call <a href=\"/docs/api/v5/campaigns-list\" target=\"blank\">List campaigns</a> or <a href=\"/docs/api/v5/ad_groups-list\" target=\"blank\">List ad groups</a>, the returned campaigns or ad groups are listed with the start and end times that you assigned them, regardless of supersedence.",
+            "description": "Timestamp in Unix format for scheduling when ads in the campaign start to appear. Must precede any start times set for child ad groups. Defaults to current time if no time is specified. Learn about [scheduling campaigns](/docs/api-features/managing-campaigns/#campaign-scheduling).\nDifferent start times can be set for the campaign's child ad groups, but they cannot occur before a `start_time` specified for the campaign.\n- If your campaign has a child ad group with a start time specified, and if you update that campaign with a `start_time` that is later than that of the ad group, the campaign `start_time` will supersede the ad group `start_time`, and the request will not return an error.\n- In this scenario, if you call [List campaigns](/docs/api/v5/campaigns-list) or [List ad groups](/docs/api/v5/ad_groups-list), the returned campaigns or ad groups are listed with the start and end times that you assigned them, regardless of supersedence.",
             "example": 1580865126
           },
           "status": {
@@ -43015,7 +43105,7 @@
               },
               "is_performance_plus": {
                 "type": "boolean",
-                "description": "Enable Pinterest Performance+ for your campaign. To learn more, see <a href=\"https://developers.pinterest.com/docs/api-features/pinterest-performance-plus-setup/\">Pinterest Performance+ Setup</a>. This field is immutable, except only for campaigns in draft status which may update this field."
+                "description": "Enable Pinterest Performance+ for your campaign. To learn more, see [Pinterest Performance+ Setup](https://developers.pinterest.com/docs/api-features/pinterest-performance-plus-setup/). This field is immutable, except only for campaigns in draft status which may update this field."
               },
               "is_top_of_search": {
                 "type": "boolean",
@@ -43053,7 +43143,7 @@
           },
           "is_performance_plus": {
             "type": "boolean",
-            "description": "Enable Pinterest Performance+ for your campaign. To learn more, see <a href=\"https://developers.pinterest.com/docs/api-features/pinterest-performance-plus-setup/\">Pinterest Performance+ Setup</a>. This field is immutable, except only for campaigns in draft status which may update this field."
+            "description": "Enable Pinterest Performance+ for your campaign. To learn more, see [Pinterest Performance+ Setup](https://developers.pinterest.com/docs/api-features/pinterest-performance-plus-setup/). This field is immutable, except only for campaigns in draft status which may update this field."
           },
           "is_top_of_search": {
             "type": "boolean",
@@ -43535,6 +43625,9 @@
           },
           {
             "$ref": "#/components/schemas/PinterestProductCategoriesFilter"
+          },
+          {
+            "$ref": "#/components/schemas/SupplementalItemSegmentsFilter"
           }
         ],
         "description": "Base filter keys shared across catalog filtering",
@@ -50670,6 +50763,25 @@
           "type": "string"
         }
       },
+      "CatalogsProductGroupMultipleSupplementalItemSegmentsCriteria": {
+        "type": "object",
+        "required": [
+          "values"
+        ],
+        "properties": {
+          "negated": {
+            "type": "boolean"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SupplementalItemSegmentType"
+            }
+          }
+        },
+        "title": "catalogs_product_group_multiple_supplemental_item_segments_criteria",
+        "additionalProperties": false
+      },
       "CatalogsProductGroupPricingCriteria": {
         "type": "object",
         "required": [
@@ -52803,6 +52915,7 @@
               "title",
               "variant_names",
               "variant_values",
+              "overlay_id",
               "promotion_id"
             ]
           }
@@ -53066,6 +53179,23 @@
           "LOCALE_LIST"
         ]
       },
+      "ChangeHistoryEntityType": {
+        "type": "string",
+        "enum": [
+          "ADVERTISER",
+          "CAMPAIGN",
+          "AD_GROUP",
+          "PIN_PROMOTION",
+          "PINNER_LIST",
+          "ORDER_LINE",
+          "BILL",
+          "PROMOTED_CATALOG_PRODUCT_GROUP",
+          "SPLIT_TEST",
+          "SCHEDULED_EVENT",
+          "LABEL",
+          "ENTITY_LABEL"
+        ]
+      },
       "ChangeHistoryOperationType": {
         "type": "string",
         "enum": [
@@ -53073,6 +53203,349 @@
           "UPDATE",
           "DELETE"
         ]
+      },
+      "CollaborativeCatalogAvailabilityFilter": {
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "values"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "AVAILABILITY"
+            ]
+          },
+          "operator": {
+            "$ref": "#/components/schemas/CollaborativeCatalogSetOperator"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductAvailability"
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "CollaborativeCatalogConditionFilter": {
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "values"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "CONDITION"
+            ]
+          },
+          "operator": {
+            "$ref": "#/components/schemas/CollaborativeCatalogSetOperator"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductCondition"
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "CollaborativeCatalogFilterCondition": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/CollaborativeCatalogStringSetFilter"
+          },
+          {
+            "$ref": "#/components/schemas/CollaborativeCatalogAvailabilityFilter"
+          },
+          {
+            "$ref": "#/components/schemas/CollaborativeCatalogConditionFilter"
+          },
+          {
+            "$ref": "#/components/schemas/CollaborativeCatalogGenderFilter"
+          },
+          {
+            "$ref": "#/components/schemas/CollaborativeCatalogMediaTypeFilter"
+          },
+          {
+            "$ref": "#/components/schemas/CollaborativeCatalogPinterestProductCategoryFilter"
+          },
+          {
+            "$ref": "#/components/schemas/CollaborativeCatalogSupplementalItemSegmentFilter"
+          },
+          {
+            "$ref": "#/components/schemas/CollaborativeCatalogHierarchyFilter"
+          },
+          {
+            "$ref": "#/components/schemas/CollaborativeCatalogPriceFilter"
+          }
+        ],
+        "description": "A single collaborative catalog filter condition."
+      },
+      "CollaborativeCatalogFilters": {
+        "type": "object",
+        "required": [
+          "operator",
+          "conditions"
+        ],
+        "properties": {
+          "operator": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CollaborativeCatalogFiltersOperator"
+              }
+            ],
+            "description": "How conditions are combined. ALL means every condition must match. ANY means at least one condition must match."
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CollaborativeCatalogFilterCondition"
+            },
+            "minItems": 1,
+            "description": "Filter conditions applied to the parent catalog's products."
+          }
+        },
+        "description": "Product filters used to define which items are included in a collaborative catalog.",
+        "additionalProperties": false
+      },
+      "CollaborativeCatalogFiltersOperator": {
+        "type": "string",
+        "enum": [
+          "ALL",
+          "ANY"
+        ]
+      },
+      "CollaborativeCatalogGenderFilter": {
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "values"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "GENDER"
+            ]
+          },
+          "operator": {
+            "$ref": "#/components/schemas/CollaborativeCatalogSetOperator"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Gender"
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "CollaborativeCatalogHierarchyFilter": {
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "values"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "GOOGLE_PRODUCT_CATEGORY",
+              "PRODUCT_TYPE"
+            ]
+          },
+          "operator": {
+            "$ref": "#/components/schemas/CollaborativeCatalogSetOperator"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "minItems": 1,
+            "description": "Selected hierarchy paths. Example: [[\"Furniture\", \"Chairs\"]]."
+          }
+        },
+        "description": "Filter for hierarchical product attributes. Each value is one selected hierarchy path.",
+        "additionalProperties": false
+      },
+      "CollaborativeCatalogMediaTypeFilter": {
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "values"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "MEDIA_TYPE"
+            ]
+          },
+          "operator": {
+            "$ref": "#/components/schemas/CollaborativeCatalogSetOperator"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaType"
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "CollaborativeCatalogPinterestProductCategoryFilter": {
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "values"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "PINTEREST_PRODUCT_CATEGORIES"
+            ]
+          },
+          "operator": {
+            "$ref": "#/components/schemas/CollaborativeCatalogSetOperator"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductCategoryEnum"
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "CollaborativeCatalogPriceFilter": {
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "value",
+          "currency"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "PRICE"
+            ]
+          },
+          "operator": {
+            "$ref": "#/components/schemas/CollaborativeCatalogPriceOperator"
+          },
+          "value": {
+            "type": "number",
+            "minimum": 0
+          },
+          "currency": {
+            "$ref": "#/components/schemas/NonNullableCatalogsCurrency"
+          }
+        },
+        "description": "Filter for product price.",
+        "additionalProperties": false
+      },
+      "CollaborativeCatalogPriceOperator": {
+        "type": "string",
+        "enum": [
+          "LESS_THAN",
+          "LESS_THAN_OR_EQUALS",
+          "GREATER_THAN",
+          "GREATER_THAN_OR_EQUALS"
+        ]
+      },
+      "CollaborativeCatalogSetOperator": {
+        "type": "string",
+        "enum": [
+          "IS",
+          "IS_NOT"
+        ]
+      },
+      "CollaborativeCatalogStringSetFilter": {
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "values"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "ITEM_ID",
+              "ITEM_GROUP_ID",
+              "BRAND",
+              "TITLE_KEYWORDS"
+            ],
+            "description": "Product attribute to filter."
+          },
+          "operator": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CollaborativeCatalogSetOperator"
+              }
+            ],
+            "description": "IS includes matching values. IS_NOT excludes matching values."
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          }
+        },
+        "description": "Filter for free-form string product attributes.",
+        "additionalProperties": false
+      },
+      "CollaborativeCatalogSupplementalItemSegmentFilter": {
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "values"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "SUPPLEMENTAL_ITEM_SEGMENTS"
+            ]
+          },
+          "operator": {
+            "$ref": "#/components/schemas/CollaborativeCatalogSetOperator"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SupplementalItemSegmentType"
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false
       },
       "CollectionsHeaderType": {
         "type": "string",
@@ -53702,7 +54175,8 @@
                   "order_id": "my_order_id",
                   "search_string": "sample string",
                   "opt_out_type": "LDP",
-                  "predicted_ltv": "2794.82"
+                  "predicted_ltv": "2794.82",
+                  "custom_fields": "{\"af_content\": [{\"id\": \"ID1\", \"price\": \"25\"}]}"
                 },
                 "app_id": "429047995",
                 "app_name": "Pinterest",
@@ -53906,6 +54380,11 @@
             "type": "string",
             "nullable": true,
             "description": "The ISO-4217 currency code. If not provided, we will default to the advertiser's currency set during account creation. Your campaign performance needs this field to report right ROAS/CPA."
+          },
+          "custom_fields": {
+            "type": "string",
+            "nullable": true,
+            "description": "A field for arbitrarily structured data. Accepted as a JSON string or a URL-encoded JSON string. Recognized keys are remapped to their corresponding standard fields; unknown shapes are ignored."
           },
           "external_measurement_id": {
             "type": "string",
@@ -56780,9 +57259,18 @@
             "pattern": "^\\d+$",
             "description": "The id of the entity that was changed"
           },
+          "entity_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChangeHistoryEntityType"
+              }
+            ],
+            "description": "The type of the entity that was changed"
+          },
           "entity_name": {
             "type": "string",
-            "description": "The name of the entity that was changed"
+            "nullable": true,
+            "description": "The name of the entity that was changed. May be null when the entity's name is not yet available downstream."
           },
           "ldap": {
             "type": "string",
@@ -56798,8 +57286,9 @@
           },
           "user_id": {
             "type": "string",
+            "nullable": true,
             "pattern": "^\\d+$",
-            "description": "The id of the user who initiated the change"
+            "description": "The id of the user who initiated the change. May be null for system-triggered changes with no human actor."
           }
         }
       },
@@ -57828,15 +58317,6 @@
         },
         "description": "Resource create operation model."
       },
-      "IntegrationLogsSuccessResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          }
-        },
-        "description": "Response when logs are successfully processed."
-      },
       "IntegrationMetadata": {
         "type": "object",
         "properties": {
@@ -58171,6 +58651,27 @@
             },
             "description": "List of ad account IDs and respective permission levels that will be assigned."
           },
+          "audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InviteAssetsSummaryItem"
+            },
+            "description": "List of audience IDs and respective permission levels that will be assigned."
+          },
+          "catalogs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InviteAssetsSummaryItem"
+            },
+            "description": "List of catalog IDs and respective permission levels that will be assigned."
+          },
+          "conversion_segments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InviteAssetsSummaryItem"
+            },
+            "description": "List of conversion segment IDs and respective permission levels that will be assigned."
+          },
           "profiles": {
             "type": "array",
             "items": {
@@ -58179,7 +58680,7 @@
             "description": "List of profile IDs and respective permission levels that will be assigned."
           }
         },
-        "description": "Ad accounts and profiles the member/partner will be granted access to with this invite/request.",
+        "description": "Assets the member/partner will be granted access to with this invite/request.",
         "nullable": true
       },
       "InviteAssetsSummaryItem": {
@@ -58334,10 +58835,22 @@
             "items": {
               "$ref": "#/components/schemas/BusinessRoleResponse"
             },
-            "description": "The access level a user would be granted on the business if the invite/request is accepted. This can be EMPLOYEE, BIZ_ADMIN, or PARTNER.",
+            "description": "The access level a user would be granted on the business if the invite/request is accepted. This can be EMPLOYEE, BIZ_ADMIN, PARTNER, or RMN_PARTNER.",
             "example": [
               "BIZ_ADMIN"
             ]
+          },
+          "business_partner_type": {
+            "description": "Business partner type for partner invites and requests.",
+            "example": "REGULAR"
+          },
+          "rmn_invite_data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RmnInviteDataDetail"
+              }
+            ],
+            "description": "RMN-specific invite data."
           },
           "created_by_business": {
             "allOf": [
@@ -59051,6 +59564,12 @@
             "description": "A unique identifier referencing the promotion associated with this catalog item.",
             "example": "promotion_1"
           },
+          "overlay_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Pinterest creative overlay ID to attach to this catalog item. At most one overlay per item.",
+            "example": "1234567890123"
+          },
           "sale_price": {
             "type": "string",
             "nullable": true,
@@ -59616,12 +60135,15 @@
           "bid": {
             "type": "integer",
             "nullable": true,
-            "description": "</p><strong>Note:</strong> bid field has been deprecated. Input will not be set and field will return null. Keyword custom bid in microcurrency - null if inherited from parent ad group.",
+            "description": "**Note:** bid field has been deprecated. Input will not be set and field will return null. Keyword custom bid in microcurrency - null if inherited from parent ad group.",
             "title": "bid"
           },
           "id": {
-            "type": "string",
-            "pattern": "^\\d+$",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Pinterest.Lib.IntegerFormatType"
+              }
+            ],
             "description": "Keyword ID.",
             "title": "id"
           }
@@ -59685,7 +60207,7 @@
           "bid": {
             "type": "integer",
             "nullable": true,
-            "description": "</p><strong>Note:</strong> bid field has been deprecated. Input will not be set and field will return null. Keyword custom bid in microcurrency - null if inherited from parent ad group.",
+            "description": "**Note:** bid field has been deprecated. Input will not be set and field will return null. Keyword custom bid in microcurrency - null if inherited from parent ad group.",
             "example": null
           },
           "match_type": {
@@ -61635,7 +62157,8 @@
                 "$ref": "#/components/schemas/MediaUploadType"
               }
             ],
-            "example": "video"
+            "example": "video",
+            "readOnly": true
           },
           "status": {
             "allOf": [
@@ -61688,7 +62211,8 @@
                 "$ref": "#/components/schemas/MediaUploadType"
               }
             ],
-            "example": "video"
+            "example": "video",
+            "readOnly": true
           },
           "upload_parameters": {
             "allOf": [
@@ -61709,7 +62233,7 @@
         "description": "Media upload that has been registered but not uploaded/processed yet.",
         "title": "Media upload details"
       },
-      "MediaUploadCreate": {
+      "MediaUploadCreateRequest": {
         "type": "object",
         "required": [
           "media_type"
@@ -61721,10 +62245,11 @@
                 "$ref": "#/components/schemas/MediaUploadType"
               }
             ],
+            "description": "High-level media type for the upload request.",
             "example": "video"
           }
         },
-        "description": "Resource create operation model."
+        "title": "Media upload information."
       },
       "MediaUploadParameters": {
         "type": "object",
@@ -61776,6 +62301,7 @@
       "MediaUploadType": {
         "type": "string",
         "enum": [
+          "image",
           "video",
           "image_latent_disclosure",
           "video_latent_disclosure"
@@ -61833,6 +62359,15 @@
           }
         },
         "description": "Merchant approval status and pending reason details."
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "description": "A generic response carrying a human-readable message."
       },
       "MetricsReportingLevel": {
         "type": "string",
@@ -63100,6 +63635,7 @@
           "CATALOG_SALES",
           "VIDEO_COMPLETION",
           "SALES",
+          "LEADS",
           "APP_INSTALL",
           "CTV_CONSIDERATION"
         ],
@@ -63318,6 +63854,580 @@
           "GOOD"
         ],
         "description": "Overall status of event quality score."
+      },
+      "Overlay": {
+        "type": "object",
+        "required": [
+          "id",
+          "merchant_id",
+          "user_id",
+          "name",
+          "images",
+          "start_time",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "The unique identifier of the overlay.",
+            "example": "123456"
+          },
+          "merchant_id": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "The ID of the merchant that the overlay is associated with.",
+            "example": "549755885175",
+            "readOnly": true
+          },
+          "user_id": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "The ID of the user that the overlay is associated with.",
+            "example": "549755885176",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Name of the overlay. Max length 100 characters.",
+            "example": "Summer Sale 2026"
+          },
+          "user_overlay_id": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "Merchant-provided overlay ID for external reference. Max length 50 characters when provided.",
+            "example": "summer-sale-01"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverlayImage"
+            },
+            "description": "Overlay images in responses with generated URLs, signatures, and dimensions.",
+            "readOnly": true
+          },
+          "start_time": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Start time of the overlay. Unix timestamp in seconds since epoch.",
+            "example": 1620000000
+          },
+          "end_time": {
+            "type": "integer",
+            "format": "int64",
+            "description": "End time of the overlay. Unix timestamp in seconds since epoch. Must be greater than start_time when set.",
+            "example": 1620086400
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Creation timestamp. Unix timestamp in seconds since epoch.",
+            "example": 1619900000,
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Last update timestamp. Unix timestamp in seconds since epoch.",
+            "example": 1619900000,
+            "readOnly": true
+          }
+        },
+        "description": "Business user overlay for product catalog"
+      },
+      "OverlayAssignmentRule": {
+        "type": "object",
+        "required": [
+          "id",
+          "merchant_id",
+          "user_id",
+          "name",
+          "filters",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "The unique identifier of the overlay assignment rule.",
+            "example": "123456"
+          },
+          "merchant_id": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "The ID of the merchant that the overlay assignment rule is associated with.",
+            "example": "549755885175",
+            "readOnly": true
+          },
+          "user_id": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "The ID of the user that the overlay assignment rule is associated with.",
+            "example": "549755885176",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Name of the overlay assignment rule. Max length 100 characters.",
+            "example": "Summer Sale Rule"
+          },
+          "user_overlay_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of merchant-provided overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by your own custom IDs.",
+            "example": [
+              "summer-sale-01",
+              "summer-sale-02"
+            ]
+          },
+          "overlay_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by Pinterest's internal IDs.\nEach ID should be a string-formatted integer.",
+            "example": [
+              "123456",
+              "123457"
+            ]
+          },
+          "filters": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlayAssignmentRuleFilters"
+              }
+            ],
+            "description": "Filter criteria used to determine which products should receive the overlays."
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Creation timestamp. Unix timestamp in seconds since epoch.",
+            "example": 1619900000,
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Last update timestamp. Unix timestamp in seconds since epoch.",
+            "example": 1619900000,
+            "readOnly": true
+          }
+        },
+        "description": "Overlay assignment rule for applying overlays to catalog products based on filters"
+      },
+      "OverlayAssignmentRuleCreate": {
+        "type": "object",
+        "required": [
+          "name",
+          "filters"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Name of the overlay assignment rule. Max length 100 characters.",
+            "example": "Summer Sale Rule"
+          },
+          "user_overlay_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of merchant-provided overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by your own custom IDs.",
+            "example": [
+              "summer-sale-01",
+              "summer-sale-02"
+            ]
+          },
+          "overlay_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by Pinterest's internal IDs.\nEach ID should be a string-formatted integer.",
+            "example": [
+              "123456",
+              "123457"
+            ]
+          },
+          "filters": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlayAssignmentRuleFilters"
+              }
+            ],
+            "description": "Filter criteria used to determine which products should receive the overlays."
+          }
+        },
+        "description": "Resource create operation model."
+      },
+      "OverlayAssignmentRuleFilters": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/CatalogsBaseFiltersAnyOf"
+          },
+          {
+            "$ref": "#/components/schemas/CatalogsBaseFiltersAllOf"
+          }
+        ],
+        "description": "Object holding a group of filters for an overlay assignment rule",
+        "title": "overlay_assignment_rule_filters"
+      },
+      "OverlayAssignmentRuleFiltersUpdate": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/CatalogsBaseFiltersAnyOfUpdate"
+          },
+          {
+            "$ref": "#/components/schemas/CatalogsBaseFiltersAllOfUpdate"
+          }
+        ],
+        "description": "Object holding a group of filters for an overlay assignment rule",
+        "title": "overlay_assignment_rule_filters"
+      },
+      "OverlayAssignmentRuleUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Name of the overlay assignment rule. Max length 100 characters.",
+            "example": "Summer Sale Rule"
+          },
+          "user_overlay_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of merchant-provided overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by your own custom IDs.",
+            "example": [
+              "summer-sale-01",
+              "summer-sale-02"
+            ]
+          },
+          "overlay_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by Pinterest's internal IDs.\nEach ID should be a string-formatted integer.",
+            "example": [
+              "123456",
+              "123457"
+            ]
+          },
+          "filters": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlayAssignmentRuleFiltersUpdate"
+              }
+            ],
+            "description": "Filter criteria used to determine which products should receive the overlays."
+          }
+        },
+        "description": "Resource create or update operation model."
+      },
+      "OverlayCreate": {
+        "type": "object",
+        "required": [
+          "name",
+          "images_input",
+          "start_time"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Name of the overlay. Max length 100 characters.",
+            "example": "Summer Sale 2026"
+          },
+          "user_overlay_id": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "Merchant-provided overlay ID for external reference. Max length 50 characters when provided.",
+            "example": "summer-sale-01"
+          },
+          "images_input": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlayImagesRequest"
+              }
+            ],
+            "description": "Overlay images input for create/update requests. Accepts either base64-encoded image data or image URLs with aspect ratios."
+          },
+          "start_time": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Start time of the overlay. Unix timestamp in seconds since epoch.",
+            "example": 1620000000
+          },
+          "end_time": {
+            "type": "integer",
+            "format": "int64",
+            "description": "End time of the overlay. Unix timestamp in seconds since epoch. Must be greater than start_time when set.",
+            "example": 1620086400
+          }
+        },
+        "description": "Resource create operation model."
+      },
+      "OverlayImage": {
+        "type": "object",
+        "required": [
+          "image_ratio",
+          "image_signature"
+        ],
+        "properties": {
+          "image_ratio": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlayImageRatio"
+              }
+            ],
+            "description": "Image aspect ratio"
+          },
+          "image_signature": {
+            "type": "string",
+            "description": "Image signature"
+          },
+          "image_url": {
+            "type": "string",
+            "description": "Image URL"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Image width in pixels"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Image height in pixels"
+          }
+        },
+        "description": "Overlay image with aspect ratio and signature for responses"
+      },
+      "OverlayImageItemBase64": {
+        "type": "object",
+        "required": [
+          "ratio",
+          "data"
+        ],
+        "properties": {
+          "ratio": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlayImageRatio"
+              }
+            ],
+            "description": "Image aspect ratio"
+          },
+          "data": {
+            "type": "string",
+            "description": "Base64-encoded PNG image data"
+          }
+        },
+        "description": "Image item for create/update request with base64 data"
+      },
+      "OverlayImageItemUrl": {
+        "type": "object",
+        "required": [
+          "ratio",
+          "url"
+        ],
+        "properties": {
+          "ratio": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlayImageRatio"
+              }
+            ],
+            "description": "Image aspect ratio"
+          },
+          "url": {
+            "type": "string",
+            "description": "Image URL"
+          }
+        },
+        "description": "Image item for create/update request with URL"
+      },
+      "OverlayImageRatio": {
+        "type": "string",
+        "enum": [
+          "ONE_TO_ONE",
+          "TWO_TO_THREE",
+          "THREE_TO_FOUR",
+          "FOUR_TO_FIVE"
+        ],
+        "description": "Overlay image aspect ratio enum"
+      },
+      "OverlayImagesBase64": {
+        "type": "object",
+        "required": [
+          "source_type",
+          "items"
+        ],
+        "properties": {
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "image_base64"
+            ],
+            "description": "Source type discriminator"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverlayImageItemBase64"
+            },
+            "description": "Array of base64-encoded images with ratios"
+          }
+        },
+        "description": "Base64 image source with array of images"
+      },
+      "OverlayImagesBase64Update": {
+        "type": "object",
+        "properties": {
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "image_base64"
+            ],
+            "description": "Source type discriminator"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverlayImageItemBase64"
+            },
+            "description": "Array of base64-encoded images with ratios"
+          }
+        },
+        "description": "Base64 image source with array of images"
+      },
+      "OverlayImagesRequest": {
+        "type": "object",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/OverlayImagesBase64"
+          },
+          {
+            "$ref": "#/components/schemas/OverlayImagesURL"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "source_type",
+          "mapping": {
+            "image_base64": "#/components/schemas/OverlayImagesBase64",
+            "image_url": "#/components/schemas/OverlayImagesURL"
+          }
+        },
+        "description": "Discriminated union for overlay image sources"
+      },
+      "OverlayImagesRequestUpdate": {
+        "type": "object",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/OverlayImagesBase64Update"
+          },
+          {
+            "$ref": "#/components/schemas/OverlayImagesURLUpdate"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "source_type",
+          "mapping": {
+            "image_base64": "#/components/schemas/OverlayImagesBase64Update",
+            "image_url": "#/components/schemas/OverlayImagesURLUpdate"
+          }
+        },
+        "description": "Discriminated union for overlay image sources"
+      },
+      "OverlayImagesURL": {
+        "type": "object",
+        "required": [
+          "source_type",
+          "items"
+        ],
+        "properties": {
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "image_url"
+            ],
+            "description": "Source type discriminator"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverlayImageItemUrl"
+            },
+            "description": "Array of image URLs with ratios"
+          }
+        },
+        "description": "URL image source with array of images"
+      },
+      "OverlayImagesURLUpdate": {
+        "type": "object",
+        "properties": {
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "image_url"
+            ],
+            "description": "Source type discriminator"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverlayImageItemUrl"
+            },
+            "description": "Array of image URLs with ratios"
+          }
+        },
+        "description": "URL image source with array of images"
+      },
+      "OverlayUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Name of the overlay. Max length 100 characters.",
+            "example": "Summer Sale 2026"
+          },
+          "user_overlay_id": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "Merchant-provided overlay ID for external reference. Max length 50 characters when provided.",
+            "example": "summer-sale-01"
+          },
+          "images_input": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlayImagesRequestUpdate"
+              }
+            ],
+            "description": "Overlay images input for create/update requests. Accepts either base64-encoded image data or image URLs with aspect ratios."
+          },
+          "start_time": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Start time of the overlay. Unix timestamp in seconds since epoch.",
+            "example": 1620000000
+          },
+          "end_time": {
+            "type": "integer",
+            "format": "int64",
+            "description": "End time of the overlay. Unix timestamp in seconds since epoch. Must be greater than start_time when set.",
+            "example": 1620086400
+          }
+        },
+        "description": "Resource create or update operation model."
       },
       "PacingDeliveryType": {
         "type": "string",
@@ -70243,6 +71353,36 @@
         },
         "description": "Local inventory attributes for retail items (all fields optional for update/get)"
       },
+      "RmnInviteDataDetail": {
+        "type": "object",
+        "properties": {
+          "rmn_contract_id": {
+            "type": "string",
+            "maxLength": 20,
+            "pattern": "^\\d+$",
+            "description": "RMN contract identifier.",
+            "example": "2613499880051"
+          },
+          "dedicated_resource_id": {
+            "type": "string",
+            "maxLength": 20,
+            "pattern": "^\\d+$",
+            "description": "Dedicated resource ID associated with the RMN invite, if any.",
+            "example": "123456789012345678"
+          },
+          "domain_restrictions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Domain restrictions for the RMN invite, if any.",
+            "example": [
+              "example.com"
+            ]
+          }
+        },
+        "description": "RMN-specific data associated with an invite."
+      },
       "Role": {
         "type": "string",
         "enum": [
@@ -70264,6 +71404,8 @@
           "RESOURCE_PINNER_LIST_OWNER",
           "RESOURCE_PINNER_LIST_READER",
           "BIZ_PINNER_LIST_SHARER",
+          "BIZ_CONVERSION_SEGMENT_SHARER",
+          "BIZ_CONVERSION_SEGMENT_RESTRICTED_SHARER",
           "RESOURCE_CONVERSION_TAGS_READER"
         ],
         "description": "An internal role type used on business access, EMPLOYEE, ADMIN.",
@@ -70920,11 +72062,22 @@
         "type": "number",
         "format": "double"
       },
+      "ScheduleAppTypeMultiplierAppType": {
+        "type": "string",
+        "enum": [
+          "android_mobile",
+          "android_tablet",
+          "ipad",
+          "iphone",
+          "web",
+          "web_mobile"
+        ]
+      },
       "ScheduleAppTypeMultipliers": {
         "type": "object",
         "properties": {
           "APP_TYPE": {
-            "$ref": "#/components/schemas/TargetingSpecAppType"
+            "$ref": "#/components/schemas/ScheduleAppTypeMultiplierAppType"
           }
         },
         "additionalProperties": {
@@ -70935,24 +72088,6 @@
         "nullable": true
       },
       "ScheduleAppTypeMultipliersAdditionalProperties": {
-        "type": "number",
-        "format": "double"
-      },
-      "ScheduleAudienceMultipliers": {
-        "type": "object",
-        "properties": {
-          "AUDIENCE_ID": {
-            "type": "string",
-            "pattern": "^\\d+$"
-          }
-        },
-        "additionalProperties": {
-          "type": "number",
-          "format": "double"
-        },
-        "description": "This represents a mapping from Audience ID to a bid price change value. This is paired with the bid_multipliers schedule type.\nValues represent the change in bid price and can be positive or negative. For percentage changes, a value of 500.0 means a 5% change. For value changes, the amount represents the direct bid adjustment. All audience multipliers must be set at the same time. If a multiplier is not provided it is assumed to be 0 (no bid adjustment). The change must still remain between the range of 0 and 10."
-      },
-      "ScheduleAudienceMultipliersAdditionalProperties": {
         "type": "number",
         "format": "double"
       },
@@ -71072,13 +72207,13 @@
             "$ref": "#/components/schemas/ScheduleAppTypeMultipliers"
           },
           "audience_multipliers": {
-            "$ref": "#/components/schemas/ScheduleAudienceMultipliers"
+            "$ref": "#/components/schemas/CampaignAudienceMultipliers"
           },
           "gender_multipliers": {
             "type": "object",
             "properties": {
               "GENDER": {
-                "$ref": "#/components/schemas/TargetingSpecGender"
+                "$ref": "#/components/schemas/ScheduleGenderMultiplierGender"
               }
             },
             "additionalProperties": {
@@ -71270,11 +72405,19 @@
           }
         }
       },
+      "ScheduleGenderMultiplierGender": {
+        "type": "string",
+        "enum": [
+          "unknown",
+          "male",
+          "female"
+        ]
+      },
       "ScheduleGenderMultipliers": {
         "type": "object",
         "properties": {
           "GENDER": {
-            "$ref": "#/components/schemas/TargetingSpecGender"
+            "$ref": "#/components/schemas/ScheduleGenderMultiplierGender"
           }
         },
         "additionalProperties": {
@@ -71629,6 +72772,26 @@
         ],
         "description": "The status of the item processing record"
       },
+      "SupplementalItemSegmentType": {
+        "type": "string",
+        "enum": [
+          "LOCAL_INVENTORY"
+        ],
+        "description": "Supplemental item segment categories. Today only LOCAL_INVENTORY is in use; corresponds to the \"Location data\" filter in the catalogs UI."
+      },
+      "SupplementalItemSegmentsFilter": {
+        "type": "object",
+        "required": [
+          "SUPPLEMENTAL_ITEM_SEGMENTS"
+        ],
+        "properties": {
+          "SUPPLEMENTAL_ITEM_SEGMENTS": {
+            "$ref": "#/components/schemas/CatalogsProductGroupMultipleSupplementalItemSegmentsCriteria"
+          }
+        },
+        "title": "SUPPLEMENTAL_ITEM_SEGMENTS",
+        "additionalProperties": false
+      },
       "SupplementalItemValidationEvent": {
         "type": "object",
         "required": [
@@ -71782,139 +72945,6 @@
       "TargetingOption": {
         "type": "object"
       },
-      "TargetingSpec": {
-        "type": "object",
-        "properties": {
-          "AGE_BUCKET": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TargetingSpecAgeBucket"
-            },
-            "nullable": true,
-            "description": "**Legacy field.** Predefined age ranges. We recommend using MINIMUM_AGE and MAXIMUM_AGE instead for more flexible targeting. Cannot be combined with MINIMUM_AGE/MAXIMUM_AGE. If neither AGE_BUCKET nor MINIMUM_AGE/MAXIMUM_AGE are specified, all ages will be targeted.",
-            "example": [
-              "35-44",
-              "50-54"
-            ]
-          },
-          "APPTYPE": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TargetingSpecAppType"
-            },
-            "nullable": true,
-            "description": "Allowed devices. If the APPTYPE field is missing, the default behavior in terms of ad delivery is that **All devices/apptypes** will be targeted.",
-            "example": [
-              "ipad",
-              "iphone"
-            ]
-          },
-          "AUDIENCE_EXCLUDE": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "pattern": "^\\d+$"
-            },
-            "nullable": true,
-            "description": "Excluded customer list IDs. Used to drive new customer acquisition goals. For example: [\"2542620905475\"]. Audience lists need to have at least 100 people with Pinterest accounts in them. If the AUDIENCE_EXCLUDE field is missing, the default behavior in terms of ad delivery is that **No users will be excluded**."
-          },
-          "AUDIENCE_INCLUDE": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "pattern": "^\\d+$"
-            },
-            "nullable": true,
-            "description": "Targeted customer list IDs. For example: [\"2542620905473\"]. Audience lists need to have at least 100 people with Pinterest accounts in them Audience lists need to have at least 100 people with Pinterest accounts in them. If the AUDIENCE_INCLUDE field is missing, the default behavior in terms of ad delivery is that **All users will be included**."
-          },
-          "GENDER": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TargetingSpecGender"
-            },
-            "nullable": true,
-            "description": "Targeted genders. Values: [\"unknown\",\"male\",\"female\"]. If the GENDER field is missing, the default behavior in terms of ad delivery is that **All genders will be targeted**."
-          },
-          "GEO": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true,
-            "description": "Region codes or postal codes to include for targeting.<br /><br /> Region codes represent broader geographical areas. Example: <code>US-CA</code> is the region code for California in the United States.<br /><br /> Postal codes represent more granular, specific areas. Example: <code>94103</code> is a postal code for a specifc area in San Francisco, California, U.S.A.<br /><br /> For each ad group, use only one of these methods, depending on which fits your targeting needs. Do not use both. For example, either specify a broader region code like <code>US-CA</code> or a more granular postal code within that regon, such as <code>94103</code>.<br /><br /> You can specify multiple region codes or postal codes in an array, depending on which method you choose.<br /><br /> Precede a region code array with the <code>region_codes</code> key and a postal code value with the <code>postal_codes</code> key. Examples:<br /><br />\n<code>\"geo\": {</code><br /> <code>\"region_codes\": [\"US-CA\"]</code><br /> <code>}</code><br /><br />\n<code>\"geo\": {</code><br /> <code>\"postal_codes\": [\"94103\"]</code><br /> <code>}</code><br /><br />\nFor each ad group, specify at least one <code>GEO</code> or <code>LOCATION</code>. <br /><br /> If you do not specifiy a <code>GEO</code> code, only <code>LOCATION</code> values will be targeted (See <code>LOCATION</code> parameter in this targeting spec.).<br /><br /> Learn how to <a href=\"/docs/analytics-and-reports/ads-reporting/#get-all-available-codes-and-zones\" target=\"_blank\">get a current, complete list of codes</a>."
-          },
-          "GEO_EXCLUDE": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Region codes or postal codes to exclude from the targeting inclusion area.<br /><br /> See <code>GEO</code> parameter in this targeting spec for rules, syntax, and other information.<br />"
-          },
-          "INTEREST": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Array of interest object IDs. If the INTEREST field is missing, the default behavior in terms of ad delivery is that **All interests will be targeted**."
-          },
-          "LOCALE": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true,
-            "description": "24 ISO 639-1 two-letter language codes. If the LOCALE field is not included in the request, all languages are targeted."
-          },
-          "LOCATION": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true,
-            "description": "Metropolitan codes and/or ISO-Alpha-2, two-letter country codes to include for targeting.<br /><br /> Precede country code values with the <code>country_codes</code> key and metro code values with <code>metro_codes</code> key. Example:<br /><br /> <code>\"location\": {</code><br /> <code>\"country_codes\": [\"US\", \"CA\"],</code><br /> <code>\"metro_codes\": [\"501\", \"602\"]</code><br /> <code>}</code><br /><br /> For each ad group, specify at least one <code>GEO</code> or <code>LOCATION</code> code. <br /><br /> If you do not specify a <code>LOCATION</code> code, only <code>GEO</code> values will be targeted (See <code>GEO</code> parameter in this targeting spec.).<br /><br /> Learn how to <a href=\"/docs/analytics-and-reports/ads-reporting/#get-all-available-codes-and-zones\" target=\"_blank\">get a current, complete list of codes</a>."
-          },
-          "LOCATION_EXCLUDE": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Metropolitan codes and/or ISO-Alpha-2, two-letter country codes to exclude from targeting.<br /><br /> See <code>LOCATION</code> parameter in this targeting spec for rules, syntax, and other information."
-          },
-          "MAXIMUM_AGE": {
-            "type": "string",
-            "pattern": "^\\d+\\+?$",
-            "description": "Maximum age to target (inclusive). Values: \"18\", \"19\", ..., \"65\", \"65+\". Must be used together with `MINIMUM_AGE`. Cannot be combined with `AGE_BUCKET`. If neither `MINIMUM_AGE`/`MAXIMUM_AGE` nor `AGE_BUCKET` are specified, all ages will be targeted.",
-            "example": "65+"
-          },
-          "MINIMUM_AGE": {
-            "type": "string",
-            "pattern": "^\\d+$",
-            "description": "Minimum age to target (inclusive). Values: \"18\", \"19\", ..., \"65\". Note: 65+ is not allowed for minimum age. Must be used together with `MAXIMUM_AGE`. Cannot be combined with `AGE_BUCKET`. If neither `MINIMUM_AGE`/`MAXIMUM_AGE` nor `AGE_BUCKET` are specified, all ages will be targeted.",
-            "example": "18"
-          },
-          "SHOPPING_RETARGETING": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TargetingSpecShoppingRetargeting"
-            },
-            "nullable": true,
-            "description": "Array of object: lookback_window\t[Integer]: Number of days ago to start lookback timeframe for dynamic retargeting tag_types [Array of integer]: Event types to target for dynamic retargeting exclusion_window [Integer]: Number of days ago to stop lookback timeframe for dynamic retargeting"
-          },
-          "TARGETING_STRATEGY": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "CHOOSE_YOUR_OWN",
-                "FIND_NEW_CUSTOMERS",
-                "RECONNECT_WITH_USERS"
-              ]
-            },
-            "nullable": true
-          }
-        },
-        "description": "Ad group targeting specification defining the ad group target audience. For example, `{\"APPTYPE\":[\"iphone\"], \"GENDER\":[\"male\"], \"LOCALE\":[\"en-US\"], \"LOCATION\":[\"501\"], \"MINIMUM_AGE\":\"18\", \"MAXIMUM_AGE\":\"65+\"}`"
-      },
       "TargetingSpecAgeBucket": {
         "type": "string",
         "enum": [
@@ -71940,14 +72970,6 @@
           "web",
           "web_mobile"
         ]
-      },
-      "TargetingSpecAudienceExcludeItems": {
-        "type": "string",
-        "pattern": "^\\d+$"
-      },
-      "TargetingSpecAudienceIncludeItems": {
-        "type": "string",
-        "pattern": "^\\d+$"
       },
       "TargetingSpecGender": {
         "type": "string",
@@ -72542,14 +73564,6 @@
             6
           ]
         }
-      },
-      "TargetingSpecTargetingStrategyItems": {
-        "type": "string",
-        "enum": [
-          "CHOOSE_YOUR_OWN",
-          "FIND_NEW_CUSTOMERS",
-          "RECONNECT_WITH_USERS"
-        ]
       },
       "TargetingStrategy": {
         "type": "string",
@@ -74075,6 +75089,12 @@
             "description": "A unique identifier referencing the promotion associated with this catalog item.",
             "example": "promotion_1"
           },
+          "overlay_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Pinterest creative overlay ID to attach to this catalog item. At most one overlay per item.",
+            "example": "1234567890123"
+          },
           "sale_price": {
             "type": "string",
             "nullable": true,
@@ -74292,7 +75312,8 @@
           "title",
           "variant_names",
           "variant_values",
-          "promotion_id"
+          "promotion_id",
+          "overlay_id"
         ],
         "description": "The field types supported by the update mask",
         "example": "availability"
@@ -74409,6 +75430,15 @@
             "minItems": 1,
             "maxItems": 50,
             "description": "A non-empty array of permissions to assign to the partner."
+          },
+          "partner_type": {
+            "type": "string",
+            "enum": [
+              "INTERNAL",
+              "EXTERNAL"
+            ],
+            "description": "If partner_type=INTERNAL, the assigned/updated asset access is for the access the partner has to your business asset.\nIf partner_type=EXTERNAL, the assigned/updated asset access is for the access you have to the partner's business asset.",
+            "default": "INTERNAL"
           }
         }
       },
@@ -74828,6 +75858,11 @@
         "type": "http",
         "scheme": "Bearer",
         "description": "This security scheme applies to the conversion events endpoint (POST /ad_accounts/{ad_account_id}/events) and SAN endpoints (POST /ad_accounts/{ad_account_id}/san/conversion_events, POST /ad_accounts/{ad_account_id}/san/confirmations). These endpoints require a bearer token generated via Ads Manager (ads.pinterest.com)."
+      },
+      "pinterest_employee": {
+        "type": "http",
+        "scheme": "Bearer",
+        "description": "Internal-only security scheme for employee-authenticated endpoints used by Pinterest internal apps (Command Center, Pinnacle). Requires a valid employee JWT (auth.pinadmin.com) forwarded by the internal app; not available to external developers. Use together with internalAccessOnly."
       },
       "basic": {
         "type": "http",
