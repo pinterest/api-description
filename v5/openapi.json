@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Pinterest REST API",
-    "version": "5.31.0",
+    "version": "5.32.0",
     "contact": {
       "name": "Pinterest, Inc.",
       "url": "https://developers.pinterest.com/"
@@ -174,10 +174,12 @@
       "description": "View order lines."
     },
     {
-      "name": "overlay_assignment_rules"
+      "name": "overlay_assignment_rules",
+      "description": "View, create, update, or delete overlay assignment rules. A rule applies one creative overlay to the catalog products that match its filters, in ad groups whose `overlay_application_level` is `ITEM`."
     },
     {
-      "name": "overlays"
+      "name": "overlays",
+      "description": "View, create, update, or delete creative overlays. Creative overlays are transparent PNG images, such as a sale badge, that Pinterest draws on product images in shopping ads during a time window you set.\n\nTo apply an overlay:\n\n1. Create an overlay with one image for each product image aspect ratio you want to cover.\n2. Apply the overlay to an ad group as an ad group level or item level overlay."
     },
     {
       "name": "pins",
@@ -713,6 +715,480 @@
           }
         ],
         "x-sandbox": "enabled",
+        "x-ratelimit-category": "ads_read"
+      }
+    },
+    "/ad_accounts/{ad_account_id}/ab_tests": {
+      "patch": {
+        "operationId": "ab_tests/update",
+        "summary": "Update AB test",
+        "description": "Update an existing ab test and, when versions change, its experiment cell / campaign associations.\nSetting the status to COMPLETED or CANCELLED schedules the associated experiment for deletion.\nSetting the status of a DRAFT test to ACTIVE publishes it: the experiment is provisioned and the\nfull create validation runs.\n\nAccepts an array and returns per-item `{ data, exceptions }` results, matching V4: a request\ncan partially succeed, and callers rely on the per-item `error_code` to distinguish blocking\nvalidation failures from non-blocking warnings.\n\nReused for external partner integrations too -- gatedFeature dropped at the operation\nlevel. Keeps the batch envelope as-is; not attempting to also replicate the TDD's\nsingle-object external design here (a shape change, not a field-visibility one).\n\n**Rate limit**: [WRITE](/docs/redoc/#tag/Rate-Limits).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Pinterest.Lib.AdAccountId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "items"
+                  ],
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "data": {
+                            "$ref": "#/components/schemas/AbTest"
+                          },
+                          "exceptions": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/Pinterest.Lib.BatchItemException"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ab_tests"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AbTestBatchUpdate"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_write"
+      },
+      "get": {
+        "operationId": "ab_tests/list",
+        "summary": "List AB tests for an ad account",
+        "description": "Get all AB tests for the given ad account ID.\n\nReused for external partner integrations too -- gatedFeature dropped at the operation\nlevel. The handler force-excludes draft rows for an external caller regardless of the\nrequested status filter.\n\n**Rate limit**: [READ](/docs/redoc/#tag/Rate-Limits).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Pinterest.Lib.AdAccountId"
+          },
+          {
+            "$ref": "#/components/parameters/Pinterest.Lib.BookmarkParams.bookmark"
+          },
+          {
+            "$ref": "#/components/parameters/Pinterest.Lib.BookmarkParams.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "items"
+                  ],
+                  "properties": {
+                    "bookmark": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AbTest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ab_tests"
+        ],
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_read"
+      },
+      "post": {
+        "operationId": "ab_tests/create",
+        "summary": "Create AB test and associate experiment campaigns",
+        "description": "Create a new ab test and an experiment according to the test version configuration.\nAssociate the given campaigns on version groups.\n\nAccepts an array and returns per-item `{ data, exceptions }` results, matching V4: a request\ncan partially succeed, and callers rely on the per-item `error_code` to distinguish blocking\nvalidation failures from non-blocking warnings.\n\nReused for external partner integrations too, keeping the batch\n`{items: [{data, exceptions}]}` envelope as-is for every caller.\n\n`validate_only=true` validates without persisting anything, returning the same envelope\nwith a placeholder item (`id`/`created_time`/`updated_time` are placeholders, not a real\nrecord) on success, or the normal `exceptions` on failure.\n\n**Rate limit**: [WRITE](/docs/redoc/#tag/Rate-Limits).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Pinterest.Lib.AdAccountId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "items"
+                  ],
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "data": {
+                            "$ref": "#/components/schemas/AbTest"
+                          },
+                          "exceptions": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/Pinterest.Lib.BatchItemException"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ab_tests"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AbTestCreate"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_write"
+      }
+    },
+    "/ad_accounts/{ad_account_id}/ab_tests/{ab_test_id}": {
+      "get": {
+        "operationId": "ab_tests/get",
+        "summary": "Get AB test data and experiment campaign association data",
+        "description": "Get a specific ab test given the ab test ID.\n\nReused for external partner integrations too, rather than a dedicated endpoint --\ngatedFeature dropped at the operation level so a partner's OAuth token can reach it.\nThe handler still verifies ownership and filters drafts itself for an external caller.\n\n**Rate limit**: [READ](/docs/redoc/#tag/Rate-Limits).",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AbTestKey"
+          },
+          {
+            "$ref": "#/components/parameters/Pinterest.Lib.AdAccountId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AbTest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ab_tests"
+        ],
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
         "x-ratelimit-category": "ads_read"
       }
     },
@@ -30437,6 +30913,1026 @@
         "x-ratelimit-category": "org_write"
       }
     },
+    "/overlay_assignment_rules": {
+      "get": {
+        "operationId": "overlay_assignment_rules/list",
+        "summary": "Get overlay assignment rules",
+        "description": "Get a list of overlay assignment rules. Overlay assignment rules define which overlays should be applied to catalog products based on filter criteria.",
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OverlayAssignmentRule"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "overlay_assignment_rules"
+        ],
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_read"
+      },
+      "post": {
+        "operationId": "overlay_assignment_rules/create",
+        "summary": "Create overlay assignment rule",
+        "description": "Create an overlay assignment rule. Overlay assignment rules define which overlays should be applied to catalog products based on filter criteria. To apply a rule to an ad account's products, create it with the ad account owner's access token.\n\nThis endpoint allows you to:\n- Define filter criteria to match specific products in your catalog\n- Assign an overlay to be applied to those matching products\n- Reference overlays by either merchant-provided IDs or global overlay IDs\n",
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverlayAssignmentRule"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Resource create operation completed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverlayAssignmentRule"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "overlay_assignment_rules"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OverlayAssignmentRuleCreate"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_write"
+      }
+    },
+    "/overlay_assignment_rules/{id}": {
+      "get": {
+        "operationId": "overlay_assignment_rules/read",
+        "summary": "Get overlay assignment rule",
+        "description": "Get an overlay assignment rule by ID. Overlay assignment rules define which overlays should be applied to catalog products based on filter criteria.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OverlayAssignmentRuleKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverlayAssignmentRule"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "overlay_assignment_rules"
+        ],
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_read"
+      },
+      "patch": {
+        "operationId": "overlay_assignment_rules/update",
+        "summary": "Update overlay assignment rule",
+        "description": "Update an overlay assignment rule by ID. You can update the name, overlay references, and filter criteria.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OverlayAssignmentRuleKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverlayAssignmentRule"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "overlay_assignment_rules"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OverlayAssignmentRuleUpdate"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_write"
+      },
+      "delete": {
+        "operationId": "overlay_assignment_rules/delete",
+        "summary": "Delete overlay assignment rule",
+        "description": "Delete an overlay assignment rule by ID. This will stop applying the specified overlays to matching products.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OverlayAssignmentRuleKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverlayAssignmentRule"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Resource deleted successfully."
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "overlay_assignment_rules"
+        ],
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_write"
+      }
+    },
+    "/overlays": {
+      "get": {
+        "operationId": "overlays/list",
+        "summary": "Get overlays",
+        "description": "Get a list of overlays. Overlays are transparent PNG images that Pinterest draws on product images in shopping ads during specific time periods.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Pinterest.Lib.BookmarkParams.bookmark"
+          },
+          {
+            "$ref": "#/components/parameters/Pinterest.Lib.BookmarkParams.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "items"
+                  ],
+                  "properties": {
+                    "bookmark": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Overlay"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "overlays"
+        ],
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_read"
+      },
+      "post": {
+        "operationId": "overlays/create",
+        "summary": "Create overlay",
+        "description": "Create a new overlay. Overlays are transparent PNG images that Pinterest draws on product images in shopping ads during specific time periods. To use an overlay in an ad account's ad groups, create it with the ad account owner's access token.",
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overlay"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Resource create operation completed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overlay"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "overlays"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OverlayCreate"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_write"
+      }
+    },
+    "/overlays/{id}": {
+      "get": {
+        "operationId": "overlays/read",
+        "summary": "Get overlay",
+        "description": "Get an overlay by ID. Overlays are transparent PNG images that Pinterest draws on product images in shopping ads during specific time periods.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OverlayKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overlay"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "overlays"
+        ],
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:read"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_read"
+      },
+      "patch": {
+        "operationId": "overlays/update",
+        "summary": "Update overlay",
+        "description": "Update an overlay by ID. Overlays are transparent PNG images that Pinterest draws on product images in shopping ads during specific time periods.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OverlayKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overlay"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "overlays"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OverlayUpdate"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_write"
+      },
+      "delete": {
+        "operationId": "overlays/delete",
+        "summary": "Delete overlay",
+        "description": "Delete an overlay by ID. Overlays are transparent PNG images that Pinterest draws on product images in shopping ads during specific time periods.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OverlayKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overlay"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Resource deleted successfully."
+          },
+          "400": {
+            "description": "The request could not be understood by the server due to unexpected data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required and has either failed or not been provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found on this server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The user has sent too many requests in a given amount of time and is being rate limited.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pinterest.Lib.Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "overlays"
+        ],
+        "security": [
+          {
+            "pinterest_oauth2": [
+              "ads:write"
+            ]
+          }
+        ],
+        "x-sandbox": "disabled",
+        "x-ratelimit-category": "ads_write"
+      }
+    },
     "/pins": {
       "post": {
         "operationId": "pins/create",
@@ -35106,6 +36602,16 @@
   },
   "components": {
     "parameters": {
+      "AbTestKey": {
+        "name": "ab_test_id",
+        "in": "path",
+        "required": true,
+        "description": "Test id of the AB test.",
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
       "AdAccountDiscountKey": {
         "name": "id",
         "in": "path",
@@ -38385,7 +39891,7 @@
         "name": "reporting_timezone",
         "in": "query",
         "required": false,
-        "description": "Specify the timezone to be applied for the reporting. This feature is currently in BETA and is not available to all users.",
+        "description": "Specify the timezone to be applied for the reporting. Defaults to PINTEREST_TIME_ZONE (UTC). AD_ACCOUNT_TIME_ZONE requires the ad account to have a time_zone configured; otherwise the request fails with a 400.",
         "schema": {
           "$ref": "#/components/schemas/ReportingTimeZone"
         }
@@ -38745,6 +40251,253 @@
       }
     },
     "schemas": {
+      "ABTestPurpose": {
+        "type": "string",
+        "enum": [
+          "EXTERNAL",
+          "INTERNAL",
+          "INTERNAL_TEST"
+        ],
+        "description": "The purpose of the AB test"
+      },
+      "AbTest": {
+        "type": "object",
+        "required": [
+          "name",
+          "ad_account_id",
+          "created_time",
+          "id",
+          "updated_time"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "The description of the AB test."
+          },
+          "end_date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "End date must be equal or greater than start date. Format is YYYY-MM-DD."
+          },
+          "name": {
+            "type": "string",
+            "description": "AB test name."
+          },
+          "primary_metrics": {
+            "type": "array",
+            "maxItems": 1,
+            "description": "Primary metric value for AB tests"
+          },
+          "secondary_metrics": {
+            "type": "array",
+            "maxItems": 1,
+            "description": "Secondary metric value for AB tests"
+          },
+          "start_date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Start date must be equal or greater than today. Format is YYYY-MM-DD."
+          },
+          "versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AbTestVersion"
+            }
+          },
+          "ad_account_id": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "Ad Account ID of the AB test.",
+            "readOnly": true
+          },
+          "cancel_date": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Test cancel date. Format is YYYY-MM-DD.",
+            "readOnly": true
+          },
+          "created_time": {
+            "type": "integer",
+            "description": "AB test created time. Unix timestamp in seconds.",
+            "readOnly": true
+          },
+          "created_by": {
+            "type": "string",
+            "description": "Identifier of whoever created this AB test.",
+            "readOnly": true
+          },
+          "version_count": {
+            "type": "integer",
+            "description": "Number of version groups in this AB test.",
+            "readOnly": true
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "Test id of the AB test.",
+            "example": "626736533506",
+            "readOnly": true
+          },
+          "updated_time": {
+            "type": "integer",
+            "description": "AB test updated time. Unix timestamp in seconds.",
+            "readOnly": true
+          }
+        }
+      },
+      "AbTestBatchUpdate": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^\\d+$",
+            "description": "Test id of the AB test.",
+            "example": "626736533506"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the AB test."
+          },
+          "end_date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "End date must be equal or greater than start date. Format is YYYY-MM-DD."
+          },
+          "name": {
+            "type": "string",
+            "description": "AB test name."
+          },
+          "primary_metrics": {
+            "type": "array",
+            "maxItems": 1,
+            "description": "Primary metric value for AB tests"
+          },
+          "secondary_metrics": {
+            "type": "array",
+            "maxItems": 1,
+            "description": "Secondary metric value for AB tests"
+          },
+          "start_date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Start date must be equal or greater than today. Format is YYYY-MM-DD."
+          },
+          "versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AbTestVersion"
+            }
+          }
+        }
+      },
+      "AbTestCreate": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "The description of the AB test."
+          },
+          "end_date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "End date must be equal or greater than start date. Format is YYYY-MM-DD."
+          },
+          "name": {
+            "type": "string",
+            "description": "AB test name."
+          },
+          "primary_metrics": {
+            "type": "array",
+            "maxItems": 1,
+            "description": "Primary metric value for AB tests"
+          },
+          "secondary_metrics": {
+            "type": "array",
+            "maxItems": 1,
+            "description": "Secondary metric value for AB tests"
+          },
+          "start_date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Start date must be equal or greater than today. Format is YYYY-MM-DD."
+          },
+          "versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AbTestVersion"
+            }
+          }
+        },
+        "description": "Resource create operation model."
+      },
+      "AbTestVersion": {
+        "type": "object",
+        "properties": {
+          "campaign_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 10
+          },
+          "campaigns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AbTestVersionCampaign"
+            },
+            "readOnly": true
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the version group"
+          },
+          "id": {
+            "type": "string",
+            "description": "Version group ID.",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the version group"
+          }
+        }
+      },
+      "AbTestVersionCampaign": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Campaign ID.",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Campaign name.",
+            "readOnly": true
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EntityStatus"
+              }
+            ],
+            "readOnly": true
+          }
+        }
+      },
       "Account": {
         "type": "object",
         "properties": {
@@ -40890,6 +42643,40 @@
             ],
             "nullable": true,
             "description": "Pinterest Performance+ campaign settings."
+          },
+          "overlay_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pinterest.Lib.IntegerFormatType"
+            },
+            "nullable": true,
+            "description": "IDs of the creative overlays applied at the ad group level. For ad group level overlays, an ad group can have at most one overlay, and `overlay_application_level` must be `AD_GROUP`.\nThe overlay needs to belong to the ad account owner.\n\nTo remove the overlay from an existing ad group, send an empty list and set `overlay_application_level` to `NONE`. If you omit this field, the current overlay is kept.",
+            "example": [
+              "123456"
+            ]
+          },
+          "overlay_application_level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlayApplicationLevel"
+              }
+            ],
+            "description": "How creative overlays apply to the ad group's products:\n\n- `NONE`, or not set: no overlays.\n- `AD_GROUP`: the ad group's overlay applies to every eligible product based on aspect ratio.\n- `ITEM`: the overlay comes from the product's matching overlay assignment rule with an active overlay or, if no rule matches, from the `overlay_id` attribute of its catalog item. `overlay_ids` must be empty for item level overlays.\n\nIf you omit this field when updating an ad group, the current value is kept.\n\nCreative overlays are supported only in catalog campaigns, and appear only on standard shopping ads and Performance+ creative optimization collections.",
+            "example": "AD_GROUP"
+          },
+          "overlay_smart_adjust_settings": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlaySmartAdjustSettings"
+              }
+            ],
+            "nullable": true,
+            "description": "Smart adjust settings for creative overlay. Currently, `smart_resize_enabled` and `smart_layout_enabled` must be both on or both off. If not set, smart adjust is off. If you omit this field when updating an ad group, the current settings are kept.",
+            "example": {
+              "smart_resize_enabled": true,
+              "smart_layout_enabled": true
+            }
           }
         }
       },
@@ -41154,6 +42941,40 @@
             "nullable": true,
             "description": "Pinterest Performance+ campaign settings."
           },
+          "overlay_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pinterest.Lib.IntegerFormatType"
+            },
+            "nullable": true,
+            "description": "IDs of the creative overlays applied at the ad group level. For ad group level overlays, an ad group can have at most one overlay, and `overlay_application_level` must be `AD_GROUP`.\nThe overlay needs to belong to the ad account owner.\n\nTo remove the overlay from an existing ad group, send an empty list and set `overlay_application_level` to `NONE`. If you omit this field, the current overlay is kept.",
+            "example": [
+              "123456"
+            ]
+          },
+          "overlay_application_level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlayApplicationLevel"
+              }
+            ],
+            "description": "How creative overlays apply to the ad group's products:\n\n- `NONE`, or not set: no overlays.\n- `AD_GROUP`: the ad group's overlay applies to every eligible product based on aspect ratio.\n- `ITEM`: the overlay comes from the product's matching overlay assignment rule with an active overlay or, if no rule matches, from the `overlay_id` attribute of its catalog item. `overlay_ids` must be empty for item level overlays.\n\nIf you omit this field when updating an ad group, the current value is kept.\n\nCreative overlays are supported only in catalog campaigns, and appear only on standard shopping ads and Performance+ creative optimization collections.",
+            "example": "AD_GROUP"
+          },
+          "overlay_smart_adjust_settings": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlaySmartAdjustSettings"
+              }
+            ],
+            "nullable": true,
+            "description": "Smart adjust settings for creative overlay. Currently, `smart_resize_enabled` and `smart_layout_enabled` must be both on or both off. If not set, smart adjust is off. If you omit this field when updating an ad group, the current settings are kept.",
+            "example": {
+              "smart_resize_enabled": true,
+              "smart_layout_enabled": true
+            }
+          },
           "id": {
             "type": "string",
             "maxLength": 20,
@@ -41417,6 +43238,40 @@
             ],
             "nullable": true,
             "description": "Pinterest Performance+ campaign settings."
+          },
+          "overlay_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pinterest.Lib.IntegerFormatType"
+            },
+            "nullable": true,
+            "description": "IDs of the creative overlays applied at the ad group level. For ad group level overlays, an ad group can have at most one overlay, and `overlay_application_level` must be `AD_GROUP`.\nThe overlay needs to belong to the ad account owner.\n\nTo remove the overlay from an existing ad group, send an empty list and set `overlay_application_level` to `NONE`. If you omit this field, the current overlay is kept.",
+            "example": [
+              "123456"
+            ]
+          },
+          "overlay_application_level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlayApplicationLevel"
+              }
+            ],
+            "description": "How creative overlays apply to the ad group's products:\n\n- `NONE`, or not set: no overlays.\n- `AD_GROUP`: the ad group's overlay applies to every eligible product based on aspect ratio.\n- `ITEM`: the overlay comes from the product's matching overlay assignment rule with an active overlay or, if no rule matches, from the `overlay_id` attribute of its catalog item. `overlay_ids` must be empty for item level overlays.\n\nIf you omit this field when updating an ad group, the current value is kept.\n\nCreative overlays are supported only in catalog campaigns, and appear only on standard shopping ads and Performance+ creative optimization collections.",
+            "example": "AD_GROUP"
+          },
+          "overlay_smart_adjust_settings": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlaySmartAdjustSettings"
+              }
+            ],
+            "nullable": true,
+            "description": "Smart adjust settings for creative overlay. Currently, `smart_resize_enabled` and `smart_layout_enabled` must be both on or both off. If not set, smart adjust is off. If you omit this field when updating an ad group, the current settings are kept.",
+            "example": {
+              "smart_resize_enabled": true,
+              "smart_layout_enabled": true
+            }
           }
         },
         "description": "Resource create operation model."
@@ -42057,6 +43912,40 @@
             ],
             "nullable": true,
             "description": "Pinterest Performance+ campaign settings."
+          },
+          "overlay_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pinterest.Lib.IntegerFormatType"
+            },
+            "nullable": true,
+            "description": "IDs of the creative overlays applied at the ad group level. For ad group level overlays, an ad group can have at most one overlay, and `overlay_application_level` must be `AD_GROUP`.\nThe overlay needs to belong to the ad account owner.\n\nTo remove the overlay from an existing ad group, send an empty list and set `overlay_application_level` to `NONE`. If you omit this field, the current overlay is kept.",
+            "example": [
+              "123456"
+            ]
+          },
+          "overlay_application_level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlayApplicationLevel"
+              }
+            ],
+            "description": "How creative overlays apply to the ad group's products:\n\n- `NONE`, or not set: no overlays.\n- `AD_GROUP`: the ad group's overlay applies to every eligible product based on aspect ratio.\n- `ITEM`: the overlay comes from the product's matching overlay assignment rule with an active overlay or, if no rule matches, from the `overlay_id` attribute of its catalog item. `overlay_ids` must be empty for item level overlays.\n\nIf you omit this field when updating an ad group, the current value is kept.\n\nCreative overlays are supported only in catalog campaigns, and appear only on standard shopping ads and Performance+ creative optimization collections.",
+            "example": "AD_GROUP"
+          },
+          "overlay_smart_adjust_settings": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OverlaySmartAdjustSettings"
+              }
+            ],
+            "nullable": true,
+            "description": "Smart adjust settings for creative overlay. Currently, `smart_resize_enabled` and `smart_layout_enabled` must be both on or both off. If not set, smart adjust is off. If you omit this field when updating an ad group, the current settings are kept.",
+            "example": {
+              "smart_resize_enabled": true,
+              "smart_layout_enabled": true
+            }
           }
         }
       },
@@ -42958,7 +44847,7 @@
                 "$ref": "#/components/schemas/ReportingTimeZone"
               }
             ],
-            "description": "Specify the timezone to be applied for the reporting."
+            "description": "Specify the timezone to be applied for the reporting. Defaults to PINTEREST_TIME_ZONE (UTC). AD_ACCOUNT_TIME_ZONE requires the ad account to have a time_zone configured; otherwise the request fails with a 400."
           },
           "start_hour": {
             "type": "integer",
@@ -60511,6 +62400,9 @@
           "operation"
         ],
         "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/ItemAttributesUpsertRequest"
+          },
           "item_id": {
             "type": "string",
             "description": "The catalog item id in the merchant namespace",
@@ -64646,7 +66538,8 @@
           "MAX_WIDTH_REGULAR_COLLECTION",
           "MAX_WIDTH_VIDEO_COLLECTION",
           "APP",
-          "CTV_VIDEO"
+          "CTV_VIDEO",
+          "SEARCH_TEXT_AD"
         ],
         "description": "Ad creative type enum.\n**Note:** SHOP_THE_PIN has been deprecated. Please use COLLECTION instead.",
         "title": "CreativeType enum used ads"
@@ -65752,6 +67645,15 @@
           "EXPIRED"
         ],
         "description": "Discount status based on the current time and start and end time of discount"
+      },
+      "DynamicTitlesApprovalType": {
+        "type": "string",
+        "enum": [
+          "MANUAL",
+          "AUTOMATIC"
+        ],
+        "description": "A field to determine the approval type for dynamic titles",
+        "example": "MANUAL"
       },
       "DynamicTitlesDownloadCSV": {
         "type": "object",
@@ -68152,6 +70054,18 @@
             "description": "<= 10000 characters. The description of the product.",
             "example": "Casual fit denim shirt made with the finest quality Japanese denim."
           },
+          "excluded_destination": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "description": "The destinations where this item should NOT appear. Each value must be one of the following (upper or lowercase): 'shopping_ads', 'local_inventory_ads', 'free_listings', 'free_local_listings'. Invalid values are dropped during ingestion. Currently only 'shopping_ads' and 'free_listings' take effect; other values are accepted but have no effect. This feature is only available for allowlisted merchants. Please contact your account manager to enable this feature.",
+            "example": [
+              "SHOPPING_ADS",
+              "FREE_LISTINGS"
+            ]
+          },
           "free_shipping_label": {
             "type": "boolean",
             "nullable": true,
@@ -68423,6 +70337,749 @@
         ],
         "description": "The attributes of an item to be updated"
       },
+      "ItemAttributesUpsertRequest": {
+        "type": "object",
+        "properties": {
+          "additional_image_link": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "description": "<= 2000 characters The links to additional images for your product. Up to ten additional images can be used to show a product from different angles or to show different stages. Must begin with http:// or https://."
+          },
+          "image_link": {
+            "$ref": "#/components/schemas/ItemAttributesRequestImageLink"
+          },
+          "save_pin_disabled": {
+            "type": "boolean",
+            "description": "By default, product pins created from a catalog are able to be saved by Pinners. If you want to disable the save pin feature, set this attribute to true. This feature is only available for allowlisted merchants. Please contact your account manager to enable this feature.",
+            "default": false
+          },
+          "video_link": {
+            "type": "string",
+            "nullable": true,
+            "description": "<= 2,000 characters Hosted link to the product video. File types for linked videos must be .mp4, .mov or .m4v. File size cannot exceed 2GB."
+          },
+          "ai_disclosures": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogsAiContentDisclosure"
+            },
+            "description": "AI content disclosures for individual assets (image_link, additional_image_link, or video_link) on this item. Each entry declares which disclosure types apply to a single asset URL.",
+            "example": [
+              {
+                "url": "https://scene.example.com/image/image_v3.jpg",
+                "disclosure": [
+                  "ai_modified"
+                ]
+              }
+            ]
+          },
+          "ad_image_0_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_0_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_10_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_10_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_11_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_11_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_12_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_12_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_13_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_13_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_14_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_14_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_15_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_15_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_16_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_16_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_17_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_17_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_18_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_18_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_19_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_19_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_1_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_1_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_2_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_2_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_3_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_3_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_4_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_4_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_5_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_5_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_6_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_6_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_7_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_7_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_8_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_8_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_image_9_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/image/image_v2.jpg"
+          },
+          "ad_image_9_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_video_0_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Restricted. Ad video link that supplements main video for shopping campaigns. Video format:- Pixel size between 75 x 75 and 9450 x 9450 - File size smaller than 2 GB - Time span between 4 seconds and 15 minutes - Accepted formats: .MP4, .MOV, .M4V Link guidelines:- Include extension in file name - Do not include template or placeholder videos in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/video/video_v2.mov"
+          },
+          "ad_video_0_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Restricted. Ad video tag. If you provide an ad_video_x_link, include the video tag with the corresponding ad_video_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_video_1_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Restricted. Ad video link that supplements main video for shopping campaigns. Video format:- Pixel size between 75 x 75 and 9450 x 9450 - File size smaller than 2 GB - Time span between 4 seconds and 15 minutes - Accepted formats: .MP4, .MOV, .M4V Link guidelines:- Include extension in file name - Do not include template or placeholder videos in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/video/video_v2.mov"
+          },
+          "ad_video_1_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Restricted. Ad video tag. If you provide an ad_video_x_link, include the video tag with the corresponding ad_video_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_video_2_link": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "description": "Restricted. Ad video link that supplements main video for shopping campaigns. Video format:- Pixel size between 75 x 75 and 9450 x 9450 - File size smaller than 2 GB - Time span between 4 seconds and 15 minutes - Accepted formats: .MP4, .MOV, .M4V Link guidelines:- Include extension in file name - Do not include template or placeholder videos in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://",
+            "example": "https://www.example.com/video/video_v2.mov"
+          },
+          "ad_video_2_tag": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "Restricted. Ad video tag. If you provide an ad_video_x_link, include the video tag with the corresponding ad_video_x_tag attribute.",
+            "example": "black friday"
+          },
+          "ad_link": {
+            "type": "string",
+            "nullable": true,
+            "description": "Allows advertisers to specify a separate URL that can be used to track traffic coming from Pinterest shopping ads. Must send full URL including tracking. Must begin with http:// or https://.",
+            "example": "https://www.example.com/cat/denim-shirt/item012?utm_source=Pinterest"
+          },
+          "adult": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Set this attribute to TRUE if you're submitting items that are considered \"adult\". These will not be shown on Pinterest.",
+            "example": true
+          },
+          "age_group": {
+            "type": "string",
+            "nullable": true,
+            "description": "The age group to apply a demographic range to the product. Must be one of the following values (upper or lowercased): 'newborn', 'infant', 'toddler', 'kids', or 'adult'.",
+            "example": "newborn"
+          },
+          "android_deep_link": {
+            "type": "string",
+            "description": "The deep link to the product on the Android app.",
+            "example": "pinterest://item/1234567890"
+          },
+          "availability": {
+            "type": "string",
+            "description": "The availability of the product. Must be one of the following values (upper or lowercased): 'in stock', 'out of stock', 'preorder'.",
+            "example": "in stock"
+          },
+          "average_review_rating": {
+            "type": "number",
+            "nullable": true,
+            "description": "Average reviews for the item. Can be a number from 1-5.",
+            "example": 5
+          },
+          "brand": {
+            "type": "string",
+            "nullable": true,
+            "description": "The brand of the product.",
+            "example": "Josie's Denim"
+          },
+          "checkout_enabled": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "This attribute is not supported anymore.",
+            "deprecated": true,
+            "example": false
+          },
+          "color": {
+            "type": "string",
+            "nullable": true,
+            "description": "The primary color of the product.",
+            "example": "blue"
+          },
+          "condition": {
+            "type": "string",
+            "nullable": true,
+            "description": "The condition of the product. Must be one of the following values (upper or lowercased): 'new', 'used', or 'refurbished'.",
+            "example": "new"
+          },
+          "custom_label_0": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "<= 511 characters for retail and creative asset catalogs, <= 127 characters for hotel catalogs. Custom grouping of products.",
+            "example": "Best sellers"
+          },
+          "custom_label_1": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "<= 511 characters for retail and creative asset catalogs, <= 127 characters for hotel catalogs. Custom grouping of products.",
+            "example": "Summer promotion"
+          },
+          "custom_label_2": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "<= 511 characters for retail and creative asset catalogs, <= 127 characters for hotel catalogs. Custom grouping of products.",
+            "example": "Winter sales"
+          },
+          "custom_label_3": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "<= 511 characters for retail and creative asset catalogs, <= 127 characters for hotel catalogs. Custom grouping of products.",
+            "example": "Woman dress"
+          },
+          "custom_label_4": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 511,
+            "description": "<= 511 characters for retail and creative asset catalogs, <= 127 characters for hotel catalogs. Custom grouping of products.",
+            "example": "Man hat"
+          },
+          "custom_number_0": {
+            "type": "integer",
+            "nullable": true,
+            "description": "An attribute for any integer information ranging from 0 to 4,294,967,295, which can be used to group items.",
+            "example": 10
+          },
+          "custom_number_1": {
+            "type": "integer",
+            "nullable": true,
+            "description": "An attribute for any integer information ranging from 0 to 4,294,967,295, which can be used to group items.",
+            "example": 0
+          },
+          "custom_number_2": {
+            "type": "integer",
+            "nullable": true,
+            "description": "An attribute for any integer information ranging from 0 to 4,294,967,295, which can be used to group items.",
+            "example": 1520000000
+          },
+          "custom_number_3": {
+            "type": "integer",
+            "nullable": true,
+            "description": "An attribute for any integer information ranging from 0 to 4,294,967,295, which can be used to group items.",
+            "example": 4294967295
+          },
+          "custom_number_4": {
+            "type": "integer",
+            "nullable": true,
+            "description": "An attribute for any integer information ranging from 0 to 4,294,967,295, which can be used to group items.",
+            "example": 50
+          },
+          "description": {
+            "type": "string",
+            "description": "<= 10000 characters. The description of the product.",
+            "example": "Casual fit denim shirt made with the finest quality Japanese denim."
+          },
+          "excluded_destination": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "description": "The destinations where this item should NOT appear. Each value must be one of the following (upper or lowercase): 'shopping_ads', 'local_inventory_ads', 'free_listings', 'free_local_listings'. Invalid values are dropped during ingestion. Currently only 'shopping_ads' and 'free_listings' take effect; other values are accepted but have no effect. This feature is only available for allowlisted merchants. Please contact your account manager to enable this feature.",
+            "example": [
+              "SHOPPING_ADS",
+              "FREE_LISTINGS"
+            ]
+          },
+          "free_shipping_label": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "The item is free to ship.",
+            "example": true
+          },
+          "free_shipping_limit": {
+            "type": "string",
+            "nullable": true,
+            "description": "The minimum order purchase necessary for the customer to get free shipping. Only relevant if free shipping is offered.",
+            "example": "35 USD"
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true,
+            "description": "The gender associated with the product. Must be one of the following values (upper or lowercased): 'male', 'female', or 'unisex'.",
+            "example": "unisex"
+          },
+          "google_product_category": {
+            "type": "string",
+            "nullable": true,
+            "description": "The categorization of the product based on the standardized Google Product Taxonomy. This is a set taxonomy. Both the text values and numeric codes are accepted.",
+            "example": "Apparel & Accessories > Clothing > Shirts & Tops"
+          },
+          "gtin": {
+            "$ref": "#/components/schemas/UpdatableItemAttributesGtin"
+          },
+          "id": {
+            "type": "string",
+            "description": "<= 127 characters. The user-created unique ID that represents the product. Only Unicode characters are accepted.",
+            "deprecated": true,
+            "example": "DS0294-L"
+          },
+          "installment_price": {
+            "type": "string",
+            "nullable": true,
+            "description": "Installment price of the product. Expected format: <payment_count>:<payment_amount> <currency>",
+            "example": "10:10.00 USD"
+          },
+          "ios_deep_link": {
+            "type": "string",
+            "description": "The deep link to the product on the iOS app.",
+            "example": "pinterest://item/1234567890"
+          },
+          "item_group_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "<= 127 characters. The parent ID of the product.",
+            "example": "DS0294"
+          },
+          "last_updated_time": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "The millisecond timestamp when the item was lastly modified by the merchant.",
+            "example": 1641483432072
+          },
+          "link": {
+            "type": "string",
+            "description": "<= 511 characters. The landing page for the product.",
+            "example": "https://www.example.com/cat/womens-clothing/denim-shirt-0294"
+          },
+          "material": {
+            "type": "string",
+            "nullable": true,
+            "description": "The material used to make the product.",
+            "example": "cotton"
+          },
+          "min_ad_price": {
+            "type": "string",
+            "nullable": true,
+            "description": "The minimum advertised price of the product. It supports the following formats: \"19.99 USD\", \"19.99USD\" and \"19.99\". If the currency is not included, we default to US dollars.",
+            "example": "19.99 USD"
+          },
+          "mobile_link": {
+            "type": "string",
+            "nullable": true,
+            "description": "The mobile-optimized version of your landing page. Must begin with http:// or https://.",
+            "example": "https://m.example.com/cat/womens-clothing/denim-shirt-0294"
+          },
+          "mpn": {
+            "type": "string",
+            "nullable": true,
+            "description": "Manufacturer Part Number are alpha-numeric codes created by the manufacturer of a product to uniquely identify it among all products from the same manufacturer.",
+            "example": "PI12345NTEREST"
+          },
+          "number_of_ratings": {
+            "type": "integer",
+            "nullable": true,
+            "description": "The number of ratings for the item.",
+            "example": 10
+          },
+          "number_of_reviews": {
+            "type": "integer",
+            "nullable": true,
+            "description": "The number of reviews available for the item.",
+            "example": 10
+          },
+          "pattern": {
+            "type": "string",
+            "nullable": true,
+            "description": "The description of the pattern used for the product.",
+            "example": "plaid"
+          },
+          "price": {
+            "type": "string",
+            "description": "The price of the product. It supports the following formats: \"24.99 USD\", \"24.99USD\" and \"24.99\". If the currency is not included, we default to US dollars.",
+            "example": "24.99 USD"
+          },
+          "product_type": {
+            "type": "string",
+            "nullable": true,
+            "description": "<= 1000 characters. The categorization of your product based on your custom product taxonomy. Subcategories must be sent separated by \" > \".",
+            "example": "Clothing > Women's > Shirts > Denim"
+          },
+          "promotion_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "A unique identifier referencing the promotion associated with this catalog item.",
+            "example": "promotion_1"
+          },
+          "overlay_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Pinterest creative overlay ID to attach to this catalog item. At most one overlay per item.",
+            "example": "1234567890123"
+          },
+          "sale_price": {
+            "type": "string",
+            "nullable": true,
+            "description": "The discounted price of the product. The sale_price must be lower than the price. It supports the following formats: \"14.99 USD\", \"14.99USD\" and \"14.99\".",
+            "example": "14.99 USD"
+          },
+          "sale_price_effective_date": {
+            "type": "string",
+            "nullable": true,
+            "description": "Sale price effective date. Expected format: <start_date>/<end_date> (ISO 8601 format)",
+            "example": "2025-01-01T00:00:00.000000Z/2025-01-07T00:00:00.000000Z"
+          },
+          "shipping": {
+            "type": "string",
+            "nullable": true,
+            "description": "Shipping consists of one group of up to four elements, country, region, service (all optional) and price (required). All colons, even for blank values, are required.",
+            "example": "US:CA:Ground:0 USD"
+          },
+          "shipping_height": {
+            "type": "string",
+            "nullable": true,
+            "description": "The height of the package needed to ship the product. Ensure there is a space between the numeric string and the metric.",
+            "example": "12 in"
+          },
+          "shipping_weight": {
+            "type": "string",
+            "nullable": true,
+            "description": "The weight of the product. Ensure there is a space between the numeric string and the metric.",
+            "example": "3 kg"
+          },
+          "shipping_width": {
+            "type": "string",
+            "nullable": true,
+            "description": "The width of the package needed to ship the product. Ensure there is a space between the numeric string and the metric.",
+            "example": "16 in"
+          },
+          "size": {
+            "type": "string",
+            "nullable": true,
+            "description": "The size of the product.",
+            "example": "M"
+          },
+          "size_system": {
+            "type": "string",
+            "nullable": true,
+            "description": "Indicates the country's sizing system in which you are submitting your product. Must be one of the following values (upper or lowercased): 'US', 'UK', 'EU', 'DE', 'FR', 'JP', 'CN', 'IT', 'BR', 'MEX', or 'AU'.",
+            "example": "US"
+          },
+          "size_type": {
+            "type": "string",
+            "nullable": true,
+            "description": "Additional description for the size. Must be one of the following values (upper or lowercased): 'regular', 'petite', 'plus', 'big_and_tall', or 'maternity'.",
+            "example": "regular"
+          },
+          "tax": {
+            "type": "string",
+            "nullable": true,
+            "description": "Tax consists of one group of up to four elements, country, region, rate (all required) and tax_ship (optional). All colons, even for blank values, are required.",
+            "example": "US:1025433:6.00:y"
+          },
+          "title": {
+            "type": "string",
+            "description": "<= 500 characters. The name of the product.",
+            "example": "Women's denim shirt, large"
+          },
+          "unit_pricing_base_measure": {
+            "type": "string",
+            "nullable": true,
+            "description": "Unit pricing base measure of the product. Expected format: <base_measure> <unit_type>",
+            "example": "10 ML"
+          },
+          "unit_pricing_measure": {
+            "type": "string",
+            "nullable": true,
+            "description": "Unit pricing total measure of the product. Expected format: <total_units> <unit_type>",
+            "example": "10 ML"
+          },
+          "variant_names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "description": "Options for this variant. People will see these options next to your Pin and can select the one they want. List them in the order you want them displayed.",
+            "example": [
+              "Color",
+              "Size"
+            ]
+          },
+          "variant_values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "description": "Option values for this variant. People will see these options next to your Pin and can select the one they want. List them in the order you want them displayed. The order of the variant values must be consistent with the order of the variant names.",
+            "example": [
+              "Red",
+              "Small"
+            ]
+          },
+          "enhanced_title_desc_status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CatalogsUpdatableTitleAndDescriptionEnhancementStatus"
+              }
+            ],
+            "description": "Sets the shared lifecycle status of this item's enhanced title and description. Only available to merchants enabled for title and description enhancements, and only for items that already have enhanced values. The item must already exist with enhanced values; a brand-new insert carrying this field is rejected.",
+            "example": "PUBLISHED"
+          }
+        },
+        "description": "The attributes of an item to be upserted",
+        "additionalProperties": false
+      },
       "ItemAvailability": {
         "type": "string",
         "enum": [
@@ -68659,6 +71316,9 @@
       "ItemUpsertBatchRecord": {
         "type": "object",
         "properties": {
+          "attributes": {
+            "$ref": "#/components/schemas/ItemAttributesUpsertRequest"
+          },
           "item_id": {
             "type": "string",
             "description": "The catalog item id in the merchant namespace",
@@ -73459,37 +76119,47 @@
             "items": {
               "$ref": "#/components/schemas/OverlayImage"
             },
-            "description": "Overlay images in responses with generated URLs, signatures, and dimensions.",
+            "description": "Overlay images in responses with generated URLs and signatures.",
             "readOnly": true
           },
           "start_time": {
             "type": "integer",
             "format": "int64",
-            "description": "Start time of the overlay. Unix timestamp in seconds since epoch.",
+            "description": "Start time of the overlay as a Unix timestamp. In requests, use seconds since epoch. Responses return milliseconds since epoch.",
             "example": 1620000000
           },
           "end_time": {
             "type": "integer",
             "format": "int64",
-            "description": "End time of the overlay. Unix timestamp in seconds since epoch. Must be greater than start_time when set.",
+            "description": "End time of the overlay as a Unix timestamp. In requests, use seconds since epoch. Responses return milliseconds since epoch. Must be greater than start_time when set.",
             "example": 1620086400
           },
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Creation timestamp. Unix timestamp in seconds since epoch.",
-            "example": 1619900000,
+            "description": "Creation timestamp. Unix timestamp in milliseconds since epoch.",
+            "example": 1619900000000,
             "readOnly": true
           },
           "updated_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Last update timestamp. Unix timestamp in seconds since epoch.",
-            "example": 1619900000,
+            "description": "Last update timestamp. Unix timestamp in milliseconds since epoch.",
+            "example": 1619900000000,
             "readOnly": true
           }
         },
         "description": "Business user overlay for product catalog"
+      },
+      "OverlayApplicationLevel": {
+        "type": "string",
+        "enum": [
+          "NONE",
+          "ITEM",
+          "AD_GROUP"
+        ],
+        "description": "How creative overlays apply to an ad group's products: `NONE` (no overlays), `AD_GROUP` (the ad group's overlay applies to every eligible product based on aspect ratio), or `ITEM` (the overlay comes from overlay assignment rules or the product feed overlay).",
+        "example": "ITEM"
       },
       "OverlayAssignmentRule": {
         "type": "object",
@@ -73533,21 +76203,19 @@
             "items": {
               "type": "string"
             },
-            "description": "List of merchant-provided overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by your own custom IDs.",
+            "description": "List of merchant-provided overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by your own custom IDs.\nReference one overlay per rule.",
             "example": [
-              "summer-sale-01",
-              "summer-sale-02"
+              "summer-sale-01"
             ]
           },
           "overlay_ids": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/Pinterest.Lib.IntegerFormatType"
             },
-            "description": "List of overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by Pinterest's internal IDs.\nEach ID should be a string-formatted integer.",
+            "description": "List of overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by Pinterest's internal IDs.\nEach ID should be a string-formatted integer.\nReference one overlay per rule.",
             "example": [
-              "123456",
-              "123457"
+              "123456"
             ]
           },
           "filters": {
@@ -73556,20 +76224,32 @@
                 "$ref": "#/components/schemas/OverlayAssignmentRuleFilters"
               }
             ],
-            "description": "Filter criteria used to determine which products should receive the overlays."
+            "description": "Filter criteria used to determine which products should receive the overlays.",
+            "example": {
+              "any_of": [
+                {
+                  "ITEM_ID": {
+                    "values": [
+                      "SKU-1001",
+                      "SKU-1002"
+                    ]
+                  }
+                }
+              ]
+            }
           },
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Creation timestamp. Unix timestamp in seconds since epoch.",
-            "example": 1619900000,
+            "description": "Creation timestamp. Unix timestamp in milliseconds since epoch.",
+            "example": 1619900000000,
             "readOnly": true
           },
           "updated_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Last update timestamp. Unix timestamp in seconds since epoch.",
-            "example": 1619900000,
+            "description": "Last update timestamp. Unix timestamp in milliseconds since epoch.",
+            "example": 1619900000000,
             "readOnly": true
           }
         },
@@ -73593,21 +76273,19 @@
             "items": {
               "type": "string"
             },
-            "description": "List of merchant-provided overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by your own custom IDs.",
+            "description": "List of merchant-provided overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by your own custom IDs.\nReference one overlay per rule.",
             "example": [
-              "summer-sale-01",
-              "summer-sale-02"
+              "summer-sale-01"
             ]
           },
           "overlay_ids": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/Pinterest.Lib.IntegerFormatType"
             },
-            "description": "List of overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by Pinterest's internal IDs.\nEach ID should be a string-formatted integer.",
+            "description": "List of overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by Pinterest's internal IDs.\nEach ID should be a string-formatted integer.\nReference one overlay per rule.",
             "example": [
-              "123456",
-              "123457"
+              "123456"
             ]
           },
           "filters": {
@@ -73616,7 +76294,19 @@
                 "$ref": "#/components/schemas/OverlayAssignmentRuleFilters"
               }
             ],
-            "description": "Filter criteria used to determine which products should receive the overlays."
+            "description": "Filter criteria used to determine which products should receive the overlays.",
+            "example": {
+              "any_of": [
+                {
+                  "ITEM_ID": {
+                    "values": [
+                      "SKU-1001",
+                      "SKU-1002"
+                    ]
+                  }
+                }
+              ]
+            }
           }
         },
         "description": "Resource create operation model."
@@ -73659,21 +76349,19 @@
             "items": {
               "type": "string"
             },
-            "description": "List of merchant-provided overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by your own custom IDs.",
+            "description": "List of merchant-provided overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by your own custom IDs.\nReference one overlay per rule.",
             "example": [
-              "summer-sale-01",
-              "summer-sale-02"
+              "summer-sale-01"
             ]
           },
           "overlay_ids": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/Pinterest.Lib.IntegerFormatType"
             },
-            "description": "List of overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by Pinterest's internal IDs.\nEach ID should be a string-formatted integer.",
+            "description": "List of overlay IDs to apply to matching products.\nYou must provide either user_overlay_ids OR overlay_ids (or both).\nUse this to reference overlays by Pinterest's internal IDs.\nEach ID should be a string-formatted integer.\nReference one overlay per rule.",
             "example": [
-              "123456",
-              "123457"
+              "123456"
             ]
           },
           "filters": {
@@ -73682,7 +76370,19 @@
                 "$ref": "#/components/schemas/OverlayAssignmentRuleFiltersUpdate"
               }
             ],
-            "description": "Filter criteria used to determine which products should receive the overlays."
+            "description": "Filter criteria used to determine which products should receive the overlays.",
+            "example": {
+              "any_of": [
+                {
+                  "ITEM_ID": {
+                    "values": [
+                      "SKU-1001",
+                      "SKU-1002"
+                    ]
+                  }
+                }
+              ]
+            }
           }
         },
         "description": "Resource create or update operation model."
@@ -73713,18 +76413,31 @@
                 "$ref": "#/components/schemas/OverlayImagesRequest"
               }
             ],
-            "description": "Overlay images input for create/update requests. Accepts either base64-encoded image data or image URLs with aspect ratios."
+            "description": "Overlay images input for create/update requests. Accepts either base64-encoded image data or image URLs with aspect ratios.",
+            "example": {
+              "source_type": "image_url",
+              "items": [
+                {
+                  "ratio": "ONE_TO_ONE",
+                  "url": "https://example.com/overlays/summer-sale-1x1.png"
+                },
+                {
+                  "ratio": "TWO_TO_THREE",
+                  "url": "https://example.com/overlays/summer-sale-2x3.png"
+                }
+              ]
+            }
           },
           "start_time": {
             "type": "integer",
             "format": "int64",
-            "description": "Start time of the overlay. Unix timestamp in seconds since epoch.",
+            "description": "Start time of the overlay as a Unix timestamp. In requests, use seconds since epoch. Responses return milliseconds since epoch.",
             "example": 1620000000
           },
           "end_time": {
             "type": "integer",
             "format": "int64",
-            "description": "End time of the overlay. Unix timestamp in seconds since epoch. Must be greater than start_time when set.",
+            "description": "End time of the overlay as a Unix timestamp. In requests, use seconds since epoch. Responses return milliseconds since epoch. Must be greater than start_time when set.",
             "example": 1620086400
           }
         },
@@ -73946,6 +76659,21 @@
         },
         "description": "URL image source with array of images"
       },
+      "OverlaySmartAdjustSettings": {
+        "type": "object",
+        "properties": {
+          "smart_resize_enabled": {
+            "type": "boolean",
+            "description": "Whether smart resize is enabled."
+          },
+          "smart_layout_enabled": {
+            "type": "boolean",
+            "description": "Whether smart layout is enabled."
+          }
+        },
+        "description": "Smart adjust settings for creative overlay. Currently, `smart_resize_enabled` and `smart_layout_enabled` must be both on or both off. If not set, smart adjust is off.",
+        "nullable": true
+      },
       "OverlayUpdate": {
         "type": "object",
         "properties": {
@@ -73967,18 +76695,31 @@
                 "$ref": "#/components/schemas/OverlayImagesRequestUpdate"
               }
             ],
-            "description": "Overlay images input for create/update requests. Accepts either base64-encoded image data or image URLs with aspect ratios."
+            "description": "Overlay images input for create/update requests. Accepts either base64-encoded image data or image URLs with aspect ratios.",
+            "example": {
+              "source_type": "image_url",
+              "items": [
+                {
+                  "ratio": "ONE_TO_ONE",
+                  "url": "https://example.com/overlays/summer-sale-1x1.png"
+                },
+                {
+                  "ratio": "TWO_TO_THREE",
+                  "url": "https://example.com/overlays/summer-sale-2x3.png"
+                }
+              ]
+            }
           },
           "start_time": {
             "type": "integer",
             "format": "int64",
-            "description": "Start time of the overlay. Unix timestamp in seconds since epoch.",
+            "description": "Start time of the overlay as a Unix timestamp. In requests, use seconds since epoch. Responses return milliseconds since epoch.",
             "example": 1620000000
           },
           "end_time": {
             "type": "integer",
             "format": "int64",
-            "description": "End time of the overlay. Unix timestamp in seconds since epoch. Must be greater than start_time when set.",
+            "description": "End time of the overlay as a Unix timestamp. In requests, use seconds since epoch. Responses return milliseconds since epoch. Must be greater than start_time when set.",
             "example": 1620086400
           }
         },
@@ -75996,6 +78737,11 @@
             "description": "Set to `TRUE` to automatically resize your product images with generative AI. This ensures that images have optimal appearance for better performance.",
             "example": true
           },
+          "is_dynamic_titles": {
+            "type": "boolean",
+            "description": "Set to `TRUE` to enable dynamic title optimization for this product group. When enabled, Pinterest will generate alternative titles for your shopping catalog ads.",
+            "example": true
+          },
           "customizable_cta_type": {
             "$ref": "#/components/schemas/ProductGroupPromotionCustomizableCTAType"
           },
@@ -76028,6 +78774,13 @@
           },
           "preferred_media_type": {
             "$ref": "#/components/schemas/PreferredMediaType"
+          },
+          "dynamic_titles_approval_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DynamicTitlesApprovalType"
+              }
+            ]
           },
           "base_product_group_promotion_id": {
             "type": "string",
@@ -86072,6 +88825,18 @@
             "description": "<= 10000 characters. The description of the product.",
             "example": "Casual fit denim shirt made with the finest quality Japanese denim."
           },
+          "excluded_destination": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "description": "The destinations where this item should NOT appear. Each value must be one of the following (upper or lowercase): 'shopping_ads', 'local_inventory_ads', 'free_listings', 'free_local_listings'. Invalid values are dropped during ingestion. Currently only 'shopping_ads' and 'free_listings' take effect; other values are accepted but have no effect. This feature is only available for allowlisted merchants. Please contact your account manager to enable this feature.",
+            "example": [
+              "SHOPPING_ADS",
+              "FREE_LISTINGS"
+            ]
+          },
           "free_shipping_label": {
             "type": "boolean",
             "nullable": true,
@@ -87021,6 +89786,7 @@
       "name": "Campaign Management",
       "tags": [
         "ad_accounts",
+        "ab_tests",
         "campaigns",
         "ad_groups",
         "ads",

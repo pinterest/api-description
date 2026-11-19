@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Pinterest REST API
-  version: 5.31.0
+  version: 5.32.0
   contact:
     name: Pinterest, Inc.
     url: https://developers.pinterest.com/
@@ -298,6 +298,332 @@ paths:
         - ad_accounts
       x-ratelimit-category: ads_read
       x-sandbox: enabled
+  /ad_accounts/{ad_account_id}/ab_tests:
+    patch:
+      operationId: ab_tests/update
+      summary: Update AB test
+      description: |-
+        Update an existing ab test and, when versions change, its experiment cell / campaign associations.
+        Setting the status to COMPLETED or CANCELLED schedules the associated experiment for deletion.
+        Setting the status of a DRAFT test to ACTIVE publishes it: the experiment is provisioned and the
+        full create validation runs.
+
+        Accepts an array and returns per-item `{ data, exceptions }` results, matching V4: a request
+        can partially succeed, and callers rely on the per-item `error_code` to distinguish blocking
+        validation failures from non-blocking warnings.
+
+        Reused for external partner integrations too -- gatedFeature dropped at the operation
+        level. Keeps the batch envelope as-is; not attempting to also replicate the TDD's
+        single-object external design here (a shape change, not a field-visibility one).
+
+        **Rate limit**: [WRITE](/docs/redoc/#tag/Rate-Limits).
+      parameters:
+        - $ref: '#/components/parameters/Pinterest.Lib.AdAccountId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/AbTestBatchUpdate'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        data:
+                          $ref: '#/components/schemas/AbTest'
+                        exceptions:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Pinterest.Lib.BatchItemException'
+                required:
+                  - items
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:write
+      tags:
+        - ab_tests
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+    get:
+      operationId: ab_tests/list
+      summary: List AB tests for an ad account
+      description: |-
+        Get all AB tests for the given ad account ID.
+
+        Reused for external partner integrations too -- gatedFeature dropped at the operation
+        level. The handler force-excludes draft rows for an external caller regardless of the
+        requested status filter.
+
+        **Rate limit**: [READ](/docs/redoc/#tag/Rate-Limits).
+      parameters:
+        - $ref: '#/components/parameters/Pinterest.Lib.AdAccountId'
+        - $ref: '#/components/parameters/Pinterest.Lib.BookmarkParams.bookmark'
+        - $ref: '#/components/parameters/Pinterest.Lib.BookmarkParams.page_size'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookmark:
+                    type: string
+                    nullable: true
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AbTest'
+                required:
+                  - items
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:read
+      tags:
+        - ab_tests
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+    post:
+      operationId: ab_tests/create
+      summary: Create AB test and associate experiment campaigns
+      description: |-
+        Create a new ab test and an experiment according to the test version configuration.
+        Associate the given campaigns on version groups.
+
+        Accepts an array and returns per-item `{ data, exceptions }` results, matching V4: a request
+        can partially succeed, and callers rely on the per-item `error_code` to distinguish blocking
+        validation failures from non-blocking warnings.
+
+        Reused for external partner integrations too, keeping the batch
+        `{items: [{data, exceptions}]}` envelope as-is for every caller.
+
+        `validate_only=true` validates without persisting anything, returning the same envelope
+        with a placeholder item (`id`/`created_time`/`updated_time` are placeholders, not a real
+        record) on success, or the normal `exceptions` on failure.
+
+        **Rate limit**: [WRITE](/docs/redoc/#tag/Rate-Limits).
+      parameters:
+        - $ref: '#/components/parameters/Pinterest.Lib.AdAccountId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/AbTestCreate'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        data:
+                          $ref: '#/components/schemas/AbTest'
+                        exceptions:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Pinterest.Lib.BatchItemException'
+                required:
+                  - items
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:write
+      tags:
+        - ab_tests
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+  /ad_accounts/{ad_account_id}/ab_tests/{ab_test_id}:
+    get:
+      operationId: ab_tests/get
+      summary: Get AB test data and experiment campaign association data
+      description: |-
+        Get a specific ab test given the ab test ID.
+
+        Reused for external partner integrations too, rather than a dedicated endpoint --
+        gatedFeature dropped at the operation level so a partner's OAuth token can reach it.
+        The handler still verifies ownership and filters drafts itself for an external caller.
+
+        **Rate limit**: [READ](/docs/redoc/#tag/Rate-Limits).
+      parameters:
+        - $ref: '#/components/parameters/AbTestKey'
+        - $ref: '#/components/parameters/Pinterest.Lib.AdAccountId'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbTest'
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:read
+      tags:
+        - ab_tests
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
   /ad_accounts/{ad_account_id}/ad_groups:
     get:
       operationId: ad_groups/list
@@ -18679,6 +19005,623 @@ paths:
         - oauth
       x-ratelimit-category: org_write
       x-sandbox: enabled
+  /overlay_assignment_rules:
+    get:
+      operationId: overlay_assignment_rules/list
+      summary: Get overlay assignment rules
+      description: Get a list of overlay assignment rules. Overlay assignment rules define which overlays should be applied to catalog products based on filter criteria.
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OverlayAssignmentRule'
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:read
+      tags:
+        - overlay_assignment_rules
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+    post:
+      operationId: overlay_assignment_rules/create
+      summary: Create overlay assignment rule
+      description: |
+        Create an overlay assignment rule. Overlay assignment rules define which overlays should be applied to catalog products based on filter criteria. To apply a rule to an ad account's products, create it with the ad account owner's access token.
+
+        This endpoint allows you to:
+        - Define filter criteria to match specific products in your catalog
+        - Assign an overlay to be applied to those matching products
+        - Reference overlays by either merchant-provided IDs or global overlay IDs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverlayAssignmentRuleCreate'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverlayAssignmentRule'
+        '201':
+          description: Resource create operation completed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverlayAssignmentRule'
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:write
+      tags:
+        - overlay_assignment_rules
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+  /overlay_assignment_rules/{id}:
+    get:
+      operationId: overlay_assignment_rules/read
+      summary: Get overlay assignment rule
+      description: Get an overlay assignment rule by ID. Overlay assignment rules define which overlays should be applied to catalog products based on filter criteria.
+      parameters:
+        - $ref: '#/components/parameters/OverlayAssignmentRuleKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverlayAssignmentRule'
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:read
+      tags:
+        - overlay_assignment_rules
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+    patch:
+      operationId: overlay_assignment_rules/update
+      summary: Update overlay assignment rule
+      description: Update an overlay assignment rule by ID. You can update the name, overlay references, and filter criteria.
+      parameters:
+        - $ref: '#/components/parameters/OverlayAssignmentRuleKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverlayAssignmentRuleUpdate'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverlayAssignmentRule'
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:write
+      tags:
+        - overlay_assignment_rules
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+    delete:
+      operationId: overlay_assignment_rules/delete
+      summary: Delete overlay assignment rule
+      description: Delete an overlay assignment rule by ID. This will stop applying the specified overlays to matching products.
+      parameters:
+        - $ref: '#/components/parameters/OverlayAssignmentRuleKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverlayAssignmentRule'
+        '204':
+          description: Resource deleted successfully.
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:write
+      tags:
+        - overlay_assignment_rules
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+  /overlays:
+    get:
+      operationId: overlays/list
+      summary: Get overlays
+      description: Get a list of overlays. Overlays are transparent PNG images that Pinterest draws on product images in shopping ads during specific time periods.
+      parameters:
+        - $ref: '#/components/parameters/Pinterest.Lib.BookmarkParams.bookmark'
+        - $ref: '#/components/parameters/Pinterest.Lib.BookmarkParams.page_size'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookmark:
+                    type: string
+                    nullable: true
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Overlay'
+                required:
+                  - items
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:read
+      tags:
+        - overlays
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+    post:
+      operationId: overlays/create
+      summary: Create overlay
+      description: Create a new overlay. Overlays are transparent PNG images that Pinterest draws on product images in shopping ads during specific time periods. To use an overlay in an ad account's ad groups, create it with the ad account owner's access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverlayCreate'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Overlay'
+        '201':
+          description: Resource create operation completed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Overlay'
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:write
+      tags:
+        - overlays
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+  /overlays/{id}:
+    get:
+      operationId: overlays/read
+      summary: Get overlay
+      description: Get an overlay by ID. Overlays are transparent PNG images that Pinterest draws on product images in shopping ads during specific time periods.
+      parameters:
+        - $ref: '#/components/parameters/OverlayKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Overlay'
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:read
+      tags:
+        - overlays
+      x-ratelimit-category: ads_read
+      x-sandbox: disabled
+    patch:
+      operationId: overlays/update
+      summary: Update overlay
+      description: Update an overlay by ID. Overlays are transparent PNG images that Pinterest draws on product images in shopping ads during specific time periods.
+      parameters:
+        - $ref: '#/components/parameters/OverlayKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverlayUpdate'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Overlay'
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:write
+      tags:
+        - overlays
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
+    delete:
+      operationId: overlays/delete
+      summary: Delete overlay
+      description: Delete an overlay by ID. Overlays are transparent PNG images that Pinterest draws on product images in shopping ads during specific time periods.
+      parameters:
+        - $ref: '#/components/parameters/OverlayKey'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Overlay'
+        '204':
+          description: Resource deleted successfully.
+        '400':
+          description: The request could not be understood by the server due to unexpected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '401':
+          description: Authentication is required and has either failed or not been provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '403':
+          description: The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '404':
+          description: The requested resource could not be found on this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        '429':
+          description: The user has sent too many requests in a given amount of time and is being rate limited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pinterest.Lib.Error'
+      security:
+        - pinterest_oauth2:
+            - ads:write
+      tags:
+        - overlays
+      x-ratelimit-category: ads_write
+      x-sandbox: disabled
   /pins:
     post:
       operationId: pins/create
@@ -21564,6 +22507,14 @@ paths:
       x-sandbox: enabled
 components:
   parameters:
+    AbTestKey:
+      name: ab_test_id
+      in: path
+      required: true
+      description: Test id of the AB test.
+      schema:
+        type: string
+        pattern: ^\d+$
     AdAccountDiscountKey:
       name: id
       in: path
@@ -24252,7 +25203,7 @@ components:
       name: reporting_timezone
       in: query
       required: false
-      description: Specify the timezone to be applied for the reporting. This feature is currently in BETA and is not available to all users.
+      description: Specify the timezone to be applied for the reporting. Defaults to PINTEREST_TIME_ZONE (UTC). AD_ACCOUNT_TIME_ZONE requires the ad account to have a time_zone configured; otherwise the request fails with a 400.
       schema:
         $ref: '#/components/schemas/ReportingTimeZone'
     query_request_direction:
@@ -24627,6 +25578,192 @@ components:
       schema:
         type: string
   schemas:
+    ABTestPurpose:
+      description: The purpose of the AB test
+      type: string
+      enum:
+        - EXTERNAL
+        - INTERNAL
+        - INTERNAL_TEST
+    AbTest:
+      type: object
+      properties:
+        ad_account_id:
+          description: Ad Account ID of the AB test.
+          type: string
+          pattern: ^\d+$
+          readOnly: true
+        cancel_date:
+          description: Test cancel date. Format is YYYY-MM-DD.
+          type: string
+          nullable: true
+          pattern: ^\d{4}-\d{2}-\d{2}$
+          readOnly: true
+        created_by:
+          description: Identifier of whoever created this AB test.
+          type: string
+          readOnly: true
+        created_time:
+          description: AB test created time. Unix timestamp in seconds.
+          type: integer
+          readOnly: true
+        description:
+          description: The description of the AB test.
+          type: string
+        end_date:
+          description: End date must be equal or greater than start date. Format is YYYY-MM-DD.
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        id:
+          description: Test id of the AB test.
+          type: string
+          example: '626736533506'
+          pattern: ^\d+$
+          readOnly: true
+        name:
+          description: AB test name.
+          type: string
+        primary_metrics:
+          description: Primary metric value for AB tests
+          type: array
+          maxItems: 1
+        secondary_metrics:
+          description: Secondary metric value for AB tests
+          type: array
+          maxItems: 1
+        start_date:
+          description: Start date must be equal or greater than today. Format is YYYY-MM-DD.
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        updated_time:
+          description: AB test updated time. Unix timestamp in seconds.
+          type: integer
+          readOnly: true
+        version_count:
+          description: Number of version groups in this AB test.
+          type: integer
+          readOnly: true
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AbTestVersion'
+      required:
+        - name
+        - ad_account_id
+        - created_time
+        - id
+        - updated_time
+    AbTestBatchUpdate:
+      type: object
+      properties:
+        description:
+          description: The description of the AB test.
+          type: string
+        end_date:
+          description: End date must be equal or greater than start date. Format is YYYY-MM-DD.
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        id:
+          description: Test id of the AB test.
+          type: string
+          example: '626736533506'
+          pattern: ^\d+$
+        name:
+          description: AB test name.
+          type: string
+        primary_metrics:
+          description: Primary metric value for AB tests
+          type: array
+          maxItems: 1
+        secondary_metrics:
+          description: Secondary metric value for AB tests
+          type: array
+          maxItems: 1
+        start_date:
+          description: Start date must be equal or greater than today. Format is YYYY-MM-DD.
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AbTestVersion'
+      required:
+        - id
+    AbTestCreate:
+      description: Resource create operation model.
+      type: object
+      properties:
+        description:
+          description: The description of the AB test.
+          type: string
+        end_date:
+          description: End date must be equal or greater than start date. Format is YYYY-MM-DD.
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        name:
+          description: AB test name.
+          type: string
+        primary_metrics:
+          description: Primary metric value for AB tests
+          type: array
+          maxItems: 1
+        secondary_metrics:
+          description: Secondary metric value for AB tests
+          type: array
+          maxItems: 1
+        start_date:
+          description: Start date must be equal or greater than today. Format is YYYY-MM-DD.
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AbTestVersion'
+      required:
+        - name
+    AbTestVersion:
+      type: object
+      properties:
+        campaign_ids:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+          minItems: 1
+        campaigns:
+          type: array
+          items:
+            $ref: '#/components/schemas/AbTestVersionCampaign'
+          readOnly: true
+        description:
+          description: The description of the version group
+          type: string
+        id:
+          description: Version group ID.
+          type: string
+          readOnly: true
+        name:
+          description: The name of the version group
+          type: string
+    AbTestVersionCampaign:
+      type: object
+      properties:
+        id:
+          description: Campaign ID.
+          type: integer
+          readOnly: true
+        name:
+          description: Campaign name.
+          type: string
+          readOnly: true
+        status:
+          allOf:
+            - $ref: '#/components/schemas/EntityStatus'
+          readOnly: true
+      required:
+        - id
+        - name
+        - status
     Account:
       description: User account model containing properties related to a user's account.
       type: object
@@ -26112,6 +27249,41 @@ components:
           allOf:
             - $ref: '#/components/schemas/NullableOptimizationGoalMetadata'
           nullable: true
+        overlay_application_level:
+          description: |-
+            How creative overlays apply to the ad group's products:
+
+            - `NONE`, or not set: no overlays.
+            - `AD_GROUP`: the ad group's overlay applies to every eligible product based on aspect ratio.
+            - `ITEM`: the overlay comes from the product's matching overlay assignment rule with an active overlay or, if no rule matches, from the `overlay_id` attribute of its catalog item. `overlay_ids` must be empty for item level overlays.
+
+            If you omit this field when updating an ad group, the current value is kept.
+
+            Creative overlays are supported only in catalog campaigns, and appear only on standard shopping ads and Performance+ creative optimization collections.
+          example: AD_GROUP
+          allOf:
+            - $ref: '#/components/schemas/OverlayApplicationLevel'
+        overlay_ids:
+          description: |-
+            IDs of the creative overlays applied at the ad group level. For ad group level overlays, an ad group can have at most one overlay, and `overlay_application_level` must be `AD_GROUP`.
+            The overlay needs to belong to the ad account owner.
+
+            To remove the overlay from an existing ad group, send an empty list and set `overlay_application_level` to `NONE`. If you omit this field, the current overlay is kept.
+          type: array
+          items:
+            $ref: '#/components/schemas/Pinterest.Lib.IntegerFormatType'
+          example:
+            - '123456'
+          nullable: true
+        overlay_smart_adjust_settings:
+          description: Smart adjust settings for creative overlay. Currently, `smart_resize_enabled` and `smart_layout_enabled` must be both on or both off. If not set, smart adjust is off. If you omit this field when updating an ad group, the current settings are kept.
+          type: object
+          example:
+            smart_resize_enabled: true
+            smart_layout_enabled: true
+          allOf:
+            - $ref: '#/components/schemas/OverlaySmartAdjustSettings'
+          nullable: true
         performance_plus_campaign_settings:
           description: Pinterest Performance+ campaign settings.
           type: object
@@ -26309,6 +27481,41 @@ components:
           allOf:
             - $ref: '#/components/schemas/NullableOptimizationGoalMetadata'
           nullable: true
+        overlay_application_level:
+          description: |-
+            How creative overlays apply to the ad group's products:
+
+            - `NONE`, or not set: no overlays.
+            - `AD_GROUP`: the ad group's overlay applies to every eligible product based on aspect ratio.
+            - `ITEM`: the overlay comes from the product's matching overlay assignment rule with an active overlay or, if no rule matches, from the `overlay_id` attribute of its catalog item. `overlay_ids` must be empty for item level overlays.
+
+            If you omit this field when updating an ad group, the current value is kept.
+
+            Creative overlays are supported only in catalog campaigns, and appear only on standard shopping ads and Performance+ creative optimization collections.
+          example: AD_GROUP
+          allOf:
+            - $ref: '#/components/schemas/OverlayApplicationLevel'
+        overlay_ids:
+          description: |-
+            IDs of the creative overlays applied at the ad group level. For ad group level overlays, an ad group can have at most one overlay, and `overlay_application_level` must be `AD_GROUP`.
+            The overlay needs to belong to the ad account owner.
+
+            To remove the overlay from an existing ad group, send an empty list and set `overlay_application_level` to `NONE`. If you omit this field, the current overlay is kept.
+          type: array
+          items:
+            $ref: '#/components/schemas/Pinterest.Lib.IntegerFormatType'
+          example:
+            - '123456'
+          nullable: true
+        overlay_smart_adjust_settings:
+          description: Smart adjust settings for creative overlay. Currently, `smart_resize_enabled` and `smart_layout_enabled` must be both on or both off. If not set, smart adjust is off. If you omit this field when updating an ad group, the current settings are kept.
+          type: object
+          example:
+            smart_resize_enabled: true
+            smart_layout_enabled: true
+          allOf:
+            - $ref: '#/components/schemas/OverlaySmartAdjustSettings'
+          nullable: true
         pacing_delivery_type:
           $ref: '#/components/schemas/PacingDeliveryType'
         performance_plus_campaign_settings:
@@ -26457,6 +27664,11 @@ components:
           description: Campaign ID of the ad group.
           type: string
           pattern: ^[C]?\d+$
+        ctv_conversion_event:
+          description: The conversion event a CTV ad group optimizes toward. Required when the parent campaign's `ctv_goal_type` is `CONVERSIONS` or `ROAS`.
+          example: CHECKOUT
+          allOf:
+            - $ref: '#/components/schemas/ConversionTagType'
         customer_segment_id:
           description: Customer segment ID applied to the ad group. We currently only support 1 customer segment per ad group. To use customer segments, do not set the `targeting_template_ids` field as well as the `AUDIENCE_INCLUDE` field of the `targeting_spec`. To clear the customer segment ID, set this field to '0'.
           allOf:
@@ -26503,6 +27715,41 @@ components:
           type: object
           allOf:
             - $ref: '#/components/schemas/NullableOptimizationGoalMetadata'
+          nullable: true
+        overlay_application_level:
+          description: |-
+            How creative overlays apply to the ad group's products:
+
+            - `NONE`, or not set: no overlays.
+            - `AD_GROUP`: the ad group's overlay applies to every eligible product based on aspect ratio.
+            - `ITEM`: the overlay comes from the product's matching overlay assignment rule with an active overlay or, if no rule matches, from the `overlay_id` attribute of its catalog item. `overlay_ids` must be empty for item level overlays.
+
+            If you omit this field when updating an ad group, the current value is kept.
+
+            Creative overlays are supported only in catalog campaigns, and appear only on standard shopping ads and Performance+ creative optimization collections.
+          example: AD_GROUP
+          allOf:
+            - $ref: '#/components/schemas/OverlayApplicationLevel'
+        overlay_ids:
+          description: |-
+            IDs of the creative overlays applied at the ad group level. For ad group level overlays, an ad group can have at most one overlay, and `overlay_application_level` must be `AD_GROUP`.
+            The overlay needs to belong to the ad account owner.
+
+            To remove the overlay from an existing ad group, send an empty list and set `overlay_application_level` to `NONE`. If you omit this field, the current overlay is kept.
+          type: array
+          items:
+            $ref: '#/components/schemas/Pinterest.Lib.IntegerFormatType'
+          example:
+            - '123456'
+          nullable: true
+        overlay_smart_adjust_settings:
+          description: Smart adjust settings for creative overlay. Currently, `smart_resize_enabled` and `smart_layout_enabled` must be both on or both off. If not set, smart adjust is off. If you omit this field when updating an ad group, the current settings are kept.
+          type: object
+          example:
+            smart_resize_enabled: true
+            smart_layout_enabled: true
+          allOf:
+            - $ref: '#/components/schemas/OverlaySmartAdjustSettings'
           nullable: true
         pacing_delivery_type:
           default: STANDARD
@@ -26927,6 +28174,11 @@ components:
           description: Campaign ID of the ad group.
           type: string
           pattern: ^[C]?\d+$
+        ctv_conversion_event:
+          description: The conversion event a CTV ad group optimizes toward. Required when the parent campaign's `ctv_goal_type` is `CONVERSIONS` or `ROAS`.
+          example: CHECKOUT
+          allOf:
+            - $ref: '#/components/schemas/ConversionTagType'
         customer_segment_id:
           description: Customer segment ID applied to the ad group. We currently only support 1 customer segment per ad group. To use customer segments, do not set the `targeting_template_ids` field as well as the `AUDIENCE_INCLUDE` field of the `targeting_spec`. To clear the customer segment ID, set this field to '0'.
           allOf:
@@ -26978,6 +28230,41 @@ components:
           type: object
           allOf:
             - $ref: '#/components/schemas/NullableOptimizationGoalMetadata'
+          nullable: true
+        overlay_application_level:
+          description: |-
+            How creative overlays apply to the ad group's products:
+
+            - `NONE`, or not set: no overlays.
+            - `AD_GROUP`: the ad group's overlay applies to every eligible product based on aspect ratio.
+            - `ITEM`: the overlay comes from the product's matching overlay assignment rule with an active overlay or, if no rule matches, from the `overlay_id` attribute of its catalog item. `overlay_ids` must be empty for item level overlays.
+
+            If you omit this field when updating an ad group, the current value is kept.
+
+            Creative overlays are supported only in catalog campaigns, and appear only on standard shopping ads and Performance+ creative optimization collections.
+          example: AD_GROUP
+          allOf:
+            - $ref: '#/components/schemas/OverlayApplicationLevel'
+        overlay_ids:
+          description: |-
+            IDs of the creative overlays applied at the ad group level. For ad group level overlays, an ad group can have at most one overlay, and `overlay_application_level` must be `AD_GROUP`.
+            The overlay needs to belong to the ad account owner.
+
+            To remove the overlay from an existing ad group, send an empty list and set `overlay_application_level` to `NONE`. If you omit this field, the current overlay is kept.
+          type: array
+          items:
+            $ref: '#/components/schemas/Pinterest.Lib.IntegerFormatType'
+          example:
+            - '123456'
+          nullable: true
+        overlay_smart_adjust_settings:
+          description: Smart adjust settings for creative overlay. Currently, `smart_resize_enabled` and `smart_layout_enabled` must be both on or both off. If not set, smart adjust is off. If you omit this field when updating an ad group, the current settings are kept.
+          type: object
+          example:
+            smart_resize_enabled: true
+            smart_layout_enabled: true
+          allOf:
+            - $ref: '#/components/schemas/OverlaySmartAdjustSettings'
           nullable: true
         pacing_delivery_type:
           $ref: '#/components/schemas/PacingDeliveryType'
@@ -27889,7 +29176,7 @@ components:
           allOf:
             - $ref: '#/components/schemas/DataOutputFormat'
         reporting_timezone:
-          description: Specify the timezone to be applied for the reporting.
+          description: Specify the timezone to be applied for the reporting. Defaults to PINTEREST_TIME_ZONE (UTC). AD_ACCOUNT_TIME_ZONE requires the ad account to have a time_zone configured; otherwise the request fails with a 400.
           allOf:
             - $ref: '#/components/schemas/ReportingTimeZone'
         start_date:
@@ -29370,6 +30657,9 @@ components:
         click_window_days:
           type: integer
         engagement_window_days:
+          type: integer
+        install_window_days:
+          description: 'The number of days to use as the conversion attribution window for an install action. If not specified, defaults to 7 days. Values: 0,1,7,14,30,60.'
           type: integer
         view_window_days:
           type: integer
@@ -31575,6 +32865,11 @@ components:
           type: integer
           example: 1432744744
           readOnly: true
+        ctv_goal_type:
+          description: The optimization goal for a `CTV_CONSIDERATION` campaign. Determines how the campaign bids and what it optimizes toward. `CONVERSIONS` and `ROAS` additionally require a `ctv_conversion_event` on the ad group.
+          example: EFFICIENT_ECPM
+          allOf:
+            - $ref: '#/components/schemas/CtvGoalType'
         daily_spend_cap:
           description: |-
             Note: The default for this field is null, which is treated the same as 0.
@@ -31896,6 +33191,11 @@ components:
           type: integer
           example: 1432744744
           readOnly: true
+        ctv_goal_type:
+          description: The optimization goal for a `CTV_CONSIDERATION` campaign. Determines how the campaign bids and what it optimizes toward. `CONVERSIONS` and `ROAS` additionally require a `ctv_conversion_event` on the ad group.
+          example: EFFICIENT_ECPM
+          allOf:
+            - $ref: '#/components/schemas/CtvGoalType'
         daily_spend_cap:
           description: |-
             Note: The default for this field is null, which is treated the same as 0.
@@ -32087,6 +33387,11 @@ components:
           description: Object describing an update to the campaign level bid multipliers.
           allOf:
             - $ref: '#/components/schemas/CampaignBidOptionsUpdate'
+        ctv_goal_type:
+          description: The optimization goal for a `CTV_CONSIDERATION` campaign. Determines how the campaign bids and what it optimizes toward. `CONVERSIONS` and `ROAS` additionally require a `ctv_conversion_event` on the ad group.
+          example: EFFICIENT_ECPM
+          allOf:
+            - $ref: '#/components/schemas/CtvGoalType'
         daily_spend_cap:
           description: |-
             Note: The default for this field is null, which is treated the same as 0.
@@ -32407,6 +33712,11 @@ components:
             Object describing the campaign level bid multipliers.
           allOf:
             - $ref: '#/components/schemas/CampaignBidOptions'
+        ctv_goal_type:
+          description: The optimization goal for a `CTV_CONSIDERATION` campaign. Determines how the campaign bids and what it optimizes toward. `CONVERSIONS` and `ROAS` additionally require a `ctv_conversion_event` on the ad group.
+          example: EFFICIENT_ECPM
+          allOf:
+            - $ref: '#/components/schemas/CtvGoalType'
         daily_spend_cap:
           description: |-
             Note: The default for this field is null, which is treated the same as 0.
@@ -40450,6 +41760,8 @@ components:
       description: An item to be upserted
       type: object
       properties:
+        attributes:
+          $ref: '#/components/schemas/ItemAttributesUpsertRequest'
         item_id:
           description: The catalog item id in the merchant namespace
           type: string
@@ -41087,6 +42399,8 @@ components:
         - CHECKOUT
         - LEAD
         - SIGNUP
+        - APP_INSTALL_CHECKOUT
+        - APP_INSTALL_ADD_TO_CART
     ConversionEventAppInfo:
       description: Object containing information about the application where event occurred.
       type: object
@@ -43097,6 +44411,8 @@ components:
         - CUSTOMIZE_PRODUCT
         - SUBMIT_APPLICATION
         - START_TRIAL
+        - APP_INSTALL_CHECKOUT
+        - APP_INSTALL_ADD_TO_CART
       title: ConversionTagType
     ConversionTagTypeOptimal:
       description: Conversion tag type
@@ -43629,6 +44945,7 @@ components:
         - MAX_WIDTH_VIDEO_COLLECTION
         - APP
         - CTV_VIDEO
+        - SEARCH_TEXT_AD
       title: CreativeType enum used ads
     CtvCreative:
       description: A CTV (Connected TV) creative registered with tvScientific against a Pinterest Pin.
@@ -43682,6 +44999,15 @@ components:
       enum:
         - video/mp4
         - video/quicktime
+    CtvGoalType:
+      description: Optimization goal for a CTV campaign.
+      type: string
+      enum:
+        - REACH_BLAST
+        - EFFICIENT_ECPM
+        - CONSIDERATION
+        - CONVERSIONS
+        - ROAS
     Currency:
       description: Currency Codes from ISO 4217
       type: string
@@ -44470,6 +45796,13 @@ components:
         - PAUSED
         - SCHEDULED
         - EXPIRED
+    DynamicTitlesApprovalType:
+      description: A field to determine the approval type for dynamic titles
+      type: string
+      example: MANUAL
+      enum:
+        - MANUAL
+        - AUTOMATIC
     DynamicTitlesDownloadCSV:
       type: object
       properties:
@@ -46307,6 +47640,15 @@ components:
           description: <= 10000 characters. The description of the product.
           type: string
           example: Casual fit denim shirt made with the finest quality Japanese denim.
+        excluded_destination:
+          description: "The destinations where this item should NOT appear. Each value must be one of the following (upper or lowercase): 'shopping_ads', 'local_inventory_ads', 'free_listings', 'free_local_listings'. Invalid values are dropped during ingestion. Currently only 'shopping_ads' and 'free_listings' take effect; other values are accepted but have no effect. This feature is only available for allowlisted merchants. Please contact your account manager to enable this feature."
+          type: array
+          items:
+            type: string
+          example:
+            - SHOPPING_ADS
+            - FREE_LISTINGS
+          nullable: true
         free_shipping_label:
           description: The item is free to ship.
           type: boolean
@@ -46528,6 +47870,621 @@ components:
             - $ref: '#/components/schemas/CatalogsUpdatableTitleAndDescriptionEnhancementStatus'
       allOf:
         - $ref: '#/components/schemas/UpdatableItemAttributes'
+    ItemAttributesUpsertRequest:
+      description: The attributes of an item to be upserted
+      type: object
+      properties:
+        ad_image_0_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_0_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_10_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_10_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_11_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_11_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_12_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_12_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_13_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_13_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_14_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_14_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_15_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_15_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_16_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_16_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_17_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_17_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_18_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_18_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_19_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_19_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_1_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_1_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_2_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_2_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_3_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_3_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_4_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_4_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_5_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_5_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_6_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_6_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_7_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_7_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_8_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_8_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_image_9_link:
+          description: Ad image link that supplements main image for shopping campaigns. Image format:- Pixel size at least 75 x 75 Link guidelines:- Include extension in file name - Do not include template or placeholder images in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://
+          type: string
+          example: https://www.example.com/image/image_v2.jpg
+          maxLength: 2000
+          nullable: true
+        ad_image_9_tag:
+          description: Ad image tag. If you provide an ad_image_x_link, include the image tag with the corresponding ad_image_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_link:
+          description: Allows advertisers to specify a separate URL that can be used to track traffic coming from Pinterest shopping ads. Must send full URL including tracking. Must begin with http:// or https://.
+          type: string
+          example: https://www.example.com/cat/denim-shirt/item012?utm_source=Pinterest
+          nullable: true
+        ad_video_0_link:
+          description: 'Restricted. Ad video link that supplements main video for shopping campaigns. Video format:- Pixel size between 75 x 75 and 9450 x 9450 - File size smaller than 2 GB - Time span between 4 seconds and 15 minutes - Accepted formats: .MP4, .MOV, .M4V Link guidelines:- Include extension in file name - Do not include template or placeholder videos in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://'
+          type: string
+          example: https://www.example.com/video/video_v2.mov
+          maxLength: 2000
+          nullable: true
+        ad_video_0_tag:
+          description: Restricted. Ad video tag. If you provide an ad_video_x_link, include the video tag with the corresponding ad_video_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_video_1_link:
+          description: 'Restricted. Ad video link that supplements main video for shopping campaigns. Video format:- Pixel size between 75 x 75 and 9450 x 9450 - File size smaller than 2 GB - Time span between 4 seconds and 15 minutes - Accepted formats: .MP4, .MOV, .M4V Link guidelines:- Include extension in file name - Do not include template or placeholder videos in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://'
+          type: string
+          example: https://www.example.com/video/video_v2.mov
+          maxLength: 2000
+          nullable: true
+        ad_video_1_tag:
+          description: Restricted. Ad video tag. If you provide an ad_video_x_link, include the video tag with the corresponding ad_video_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        ad_video_2_link:
+          description: 'Restricted. Ad video link that supplements main video for shopping campaigns. Video format:- Pixel size between 75 x 75 and 9450 x 9450 - File size smaller than 2 GB - Time span between 4 seconds and 15 minutes - Accepted formats: .MP4, .MOV, .M4V Link guidelines:- Include extension in file name - Do not include template or placeholder videos in link - Make URL accessible to Pinterest user-agent - Must start with http:// or https://'
+          type: string
+          example: https://www.example.com/video/video_v2.mov
+          maxLength: 2000
+          nullable: true
+        ad_video_2_tag:
+          description: Restricted. Ad video tag. If you provide an ad_video_x_link, include the video tag with the corresponding ad_video_x_tag attribute.
+          type: string
+          example: black friday
+          maxLength: 511
+          nullable: true
+        additional_image_link:
+          description: <= 2000 characters The links to additional images for your product. Up to ten additional images can be used to show a product from different angles or to show different stages. Must begin with http:// or https://.
+          type: array
+          items:
+            type: string
+          nullable: true
+        adult:
+          description: Set this attribute to TRUE if you're submitting items that are considered "adult". These will not be shown on Pinterest.
+          type: boolean
+          example: true
+          nullable: true
+        age_group:
+          description: "The age group to apply a demographic range to the product. Must be one of the following values (upper or lowercased): 'newborn', 'infant', 'toddler', 'kids', or 'adult'."
+          type: string
+          example: newborn
+          nullable: true
+        ai_disclosures:
+          description: AI content disclosures for individual assets (image_link, additional_image_link, or video_link) on this item. Each entry declares which disclosure types apply to a single asset URL.
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogsAiContentDisclosure'
+          example:
+            - url: https://scene.example.com/image/image_v3.jpg
+              disclosure:
+                - ai_modified
+        android_deep_link:
+          description: The deep link to the product on the Android app.
+          type: string
+          example: pinterest://item/1234567890
+        availability:
+          description: "The availability of the product. Must be one of the following values (upper or lowercased): 'in stock', 'out of stock', 'preorder'."
+          type: string
+          example: in stock
+        average_review_rating:
+          description: Average reviews for the item. Can be a number from 1-5.
+          type: number
+          example: 5
+          nullable: true
+        brand:
+          description: The brand of the product.
+          type: string
+          example: Josie's Denim
+          nullable: true
+        checkout_enabled:
+          description: This attribute is not supported anymore.
+          type: boolean
+          example: false
+          deprecated: true
+          nullable: true
+        color:
+          description: The primary color of the product.
+          type: string
+          example: blue
+          nullable: true
+        condition:
+          description: "The condition of the product. Must be one of the following values (upper or lowercased): 'new', 'used', or 'refurbished'."
+          type: string
+          example: new
+          nullable: true
+        custom_label_0:
+          description: <= 511 characters for retail and creative asset catalogs, <= 127 characters for hotel catalogs. Custom grouping of products.
+          type: string
+          example: Best sellers
+          maxLength: 511
+          nullable: true
+        custom_label_1:
+          description: <= 511 characters for retail and creative asset catalogs, <= 127 characters for hotel catalogs. Custom grouping of products.
+          type: string
+          example: Summer promotion
+          maxLength: 511
+          nullable: true
+        custom_label_2:
+          description: <= 511 characters for retail and creative asset catalogs, <= 127 characters for hotel catalogs. Custom grouping of products.
+          type: string
+          example: Winter sales
+          maxLength: 511
+          nullable: true
+        custom_label_3:
+          description: <= 511 characters for retail and creative asset catalogs, <= 127 characters for hotel catalogs. Custom grouping of products.
+          type: string
+          example: Woman dress
+          maxLength: 511
+          nullable: true
+        custom_label_4:
+          description: <= 511 characters for retail and creative asset catalogs, <= 127 characters for hotel catalogs. Custom grouping of products.
+          type: string
+          example: Man hat
+          maxLength: 511
+          nullable: true
+        custom_number_0:
+          description: An attribute for any integer information ranging from 0 to 4,294,967,295, which can be used to group items.
+          type: integer
+          example: 10
+          nullable: true
+        custom_number_1:
+          description: An attribute for any integer information ranging from 0 to 4,294,967,295, which can be used to group items.
+          type: integer
+          example: 0
+          nullable: true
+        custom_number_2:
+          description: An attribute for any integer information ranging from 0 to 4,294,967,295, which can be used to group items.
+          type: integer
+          example: 1520000000
+          nullable: true
+        custom_number_3:
+          description: An attribute for any integer information ranging from 0 to 4,294,967,295, which can be used to group items.
+          type: integer
+          example: 4294967295
+          nullable: true
+        custom_number_4:
+          description: An attribute for any integer information ranging from 0 to 4,294,967,295, which can be used to group items.
+          type: integer
+          example: 50
+          nullable: true
+        description:
+          description: <= 10000 characters. The description of the product.
+          type: string
+          example: Casual fit denim shirt made with the finest quality Japanese denim.
+        enhanced_title_desc_status:
+          description: Sets the shared lifecycle status of this item's enhanced title and description. Only available to merchants enabled for title and description enhancements, and only for items that already have enhanced values. The item must already exist with enhanced values; a brand-new insert carrying this field is rejected.
+          example: PUBLISHED
+          allOf:
+            - $ref: '#/components/schemas/CatalogsUpdatableTitleAndDescriptionEnhancementStatus'
+        excluded_destination:
+          description: "The destinations where this item should NOT appear. Each value must be one of the following (upper or lowercase): 'shopping_ads', 'local_inventory_ads', 'free_listings', 'free_local_listings'. Invalid values are dropped during ingestion. Currently only 'shopping_ads' and 'free_listings' take effect; other values are accepted but have no effect. This feature is only available for allowlisted merchants. Please contact your account manager to enable this feature."
+          type: array
+          items:
+            type: string
+          example:
+            - SHOPPING_ADS
+            - FREE_LISTINGS
+          nullable: true
+        free_shipping_label:
+          description: The item is free to ship.
+          type: boolean
+          example: true
+          nullable: true
+        free_shipping_limit:
+          description: The minimum order purchase necessary for the customer to get free shipping. Only relevant if free shipping is offered.
+          type: string
+          example: 35 USD
+          nullable: true
+        gender:
+          description: "The gender associated with the product. Must be one of the following values (upper or lowercased): 'male', 'female', or 'unisex'."
+          type: string
+          example: unisex
+          nullable: true
+        google_product_category:
+          description: The categorization of the product based on the standardized Google Product Taxonomy. This is a set taxonomy. Both the text values and numeric codes are accepted.
+          type: string
+          example: Apparel & Accessories > Clothing > Shirts & Tops
+          nullable: true
+        gtin:
+          $ref: '#/components/schemas/UpdatableItemAttributesGtin'
+        id:
+          description: <= 127 characters. The user-created unique ID that represents the product. Only Unicode characters are accepted.
+          type: string
+          example: DS0294-L
+          deprecated: true
+        image_link:
+          $ref: '#/components/schemas/ItemAttributesRequestImageLink'
+        installment_price:
+          description: 'Installment price of the product. Expected format: <payment_count>:<payment_amount> <currency>'
+          type: string
+          example: 10:10.00 USD
+          nullable: true
+        ios_deep_link:
+          description: The deep link to the product on the iOS app.
+          type: string
+          example: pinterest://item/1234567890
+        item_group_id:
+          description: <= 127 characters. The parent ID of the product.
+          type: string
+          example: DS0294
+          nullable: true
+        last_updated_time:
+          description: The millisecond timestamp when the item was lastly modified by the merchant.
+          type: integer
+          format: int64
+          example: 1641483432072
+          nullable: true
+        link:
+          description: <= 511 characters. The landing page for the product.
+          type: string
+          example: https://www.example.com/cat/womens-clothing/denim-shirt-0294
+        material:
+          description: The material used to make the product.
+          type: string
+          example: cotton
+          nullable: true
+        min_ad_price:
+          description: 'The minimum advertised price of the product. It supports the following formats: "19.99 USD", "19.99USD" and "19.99". If the currency is not included, we default to US dollars.'
+          type: string
+          example: 19.99 USD
+          nullable: true
+        mobile_link:
+          description: The mobile-optimized version of your landing page. Must begin with http:// or https://.
+          type: string
+          example: https://m.example.com/cat/womens-clothing/denim-shirt-0294
+          nullable: true
+        mpn:
+          description: Manufacturer Part Number are alpha-numeric codes created by the manufacturer of a product to uniquely identify it among all products from the same manufacturer.
+          type: string
+          example: PI12345NTEREST
+          nullable: true
+        number_of_ratings:
+          description: The number of ratings for the item.
+          type: integer
+          example: 10
+          nullable: true
+        number_of_reviews:
+          description: The number of reviews available for the item.
+          type: integer
+          example: 10
+          nullable: true
+        overlay_id:
+          description: Pinterest creative overlay ID to attach to this catalog item. At most one overlay per item.
+          type: string
+          example: '1234567890123'
+          nullable: true
+        pattern:
+          description: The description of the pattern used for the product.
+          type: string
+          example: plaid
+          nullable: true
+        price:
+          description: 'The price of the product. It supports the following formats: "24.99 USD", "24.99USD" and "24.99". If the currency is not included, we default to US dollars.'
+          type: string
+          example: 24.99 USD
+        product_type:
+          description: <= 1000 characters. The categorization of your product based on your custom product taxonomy. Subcategories must be sent separated by " > ".
+          type: string
+          example: Clothing > Women's > Shirts > Denim
+          nullable: true
+        promotion_id:
+          description: A unique identifier referencing the promotion associated with this catalog item.
+          type: string
+          example: promotion_1
+          nullable: true
+        sale_price:
+          description: 'The discounted price of the product. The sale_price must be lower than the price. It supports the following formats: "14.99 USD", "14.99USD" and "14.99".'
+          type: string
+          example: 14.99 USD
+          nullable: true
+        sale_price_effective_date:
+          description: 'Sale price effective date. Expected format: <start_date>/<end_date> (ISO 8601 format)'
+          type: string
+          example: 2025-01-01T00:00:00.000000Z/2025-01-07T00:00:00.000000Z
+          nullable: true
+        save_pin_disabled:
+          description: By default, product pins created from a catalog are able to be saved by Pinners. If you want to disable the save pin feature, set this attribute to true. This feature is only available for allowlisted merchants. Please contact your account manager to enable this feature.
+          type: boolean
+          default: false
+        shipping:
+          description: Shipping consists of one group of up to four elements, country, region, service (all optional) and price (required). All colons, even for blank values, are required.
+          type: string
+          example: US:CA:Ground:0 USD
+          nullable: true
+        shipping_height:
+          description: The height of the package needed to ship the product. Ensure there is a space between the numeric string and the metric.
+          type: string
+          example: 12 in
+          nullable: true
+        shipping_weight:
+          description: The weight of the product. Ensure there is a space between the numeric string and the metric.
+          type: string
+          example: 3 kg
+          nullable: true
+        shipping_width:
+          description: The width of the package needed to ship the product. Ensure there is a space between the numeric string and the metric.
+          type: string
+          example: 16 in
+          nullable: true
+        size:
+          description: The size of the product.
+          type: string
+          example: M
+          nullable: true
+        size_system:
+          description: "Indicates the country's sizing system in which you are submitting your product. Must be one of the following values (upper or lowercased): 'US', 'UK', 'EU', 'DE', 'FR', 'JP', 'CN', 'IT', 'BR', 'MEX', or 'AU'."
+          type: string
+          example: US
+          nullable: true
+        size_type:
+          description: "Additional description for the size. Must be one of the following values (upper or lowercased): 'regular', 'petite', 'plus', 'big_and_tall', or 'maternity'."
+          type: string
+          example: regular
+          nullable: true
+        tax:
+          description: Tax consists of one group of up to four elements, country, region, rate (all required) and tax_ship (optional). All colons, even for blank values, are required.
+          type: string
+          example: US:1025433:6.00:y
+          nullable: true
+        title:
+          description: <= 500 characters. The name of the product.
+          type: string
+          example: Women's denim shirt, large
+        unit_pricing_base_measure:
+          description: 'Unit pricing base measure of the product. Expected format: <base_measure> <unit_type>'
+          type: string
+          example: 10 ML
+          nullable: true
+        unit_pricing_measure:
+          description: 'Unit pricing total measure of the product. Expected format: <total_units> <unit_type>'
+          type: string
+          example: 10 ML
+          nullable: true
+        variant_names:
+          description: Options for this variant. People will see these options next to your Pin and can select the one they want. List them in the order you want them displayed.
+          type: array
+          items:
+            type: string
+          example:
+            - Color
+            - Size
+          nullable: true
+        variant_values:
+          description: Option values for this variant. People will see these options next to your Pin and can select the one they want. List them in the order you want them displayed. The order of the variant values must be consistent with the order of the variant names.
+          type: array
+          items:
+            type: string
+          example:
+            - Red
+            - Small
+          nullable: true
+        video_link:
+          description: <= 2,000 characters Hosted link to the product video. File types for linked videos must be .mp4, .mov or .m4v. File size cannot exceed 2GB.
+          type: string
+          nullable: true
+      additionalProperties: false
     ItemAvailability:
       description: Availability of the item
       type: string
@@ -46707,6 +48664,8 @@ components:
       description: Object describing an item batch record to upsert items
       type: object
       properties:
+        attributes:
+          $ref: '#/components/schemas/ItemAttributesUpsertRequest'
         item_id:
           description: The catalog item id in the merchant namespace
           type: string
@@ -50429,13 +52388,13 @@ components:
       type: object
       properties:
         created_at:
-          description: Creation timestamp. Unix timestamp in seconds since epoch.
+          description: Creation timestamp. Unix timestamp in milliseconds since epoch.
           type: integer
           format: int64
-          example: 1619900000
+          example: 1619900000000
           readOnly: true
         end_time:
-          description: End time of the overlay. Unix timestamp in seconds since epoch. Must be greater than start_time when set.
+          description: End time of the overlay as a Unix timestamp. In requests, use seconds since epoch. Responses return milliseconds since epoch. Must be greater than start_time when set.
           type: integer
           format: int64
           example: 1620086400
@@ -50445,7 +52404,7 @@ components:
           example: '123456'
           pattern: ^\d+$
         images:
-          description: Overlay images in responses with generated URLs, signatures, and dimensions.
+          description: Overlay images in responses with generated URLs and signatures.
           type: array
           items:
             $ref: '#/components/schemas/OverlayImage'
@@ -50462,15 +52421,15 @@ components:
           example: Summer Sale 2026
           maxLength: 100
         start_time:
-          description: Start time of the overlay. Unix timestamp in seconds since epoch.
+          description: Start time of the overlay as a Unix timestamp. In requests, use seconds since epoch. Responses return milliseconds since epoch.
           type: integer
           format: int64
           example: 1620000000
         updated_at:
-          description: Last update timestamp. Unix timestamp in seconds since epoch.
+          description: Last update timestamp. Unix timestamp in milliseconds since epoch.
           type: integer
           format: int64
-          example: 1619900000
+          example: 1619900000000
           readOnly: true
         user_id:
           description: The ID of the user that the overlay is associated with.
@@ -50491,18 +52450,32 @@ components:
         - images
         - start_time
         - created_at
+    OverlayApplicationLevel:
+      description: "How creative overlays apply to an ad group's products: `NONE` (no overlays), `AD_GROUP` (the ad group's overlay applies to every eligible product based on aspect ratio), or `ITEM` (the overlay comes from overlay assignment rules or the product feed overlay)."
+      type: string
+      example: ITEM
+      enum:
+        - NONE
+        - ITEM
+        - AD_GROUP
     OverlayAssignmentRule:
       description: Overlay assignment rule for applying overlays to catalog products based on filters
       type: object
       properties:
         created_at:
-          description: Creation timestamp. Unix timestamp in seconds since epoch.
+          description: Creation timestamp. Unix timestamp in milliseconds since epoch.
           type: integer
           format: int64
-          example: 1619900000
+          example: 1619900000000
           readOnly: true
         filters:
           description: Filter criteria used to determine which products should receive the overlays.
+          example:
+            any_of:
+              - ITEM_ID:
+                  values:
+                    - SKU-1001
+                    - SKU-1002
           allOf:
             - $ref: '#/components/schemas/OverlayAssignmentRuleFilters'
         id:
@@ -50527,17 +52500,17 @@ components:
             You must provide either user_overlay_ids OR overlay_ids (or both).
             Use this to reference overlays by Pinterest's internal IDs.
             Each ID should be a string-formatted integer.
+            Reference one overlay per rule.
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/Pinterest.Lib.IntegerFormatType'
           example:
             - '123456'
-            - '123457'
         updated_at:
-          description: Last update timestamp. Unix timestamp in seconds since epoch.
+          description: Last update timestamp. Unix timestamp in milliseconds since epoch.
           type: integer
           format: int64
-          example: 1619900000
+          example: 1619900000000
           readOnly: true
         user_id:
           description: The ID of the user that the overlay assignment rule is associated with.
@@ -50550,12 +52523,12 @@ components:
             List of merchant-provided overlay IDs to apply to matching products.
             You must provide either user_overlay_ids OR overlay_ids (or both).
             Use this to reference overlays by your own custom IDs.
+            Reference one overlay per rule.
           type: array
           items:
             type: string
           example:
             - summer-sale-01
-            - summer-sale-02
       required:
         - id
         - merchant_id
@@ -50569,6 +52542,12 @@ components:
       properties:
         filters:
           description: Filter criteria used to determine which products should receive the overlays.
+          example:
+            any_of:
+              - ITEM_ID:
+                  values:
+                    - SKU-1001
+                    - SKU-1002
           allOf:
             - $ref: '#/components/schemas/OverlayAssignmentRuleFilters'
         name:
@@ -50582,23 +52561,23 @@ components:
             You must provide either user_overlay_ids OR overlay_ids (or both).
             Use this to reference overlays by Pinterest's internal IDs.
             Each ID should be a string-formatted integer.
+            Reference one overlay per rule.
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/Pinterest.Lib.IntegerFormatType'
           example:
             - '123456'
-            - '123457'
         user_overlay_ids:
           description: |-
             List of merchant-provided overlay IDs to apply to matching products.
             You must provide either user_overlay_ids OR overlay_ids (or both).
             Use this to reference overlays by your own custom IDs.
+            Reference one overlay per rule.
           type: array
           items:
             type: string
           example:
             - summer-sale-01
-            - summer-sale-02
       required:
         - name
         - filters
@@ -50620,6 +52599,12 @@ components:
       properties:
         filters:
           description: Filter criteria used to determine which products should receive the overlays.
+          example:
+            any_of:
+              - ITEM_ID:
+                  values:
+                    - SKU-1001
+                    - SKU-1002
           allOf:
             - $ref: '#/components/schemas/OverlayAssignmentRuleFiltersUpdate'
         name:
@@ -50633,34 +52618,41 @@ components:
             You must provide either user_overlay_ids OR overlay_ids (or both).
             Use this to reference overlays by Pinterest's internal IDs.
             Each ID should be a string-formatted integer.
+            Reference one overlay per rule.
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/Pinterest.Lib.IntegerFormatType'
           example:
             - '123456'
-            - '123457'
         user_overlay_ids:
           description: |-
             List of merchant-provided overlay IDs to apply to matching products.
             You must provide either user_overlay_ids OR overlay_ids (or both).
             Use this to reference overlays by your own custom IDs.
+            Reference one overlay per rule.
           type: array
           items:
             type: string
           example:
             - summer-sale-01
-            - summer-sale-02
     OverlayCreate:
       description: Resource create operation model.
       type: object
       properties:
         end_time:
-          description: End time of the overlay. Unix timestamp in seconds since epoch. Must be greater than start_time when set.
+          description: End time of the overlay as a Unix timestamp. In requests, use seconds since epoch. Responses return milliseconds since epoch. Must be greater than start_time when set.
           type: integer
           format: int64
           example: 1620086400
         images_input:
           description: Overlay images input for create/update requests. Accepts either base64-encoded image data or image URLs with aspect ratios.
+          example:
+            source_type: image_url
+            items:
+              - ratio: ONE_TO_ONE
+                url: https://example.com/overlays/summer-sale-1x1.png
+              - ratio: TWO_TO_THREE
+                url: https://example.com/overlays/summer-sale-2x3.png
           allOf:
             - $ref: '#/components/schemas/OverlayImagesRequest'
         name:
@@ -50669,7 +52661,7 @@ components:
           example: Summer Sale 2026
           maxLength: 100
         start_time:
-          description: Start time of the overlay. Unix timestamp in seconds since epoch.
+          description: Start time of the overlay as a Unix timestamp. In requests, use seconds since epoch. Responses return milliseconds since epoch.
           type: integer
           format: int64
           example: 1620000000
@@ -50827,17 +52819,35 @@ components:
           type: string
           enum:
             - image_url
+    OverlaySmartAdjustSettings:
+      description: Smart adjust settings for creative overlay. Currently, `smart_resize_enabled` and `smart_layout_enabled` must be both on or both off. If not set, smart adjust is off.
+      type: object
+      properties:
+        smart_layout_enabled:
+          description: Whether smart layout is enabled.
+          type: boolean
+        smart_resize_enabled:
+          description: Whether smart resize is enabled.
+          type: boolean
+      nullable: true
     OverlayUpdate:
       description: Resource create or update operation model.
       type: object
       properties:
         end_time:
-          description: End time of the overlay. Unix timestamp in seconds since epoch. Must be greater than start_time when set.
+          description: End time of the overlay as a Unix timestamp. In requests, use seconds since epoch. Responses return milliseconds since epoch. Must be greater than start_time when set.
           type: integer
           format: int64
           example: 1620086400
         images_input:
           description: Overlay images input for create/update requests. Accepts either base64-encoded image data or image URLs with aspect ratios.
+          example:
+            source_type: image_url
+            items:
+              - ratio: ONE_TO_ONE
+                url: https://example.com/overlays/summer-sale-1x1.png
+              - ratio: TWO_TO_THREE
+                url: https://example.com/overlays/summer-sale-2x3.png
           allOf:
             - $ref: '#/components/schemas/OverlayImagesRequestUpdate'
         name:
@@ -50846,7 +52856,7 @@ components:
           example: Summer Sale 2026
           maxLength: 100
         start_time:
-          description: Start time of the overlay. Unix timestamp in seconds since epoch.
+          description: Start time of the overlay as a Unix timestamp. In requests, use seconds since epoch. Responses return milliseconds since epoch.
           type: integer
           format: int64
           example: 1620000000
@@ -52452,6 +54462,9 @@ components:
           type: string
           example: "*/product_type_0='kitchen'/product_type_1='beverage appliances'"
           title: definition
+        dynamic_titles_approval_type:
+          allOf:
+            - $ref: '#/components/schemas/DynamicTitlesApprovalType'
         generated_background_styles:
           description: 'The generated background styles allowed for this product group promotion when `is_generate_background` is enabled. `BASIC` = solid/gradient backgrounds; `LIFESTYLE` = agentic lifestyle scene backgrounds. `LIFESTYLE` requires `BASIC`: valid values are `["BASIC"]` or `["BASIC", "LIFESTYLE"]`; `["LIFESTYLE"]` alone is rejected.'
           type: array
@@ -52474,6 +54487,10 @@ components:
           description: Whether the ad uses dynamic CTA selection.
           type: boolean
           example: false
+        is_dynamic_titles:
+          description: Set to `TRUE` to enable dynamic title optimization for this product group. When enabled, Pinterest will generate alternative titles for your shopping catalog ads.
+          type: boolean
+          example: true
         is_generate_background:
           description: Enable generate backgrounds for the product group, default value is FALSE. When enabled, Pinterest will use generative AI to apply backgrounds for your product images that help drive user inspiration and engagement.
           type: boolean
@@ -61173,6 +63190,15 @@ components:
           description: <= 10000 characters. The description of the product.
           type: string
           example: Casual fit denim shirt made with the finest quality Japanese denim.
+        excluded_destination:
+          description: "The destinations where this item should NOT appear. Each value must be one of the following (upper or lowercase): 'shopping_ads', 'local_inventory_ads', 'free_listings', 'free_local_listings'. Invalid values are dropped during ingestion. Currently only 'shopping_ads' and 'free_listings' take effect; other values are accepted but have no effect. This feature is only available for allowlisted merchants. Please contact your account manager to enable this feature."
+          type: array
+          items:
+            type: string
+          example:
+            - SHOPPING_ADS
+            - FREE_LISTINGS
+          nullable: true
         free_shipping_label:
           description: The item is free to ship.
           type: boolean
@@ -61993,7 +64019,15 @@ tags:
   - name: order_lines
     description: View order lines.
   - name: overlay_assignment_rules
+    description: View, create, update, or delete overlay assignment rules. A rule applies one creative overlay to the catalog products that match its filters, in ad groups whose `overlay_application_level` is `ITEM`.
   - name: overlays
+    description: |-
+      View, create, update, or delete creative overlays. Creative overlays are transparent PNG images, such as a sale badge, that Pinterest draws on product images in shopping ads during a time window you set.
+
+      To apply an overlay:
+
+      1. Create an overlay with one image for each product image aspect ratio you want to cover.
+      2. Apply the overlay to an ad group as an ad group level or item level overlay.
   - name: pins
     description: View, create, update, or delete information about Pins.
   - name: product_group_promotions
@@ -62036,6 +64070,7 @@ x-tagGroups:
   - name: Campaign Management
     tags:
       - ad_accounts
+      - ab_tests
       - campaigns
       - ad_groups
       - ads
